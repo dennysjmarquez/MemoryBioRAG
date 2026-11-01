@@ -245,6 +245,19 @@ def main() -> None:
         for row in crosswalk
         for transformation in row["transformations_applied"]
     )
+    transformed_presentations = sum(bool(row["transformations_applied"]) for row in crosswalk)
+    unchanged_presentations = len(crosswalk) - transformed_presentations
+    transformation_summary = {
+        "transformed_presentations": transformed_presentations,
+        "unchanged_presentations": unchanged_presentations,
+        "total_rule_applications": sum(transformation_counts.values()),
+    }
+    if transformation_summary != {
+        "transformed_presentations": 152,
+        "unchanged_presentations": 4,
+        "total_rule_applications": 156,
+    }:
+        raise ValueError(f"Unexpected transformation summary: {transformation_summary}")
     manifest = {
         "title": "Blind E1 semantic review package, v1",
         "status": "prepared_not_reviewed",
@@ -286,13 +299,14 @@ def main() -> None:
             "if_isolation_unverified": "exploratory_non_independent",
         },
         "adjudication_original_text_review": {
-            "all_presentations_transformed": True,
+            "all_presentations_transformed": False,
             "presentation_count_to_compare": sum(presentation_counts.values()),
-            "requirement": "human adjudicator compares question, presented text, and original text for all presentations; records semantic impact before revealing gold role",
+            "requirement": "human adjudicator compares question, presented text, and original text for all presentations, including unchanged ones; records semantic impact before revealing gold role",
             "source_of_originals": str(private_crosswalk.relative_to(ROOT)),
         },
         "transformations": transform_spec,
         "transformation_application_counts": dict(sorted(transformation_counts.items())),
+        "transformation_summary": transformation_summary,
         "leak_checks": {
             "source_concept_id_pattern_found": False,
             "numbered_title_prefix_remaining": False,
@@ -322,7 +336,7 @@ def main() -> None:
             "The custodian creates two fresh sessions outside the repository and gives each only the agent_package and reviewer_instructions; no manifest, source, repo/history, connectors, crosswalk, or other output.",
             "Review each item independently for direct answer, useful indirect clue, neutral, irrelevant/harmful, or insufficient evidence; record a query-specific textual warrant, doubt, and confidence.",
             "Keep original outputs separately; compare only after both are frozen. Do not merge votes or call agent judgments human annotations.",
-            "After freezing both responses, a named bilingual human adjudicator selected by Dennys compares question, presented text, and original text for all 156 presentations because all were transformed; records semantic impact before unblinding source gold roles.",
+            "After freezing both responses, a named bilingual human adjudicator selected by Dennys compares question, presented text, and original text for all 156 presentations (152 transformed, 4 unchanged; 156 rule applications, with overlap); records semantic impact before unblinding source gold roles.",
             "Preserve both initial judgments and adjudication rationale; this process does not automatically substitute agent passes for human reviewers.",
             "If isolation cannot be verified, label both passes exploratory/non-independent and defer gold changes/closure pending two genuinely independent human reviews or a verifiable isolated protocol.",
         ],

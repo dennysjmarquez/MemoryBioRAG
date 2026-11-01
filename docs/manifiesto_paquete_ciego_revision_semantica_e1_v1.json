@@ -2,14 +2,14 @@
   "additional_candidate_presentations": 66,
   "additional_per_case": 2,
   "adjudication_original_text_review": {
-    "all_presentations_transformed": true,
+    "all_presentations_transformed": false,
     "presentation_count_to_compare": 156,
-    "requirement": "human adjudicator compares question, presented text, and original text for all presentations; records semantic impact before revealing gold role",
-    "source_of_originals": ".private_evidence/e1_blind_review_v1/crosswalk_private_r7.jsonl"
+    "requirement": "human adjudicator compares question, presented text, and original text for all presentations, including unchanged ones; records semantic impact before revealing gold role",
+    "source_of_originals": ".private_evidence/e1_blind_review_v1/crosswalk_private_r8.jsonl"
   },
   "agent_must_not_receive": [
     "this manifest",
-    ".private_evidence/e1_blind_review_v1/crosswalk_private_r7.jsonl",
+    ".private_evidence/e1_blind_review_v1/crosswalk_private_r8.jsonl",
     "gold JSONL",
     "source labels",
     "query evidence/justifications",
@@ -83,13 +83,13 @@
   },
   "private_crosswalk_directory_mode": "0700",
   "private_crosswalk_file_mode": "0600",
-  "private_crosswalk_path": ".private_evidence/e1_blind_review_v1/crosswalk_private_r7.jsonl",
+  "private_crosswalk_path": ".private_evidence/e1_blind_review_v1/crosswalk_private_r8.jsonl",
   "private_crosswalk_sha256": "0fcc1d09422cce8adbe40d2214a91c5079d6af72e8d594fc0b013e0e253c9bde",
   "review_procedure": [
     "The custodian creates two fresh sessions outside the repository and gives each only the agent_package and reviewer_instructions; no manifest, source, repo/history, connectors, crosswalk, or other output.",
     "Review each item independently for direct answer, useful indirect clue, neutral, irrelevant/harmful, or insufficient evidence; record a query-specific textual warrant, doubt, and confidence.",
     "Keep original outputs separately; compare only after both are frozen. Do not merge votes or call agent judgments human annotations.",
-    "After freezing both responses, a named bilingual human adjudicator selected by Dennys compares question, presented text, and original text for all 156 presentations because all were transformed; records semantic impact before unblinding source gold roles.",
+    "After freezing both responses, a named bilingual human adjudicator selected by Dennys compares question, presented text, and original text for all 156 presentations (152 transformed, 4 unchanged; 156 rule applications, with overlap); records semantic impact before unblinding source gold roles.",
     "Preserve both initial judgments and adjudication rationale; this process does not automatically substitute agent passes for human reviewers.",
     "If isolation cannot be verified, label both passes exploratory/non-independent and defer gold changes/closure pending two genuinely independent human reviews or a verifiable isolated protocol."
   ],
@@ -105,6 +105,11 @@
     "replace_exact_primary_action_marker": 5,
     "strip_exact_primary_decision_suffix": 4,
     "strip_numbered_leading_title": 147
+  },
+  "transformation_summary": {
+    "total_rule_applications": 156,
+    "transformed_presentations": 152,
+    "unchanged_presentations": 4
   },
   "transformations": {
     "foils": "exactly 2 items per case sampled uniformly without replacement from other nodes in the same episode, excluding that case's flagged concepts; no role-based filtering",
