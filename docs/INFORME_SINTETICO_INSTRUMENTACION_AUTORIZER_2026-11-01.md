@@ -16,22 +16,25 @@ Fecha: 2026-11-01. Solo se usaron conexiones SQLite `:memory:` con tablas y fila
 
 ## Resultados sintéticos
 
-Validación: `python -m py_compile scripts/authorizer_supervisor.py tests/test_authorizer_supervisor_subprocess_synthetic.py` completó sin errores. `python tests/test_sqlite_authorizer_diagnostic_synthetic.py`: **5 pruebas, OK**. `python tests/test_authorizer_supervisor_subprocess_synthetic.py`: **3 pruebas subprocess, OK**. Las pruebas subprocess ejercitaron el helper con Python 3.11.2 / SQLite 3.40.1.
+Validación: `python -m py_compile scripts/authorizer_supervisor.py tests/test_authorizer_supervisor_subprocess_synthetic.py` completó sin errores. `python tests/test_sqlite_authorizer_diagnostic_synthetic.py`: **5 pruebas, OK**. `python tests/test_authorizer_supervisor_subprocess_synthetic.py`: **7 pruebas subprocess, OK**. Las pruebas subprocess ejercitaron el helper con Python 3.11.2 / SQLite 3.40.1.
 
 1. **Crear y resolver una vista TEMP.** Al crearla, SQLite emitió una acción `SQLITE_CREATE_TEMP_VIEW`, una acción `SQLITE_INSERT` y cinco `SQLITE_UPDATE` asociados al catálogo `temp`. Al resolverla con un `SELECT`, se observaron cero acciones DML contra el catálogo. La prueba resolvió una fila sintética y no publicó su valor.
 2. **Allowlist PRAGMA.** Pasó `database_list` sin argumento y `main.table_info` de una tabla enumerada. Denegó cinco formas fuera de allowlist: `foreign_keys`, `journal_mode`, `data_version`, `query_only` y `temp.table_info`. No imprimió las filas de `database_list`.
 3. **Supervisor en prueba unitaria.** Un worker sintético capturó la excepción de un `INSERT` denegado y siguió vivo; el supervisor recibió el primer evento, lo persistió antes de pedir terminación y confirmó que el worker terminó. La prueba no fija ni afirma una latencia instantánea.
 4. **Supervisor subprocess: evento normal.** El helper recibió un evento real del authorizer de SQLite `:memory:`, guardó el evento sanitizado y detuvo al hijo antes de iniciar el siguiente worker.
 5. **Fallo de IPC.** El worker guardó primero el evento y luego se cerró el descriptor de comunicación; el padre recuperó el evento local, detuvo el hijo y no inició otro.
-6. **Fallo de guardado.** Se hicieron fallar las rutas primarias (worker y supervisor); se usó la ruta fallback, se detuvo el hijo y no se inició otro. En todos los casos se verifica el estado detenido, pero no se afirma latencia instantánea.
+6. **Fallo de guardado.** Se hicieron fallar las rutas primarias (worker y supervisor); se usó la ruta fallback, se detuvo el hijo y no se inició otro.
+7. **Carrera `select`/`poll`.** De forma determinista se fuerza `select` a no reportar datos, aunque el pipe contiene 110 bytes y el proceso aparece terminado con código cero. El supervisor drena el canal, persiste el evento y rechaza la salida limpia.
+8. **Cierre normal y resultado privado.** El EOF sin eventos se acepta solo con código cero y archivo JSON privado regular con `status: ok`; el caso con resultado inválido se rechaza. Un mensaje parcial al EOF también se rechaza. No se afirma latencia instantánea.
 
 Salida resumida de las pruebas:
 
 ```text
 TEMP view create/resolve: CREATE_TEMP_VIEW=1; catalog DML on temp during create: INSERT=1, UPDATE=5; catalog DML during resolve=0
 Strict PRAGMA allowlist: allowed database_list + listed main.table_info; denied other PRAGMA forms=5
-Synthetic supervisor subprocess: normal event saved; IPC failure recovered worker-local event; save failure used fallback
-All 5 diagnostic tests and all 3 subprocess tests — OK
+Synthetic supervisor subprocess: select/poll race drained; normal EOF required private status=ok; partial frame rejected
+IPC failure recovered worker-local event; primary-save failure used fallback; no next worker started
+All 5 diagnostic tests and all 7 subprocess tests — OK
 ```
 
 ## Relación —y límites de la inferencia— con el intento anterior

@@ -10,6 +10,7 @@ import tempfile
 import time
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
@@ -22,7 +23,24 @@ from scripts.authorizer_supervisor import (
 )
 
 
-def _synthetic_child(event_fd: int, worker_event_path: str, mode: str) -> None:
+def _write_private_result(path: str, status: str = "ok") -> None:
+    Path(path).write_text(json.dumps({"status": status}), encoding="utf-8")
+    os.chmod(path, 0o600)
+
+
+def _synthetic_child(event_fd: int, worker_event_path: str,
+                     private_result_path: str, mode: str) -> None:
+    if mode == "normal_close":
+        _write_private_result(private_result_path)
+        return
+    if mode == "normal_close_invalid_result":
+        _write_private_result(private_result_path, "failed")
+        return
+    if mode == "partial_message":
+        os.write(event_fd, b'{"phase":"synthetic_search"')
+        _write_private_result(private_result_path)
+        return
+
     con = sqlite3.connect(":memory:")
     con.execute("CREATE TABLE synthetic_rows(value INTEGER)")
     sent = False
@@ -66,8 +84,9 @@ def _run_batch(root: Path, modes: list[str]):
         primary_path = root / (f"missing-supervisor/{mode}.json" if mode == "event_save_failure"
                                else f"supervisor-{mode}.json")
         fallback_path = root / f"fallback-{mode}.json"
+        result_path = root / f"private-result-{mode}.json"
         argv = [sys.executable, __file__, "--synthetic-worker", str(event_w),
-                str(worker_path), mode]
+                str(worker_path), str(result_path), mode]
         proc = subprocess.Popen(
             argv, stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL, pass_fds=(event_w,), close_fds=True,
@@ -76,7 +95,7 @@ def _run_batch(root: Path, modes: list[str]):
         try:
             outcome = supervise_subprocess(
                 proc, event_r, worker_path, primary_path, fallback_path,
-                timeout=5.0, grace=0.5,
+                result_path, timeout=5.0, grace=0.5,
             )
         finally:
             os.close(event_r)
@@ -94,6 +113,67 @@ def _run_batch(root: Path, modes: list[str]):
 
 
 class SubprocessSupervisorSyntheticTests(unittest.TestCase):
+    def test_poll_after_select_miss_drains_pending_guard_event(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            os.chmod(root, 0o700)
+            event = {"phase": "synthetic_search", "action": "SQLITE_INSERT",
+                     "database": "main", "frames": []}
+            worker_path = root / "worker-event.json"
+            persist_event_exclusive(event, worker_path)
+            event_r, event_w = os.pipe()
+            payload = json.dumps(dict(event, worker_event_saved=True),
+                                 separators=(",", ":")).encode() + b"\n"
+            os.write(event_w, payload)
+            os.close(event_w)
+
+            class ExitedCleanly:
+                def poll(self):
+                    return 0
+
+            try:
+                with patch("scripts.authorizer_supervisor.select.select",
+                           return_value=([], [], [])):
+                    result = supervise_subprocess(
+                        ExitedCleanly(), event_r, worker_path,
+                        root / "primary.json", root / "fallback.json",
+                        root / "private-result.json", timeout=1.0,
+                    )
+            finally:
+                os.close(event_r)
+            self.assertEqual(result["status"], "guard_event")
+            self.assertEqual(result["event_saved_to"], "primary")
+            self.assertTrue((root / "primary.json").exists())
+            print({"probe": "select-miss then poll-exit race", "pending_event_bytes": len(payload),
+                   "event_drained": True, "clean_exit_accepted": False})
+
+    def test_normal_close_requires_valid_private_result(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            os.chmod(root, 0o700)
+            started, outcomes = _run_batch(root, ["normal_close"])
+            self.assertEqual(started, ["normal_close"])
+            self.assertEqual(outcomes[0]["status"], "worker_exit")
+            self.assertTrue(outcomes[0]["channel_closed"])
+            self.assertTrue(outcomes[0]["private_result_valid"])
+            self.assertEqual(outcomes[0]["returncode"], 0)
+
+    def test_invalid_private_result_cannot_be_accepted_as_clean(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            os.chmod(root, 0o700)
+            _, outcomes = _run_batch(root, ["normal_close_invalid_result"])
+            self.assertEqual(outcomes[0]["status"], "worker_result_invalid")
+            self.assertFalse(outcomes[0].get("private_result_valid", False))
+
+    def test_partial_message_at_normal_close_is_failure(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            os.chmod(root, 0o700)
+            _, outcomes = _run_batch(root, ["partial_message"])
+            self.assertEqual(outcomes[0]["status"], "partial_guard_event")
+            self.assertEqual(outcomes[0]["returncode"], 0)
+
     def test_normal_guard_event_stops_worker_before_next(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -145,6 +225,6 @@ class SubprocessSupervisorSyntheticTests(unittest.TestCase):
 
 if __name__ == "__main__":
     if len(sys.argv) >= 2 and sys.argv[1] == "--synthetic-worker":
-        _synthetic_child(int(sys.argv[2]), sys.argv[3], sys.argv[4])
+        _synthetic_child(int(sys.argv[2]), sys.argv[3], sys.argv[4], sys.argv[5])
         raise SystemExit(0)
     unittest.main(verbosity=2)

@@ -10,6 +10,7 @@ import json
 import os
 import select
 import sqlite3
+import stat
 import subprocess
 import time
 from pathlib import Path
@@ -154,12 +155,107 @@ def _stop_subprocess(proc: subprocess.Popen, grace: float) -> bool:
     return proc.poll() is not None
 
 
+def _private_result_is_valid(path: str | os.PathLike[str]) -> bool:
+    """Accept only a private, regular JSON result record explicitly marked ok."""
+    flags = os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0)
+    try:
+        fd = os.open(path, flags)
+    except OSError:
+        return False
+    try:
+        info = os.fstat(fd)
+        if (not stat.S_ISREG(info.st_mode) or info.st_mode & 0o077
+                or info.st_size > 1024 * 1024):
+            return False
+        chunks = []
+        remaining = info.st_size
+        while remaining:
+            chunk = os.read(fd, min(65536, remaining))
+            if not chunk:
+                return False
+            chunks.append(chunk)
+            remaining -= len(chunk)
+        value = json.loads(b"".join(chunks).decode("utf-8"))
+        return isinstance(value, dict) and value.get("status") == "ok"
+    except (OSError, UnicodeDecodeError, json.JSONDecodeError):
+        return False
+    finally:
+        os.close(fd)
+
+
+def _drain_exited_channel(fd: int) -> tuple[bytes, bool, bool]:
+    """Nonblocking drain after poll observes exit: bytes, EOF-seen, oversized."""
+    was_blocking = os.get_blocking(fd)
+    if was_blocking:
+        os.set_blocking(fd, False)
+    chunks = bytearray()
+    eof = False
+    oversized = False
+    try:
+        while True:
+            try:
+                chunk = os.read(fd, MAX_EVENT_BYTES + 1)
+            except BlockingIOError:
+                break
+            if not chunk:
+                eof = True
+                break
+            chunks.extend(chunk)
+            if len(chunks) > MAX_EVENT_BYTES:
+                oversized = True
+                break
+    finally:
+        if was_blocking:
+            os.set_blocking(fd, True)
+    return bytes(chunks), eof, oversized
+
+
+def _parse_event_frame(buf: bytes) -> tuple[dict[str, Any] | None, str | None]:
+    if not buf.endswith(b"\n") or buf.count(b"\n") != 1:
+        return None, "partial_guard_event"
+    try:
+        value = json.loads(buf[:-1].decode("utf-8"))
+    except (UnicodeDecodeError, json.JSONDecodeError):
+        return None, "malformed_guard_event"
+    if not isinstance(value, dict):
+        return None, "malformed_guard_event"
+    return sanitize_guard_event(value), None
+
+
+def _save_event(event: dict[str, Any], primary_event_path: str | os.PathLike[str],
+                fallback_event_path: str | os.PathLike[str],
+                worker_event_path: str | os.PathLike[str]) -> str | None:
+    try:
+        persist_event_exclusive(event, primary_event_path)
+        return "primary"
+    except OSError:
+        try:
+            persist_event_exclusive(event, fallback_event_path)
+            return "fallback"
+        except OSError:
+            return "worker_only" if _load_event(worker_event_path) is not None else None
+
+
+def _guard_outcome(proc: subprocess.Popen, event: dict[str, Any],
+                   worker_event_path: str | os.PathLike[str],
+                   primary_event_path: str | os.PathLike[str],
+                   fallback_event_path: str | os.PathLike[str],
+                   grace: float) -> dict[str, Any]:
+    saved_to = _save_event(event, primary_event_path, fallback_event_path,
+                           worker_event_path)
+    stopped = _stop_subprocess(proc, grace)
+    return {"status": "guard_event" if saved_to else "event_save_failure",
+            "worker_stopped": stopped, "returncode": proc.poll(),
+            "event_saved_to": saved_to, "event": event}
+
+
 def supervise_subprocess(proc: subprocess.Popen, event_read_fd: int,
                          worker_event_path: str | os.PathLike[str],
                          primary_event_path: str | os.PathLike[str],
                          fallback_event_path: str | os.PathLike[str],
+                         private_result_path: str | os.PathLike[str],
                          timeout: float, grace: float = 1.0) -> dict[str, Any]:
-    """Watch one worker. Any event/IPC failure/timeout aborts; never retries."""
+    """Watch one worker; clean exit requires EOF, no event, and a private ok result."""
     deadline = time.monotonic() + timeout
     buf = bytearray()
     while True:
@@ -171,74 +267,101 @@ def supervise_subprocess(proc: subprocess.Popen, event_read_fd: int,
 
         ready, _, _ = select.select([event_read_fd], [], [], min(0.1, remaining))
         if ready:
-            chunk = os.read(event_read_fd, MAX_EVENT_BYTES)
+            chunk = os.read(event_read_fd, MAX_EVENT_BYTES + 1)
             if not chunk:
-                # EOF without a frame is a channel failure. Recover a worker-local
-                # first event if present, then stop regardless of process state.
                 code = proc.poll()
-                event = _load_event(worker_event_path)
-                saved_to = "worker_only" if event is not None else None
-                if event is not None:
+                if code is None:
                     try:
-                        persist_event_exclusive(event, primary_event_path)
-                        saved_to = "primary_after_channel_eof"
-                    except OSError:
-                        try:
-                            persist_event_exclusive(event, fallback_event_path)
-                            saved_to = "fallback_after_channel_eof"
-                        except OSError:
-                            saved_to = "worker_only"
-                stopped = _stop_subprocess(proc, grace)
-                return {"status": "worker_channel_failure", "worker_stopped": stopped,
-                        "returncode": code if code is not None else proc.poll(),
-                        "event_saved_to": saved_to, "event": event}
+                        code = proc.wait(timeout=min(remaining, grace))
+                    except subprocess.TimeoutExpired:
+                        stopped = _stop_subprocess(proc, grace)
+                        event = _load_event(worker_event_path)
+                        saved_to = (_save_event(event, primary_event_path,
+                                                fallback_event_path, worker_event_path)
+                                    if event is not None else None)
+                        return {"status": "worker_channel_failure", "worker_stopped": stopped,
+                                "returncode": proc.poll(), "event_saved_to": saved_to,
+                                "event": event}
+                # EOF is normal only after a clean process exit and with an empty channel.
+                if buf:
+                    event, error = _parse_event_frame(bytes(buf))
+                    if event is not None:
+                        return _guard_outcome(proc, event,
+                                              worker_event_path, primary_event_path,
+                                              fallback_event_path, grace)
+                    return {"status": error, "worker_stopped": True,
+                            "returncode": code, "event_saved_to": None}
+                if code != 0:
+                    event = _load_event(worker_event_path)
+                    saved_to = (_save_event(event, primary_event_path,
+                                            fallback_event_path, worker_event_path)
+                                if event is not None else None)
+                    return {"status": "worker_channel_failure", "worker_stopped": True,
+                            "returncode": code, "event_saved_to": saved_to,
+                            "event": event}
+                event = _load_event(worker_event_path)
+                if event is not None:
+                    return _guard_outcome(proc, event,
+                                          worker_event_path, primary_event_path,
+                                          fallback_event_path, grace)
+                if Path(worker_event_path).exists() or not _private_result_is_valid(private_result_path):
+                    return {"status": "worker_result_invalid", "worker_stopped": True,
+                            "returncode": code, "event_saved_to": None}
+                return {"status": "worker_exit", "worker_stopped": True,
+                        "returncode": code, "event_saved_to": None,
+                        "channel_closed": True, "private_result_valid": True}
+
             buf.extend(chunk)
             if len(buf) > MAX_EVENT_BYTES:
                 stopped = _stop_subprocess(proc, grace)
                 return {"status": "oversized_guard_event", "worker_stopped": stopped,
                         "returncode": proc.poll(), "event_saved_to": None}
             if b"\n" in buf:
-                raw = bytes(buf.split(b"\n", 1)[0])
-                try:
-                    event = sanitize_guard_event(json.loads(raw.decode("utf-8")))
-                except (UnicodeDecodeError, json.JSONDecodeError, TypeError):
+                event, error = _parse_event_frame(bytes(buf))
+                if event is None:
                     stopped = _stop_subprocess(proc, grace)
-                    return {"status": "malformed_guard_event", "worker_stopped": stopped,
+                    return {"status": error, "worker_stopped": stopped,
                             "returncode": proc.poll(), "event_saved_to": None}
-                try:
-                    persist_event_exclusive(event, primary_event_path)
-                    saved_to = "primary"
-                except OSError:
-                    try:
-                        persist_event_exclusive(event, fallback_event_path)
-                        saved_to = "fallback"
-                    except OSError:
-                        saved_to = "worker_only" if _load_event(worker_event_path) else None
-                stopped = _stop_subprocess(proc, grace)
-                status = "guard_event" if saved_to else "event_save_failure"
-                return {"status": status, "worker_stopped": stopped,
-                        "returncode": proc.poll(), "event_saved_to": saved_to,
-                        "event": event}
+                return _guard_outcome(proc, event, worker_event_path,
+                                      primary_event_path, fallback_event_path, grace)
 
         code = proc.poll()
         if code is not None:
-            # A worker that exits without an event is not accepted as a clean
-            # search result here; caller still checks its private result record.
+            # select() can miss bytes that became readable as the process exited.
+            # Drain directly after poll; process exit guarantees no future writes.
+            drained, eof, oversized = _drain_exited_channel(event_read_fd)
+            buf.extend(drained)
+            if oversized or len(buf) > MAX_EVENT_BYTES:
+                return {"status": "oversized_guard_event", "worker_stopped": True,
+                        "returncode": code, "event_saved_to": None}
+            if b"\n" in buf:
+                event, error = _parse_event_frame(bytes(buf))
+                if event is None:
+                    return {"status": error, "worker_stopped": True,
+                            "returncode": code, "event_saved_to": None}
+                return _guard_outcome(proc, event, worker_event_path,
+                                      primary_event_path, fallback_event_path, grace)
+            if buf:
+                return {"status": "partial_guard_event", "worker_stopped": True,
+                        "returncode": code, "event_saved_to": None}
+            if not eof:
+                return {"status": "worker_channel_not_closed", "worker_stopped": True,
+                        "returncode": code, "event_saved_to": None}
+            if code != 0:
+                event = _load_event(worker_event_path)
+                saved_to = (_save_event(event, primary_event_path, fallback_event_path,
+                                        worker_event_path)
+                            if event is not None else None)
+                return {"status": "worker_channel_failure", "worker_stopped": True,
+                        "returncode": code, "event_saved_to": saved_to,
+                        "event": event}
             event = _load_event(worker_event_path)
-            if code != 0 or event is not None:
-                saved_to = "worker_only" if event is not None else None
-                if event is not None:
-                    try:
-                        persist_event_exclusive(event, primary_event_path)
-                        saved_to = "primary_after_worker_exit"
-                    except OSError:
-                        try:
-                            persist_event_exclusive(event, fallback_event_path)
-                            saved_to = "fallback_after_worker_exit"
-                        except OSError:
-                            saved_to = "worker_only"
-                return {"status": "worker_exit_without_clean_completion",
-                        "worker_stopped": True, "returncode": code,
-                        "event_saved_to": saved_to}
+            if event is not None:
+                return _guard_outcome(proc, event, worker_event_path,
+                                      primary_event_path, fallback_event_path, grace)
+            if Path(worker_event_path).exists() or not _private_result_is_valid(private_result_path):
+                return {"status": "worker_result_invalid", "worker_stopped": True,
+                        "returncode": code, "event_saved_to": None}
             return {"status": "worker_exit", "worker_stopped": True,
-                    "returncode": code, "event_saved_to": None}
+                    "returncode": code, "event_saved_to": None,
+                    "channel_closed": True, "private_result_valid": True}

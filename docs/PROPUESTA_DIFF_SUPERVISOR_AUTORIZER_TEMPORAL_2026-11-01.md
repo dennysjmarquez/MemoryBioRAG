@@ -89,7 +89,8 @@ El padre debe reemplazar el `subprocess.run()` bloqueante por `Popen` más un pi
 + proc.stdin.close()
 + outcome = supervise_subprocess(
 +     proc, event_r, worker_event_path, primary_event_path,
-+     fallback_event_path, timeout=WORKER_TIMEOUT, grace=1.0)
++     fallback_event_path, private_result_path,
++     timeout=WORKER_TIMEOUT, grace=1.0)
 + os.close(event_r)
 + if outcome["status"] != "worker_exit" or outcome["returncode"] != 0:
 +     # El helper persiste el evento primario/respaldo o recupera el archivo
@@ -106,7 +107,7 @@ El padre debe reemplazar el `subprocess.run()` bloqueante por `Popen` más un pi
 +     break  # no iniciar otro worker ni reintentar automáticamente
 ```
 
-El pipe entrega como máximo el primer evento sanitizado. Si el guardado primario falla, el padre intenta el respaldo; si ambos fallan, detiene el worker y marca evidencia incompleta, sin iniciar otro. Si falla IPC, el worker ya habrá intentado guardar localmente el evento; el padre detecta EOF/salida no-cero, comprueba esa evidencia y aborta el lote. Los fallos de escritura, comunicación, timeout o guardia nunca se convierten en una corrida `ok`.
+El pipe entrega como máximo el primer evento sanitizado. Si `select` no marca datos pero `poll` observa la salida, el helper drena el pipe en modo no bloqueante antes de clasificar la salida; un evento ya encolado, incluso con código 0, impide aceptar limpieza. Un cierre normal solo es `worker_exit` cuando el canal llega a EOF sin bytes/evento, el código es 0, no existe evidencia local de guardia y el archivo privado de resultado es regular, no público, JSON y contiene `status: ok`. EOF con mensaje parcial, cierre prematuro, salida no-cero, evento o resultado ausente/inválido aborta el lote. Si el guardado primario falla, el padre intenta el respaldo; si ambos fallan, marca evidencia incompleta, sin iniciar otro. Si falla IPC, el padre comprueba el evento local y aborta. Los fallos de escritura, comunicación, timeout o guardia nunca se convierten en una corrida `ok`.
 
 **Límite temporal:** esta secuencia no garantiza interrupción instantánea. Hay un intervalo por serialización, IPC, almacenamiento/fsync, scheduling y entrega de la señal; el método puede seguir ejecutando código hasta que el supervisor actúe. La garantía propuesta es que no se inicia otro worker y que se espera la salida del anterior antes de abandonar el lote.
 
@@ -120,7 +121,10 @@ Strict PRAGMA allowlist: allowed database_list + listed main.table_info; denied 
 Supervisor normal: event saved before termination; workers_started=1; next_worker_started=false
 Supervisor IPC failure: worker event preserved; worker stopped; workers_started=1; next_worker_started=false
 Supervisor primary-save failure: fallback event saved; worker stopped; workers_started=1; next_worker_started=false
-Ran 5 tests — OK
+Supervisor exit race: 110 pending event bytes drained after select miss; clean exit rejected
+Supervisor normal EOF: accepted only with private status=ok result; invalid result rejected
+Supervisor partial IPC frame: rejected; IPC loss recovers worker evidence; primary-save failure uses fallback
+5 diagnostic tests + 7 subprocess tests — OK
 ```
 
 La creación de una vista TEMP sí generó acciones de catálogo TEMP en este SQLite sintético; resolverla no. Es una observación, **no una atribución** de los eventos `main` del intento anterior. La prueba de allowlist admite solo las formas exactas descritas y deniega cinco PRAGMA adicionales. Las pruebas de fallos confirman que el evento llega a respaldo o se marca el fallo, el worker se detiene y el segundo worker no se inicia. No se afirma latencia instantánea.
