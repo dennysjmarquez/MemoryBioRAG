@@ -1,0 +1,32 @@
+{
+  "schema": "synthetic_measurement_preflight_hash_verification_v1",
+  "checked_before_arms": true,
+  "mcp_started_during_preflight": false,
+  "database_writes_during_preflight": false,
+  "checks": {
+    "candidate_manifest_hash_matches_user_authorization": true,
+    "gold_hash_matches_candidate": true,
+    "published_version_manifest_hash_matches_candidate": true,
+    "operational_manifest_hash_matches_candidate": true,
+    "fixture_a_hashes_match_candidate": true,
+    "fixture_b_hashes_match_candidate": true,
+    "graph_review_hash_matches_candidate": true,
+    "repeatability_hash_matches_candidate": true,
+    "repeatability_pair_revalidated": true,
+    "approval_binds_verified_hashes": true
+  },
+  "all_passed": true,
+  "actual_hashes": {
+    "candidate_manifest_sha256": "11fe45a8d83bef09c0f8e7ffbad774910efbb61c3f5c962c1cc647918c0ace18",
+    "gold_sha256": "5d83616a63be7c73bbea8bb90452091316d7e238835013440a6fd939c13d16d8",
+    "published_version_manifest_sha256": "ed433826d89229f75e8af1c57b48c9c4fe3e808e4e14eaa1103ea8cac8d64b1f",
+    "operational_manifest_a_sha256": "eaa6d4235f07e21daa479433cbe0107b5d5f120a9224a1c2debb3d996c0ad451",
+    "fixture_a_physical_sha256": "72793a764a131d4ed5d0d8db13fa3e2199abe2b55d03aaedb4c6818bcdb9e14f",
+    "fixture_a_logical_sha256": "cf9aaf50e0b36007c9c00cc4b7335c47c0d1dda1bd598bef561cdcf9c8bace55",
+    "fixture_b_physical_sha256": "8b7afebd73cd852ab47eb8649a463090f4d6fe50c3f99bdf03816f4e8b86671d",
+    "fixture_b_logical_sha256": "911a275343d51d2264ccb7dbd6ac423709acde1c7a37b087dedeceddc045ba12",
+    "graph_review_sha256": "659e969a0d2c8d666e2be9f83ab9f70857fb144d77546d8732d32a568e3248ae",
+    "repeatability_report_sha256": "b19f0810a58843dc37d8bca1df2d4a8c235698097a651ca5eaf34aad5a9cd456",
+    "actual_approval_sha256": "339f0e79688afc0e45a77f260562098ee32e2613402d92e2bd4fad11f6b94dce"
+  }
+}

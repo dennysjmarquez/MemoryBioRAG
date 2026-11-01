@@ -1,0 +1,733 @@
+{
+  "arms": {
+    "G1": {
+      "arguments": {
+        "asociados": true,
+        "context_window": 1,
+        "deep": false,
+        "forzar_rafaga": false,
+        "limite": 5,
+        "query": "cobalt pigment",
+        "sustantivos_clave": "cobalt,pigment"
+      },
+      "channels": {
+        "asociaciones": [
+          "amber",
+          "cobalt",
+          "ivory"
+        ],
+        "asociaciones_enriquecidas": [
+          "amber",
+          "cobalt",
+          "ivory"
+        ],
+        "contexto_expandido": [
+          "ivory"
+        ],
+        "resultados": [
+          "amber",
+          "cobalt"
+        ]
+      },
+      "errors": [],
+      "main_results": [
+        "cobalt",
+        "amber"
+      ],
+      "raw_response": "⚠️ parafrasis=None — Sin parafrasis, el recall es ~40%. Generá 3-5 reformulaciones.\n⚠️ dias=None, desde=None — Sin filtro temporal, traés TODO incluyendo cosas viejas.\n⚠️ dimensiones=None — Sin boost semántico. Usá dimensiones cuando busques por propiedades ontológicas (emoción, entidad, acción, cualidad, coordenada, intención, dominio, cualia, epistemia, escala_abstraccion, centralidad_identitaria, textura_experiencial, modalidad). Ejemplo: dimensiones='intencion_aprender' o dimensiones='dominio_tecnico'\n🍽️ BRECHA DE CONOCIMIENTO (score_top=0.36 < 0.5): los resultados sobre 'cobalt pigment' casi no cubren lo consultado. Primero probá PASO 2 (ráfaga con rafaga_palabras); si aún no cubre, investigá en fuente externa y GUARDÁ lo aprendido en BioRAG con biorag_aprender ANTES de responder.\n\n{\"total\": 2, \"pagina_actual\": 1, \"paginas_totales\": 1, \"resultados\": [{\"concepto\": \"cobalt\", \"contenido\": \"Cobalt is a blue pigment used in glasswork; amber color helps distinguish samples.\", \"peso_sinaptico\": 0.98, \"estado\": \"activo\", \"score_hibrido\": 0.4427, \"confianza_calibrada\": 0.4117, \"nivel_certeza\": \"relacionado_confianza_media\", \"edad_dias\": 0, \"timestamp_creado\": 0, \"fecha_legible\": null, \"stale\": false, \"asociaciones\": {\"total\": 2, \"items\": [\"amber\", \"ivory\"], \"truncada\": false}, \"asociaciones_enriquecidas\": [{\"concepto\": \"amber\", \"fuerza_arista\": 0.5, \"tipo_sinapsis\": \"manual\", \"peso_vecino\": 0.98, \"resumen\": \"Amber is a bright pigment. Cobalt pigment is used in small glass samples.\"}, {\"concepto\": \"ivory\", \"fuerza_arista\": 0.5, \"tipo_sinapsis\": \"manual\", \"peso_vecino\": 0.98, \"resumen\": \"Ivory is a neutral material used in model making and small sculptures.\"}], \"score_hibrido_base\": 0.4117, \"bonus_convergencia_multicampo\": 0.031}, {\"concepto\": \"amber\", \"contenido\": \"Amber is a bright pigment. Cobalt pigment is used in small glass samples.\", \"peso_sinaptico\": 0.98, \"estado\": \"activo\", \"score_hibrido\": 0.3407, \"confianza_calibrada\": 0.3265, \"nivel_certeza\": \"sin_evidencia_directa\", \"edad_dias\": 0, \"timestamp_creado\": 0, \"fecha_legible\": null, \"stale\": false, \"asociaciones\": {\"total\": 2, \"items\": [\"cobalt\", \"ivory\"], \"truncada\": false}, \"asociaciones_enriquecidas\": [{\"concepto\": \"cobalt\", \"fuerza_arista\": 0.8, \"tipo_sinapsis\": \"co_ocurrencia\", \"peso_vecino\": 0.98, \"resumen\": \"Cobalt is a blue pigment used in glasswork; amber color helps distinguish samples.\"}, {\"concepto\": \"ivory\", \"fuerza_arista\": 0.5, \"tipo_sinapsis\": \"co_ocurrencia\", \"peso_vecino\": 0.98, \"resumen\": \"Ivory is a neutral material used in model making and small sculptures.\"}], \"score_hibrido_base\": 0.3265, \"bonus_convergencia_multicampo\": 0.0142}], \"contexto_expandido\": [{\"concepto\": \"ivory\", \"contenido\": \"Ivory is a neutral material used in model making and small sculptures.\", \"peso_sinaptico\": 0.98, \"estado\": \"activo\", \"score_hibrido\": 0.3763, \"confianza_calibrada\": 0.3763, \"nivel_certeza\": \"relacionado_confianza_media\", \"edad_dias\": 0, \"timestamp_creado\": 0, \"fecha_legible\": null, \"stale\": false, \"asociaciones\": {\"total\": 2, \"items\": [\"amber\", \"cobalt\"], \"truncada\": false}, \"asociaciones_enriquecidas\": []}], \"sinapsis_creadas\": [], \"profundidad\": \"activos\", \"trazabilidad\": {\"capa_literal\": 0.3624, \"capa_parafrasis\": 0.0, \"capa_rafaga\": 0, \"fallback_dimensional\": 0, \"match_exacto\": false, \"total_candidatos_todos\": 2}, \"advertencia_temporal\": false}",
+      "response": {
+        "advertencia_temporal": false,
+        "contexto_expandido": [
+          {
+            "asociaciones": {
+              "items": [
+                "amber",
+                "cobalt"
+              ],
+              "total": 2,
+              "truncada": false
+            },
+            "asociaciones_enriquecidas": [],
+            "concepto": "ivory",
+            "confianza_calibrada": 0.3763,
+            "contenido": "Ivory is a neutral material used in model making and small sculptures.",
+            "edad_dias": 0,
+            "estado": "activo",
+            "fecha_legible": null,
+            "nivel_certeza": "relacionado_confianza_media",
+            "peso_sinaptico": 0.98,
+            "score_hibrido": 0.3763,
+            "stale": false,
+            "timestamp_creado": 0
+          }
+        ],
+        "pagina_actual": 1,
+        "paginas_totales": 1,
+        "profundidad": "activos",
+        "resultados": [
+          {
+            "asociaciones": {
+              "items": [
+                "amber",
+                "ivory"
+              ],
+              "total": 2,
+              "truncada": false
+            },
+            "asociaciones_enriquecidas": [
+              {
+                "concepto": "amber",
+                "fuerza_arista": 0.5,
+                "peso_vecino": 0.98,
+                "resumen": "Amber is a bright pigment. Cobalt pigment is used in small glass samples.",
+                "tipo_sinapsis": "manual"
+              },
+              {
+                "concepto": "ivory",
+                "fuerza_arista": 0.5,
+                "peso_vecino": 0.98,
+                "resumen": "Ivory is a neutral material used in model making and small sculptures.",
+                "tipo_sinapsis": "manual"
+              }
+            ],
+            "bonus_convergencia_multicampo": 0.031,
+            "concepto": "cobalt",
+            "confianza_calibrada": 0.4117,
+            "contenido": "Cobalt is a blue pigment used in glasswork; amber color helps distinguish samples.",
+            "edad_dias": 0,
+            "estado": "activo",
+            "fecha_legible": null,
+            "nivel_certeza": "relacionado_confianza_media",
+            "peso_sinaptico": 0.98,
+            "score_hibrido": 0.4427,
+            "score_hibrido_base": 0.4117,
+            "stale": false,
+            "timestamp_creado": 0
+          },
+          {
+            "asociaciones": {
+              "items": [
+                "cobalt",
+                "ivory"
+              ],
+              "total": 2,
+              "truncada": false
+            },
+            "asociaciones_enriquecidas": [
+              {
+                "concepto": "cobalt",
+                "fuerza_arista": 0.8,
+                "peso_vecino": 0.98,
+                "resumen": "Cobalt is a blue pigment used in glasswork; amber color helps distinguish samples.",
+                "tipo_sinapsis": "co_ocurrencia"
+              },
+              {
+                "concepto": "ivory",
+                "fuerza_arista": 0.5,
+                "peso_vecino": 0.98,
+                "resumen": "Ivory is a neutral material used in model making and small sculptures.",
+                "tipo_sinapsis": "co_ocurrencia"
+              }
+            ],
+            "bonus_convergencia_multicampo": 0.0142,
+            "concepto": "amber",
+            "confianza_calibrada": 0.3265,
+            "contenido": "Amber is a bright pigment. Cobalt pigment is used in small glass samples.",
+            "edad_dias": 0,
+            "estado": "activo",
+            "fecha_legible": null,
+            "nivel_certeza": "sin_evidencia_directa",
+            "peso_sinaptico": 0.98,
+            "score_hibrido": 0.3407,
+            "score_hibrido_base": 0.3265,
+            "stale": false,
+            "timestamp_creado": 0
+          }
+        ],
+        "sinapsis_creadas": [],
+        "total": 2,
+        "trazabilidad": {
+          "capa_literal": 0.3624,
+          "capa_parafrasis": 0.0,
+          "capa_rafaga": 0,
+          "fallback_dimensional": 0,
+          "match_exacto": false,
+          "total_candidatos_todos": 2
+        }
+      },
+      "tables_changed": [
+        "log_busquedas",
+        "nodo_accesos_historial"
+      ]
+    },
+    "N0": {
+      "arguments": {
+        "asociados": false,
+        "context_window": 0,
+        "deep": false,
+        "forzar_rafaga": false,
+        "limite": 5,
+        "query": "cobalt pigment",
+        "sustantivos_clave": "cobalt,pigment"
+      },
+      "channels": {
+        "asociaciones": [],
+        "asociaciones_enriquecidas": [],
+        "contexto_expandido": [],
+        "resultados": [
+          "amber",
+          "cobalt"
+        ]
+      },
+      "errors": [],
+      "main_results": [
+        "cobalt",
+        "amber"
+      ],
+      "raw_response": "⚠️ parafrasis=None — Sin parafrasis, el recall es ~40%. Generá 3-5 reformulaciones.\n⚠️ dias=None, desde=None — Sin filtro temporal, traés TODO incluyendo cosas viejas.\n⚠️ asociados=False — No ves las conexiones de los nodos. Usá asociados=True.\n⚠️ dimensiones=None — Sin boost semántico. Usá dimensiones cuando busques por propiedades ontológicas (emoción, entidad, acción, cualidad, coordenada, intención, dominio, cualia, epistemia, escala_abstraccion, centralidad_identitaria, textura_experiencial, modalidad). Ejemplo: dimensiones='intencion_aprender' o dimensiones='dominio_tecnico'\n🍽️ BRECHA DE CONOCIMIENTO (score_top=0.36 < 0.5): los resultados sobre 'cobalt pigment' casi no cubren lo consultado. Primero probá PASO 2 (ráfaga con rafaga_palabras); si aún no cubre, investigá en fuente externa y GUARDÁ lo aprendido en BioRAG con biorag_aprender ANTES de responder.\n\n{\"total\": 2, \"pagina_actual\": 1, \"paginas_totales\": 1, \"resultados\": [{\"concepto\": \"cobalt\", \"contenido\": \"Cobalt is a blue pigment used in glasswork; amber color helps distinguish samples.\", \"peso_sinaptico\": 0.98, \"estado\": \"activo\", \"score_hibrido\": 0.3934, \"confianza_calibrada\": 0.3624, \"nivel_certeza\": \"relacionado_confianza_media\", \"edad_dias\": 0, \"timestamp_creado\": 0, \"fecha_legible\": null, \"stale\": false, \"asociaciones\": {\"total\": 0, \"items\": [], \"truncada\": false}, \"asociaciones_enriquecidas\": [], \"score_hibrido_base\": 0.3624, \"bonus_convergencia_multicampo\": 0.031}, {\"concepto\": \"amber\", \"contenido\": \"Amber is a bright pigment. Cobalt pigment is used in small glass samples.\", \"peso_sinaptico\": 0.98, \"estado\": \"activo\", \"score_hibrido\": 0.2813, \"confianza_calibrada\": 0.2671, \"nivel_certeza\": \"sin_evidencia_directa\", \"edad_dias\": 0, \"timestamp_creado\": 0, \"fecha_legible\": null, \"stale\": false, \"asociaciones\": {\"total\": 0, \"items\": [], \"truncada\": false}, \"asociaciones_enriquecidas\": [], \"score_hibrido_base\": 0.2671, \"bonus_convergencia_multicampo\": 0.0142}], \"contexto_expandido\": [], \"sinapsis_creadas\": [], \"profundidad\": \"activos\", \"trazabilidad\": {\"capa_literal\": 0.3624, \"capa_parafrasis\": 0.0, \"capa_rafaga\": 0, \"fallback_dimensional\": 0, \"match_exacto\": false, \"total_candidatos_todos\": 2}, \"advertencia_temporal\": false}",
+      "response": {
+        "advertencia_temporal": false,
+        "contexto_expandido": [],
+        "pagina_actual": 1,
+        "paginas_totales": 1,
+        "profundidad": "activos",
+        "resultados": [
+          {
+            "asociaciones": {
+              "items": [],
+              "total": 0,
+              "truncada": false
+            },
+            "asociaciones_enriquecidas": [],
+            "bonus_convergencia_multicampo": 0.031,
+            "concepto": "cobalt",
+            "confianza_calibrada": 0.3624,
+            "contenido": "Cobalt is a blue pigment used in glasswork; amber color helps distinguish samples.",
+            "edad_dias": 0,
+            "estado": "activo",
+            "fecha_legible": null,
+            "nivel_certeza": "relacionado_confianza_media",
+            "peso_sinaptico": 0.98,
+            "score_hibrido": 0.3934,
+            "score_hibrido_base": 0.3624,
+            "stale": false,
+            "timestamp_creado": 0
+          },
+          {
+            "asociaciones": {
+              "items": [],
+              "total": 0,
+              "truncada": false
+            },
+            "asociaciones_enriquecidas": [],
+            "bonus_convergencia_multicampo": 0.0142,
+            "concepto": "amber",
+            "confianza_calibrada": 0.2671,
+            "contenido": "Amber is a bright pigment. Cobalt pigment is used in small glass samples.",
+            "edad_dias": 0,
+            "estado": "activo",
+            "fecha_legible": null,
+            "nivel_certeza": "sin_evidencia_directa",
+            "peso_sinaptico": 0.98,
+            "score_hibrido": 0.2813,
+            "score_hibrido_base": 0.2671,
+            "stale": false,
+            "timestamp_creado": 0
+          }
+        ],
+        "sinapsis_creadas": [],
+        "total": 2,
+        "trazabilidad": {
+          "capa_literal": 0.3624,
+          "capa_parafrasis": 0.0,
+          "capa_rafaga": 0,
+          "fallback_dimensional": 0,
+          "match_exacto": false,
+          "total_candidatos_todos": 2
+        }
+      },
+      "tables_changed": [
+        "log_busquedas",
+        "nodo_accesos_historial"
+      ]
+    },
+    "R": {
+      "arguments": {
+        "asociados": true,
+        "context_window": 0,
+        "deep": false,
+        "forzar_rafaga": true,
+        "limite": 5,
+        "query": "cobalt pigment",
+        "rafaga_palabras": "cobalt,pigment",
+        "sustantivos_clave": "cobalt,pigment"
+      },
+      "channels": {
+        "asociaciones": [
+          "amber",
+          "cobalt",
+          "ivory"
+        ],
+        "asociaciones_enriquecidas": [
+          "amber",
+          "cobalt",
+          "ivory"
+        ],
+        "contexto_expandido": [],
+        "resultados": [
+          "amber",
+          "cobalt"
+        ]
+      },
+      "errors": [],
+      "main_results": [
+        "cobalt",
+        "amber"
+      ],
+      "raw_response": "⚠️ parafrasis=None — Sin parafrasis, el recall es ~40%. Generá 3-5 reformulaciones.\n⚠️ dias=None, desde=None — Sin filtro temporal, traés TODO incluyendo cosas viejas.\n⚠️ dimensiones=None — Sin boost semántico. Usá dimensiones cuando busques por propiedades ontológicas (emoción, entidad, acción, cualidad, coordenada, intención, dominio, cualia, epistemia, escala_abstraccion, centralidad_identitaria, textura_experiencial, modalidad). Ejemplo: dimensiones='intencion_aprender' o dimensiones='dominio_tecnico'\nℹ️ MODO RÁFAGA ACTIVADO (PASO 2 - RESCATE AMMPLIO): Búsqueda multitérmino de contingencia. El motor amplía la cobertura sobre los 15 términos para rescatar recuerdos con vocabulario distinto. Los scores son más planos para priorizar cobertura sobre precisión fina. Evaluá los resultados en la síntesis.\n🍽️ BRECHA DE CONOCIMIENTO (score_top=0.36 < 0.5): los resultados sobre 'cobalt pigment' casi no cubren lo consultado. Primero probá PASO 2 (ráfaga con rafaga_palabras); si aún no cubre, investigá en fuente externa y GUARDÁ lo aprendido en BioRAG con biorag_aprender ANTES de responder.\n\n{\"total\": 2, \"pagina_actual\": 1, \"paginas_totales\": 1, \"resultados\": [{\"concepto\": \"cobalt\", \"contenido\": \"Cobalt is a blue pigment used in glasswork; amber color helps distinguish samples.\", \"peso_sinaptico\": 0.98, \"estado\": \"activo\", \"score_hibrido\": 0.3934, \"confianza_calibrada\": 0.3624, \"nivel_certeza\": \"relacionado_confianza_media\", \"edad_dias\": 0, \"timestamp_creado\": 0, \"fecha_legible\": null, \"stale\": false, \"asociaciones\": {\"total\": 2, \"items\": [\"amber\", \"ivory\"], \"truncada\": false}, \"asociaciones_enriquecidas\": [{\"concepto\": \"amber\", \"fuerza_arista\": 0.5, \"tipo_sinapsis\": \"manual\", \"peso_vecino\": 0.98, \"resumen\": \"Amber is a bright pigment. Cobalt pigment is used in small glass samples.\"}, {\"concepto\": \"ivory\", \"fuerza_arista\": 0.5, \"tipo_sinapsis\": \"manual\", \"peso_vecino\": 0.98, \"resumen\": \"Ivory is a neutral material used in model making and small sculptures.\"}], \"score_hibrido_base\": 0.3624, \"bonus_convergencia_multicampo\": 0.031}, {\"concepto\": \"amber\", \"contenido\": \"Amber is a bright pigment. Cobalt pigment is used in small glass samples.\", \"peso_sinaptico\": 0.98, \"estado\": \"activo\", \"score_hibrido\": 0.2813, \"confianza_calibrada\": 0.2671, \"nivel_certeza\": \"sin_evidencia_directa\", \"edad_dias\": 0, \"timestamp_creado\": 0, \"fecha_legible\": null, \"stale\": false, \"asociaciones\": {\"total\": 2, \"items\": [\"cobalt\", \"ivory\"], \"truncada\": false}, \"asociaciones_enriquecidas\": [{\"concepto\": \"cobalt\", \"fuerza_arista\": 0.8, \"tipo_sinapsis\": \"co_ocurrencia\", \"peso_vecino\": 0.98, \"resumen\": \"Cobalt is a blue pigment used in glasswork; amber color helps distinguish samples.\"}, {\"concepto\": \"ivory\", \"fuerza_arista\": 0.5, \"tipo_sinapsis\": \"co_ocurrencia\", \"peso_vecino\": 0.98, \"resumen\": \"Ivory is a neutral material used in model making and small sculptures.\"}], \"score_hibrido_base\": 0.2671, \"bonus_convergencia_multicampo\": 0.0142}], \"contexto_expandido\": [], \"sinapsis_creadas\": [], \"profundidad\": \"activos\", \"trazabilidad\": {\"capa_literal\": 0.3624, \"capa_parafrasis\": 0.0, \"capa_rafaga\": 2, \"fallback_dimensional\": 0, \"match_exacto\": false, \"total_candidatos_todos\": 2}, \"advertencia_temporal\": false}",
+      "response": {
+        "advertencia_temporal": false,
+        "contexto_expandido": [],
+        "pagina_actual": 1,
+        "paginas_totales": 1,
+        "profundidad": "activos",
+        "resultados": [
+          {
+            "asociaciones": {
+              "items": [
+                "amber",
+                "ivory"
+              ],
+              "total": 2,
+              "truncada": false
+            },
+            "asociaciones_enriquecidas": [
+              {
+                "concepto": "amber",
+                "fuerza_arista": 0.5,
+                "peso_vecino": 0.98,
+                "resumen": "Amber is a bright pigment. Cobalt pigment is used in small glass samples.",
+                "tipo_sinapsis": "manual"
+              },
+              {
+                "concepto": "ivory",
+                "fuerza_arista": 0.5,
+                "peso_vecino": 0.98,
+                "resumen": "Ivory is a neutral material used in model making and small sculptures.",
+                "tipo_sinapsis": "manual"
+              }
+            ],
+            "bonus_convergencia_multicampo": 0.031,
+            "concepto": "cobalt",
+            "confianza_calibrada": 0.3624,
+            "contenido": "Cobalt is a blue pigment used in glasswork; amber color helps distinguish samples.",
+            "edad_dias": 0,
+            "estado": "activo",
+            "fecha_legible": null,
+            "nivel_certeza": "relacionado_confianza_media",
+            "peso_sinaptico": 0.98,
+            "score_hibrido": 0.3934,
+            "score_hibrido_base": 0.3624,
+            "stale": false,
+            "timestamp_creado": 0
+          },
+          {
+            "asociaciones": {
+              "items": [
+                "cobalt",
+                "ivory"
+              ],
+              "total": 2,
+              "truncada": false
+            },
+            "asociaciones_enriquecidas": [
+              {
+                "concepto": "cobalt",
+                "fuerza_arista": 0.8,
+                "peso_vecino": 0.98,
+                "resumen": "Cobalt is a blue pigment used in glasswork; amber color helps distinguish samples.",
+                "tipo_sinapsis": "co_ocurrencia"
+              },
+              {
+                "concepto": "ivory",
+                "fuerza_arista": 0.5,
+                "peso_vecino": 0.98,
+                "resumen": "Ivory is a neutral material used in model making and small sculptures.",
+                "tipo_sinapsis": "co_ocurrencia"
+              }
+            ],
+            "bonus_convergencia_multicampo": 0.0142,
+            "concepto": "amber",
+            "confianza_calibrada": 0.2671,
+            "contenido": "Amber is a bright pigment. Cobalt pigment is used in small glass samples.",
+            "edad_dias": 0,
+            "estado": "activo",
+            "fecha_legible": null,
+            "nivel_certeza": "sin_evidencia_directa",
+            "peso_sinaptico": 0.98,
+            "score_hibrido": 0.2813,
+            "score_hibrido_base": 0.2671,
+            "stale": false,
+            "timestamp_creado": 0
+          }
+        ],
+        "sinapsis_creadas": [],
+        "total": 2,
+        "trazabilidad": {
+          "capa_literal": 0.3624,
+          "capa_parafrasis": 0.0,
+          "capa_rafaga": 2,
+          "fallback_dimensional": 0,
+          "match_exacto": false,
+          "total_candidatos_todos": 2
+        }
+      },
+      "tables_changed": [
+        "log_busquedas",
+        "nodo_accesos_historial"
+      ]
+    }
+  },
+  "controlled_failure": {
+    "both_files_preserved": true,
+    "call_errors": [],
+    "evidence_event_file": "/tmp/biorag_smoke_real_5spai895/controlled_failure/failure.evidence/controlled_failure_event.json",
+    "parsed_response": {
+      "_mcp_is_error": true,
+      "mensaje": "Unknown tool: __controlled_missing_tool__",
+      "status": "mcp_error"
+    },
+    "raw_response": "Unknown tool: __controlled_missing_tool__",
+    "run_failure_file": "/tmp/biorag_smoke_real_5spai895/controlled_failure/failure.evidence/run_failure.json"
+  },
+  "execution_date": "2026-10-30",
+  "initial_failed_preparation": {
+    "event": {
+      "arguments": {
+        "bridges": [
+          {
+            "angle": "sinonimo",
+            "text": "significado equivalente amber"
+          },
+          {
+            "angle": "problema",
+            "text": "problema recurrente amber"
+          },
+          {
+            "angle": "solucion",
+            "text": "solucion operativa amber"
+          },
+          {
+            "angle": "situacion",
+            "text": "escenario practico amber"
+          },
+          {
+            "angle": "ingenuo",
+            "text": "consulta sencilla amber"
+          }
+        ],
+        "busqueda_previa": true,
+        "cat": "General",
+        "concepto": "amber",
+        "contenido": "Amber is a bright pigment. Cobalt pigment is used in small glass samples.",
+        "sustantivos_clave": "amber,pigment"
+      },
+      "call_errors": [],
+      "label": "aprender:amber",
+      "parsed_response": {
+        "_mcp_is_error": true,
+        "mensaje": "Error executing tool aprender: 1 validation error for biorag_aprenderArguments\ndimensiones\n  Field required [type=missing, input_value={'concepto': 'amber', 'co...'busqueda_previa': True}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing",
+        "status": "mcp_error"
+      },
+      "raw_response": "Error executing tool aprender: 1 validation error for biorag_aprenderArguments\ndimensiones\n  Field required [type=missing, input_value={'concepto': 'amber', 'co...'busqueda_previa': True}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing",
+      "sequence": 2,
+      "tool": "aprender"
+    },
+    "resolution": "Añadido dimensiones=\"{}\" al payload de aprender del arnés; es un objeto vacío y no inventa etiquetas. No se alteró el motor.",
+    "run_failure": {
+      "estado": "INVALIDA",
+      "events_persisted": 2,
+      "exception_type": "RuntimeError",
+      "message": "MCP aprender falló; corrida inválida, evidencia: /tmp/biorag_smoke_real_jbaf2pw_/construction/synthetic_fixture.sqlite.evidence",
+      "phase": "fixture_construction",
+      "valida": false
+    },
+    "temp_root": "/tmp/biorag_smoke_real_jbaf2pw_"
+  },
+  "preparation": {
+    "construction_id": "faf0a43764e24a8ea9bb8de40ef61a8d",
+    "event_count": 9,
+    "fixture_path": "/tmp/biorag_smoke_real_5spai895/construction/synthetic_fixture.sqlite",
+    "fixture_sha256": "8de3bcbb1fe9b29d41328fac731710b9ac2188c313d89384bd671d9b58ff4347",
+    "graph_blockers": [],
+    "mcp_calls": [
+      {
+        "arguments": {
+          "asociados": false,
+          "context_window": 0,
+          "deep": false,
+          "limite": 5,
+          "query": "amber Amber is a bright pigment. Cobalt pigment is used in small glass samples.",
+          "sustantivos_clave": "amber,pigment"
+        },
+        "call_errors": [],
+        "label": "preflight:amber",
+        "parsed_response": {
+          "contingencia_contexto": true,
+          "mensaje": "No se encontraron recuerdos en la corteza. Busca en tu historial de conversacion o contexto actual.",
+          "resultados": [],
+          "total": 0
+        },
+        "sequence": 1,
+        "tool": "recordar"
+      },
+      {
+        "arguments": {
+          "bridges": [
+            {
+              "angle": "sinonimo",
+              "text": "significado equivalente amber"
+            },
+            {
+              "angle": "problema",
+              "text": "problema recurrente amber"
+            },
+            {
+              "angle": "solucion",
+              "text": "solucion operativa amber"
+            },
+            {
+              "angle": "situacion",
+              "text": "escenario practico amber"
+            },
+            {
+              "angle": "ingenuo",
+              "text": "consulta sencilla amber"
+            }
+          ],
+          "busqueda_previa": true,
+          "cat": "General",
+          "concepto": "amber",
+          "contenido": "Amber is a bright pigment. Cobalt pigment is used in small glass samples.",
+          "dimensiones": "{}",
+          "sustantivos_clave": "amber,pigment"
+        },
+        "call_errors": [],
+        "label": "aprender:amber",
+        "parsed_response": {
+          "concepto": "amber",
+          "mensaje": "'amber' aprendido en corto plazo. Categoria: General. Usa 'consolidar' para fijar a largo plazo. Hub 'hub_amber' creado con 5 bridges.",
+          "sinapsis": 0,
+          "status": "ok"
+        },
+        "sequence": 2,
+        "tool": "aprender"
+      },
+      {
+        "arguments": {
+          "asociados": false,
+          "context_window": 0,
+          "deep": false,
+          "limite": 5,
+          "query": "cobalt Cobalt is a blue pigment used in glasswork; amber color helps distinguish samples.",
+          "sustantivos_clave": "cobalt,pigment"
+        },
+        "call_errors": [],
+        "label": "preflight:cobalt",
+        "parsed_response": {
+          "contingencia_contexto": true,
+          "mensaje": "No se encontraron recuerdos en la corteza. Busca en tu historial de conversacion o contexto actual.",
+          "resultados": [],
+          "total": 0
+        },
+        "sequence": 3,
+        "tool": "recordar"
+      },
+      {
+        "arguments": {
+          "bridges": [
+            {
+              "angle": "sinonimo",
+              "text": "significado equivalente cobalt"
+            },
+            {
+              "angle": "problema",
+              "text": "problema recurrente cobalt"
+            },
+            {
+              "angle": "solucion",
+              "text": "solucion operativa cobalt"
+            },
+            {
+              "angle": "situacion",
+              "text": "escenario practico cobalt"
+            },
+            {
+              "angle": "ingenuo",
+              "text": "consulta sencilla cobalt"
+            }
+          ],
+          "busqueda_previa": true,
+          "cat": "General",
+          "concepto": "cobalt",
+          "contenido": "Cobalt is a blue pigment used in glasswork; amber color helps distinguish samples.",
+          "dimensiones": "{}",
+          "sustantivos_clave": "cobalt,pigment"
+        },
+        "call_errors": [],
+        "label": "aprender:cobalt",
+        "parsed_response": {
+          "concepto": "cobalt",
+          "mensaje": "'cobalt' aprendido en corto plazo. Categoria: General. Usa 'consolidar' para fijar a largo plazo. Hub 'hub_cobalt' creado con 5 bridges.",
+          "sinapsis": 0,
+          "status": "ok"
+        },
+        "sequence": 4,
+        "tool": "aprender"
+      },
+      {
+        "arguments": {
+          "asociados": false,
+          "context_window": 0,
+          "deep": false,
+          "limite": 5,
+          "query": "ivory Ivory is a neutral material used in model making and small sculptures.",
+          "sustantivos_clave": "ivory,material"
+        },
+        "call_errors": [],
+        "label": "preflight:ivory",
+        "parsed_response": {
+          "contingencia_contexto": true,
+          "mensaje": "No se encontraron recuerdos en la corteza. Busca en tu historial de conversacion o contexto actual.",
+          "resultados": [],
+          "total": 0
+        },
+        "sequence": 5,
+        "tool": "recordar"
+      },
+      {
+        "arguments": {
+          "bridges": [
+            {
+              "angle": "sinonimo",
+              "text": "significado equivalente ivory"
+            },
+            {
+              "angle": "problema",
+              "text": "problema recurrente ivory"
+            },
+            {
+              "angle": "solucion",
+              "text": "solucion operativa ivory"
+            },
+            {
+              "angle": "situacion",
+              "text": "escenario practico ivory"
+            },
+            {
+              "angle": "ingenuo",
+              "text": "consulta sencilla ivory"
+            }
+          ],
+          "busqueda_previa": true,
+          "cat": "General",
+          "concepto": "ivory",
+          "contenido": "Ivory is a neutral material used in model making and small sculptures.",
+          "dimensiones": "{}",
+          "sustantivos_clave": "ivory,material"
+        },
+        "call_errors": [],
+        "label": "aprender:ivory",
+        "parsed_response": {
+          "concepto": "ivory",
+          "mensaje": "'ivory' aprendido en corto plazo. Categoria: General. Usa 'consolidar' para fijar a largo plazo. Hub 'hub_ivory' creado con 5 bridges.",
+          "sinapsis": 0,
+          "status": "ok"
+        },
+        "sequence": 6,
+        "tool": "aprender"
+      },
+      {
+        "arguments": {},
+        "call_errors": [],
+        "label": "consolidar:smoke-synthetic-001",
+        "parsed_response": {
+          "mensaje": "--- Iniciando Ciclo de Consolidación (Sueño) ---\n[PMI] Corpus recalculado: 3 nodos, 0 pares, 0.4ms\n[SDM] 3 vectores reindexados (full periódico).\n[PPMI] 3 nodos reindexados con PPMI+SVD+Retrofitting (full periódico).\n[MemoryBioRAG] Proceso de consolidación y equilibrio sináptico completado con éxito.",
+          "status": "ok"
+        },
+        "sequence": 7,
+        "tool": "consolidar"
+      },
+      {
+        "arguments": {
+          "a": "amber",
+          "b": "cobalt"
+        },
+        "call_errors": [],
+        "label": "vincular:amber:cobalt",
+        "parsed_response": {
+          "mensaje": "Sinapsis: 'amber' <--> 'cobalt'",
+          "status": "ok"
+        },
+        "sequence": 8,
+        "tool": "vincular"
+      },
+      {
+        "arguments": {
+          "a": "cobalt",
+          "b": "ivory"
+        },
+        "call_errors": [],
+        "label": "vincular:cobalt:ivory",
+        "parsed_response": {
+          "mensaje": "Sinapsis: 'cobalt' <--> 'ivory'",
+          "status": "ok"
+        },
+        "sequence": 9,
+        "tool": "vincular"
+      }
+    ],
+    "status": "listo_para_auditoria_humana"
+  },
+  "scope": "Real MCP stdio smoke test; synthetic-only records and fresh SQLite databases under /tmp; no baseline measurement or full QA.",
+  "sha256": {
+    "/tmp/biorag_smoke_real_5spai895/construction/synthetic_fixture.sqlite": "251d3273f8a7c2ceeaad3620bf24963f9263132c652d64d3927c3a0fd423aac2",
+    "/tmp/biorag_smoke_real_5spai895/construction/synthetic_fixture.sqlite.evidence/event_000001.json": "2276823999723a32a94ef44b87d964aea0e77fd82ae41edf631258ec52b869f0",
+    "/tmp/biorag_smoke_real_5spai895/construction/synthetic_fixture.sqlite.evidence/event_000002.json": "dd1eb3893654fe4ed7c475e8221118e88cfe51008a4e1cd4a160c415d9b1ff47",
+    "/tmp/biorag_smoke_real_5spai895/construction/synthetic_fixture.sqlite.evidence/event_000003.json": "cf7a7a92fcbcec133bf6d609e596bd15075a1a0d9e69ee8a91152aeda1e064ca",
+    "/tmp/biorag_smoke_real_5spai895/construction/synthetic_fixture.sqlite.evidence/event_000004.json": "0cb9e1efe65832b6423420736433c29911000342eba7618eb5d96d2a5d85b076",
+    "/tmp/biorag_smoke_real_5spai895/construction/synthetic_fixture.sqlite.evidence/event_000005.json": "909019ef6075ec4a03d07b8e3ac3515de77b6d949a1da70664631fe07d139b6c",
+    "/tmp/biorag_smoke_real_5spai895/construction/synthetic_fixture.sqlite.evidence/event_000006.json": "875e00bbe349d53650efb0bb9870f8bed4c202e82463063617d7971baed60590",
+    "/tmp/biorag_smoke_real_5spai895/construction/synthetic_fixture.sqlite.evidence/event_000007.json": "7c97de81284b311a0a761e7eaf6aa09dbb4b0f205b821f9bf7f08c6497997572",
+    "/tmp/biorag_smoke_real_5spai895/construction/synthetic_fixture.sqlite.evidence/event_000008.json": "0f4915631ea53d839f4128ed7bb2d47e0b951c02ce2a1f154697513ec6f05270",
+    "/tmp/biorag_smoke_real_5spai895/construction/synthetic_fixture.sqlite.evidence/event_000009.json": "ad09b8bcdb0d93977b60b6a38b6486af65488770ccb4dcaf8bf23be3274e56f9",
+    "/tmp/biorag_smoke_real_5spai895/construction/synthetic_fixture.sqlite.evidence/preparation_report.json": "2ee42329dc3a5a598ce27905fe7814537deab32008541b7e297e290cab2631b1",
+    "/tmp/biorag_smoke_real_5spai895/construction/synthetic_fixture.sqlite.evidence/run_manifest.json": "de77b2c5a2235e331f281711d86aa5b68eaa63cac3e69e89a4f8098dc2c61232",
+    "/tmp/biorag_smoke_real_5spai895/controlled_failure/failure.evidence/controlled_failure_event.json": "e8b134488bb8733931508f4020d45c93fe8861a8956175abac3e6e8233d8430d",
+    "/tmp/biorag_smoke_real_5spai895/controlled_failure/failure.evidence/run_failure.json": "d91bfafbdb913fcd16e58c8f33e95601bd7ac04ed4d46a631649b266b5d72363",
+    "/tmp/biorag_smoke_real_5spai895/synthetic_gold.jsonl": "d25f71573c9e4cbc8c9dae2ebe7d1d165ab41b6dc60da8c2e9ccc7f87d679cee",
+    "/tmp/biorag_smoke_real_jbaf2pw_/construction/synthetic_fixture.sqlite.evidence/event_000002.json": "1b61e945b32b72354c803ce0dbdd65d0ed55da3777f65e00703cfdcf038fa185",
+    "/tmp/biorag_smoke_real_jbaf2pw_/construction/synthetic_fixture.sqlite.evidence/run_failure.json": "ad737f83f81f13f18f2940a427c7b3ae2d8fe0e91ca7422182fe2fd595c57552"
+  },
+  "synthetic_gold": {
+    "edges": [
+      [
+        "amber",
+        "cobalt"
+      ],
+      [
+        "cobalt",
+        "ivory"
+      ]
+    ],
+    "episode_id": "smoke-synthetic-001",
+    "nodes": [
+      "amber",
+      "cobalt",
+      "ivory"
+    ],
+    "path": "/tmp/biorag_smoke_real_5spai895/synthetic_gold.jsonl",
+    "sha256": "d25f71573c9e4cbc8c9dae2ebe7d1d165ab41b6dc60da8c2e9ccc7f87d679cee"
+  },
+  "temp_root": "/tmp/biorag_smoke_real_5spai895"
+}

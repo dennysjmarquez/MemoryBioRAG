@@ -1,0 +1,88 @@
+{
+  "schema": "synthetic_v2_mcp_fixture_pair_audit_v1",
+  "date": "2026-10-30",
+  "published_gold_version": "synthetic_gold_v2",
+  "published_gold_sha256": "5d83616a63be7c73bbea8bb90452091316d7e238835013440a6fd939c13d16d8",
+  "published_gold_manifest_sha256": "ed433826d89229f75e8af1c57b48c9c4fe3e808e4e14eaa1103ea8cac8d64b1f",
+  "builds": [
+    {
+      "build": "build_a",
+      "construction_id": "62c741169df44600b768cf3b71d17d96",
+      "event_count": 9,
+      "call_errors": 0,
+      "gold_sha256": "5d83616a63be7c73bbea8bb90452091316d7e238835013440a6fd939c13d16d8",
+      "published_manifest_sha256": "ed433826d89229f75e8af1c57b48c9c4fe3e808e4e14eaa1103ea8cac8d64b1f",
+      "operational_manifest_sha256": "a9bc3d3fdc6ece5c52cff15c4f1300f0a39c38bcad6cab84065ff6a5d4f0a7dc",
+      "logical_fixture_sha256": "00a5a27a573314fcecebfc9f86212153f587e347f7dc70b8f106c7ecb97c1af4",
+      "database_file_sha256": "470012403c913d5cf858309b486a0cda0758801a9f32b132eaf063d11bd07eff",
+      "preparation_status": "listo_para_auditoria_humana",
+      "baseline_searches_run": 0,
+      "edge_count_directed": 6,
+      "active_nodes": 3,
+      "total_nodes": 3
+    },
+    {
+      "build": "build_b",
+      "construction_id": "d59853d846644bab902e412c51059b90",
+      "event_count": 9,
+      "call_errors": 0,
+      "gold_sha256": "5d83616a63be7c73bbea8bb90452091316d7e238835013440a6fd939c13d16d8",
+      "published_manifest_sha256": "ed433826d89229f75e8af1c57b48c9c4fe3e808e4e14eaa1103ea8cac8d64b1f",
+      "operational_manifest_sha256": "83ab1f41f95917f0be64eb0b1afb62f9cbbdfb33dfaf210a37459083547b0ab0",
+      "logical_fixture_sha256": "fe79fefcb4168a6c86eda29c3a634710664a9730dae25a6a4b0e9b83c478b40c",
+      "database_file_sha256": "71f0d097785bc05081c0478a018bcac1cbe555e98bf2c65ef71980b0633b6af9",
+      "preparation_status": "listo_para_auditoria_humana",
+      "baseline_searches_run": 0,
+      "edge_count_directed": 6,
+      "active_nodes": 3,
+      "total_nodes": 3
+    }
+  ],
+  "repeatability": {
+    "schema": "fixture_repeatability_v2",
+    "mode": "REPEATABLE_PAIR",
+    "independent_builds_verified": true,
+    "construction_ids": [
+      "62c741169df44600b768cf3b71d17d96",
+      "d59853d846644bab902e412c51059b90"
+    ],
+    "build_evidence": [
+      {
+        "construction_id": "62c741169df44600b768cf3b71d17d96",
+        "fixture_path": "/tmp/biorag_v2_fixture_pair_jyhifZ/build_a/fixture.sqlite",
+        "gold_sha256": "5d83616a63be7c73bbea8bb90452091316d7e238835013440a6fd939c13d16d8",
+        "event_count": 9,
+        "run_manifest_sha256": "9146392321381c07f8298fad56b2b0a295967906c3ba4675434e2d763bfcaf3b",
+        "preparation_report_sha256": "a5d5cab7fa028e6d87355fa6b665132725d6089099edd99e050e96aec276863d",
+        "events_sha256": "5c0eae36ed1cd7bdf24dd7e8149d929d3b4557fcb71274af9992f0459de9eeab"
+      },
+      {
+        "construction_id": "d59853d846644bab902e412c51059b90",
+        "fixture_path": "/tmp/biorag_v2_fixture_pair_jyhifZ/build_b/fixture.sqlite",
+        "gold_sha256": "5d83616a63be7c73bbea8bb90452091316d7e238835013440a6fd939c13d16d8",
+        "event_count": 9,
+        "run_manifest_sha256": "fea27f93d55e501b707c06a08ce68482e96cdfd59cc5c9d18835da244888620f",
+        "preparation_report_sha256": "8f1d6c83d15c41c531e60690e3173227bc4f8767c6b0d324ebb32abb45bfe5c0",
+        "events_sha256": "02168cbecde4220b056704bb62bf66ae054bab2de941f42d9d56aca25168910e"
+      }
+    ],
+    "fixture_1_sha256": "00a5a27a573314fcecebfc9f86212153f587e347f7dc70b8f106c7ecb97c1af4",
+    "fixture_2_sha256": "fe79fefcb4168a6c86eda29c3a634710664a9730dae25a6a4b0e9b83c478b40c",
+    "identical_structural": true,
+    "differences": {},
+    "failure": null,
+    "limitation": "Solo se acepta par idéntico con dos rutas, construction_id y ledgers MCP separados del mismo gold."
+  },
+  "errors": {
+    "mcp_tool_call_errors": 0,
+    "post_preparation_cli_errors": 2,
+    "details_file": "cli_postprocessing_errors.json"
+  },
+  "measurement_arms_run": false,
+  "full_qa_run": false,
+  "connections_deleted_or_filtered": false,
+  "gold_label_interpretation": "Empty related/noise arrays are unadjudicated; no metrics for those categories are evaluations.",
+  "measurement_hash_approval": "pending review",
+  "W": "pending",
+  "temp_root": "/tmp/biorag_v2_fixture_pair_jyhifZ"
+}

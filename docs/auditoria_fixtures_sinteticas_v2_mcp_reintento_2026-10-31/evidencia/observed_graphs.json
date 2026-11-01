@@ -1,0 +1,320 @@
+{
+  "build_a": {
+    "nodos": {
+      "synthetic_amber": {
+        "asociaciones": "synthetic_cobalt,synthetic_ivory",
+        "concepto": "synthetic_amber",
+        "estado": "activo",
+        "peso_sinaptico": 0.98,
+        "ultimo_acceso": 1793059200.0
+      },
+      "synthetic_cobalt": {
+        "asociaciones": "synthetic_amber,synthetic_ivory",
+        "concepto": "synthetic_cobalt",
+        "estado": "activo",
+        "peso_sinaptico": 0.98,
+        "ultimo_acceso": 1793059200.0
+      },
+      "synthetic_ivory": {
+        "asociaciones": "synthetic_amber,synthetic_cobalt",
+        "concepto": "synthetic_ivory",
+        "estado": "activo",
+        "peso_sinaptico": 0.98,
+        "ultimo_acceso": 1793059200.0
+      }
+    },
+    "adyacencia_activa": {
+      "synthetic_amber": [
+        "synthetic_cobalt",
+        "synthetic_ivory"
+      ],
+      "synthetic_cobalt": [
+        "synthetic_amber",
+        "synthetic_ivory"
+      ],
+      "synthetic_ivory": [
+        "synthetic_amber",
+        "synthetic_cobalt"
+      ]
+    },
+    "aristas_directas_dirigidas": [
+      {
+        "creado_en": 1793059200.0,
+        "destino": "synthetic_cobalt",
+        "origen": "synthetic_amber",
+        "peso": 0.65,
+        "tipo": "co_nombre",
+        "ultimo_uso": null
+      },
+      {
+        "creado_en": 1793059200.0,
+        "destino": "synthetic_ivory",
+        "origen": "synthetic_amber",
+        "peso": 0.65,
+        "tipo": "co_nombre",
+        "ultimo_uso": null
+      },
+      {
+        "creado_en": 1793059200.0,
+        "destino": "synthetic_amber",
+        "origen": "synthetic_cobalt",
+        "peso": 0.65,
+        "tipo": "co_nombre",
+        "ultimo_uso": null
+      },
+      {
+        "creado_en": 1793059200.0,
+        "destino": "synthetic_ivory",
+        "origen": "synthetic_cobalt",
+        "peso": 0.65,
+        "tipo": "co_nombre",
+        "ultimo_uso": null
+      },
+      {
+        "creado_en": 1793059200.0,
+        "destino": "synthetic_amber",
+        "origen": "synthetic_ivory",
+        "peso": 0.65,
+        "tipo": "co_nombre",
+        "ultimo_uso": null
+      },
+      {
+        "creado_en": 1793059200.0,
+        "destino": "synthetic_cobalt",
+        "origen": "synthetic_ivory",
+        "peso": 0.65,
+        "tipo": "co_nombre",
+        "ultimo_uso": null
+      }
+    ],
+    "sinapsis_latentes": [],
+    "divergencias_espejo": [],
+    "conteos": {
+      "aristas_directas_dirigidas": 6,
+      "nodos": 3,
+      "nodos_activos": 3,
+      "nodos_dormidos": 0,
+      "sinapsis_latentes": 0
+    },
+    "auditoria_gold": {
+      "bloqueos_congelacion": [],
+      "congelacion_estructural_permitida": true,
+      "conteos_grafo": {
+        "aristas_directas_dirigidas": 6,
+        "nodos": 3,
+        "nodos_activos": 3,
+        "nodos_dormidos": 0,
+        "sinapsis_latentes": 0
+      },
+      "divergencias_espejo": [],
+      "gold_explicit_edges_missing": [],
+      "gold_nodes_missing": [],
+      "nota": "No se borra/ignora arista por tipo. Revisar o versionar gold antes de cualquier búsqueda de medición.",
+      "pares_riesgo_co_nombre": [
+        {
+          "a": "synthetic_amber",
+          "b": "synthetic_cobalt",
+          "palabras_a": [
+            "synthetic",
+            "amber"
+          ],
+          "palabras_b": [
+            "synthetic",
+            "cobalt"
+          ],
+          "riesgo_co_nombre": true,
+          "solapamiento_max_aproximado": 0.5
+        },
+        {
+          "a": "synthetic_amber",
+          "b": "synthetic_ivory",
+          "palabras_a": [
+            "synthetic",
+            "amber"
+          ],
+          "palabras_b": [
+            "synthetic",
+            "ivory"
+          ],
+          "riesgo_co_nombre": true,
+          "solapamiento_max_aproximado": 0.5
+        },
+        {
+          "a": "synthetic_cobalt",
+          "b": "synthetic_ivory",
+          "palabras_a": [
+            "synthetic",
+            "cobalt"
+          ],
+          "palabras_b": [
+            "synthetic",
+            "ivory"
+          ],
+          "riesgo_co_nombre": true,
+          "solapamiento_max_aproximado": 0.5
+        }
+      ],
+      "rutas_2_saltos": []
+    },
+    "sha256_fixture_logica": "cf9aaf50e0b36007c9c00cc4b7335c47c0d1dda1bd598bef561cdcf9c8bace55"
+  },
+  "build_b": {
+    "nodos": {
+      "synthetic_amber": {
+        "asociaciones": "synthetic_cobalt,synthetic_ivory",
+        "concepto": "synthetic_amber",
+        "estado": "activo",
+        "peso_sinaptico": 0.98,
+        "ultimo_acceso": 1793059200.0
+      },
+      "synthetic_cobalt": {
+        "asociaciones": "synthetic_amber,synthetic_ivory",
+        "concepto": "synthetic_cobalt",
+        "estado": "activo",
+        "peso_sinaptico": 0.98,
+        "ultimo_acceso": 1793059200.0
+      },
+      "synthetic_ivory": {
+        "asociaciones": "synthetic_amber,synthetic_cobalt",
+        "concepto": "synthetic_ivory",
+        "estado": "activo",
+        "peso_sinaptico": 0.98,
+        "ultimo_acceso": 1793059200.0
+      }
+    },
+    "adyacencia_activa": {
+      "synthetic_amber": [
+        "synthetic_cobalt",
+        "synthetic_ivory"
+      ],
+      "synthetic_cobalt": [
+        "synthetic_amber",
+        "synthetic_ivory"
+      ],
+      "synthetic_ivory": [
+        "synthetic_amber",
+        "synthetic_cobalt"
+      ]
+    },
+    "aristas_directas_dirigidas": [
+      {
+        "creado_en": 1793059200.0,
+        "destino": "synthetic_cobalt",
+        "origen": "synthetic_amber",
+        "peso": 0.65,
+        "tipo": "co_nombre",
+        "ultimo_uso": null
+      },
+      {
+        "creado_en": 1793059200.0,
+        "destino": "synthetic_ivory",
+        "origen": "synthetic_amber",
+        "peso": 0.65,
+        "tipo": "co_nombre",
+        "ultimo_uso": null
+      },
+      {
+        "creado_en": 1793059200.0,
+        "destino": "synthetic_amber",
+        "origen": "synthetic_cobalt",
+        "peso": 0.65,
+        "tipo": "co_nombre",
+        "ultimo_uso": null
+      },
+      {
+        "creado_en": 1793059200.0,
+        "destino": "synthetic_ivory",
+        "origen": "synthetic_cobalt",
+        "peso": 0.65,
+        "tipo": "co_nombre",
+        "ultimo_uso": null
+      },
+      {
+        "creado_en": 1793059200.0,
+        "destino": "synthetic_amber",
+        "origen": "synthetic_ivory",
+        "peso": 0.65,
+        "tipo": "co_nombre",
+        "ultimo_uso": null
+      },
+      {
+        "creado_en": 1793059200.0,
+        "destino": "synthetic_cobalt",
+        "origen": "synthetic_ivory",
+        "peso": 0.65,
+        "tipo": "co_nombre",
+        "ultimo_uso": null
+      }
+    ],
+    "sinapsis_latentes": [],
+    "divergencias_espejo": [],
+    "conteos": {
+      "aristas_directas_dirigidas": 6,
+      "nodos": 3,
+      "nodos_activos": 3,
+      "nodos_dormidos": 0,
+      "sinapsis_latentes": 0
+    },
+    "auditoria_gold": {
+      "bloqueos_congelacion": [],
+      "congelacion_estructural_permitida": true,
+      "conteos_grafo": {
+        "aristas_directas_dirigidas": 6,
+        "nodos": 3,
+        "nodos_activos": 3,
+        "nodos_dormidos": 0,
+        "sinapsis_latentes": 0
+      },
+      "divergencias_espejo": [],
+      "gold_explicit_edges_missing": [],
+      "gold_nodes_missing": [],
+      "nota": "No se borra/ignora arista por tipo. Revisar o versionar gold antes de cualquier búsqueda de medición.",
+      "pares_riesgo_co_nombre": [
+        {
+          "a": "synthetic_amber",
+          "b": "synthetic_cobalt",
+          "palabras_a": [
+            "synthetic",
+            "amber"
+          ],
+          "palabras_b": [
+            "synthetic",
+            "cobalt"
+          ],
+          "riesgo_co_nombre": true,
+          "solapamiento_max_aproximado": 0.5
+        },
+        {
+          "a": "synthetic_amber",
+          "b": "synthetic_ivory",
+          "palabras_a": [
+            "synthetic",
+            "amber"
+          ],
+          "palabras_b": [
+            "synthetic",
+            "ivory"
+          ],
+          "riesgo_co_nombre": true,
+          "solapamiento_max_aproximado": 0.5
+        },
+        {
+          "a": "synthetic_cobalt",
+          "b": "synthetic_ivory",
+          "palabras_a": [
+            "synthetic",
+            "cobalt"
+          ],
+          "palabras_b": [
+            "synthetic",
+            "ivory"
+          ],
+          "riesgo_co_nombre": true,
+          "solapamiento_max_aproximado": 0.5
+        }
+      ],
+      "rutas_2_saltos": []
+    },
+    "sha256_fixture_logica": "911a275343d51d2264ccb7dbd6ac423709acde1c7a37b087dedeceddc045ba12"
+  }
+}

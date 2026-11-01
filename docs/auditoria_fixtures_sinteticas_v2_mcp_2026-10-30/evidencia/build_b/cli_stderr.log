@@ -1,0 +1,59 @@
+[PMI] Corpus recalculado: 0 nodos, 0 pares, 0.1ms
+[PMI] Corpus recalculado: 0 nodos, 0 pares, 0.0ms
+[PMI] Corpus recalculado: 0 nodos, 0 pares, 0.0ms
+[PMI] Corpus recalculado: 0 nodos, 0 pares, 0.0ms
+[PMI] Corpus recalculado: 0 nodos, 0 pares, 0.0ms
+[PMI] Corpus recalculado: 0 nodos, 0 pares, 0.0ms
+[PMI] Corpus recalculado: 0 nodos, 0 pares, 0.0ms
+[PMI] Corpus recalculado: 0 nodos, 0 pares, 0.0ms
+[PMI] Corpus recalculado: 0 nodos, 0 pares, 0.0ms
+[PMI] Corpus recalculado: 0 nodos, 0 pares, 0.0ms
+[PMI] Corpus recalculado: 0 nodos, 0 pares, 0.0ms
+[PMI] Corpus recalculado: 0 nodos, 0 pares, 0.0ms
+[PMI] Corpus recalculado: 0 nodos, 0 pares, 0.0ms
+[PMI] Corpus recalculado: 0 nodos, 0 pares, 0.0ms
+[PMI] Corpus recalculado: 0 nodos, 0 pares, 0.0ms
+[MemoryBioRAG] Sinapsis establecida: 'synthetic_amber' <--> 'synthetic_cobalt'
+[MemoryBioRAG] Sinapsis establecida: 'synthetic_cobalt' <--> 'synthetic_ivory'
+Traceback (most recent call last):
+  File "/home/user/MemoryBioRAG/scripts/linea_base_segura.py", line 1446, in <module>
+    raise SystemExit(main())
+                     ^^^^^^
+  File "/home/user/MemoryBioRAG/scripts/linea_base_segura.py", line 1413, in main
+    return asyncio.run(_prepare_cli(args))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.11/asyncio/runners.py", line 190, in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.11/asyncio/runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.11/asyncio/base_events.py", line 653, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "/home/user/MemoryBioRAG/scripts/linea_base_segura.py", line 1375, in _prepare_cli
+    out.write_text(serialize_report(report), encoding="utf-8")
+                   ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/MemoryBioRAG/scripts/evaluar_qa_intuicion_asociaciones_e1.py", line 650, in serialize_report
+    return json.dumps(report, ensure_ascii=False, indent=2, allow_nan=False) + "\n"
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.11/json/__init__.py", line 238, in dumps
+    **kw).encode(obj)
+          ^^^^^^^^^^^
+  File "/usr/lib/python3.11/json/encoder.py", line 202, in encode
+    chunks = list(chunks)
+             ^^^^^^^^^^^^
+  File "/usr/lib/python3.11/json/encoder.py", line 432, in _iterencode
+    yield from _iterencode_dict(o, _current_indent_level)
+  File "/usr/lib/python3.11/json/encoder.py", line 406, in _iterencode_dict
+    yield from chunks
+  File "/usr/lib/python3.11/json/encoder.py", line 406, in _iterencode_dict
+    yield from chunks
+  File "/usr/lib/python3.11/json/encoder.py", line 406, in _iterencode_dict
+    yield from chunks
+  File "/usr/lib/python3.11/json/encoder.py", line 439, in _iterencode
+    o = _default(o)
+        ^^^^^^^^^^^
+  File "/usr/lib/python3.11/json/encoder.py", line 180, in default
+    raise TypeError(f'Object of type {o.__class__.__name__} '
+TypeError: Object of type set is not JSON serializable

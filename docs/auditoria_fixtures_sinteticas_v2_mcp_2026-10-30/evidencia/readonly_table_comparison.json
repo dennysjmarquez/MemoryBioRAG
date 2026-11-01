@@ -1,0 +1,37 @@
+{
+  "schema": "readonly_table_comparison_v1",
+  "source": "read-only SQLite queries against both synthetic fixtures; no DB writes",
+  "differing_table_sha256": {
+    "grupos_semanticos": {
+      "build_a": "5dff76f6d6f96d46f2a883f64d85e5e2822ab89b1bc7a736f78ab75edfc057cf",
+      "build_b": "23a3e9c2cc07a7af73710e1545fffa47d945046498136210fade0713fdcf337e"
+    },
+    "nodo_grupos_semanticos": {
+      "build_a": "0adcc1434b0328b709da0ace2e38b49c05f12ae77261bc1d5203dd7108e6ad8d",
+      "build_b": "6de48fa86d56c231f10f3151ff08a4359022576cddf524341da1c03158541e88"
+    },
+    "sync_log": {
+      "build_a": "e9ff52e1ce2433383ee56a503e8b13415a61ffa07e9b495320841cff05b263b3",
+      "build_b": "d592902fabc5cdd39ba2a503d3b9b3f6a2a094afe342ad16aeb6598fde4edfd0"
+    }
+  },
+  "normalized_semantic_groups": {
+    "same_group_name_set": true,
+    "group_name_count": 22,
+    "same_concept_word_group_memberships": true,
+    "membership_count_each": 63
+  },
+  "sync_log_timestamps": {
+    "build_a": [
+      1793417832.0,
+      1793417832.0,
+      1793417832.0
+    ],
+    "build_b": [
+      1793417875.0,
+      1793417875.0,
+      1793417875.0
+    ]
+  },
+  "interpretation": "Structural comparison covers nodes, direct edges, latent synapses and mirror divergences. It does not establish byte-for-byte or whole-database identity. Group numeric IDs/order vary while normalized memberships are equal; sync_log timestamps differ."
+}

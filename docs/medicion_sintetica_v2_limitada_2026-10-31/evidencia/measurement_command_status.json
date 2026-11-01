@@ -1,0 +1,25 @@
+{
+  "command": [
+    "/home/user/MemoryBioRAG/.venv/bin/python",
+    "/home/user/MemoryBioRAG/scripts/linea_base_segura.py",
+    "medir",
+    "--gold-mode",
+    "synthetic_smoke",
+    "--gold",
+    "/tmp/biorag_v2_clean_pair_y77rdhst/build_a/synthetic_gold_v2.jsonl",
+    "--synthetic-manifest",
+    "/tmp/biorag_v2_clean_pair_y77rdhst/build_a/synthetic_gold_manifest_operational.json",
+    "--fixture",
+    "/tmp/biorag_v2_clean_pair_y77rdhst/build_a/fixture.sqlite",
+    "--temp-root",
+    "/tmp/biorag_v2_clean_pair_y77rdhst",
+    "--aprobacion",
+    "/tmp/biorag_v2_clean_pair_y77rdhst/synthetic_v2_measurement_approval.json",
+    "--repetibilidad",
+    "/tmp/biorag_v2_clean_pair_y77rdhst/repeatability_report.json",
+    "--salida",
+    "/tmp/biorag_v2_clean_pair_y77rdhst/synthetic_v2_measurement_report.json",
+    "--ejecutar-linea-base"
+  ],
+  "return_code": 0
+}

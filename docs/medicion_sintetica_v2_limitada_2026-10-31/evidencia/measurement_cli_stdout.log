@@ -1,0 +1,1 @@
+{"estado": "medicion descriptiva; sin umbrales aplicados", "conteo": {"consultas_gold": 1, "brazos_planeados": ["N0", "N1", "G1", "G2", "R"], "brazos_con_llamadas": ["G1", "G2", "N0", "N1", "R"], "llamadas_recordar": 5}, "salida": "/tmp/biorag_v2_clean_pair_y77rdhst/synthetic_v2_measurement_report.json"}
