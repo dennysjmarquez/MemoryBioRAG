@@ -39,4 +39,8 @@ El parche diagnóstico solo añade `concept_hub` al conjunto de orígenes tratad
 
 Antes de proponer un diff de motor, medir de forma aislada los efectos sobre canónicos, pistas, otros orígenes, controles negativos, puntuación y paginación, y comprobar el comportamiento de agente + BioRAG vía MCP en copias apropiadas bajo los permisos vigentes. Una mejora no debe sustituir un tipo de pérdida por otra ni descartar relaciones indirectas; no asumir que cambiar un conjunto sea suficiente para todos los casos. Preparar baseline y diff exacto, sin aplicarlo hasta contar con autorización.
 
+## Control adicional de las pruebas existentes
+
+Se ejecutaron las suites existentes de Concept Hub y hub a escala en fixtures temporales: `pytest tests/test_hub_escala.py tests/test_concept_hub_5_angulos.py -k 'not tiempo_por_consulta and not provenance' -q` → **25 passed, 2 deselected**. Se excluyeron la prueba de tiempo y la de provenance con instancia completa, porque este control solo busca validar los contratos locales de hub; no sustituyen pruebas integrales ni miden el caso de filtrado final anterior. No se entrenaron neuronas. Que pasen es compatible con el hallazgo: estas pruebas no equivalen a verificar toda la trayectoria de búsqueda del caso sintético.
+
 No se modificó motor, base original o gold; no se ejecutó E1 ni se entrenó una neurona. La evidencia muestra un cuello de botella de cimientos que puede afectar la ruta por defecto en esta fixture, no una medición del sistema completo.
