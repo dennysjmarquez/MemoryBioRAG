@@ -4,6 +4,8 @@
 
 Se completaron dos pasadas del paquete ciego por ChatGPT y Gemini. Las dos se registran estrictamente como **EXPLORATORIAS, NO INDEPENDIENTES**: no se pudo verificar el aislamiento de las sesiones, por lo que no son anotaciones independientes, no demuestran acuerdo entre revisores independientes y no determinan la corrección de ninguna etiqueta gold.
 
+Este informe es el registro separado del estado posterior a la preparación. El manifiesto se conserva como salida reproducible de preparación (`prepared_not_reviewed`, cero pasadas en ese momento); el generador no debe escribir sobre este informe ni convertir el resultado posterior en parte de esa instantánea.
+
 Gemini indicó que no podía verificar por sí mismo el SHA-256 del paquete. Dennys comprobó en su equipo que la copia descargada coincidía con el hash esperado. La respuesta de ChatGPT dice que su sesión usó herramientas locales para leer/verificar el paquete; dado que no se pudo verificar el aislamiento ni el cumplimiento literal de las restricciones de herramientas, esta circunstancia también se conserva como limitación, no como evidencia de independencia.
 
 **E1 sigue abierto.** No se modificó ni cerró el gold; no se ejecutó la campaña, no se entrenaron neuronas y no se modificaron motor o bases.
@@ -28,14 +30,14 @@ La carpeta de Drive contiene además `vista_adjudicacion_sin_gold.md`. Se compro
 Dennys aportó dos observaciones provisionales para la consulta “¿Cómo espaciar los reintentos?”:
 
 1. El recuerdo que menciona timeout y reintento, pero no la espera, tiene relación y puede servir como pista para continuar buscando; por sí solo no explica cómo espaciar intentos. No descartarlo por no ser respuesta directa.
-2. El recuerdo que menciona `backoff` puede ser respuesta directa para quien conoce la técnica, pero no explica tiempos ni configuración. La explicación del término se dio al auditor antes de recibir este criterio, así que pudo influir. Se conserva como **pregunta abierta de rúbrica**, no como etiqueta humana definitiva: ¿cuánto conocimiento técnico externo puede usar quien clasifica, frente a lo que el texto permite inferir por sí solo?
+2. El recuerdo que menciona `backoff` puede ser respuesta directa para quien conoce la técnica, pero no explica tiempos ni configuración. El auditor explicó `backoff` a Dennys antes de recibir su valoración, así que esa explicación pudo influir. Se conserva como **pregunta abierta de rúbrica**, no como etiqueta humana definitiva: ¿cuánto conocimiento técnico externo puede usar quien clasifica, frente a lo que el texto permite inferir por sí solo?
 
 Hasta que Dennys resuelva esa regla, no se debe convertir ninguna de estas observaciones en gold ni usar la mera familiaridad del evaluador con una técnica para ocultar la diferencia entre “nombra un concepto relacionado” y “da información suficiente para contestar”.
 
 ## Siguiente paso propuesto: adjudicación acotada, no cuestionario de 156 preguntas
 
 1. **Congelar el registro exploratorio.** Mantener por separado ambas respuestas originales, sus hashes y sus categorías; no fusionarlas ni calcularlas como acuerdo independiente.
-2. **Construir una cola privada de discrepancias** a partir de los 28 códigos que difieren, conservando pregunta, dos textos presentados, justificaciones y dudas. Empezar por las 26 diferencias pista/respuesta directa; tratar aparte la inversión restante y la diferencia neutral/pista. No adjuntar etiquetas gold.
+2. **Construir una cola privada de discrepancias** a partir de los 28 códigos que difieren, conservando la pregunta, el único texto presentado por elemento, las dos opiniones, justificaciones y dudas. Empezar por las 26 diferencias pista/respuesta directa; tratar aparte la inversión restante y la diferencia neutral/pista. No adjuntar etiquetas gold.
 3. **Revisar los 156 elementos una sola vez para el efecto de transformación**, como ya exige el procedimiento. Para cada elemento, el adjudicador registra primero su lectura de la pregunta y el texto presentado; después coteja el original y registra si el cambio altera materialmente la lectura. Marca explícitamente si el encabezado original sugiere un rol y evita tomarlo como verdad automática. Los 4 elementos sin transformación también se cotejan y se registran como iguales; no se presumen revisados por omisión.
 4. **Pedir criterio a Dennys de uno en uno y solo cuando haga falta.** Se le presenta un caso concreto con pregunta, texto presentado y original, categorías y razones de las dos pasadas, y el punto exacto de decisión; se ocultan los roles gold y se evita revelar el encabezado original antes de guardar la primera lectura del adjudicador. Se registra su respuesta como criterio provisional para esa regla, no como decisión masiva ni cierre de gold. Si el caso no requiere aclaración humana, se anota la justificación y se sigue sin interrumpirlo.
 5. **Llevar un log de adjudicación** con código opaco, desacuerdo, evaluación de transformación, riesgo de encabezado, regla aplicada, consulta/respuesta de Dennys si la hubo, estado abierto/resuelto y justificación. La adjudicación queda separada de los juicios exploratorios y del gold.
@@ -52,3 +54,9 @@ Este flujo no requiere que Dennys responda 156 preguntas: la revisión de origin
 - No se leyó ni publicó contenido de `.private_evidence/`; no se añadieron respuestas completas a Git.
 - No se modificaron fixture ni gold; no se ejecutó E1, no se entrenaron neuronas, y no se tocaron motor o bases.
 - Las pasadas se mantienen como exploratorias/no independientes; aislamiento no verificado.
+
+## Seguimiento de auditoría: instantánea de preparación y regeneración
+
+En una copia aislada del repositorio se ejecutó `scripts/preparar_paquete_ciego_e1.py` sin tocar el checkout de trabajo. El generador reprodujo el paquete con SHA-256 `c6445643cf8750cd85f841c4f3c8b6211c9ecb2a7e5777a43c56764c98112a90` y produjo un manifiesto byte por byte idéntico a la instantánea de preparación de `fff0dac`: `status=prepared_not_reviewed`, `review_passes_started=0`. El informe de estado posterior mantuvo el mismo SHA-256 antes y después de la regeneración aislada; el generador no lo sobrescribió.
+
+El crosswalk creado únicamente dentro de esa copia aislada tuvo un hash que coincidió con el valor del manifiesto generado y permisos `0600`; el digest y el contenido privado no se publican aquí. El checkout de esta verificación no contiene el crosswalk privado original, así que no se afirma haber comprobado ese archivo operativo preexistente ni haberlo alterado. El paquete del checkout tampoco se modificó.

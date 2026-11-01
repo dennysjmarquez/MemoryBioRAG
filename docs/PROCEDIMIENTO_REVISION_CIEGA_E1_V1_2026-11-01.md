@@ -1,6 +1,6 @@
 # Procedimiento de revisión ciega E1 — paquete v1
 
-**Estado: preparado, no enviado a agentes y no revisado.** No modifica/cierra el gold ni autoriza E1.
+**Estado de este documento: instantánea histórica de preparación (2026-11-01).** Al redactarse, el paquete aún no se había enviado y no se había iniciado ninguna pasada; ese estado no describe la situación posterior. El informe [Estado de las pasadas exploratorias E1](ESTADO_REVISION_EXPLORATORIA_E1_2026-11-01.md) registra las dos pasadas posteriores como **EXPLORATORIAS, NO INDEPENDIENTES**, los controles realizados y las limitaciones vigentes. Este procedimiento no modifica/cierra el gold ni autoriza E1.
 
 ## Artefactos
 
@@ -34,13 +34,13 @@ El generador falló cerrado si no hallaba 33 casos, 33/57 asignaciones, 66 adici
 
 Los títulos numerados se quitan porque varios contienen palabras que declaran el rol de origen. Para las dos pasadas, entregar exactamente estos dos archivos y nada más: el JSONL del paquete y `docs/INSTRUCCIONES_REVISOR_CIEGO_E1_V1.md` (que incluye el hash esperado del paquete). No entregar el manifest, gold, generador, crosswalk, este procedimiento ni esta conversación.
 
-## Entrega aislada y sesiones
+## Plan original de entrega aislada (histórico)
 
-La propuesta de entrega es preparar **dos entornos frescos fuera del checkout/repositorio** (A y B), sin herramientas de navegación o archivos del proyecto, conectores, historial de conversación, memoria compartida ni acceso al crosswalk. A cada uno se le carga únicamente el paquete JSONL y el archivo de instrucciones; las instrucciones verifican el SHA-256 esperado. El custodio conserva el manifest/crosswalk y las respuestas; cada sesión devuelve su respuesta sin ver la de la otra. Se congelan/hashéan ambas salidas antes de cualquier comparación.
+Este apartado registra la propuesta de preparación, no certifica que se haya cumplido. Se propuso preparar **dos entornos frescos fuera del checkout/repositorio** (A y B), sin herramientas de navegación o archivos del proyecto, conectores, historial de conversación, memoria compartida ni acceso al crosswalk. A cada uno se le cargaría únicamente el paquete JSONL y el archivo de instrucciones; las instrucciones verificarían el SHA-256 esperado. El custodio conservaría el manifiesto/crosswalk y las respuestas; cada sesión devolvería su respuesta sin ver la de la otra. Se congelarían/hashéarían ambas salidas antes de cualquier comparación. El informe posterior enlazado arriba registra lo que sí ocurrió y sus límites.
 
 Antes de ejecutar, el custodio debe registrar el identificador de sesión de cada entorno, comprobar que no ve el repo/historial ni la otra salida, y guardar hashes de los dos archivos entregados, prompt y respuesta. Si la plataforma no permite inspeccionar o demostrar esas barreras, no declarar independencia. Si aun así se hicieran pasadas, etiquetarlas **exploratorias, no independientes**, sin calcular acuerdo como si fueran independientes ni usarlas para aprobar/cerrar gold.
 
-En este turno solo es identificable **la sesión actual de Arena Agent Mode**; ya tuvo acceso al gold/etiquetas y no es elegible como revisor ciego. No se expone un ID de una segunda sesión fresca y aislada. Por ello, no se asignó ni inició ninguna pasada y no se afirma que haya dos agentes disponibles.
+**Registro histórico de preparación:** en el turno en que se redactó este procedimiento solo era identificable la sesión actual de Arena Agent Mode, que ya había tenido acceso al gold/etiquetas; no se exponía el ID de una segunda sesión fresca y aislada. En ese momento no se asignó ni inició ninguna pasada. Posteriormente se recibieron dos pasadas; el informe enlazado arriba las identifica como exploratorias/no independientes y deja constancia de que el aislamiento no pudo verificarse.
 
 ## Adjudicación y revisión de originales
 
@@ -48,4 +48,4 @@ Después de congelar ambas respuestas, un adjudicador humano bilingüe, elegido 
 
 Cada agente devolvería por artículo una categoría provisional (`respuesta principal`, `pista útil`, `neutral`, `irrelevante/perjudicial` o `evidencia insuficiente`), fragmento textual, vínculo con la consulta, duda y confianza. La revisión de agentes no sustituye automáticamente a revisores humanos ni constituye aprobación del gold.
 
-**Pasadas iniciadas: 0. Gold modificado: no. Campaña E1 ejecutada: no. Motor/bases modificados: no. W sigue pendiente.**
+**Estado al cerrar la preparación (histórico, 2026-11-01): pasadas iniciadas: 0; gold modificado: no; campaña E1 ejecutada: no; motor/bases modificados: no.** Las dos pasadas posteriores y su clasificación exploratoria/no independiente se documentan en el [informe de estado posterior](ESTADO_REVISION_EXPLORATORIA_E1_2026-11-01.md). W sigue pendiente.

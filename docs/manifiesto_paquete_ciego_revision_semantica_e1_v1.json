@@ -23,10 +23,9 @@
     "classification_if_attempted_without_verification": "exploratory_non_independent",
     "current_session_eligible_as_blind_reviewer": false,
     "identified_sessions": [
-      "ChatGPT reviewer conversation; platform/session ID not recorded; isolation not verified",
-      "Gemini reviewer conversation; platform/session ID not recorded; isolation not verified"
+      "current Arena Agent Mode conversation only; no separate agent-session ID or second isolated session is exposed to this turn"
     ],
-    "review_passes_started": 2,
+    "review_passes_started": 0,
     "second_session_available_and_identified": false,
     "separation_verified": false,
     "verification_required": [
@@ -82,46 +81,6 @@
     "primary_decision_suffix_remaining": false,
     "source_concept_id_pattern_found": false
   },
-  "post_preparation_review_audit": {
-    "automated_output_checks": {
-      "agreements": 128,
-      "cases_per_response": 33,
-      "category_comparisons": 156,
-      "disagreement_pairs": {
-        "clue_vs_direct_one_direction": 26,
-        "direct_vs_clue_reverse": 1,
-        "neutral_vs_clue": 1
-      },
-      "disagreements": 28,
-      "item_code_sets_match": true,
-      "items_per_response": 156,
-      "unique_item_codes_per_response": 156
-    },
-    "campaign_executed": false,
-    "classification": "EXPLORATORY_NON_INDEPENDENT",
-    "engine_or_database_changed": false,
-    "gold_modified": false,
-    "interpretation": "Counts describe outputs only; they do not establish independence or correctness of labels.",
-    "package_sha256_custodian_verified": "c6445643cf8750cd85f841c4f3c8b6211c9ecb2a7e5777a43c56764c98112a90",
-    "responses": [
-      {
-        "file": "revision_1.txt",
-        "package_hash_verification": "response reports verification; custodian also verified local download",
-        "sha256": "a6d51434c15c6507d6028b2a747239b213d7afa4973a15fc490a0493b415454a",
-        "tool_restriction_compliance": "not verifiable; response reports local tool use"
-      },
-      {
-        "file": "revision_2.txt",
-        "package_hash_verification": "not verified by reviewer; custodian verified local download",
-        "sha256": "efc8bf399fe7ea4f95d026c3188bfbec9e7fe27b55972ed7541d5fce31e668e8"
-      }
-    ],
-    "reviewers": [
-      "ChatGPT",
-      "Gemini"
-    ],
-    "session_isolation_verified": false
-  },
   "private_crosswalk_directory_mode": "0700",
   "private_crosswalk_file_mode": "0600",
   "private_crosswalk_path": ".private_evidence/e1_blind_review_v1/crosswalk_private_r10.jsonl",
@@ -139,7 +98,7 @@
   "seed": 20261101,
   "source": "scripts/casos_qa_intuicion_asociaciones_e1.jsonl",
   "source_sha256": "d91e9ee1437f2695b2278ff06cf2ad202e5d124c500c0f8dc22a6865e0e2497e",
-  "status": "prepared_exploratory_reviews_completed_not_independent_gold_open",
+  "status": "prepared_not_reviewed",
   "title": "Blind E1 semantic review package, v1",
   "total_candidate_presentations": 156,
   "transformation_application_counts": {
