@@ -21,6 +21,12 @@ Se reconstruyó cada transformación con una implementación separada que vuelve
 
 El control clasifica automáticamente los 147 títulos eliminados según palabras del propio encabezado: 54 con palabras que pueden sugerir un rol de respuesta o pista, 61 con palabras que pueden sugerir una clasificación negativa y 32 con otros encabezados. Es una clasificación literal para localizar posibles anclajes, **no un juicio de relevancia ni una etiqueta de los recuerdos**. Otras reglas también pueden aportar señales de rol. Las 156 entradas del registro figuran explícitamente con impacto semántico no evaluado y revisión humana pendiente. La coincidencia de una regla o un título no prueba por sí misma que cambiaría una respuesta ni autoriza descartar una pista.
 
+## Comprobación literal de citas de las dos pasadas
+
+Se descargaron las dos respuestas congeladas desde Drive y se verificaron sus SHA-256: `a6d51434c15c6507d6028b2a747239b213d7afa4973a15fc490a0493b415454a` (primera) y `efc8bf399fe7ea4f95d026c3188bfbec9e7fe27b55972ed7541d5fce31e668e8` (segunda). Se extrajo de cada registro la línea de evidencia, se identificaron los fragmentos entre comillas latinas o dobles y se comparó cada fragmento literalmente con el texto presentado para el mismo par de códigos del paquete verificado. Resultado: **156/156 registros con fragmentos literales en la primera pasada y 156/156 en la segunda**; ningún registro sin comillas detectables o con una cita no encontrada por ese procedimiento. No se alteraron las respuestas.
+
+Este control verifica solo que los fragmentos citados aparezcan en el texto presentado: no demuestra que sustenten la categoría, que la interpretación sea correcta, ni que las revisiones sean independientes. La comparación respeta exactamente los caracteres y no coteja todavía si un encabezado retirado cambia el sentido.
+
 ## Estado y límites
 
 Las dos pasadas son exploratorias/no independientes. Los 28 desacuerdos tienen lecturas preliminares de agente; siguen pendientes. El orden reportado de lectura inicial y cotejo no está demostrado independientemente por sus hashes. Las 128 coincidencias tampoco son automáticamente correctas, ni una garantía de que no cambie el significado al recuperar el original.
