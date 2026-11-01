@@ -2,9 +2,12 @@
 
 Fecha: 2026-11-01. Solo se usaron conexiones SQLite `:memory:` con tablas y filas sintéticas. No se abrió la base del proyecto, no se repitió ninguna búsqueda real, no se modificó el motor ni datos.
 
-## Diff incluido en esta revisión
+## Cambios incluidos en esta revisión
 
-El cambio de código está en `tests/test_sqlite_authorizer_diagnostic_synthetic.py`. Es una prueba autónoma de la instrumentación propuesta, no un cambio a `core/` ni al arnés de búsqueda real.
+- `scripts/authorizer_supervisor.py`: helper aislado para evento sanitizado, persistencia exclusiva y supervisión de un subprocess. No está importado por `core/` ni aplicado al arnés temporal.
+- `tests/test_sqlite_authorizer_diagnostic_synthetic.py`: pruebas sintéticas de authorizer, allowlist y TEMP view.
+- `tests/test_authorizer_supervisor_subprocess_synthetic.py`: pruebas subprocess que ejercitan el helper exacto con SQLite `:memory:`.
+- `docs/PROPUESTA_DIFF_SUPERVISOR_AUTORIZER_TEMPORAL_2026-11-01.md`: diff de diseño para cotejar con el arnés; no es un patch aplicado ni se considera directamente ejecutable en él.
 
 - Cada evento denegado incluye solo `phase`, nombre de acción SQLite, clase de base (`main`/`temp`/otra) y marcos Python sanitizados (`archivo`, `función`, `línea`). No registra SQL, argumentos de SQLite, valores, locales ni filas.
 - Conserva el primer evento: el worker lo envía por IPC; el supervisor lo escribe con creación exclusiva, modo `0600` y `fsync`, y **después** solicita la terminación del worker.
@@ -13,19 +16,22 @@ El cambio de código está en `tests/test_sqlite_authorizer_diagnostic_synthetic
 
 ## Resultados sintéticos
 
-Ejecutado con Python 3.11.2 / SQLite 3.40.1; `unittest`: **3 pruebas, OK**.
+Validación: `python -m py_compile scripts/authorizer_supervisor.py tests/test_authorizer_supervisor_subprocess_synthetic.py` completó sin errores. `python tests/test_sqlite_authorizer_diagnostic_synthetic.py`: **5 pruebas, OK**. `python tests/test_authorizer_supervisor_subprocess_synthetic.py`: **3 pruebas subprocess, OK**. Las pruebas subprocess ejercitaron el helper con Python 3.11.2 / SQLite 3.40.1.
 
 1. **Crear y resolver una vista TEMP.** Al crearla, SQLite emitió una acción `SQLITE_CREATE_TEMP_VIEW`, una acción `SQLITE_INSERT` y cinco `SQLITE_UPDATE` asociados al catálogo `temp`. Al resolverla con un `SELECT`, se observaron cero acciones DML contra el catálogo. La prueba resolvió una fila sintética y no publicó su valor.
 2. **Allowlist PRAGMA.** Pasó `database_list` sin argumento y `main.table_info` de una tabla enumerada. Denegó cinco formas fuera de allowlist: `foreign_keys`, `journal_mode`, `data_version`, `query_only` y `temp.table_info`. No imprimió las filas de `database_list`.
-3. **Supervisor.** Un worker sintético capturó la excepción de un `INSERT` denegado y siguió vivo; el supervisor recibió el primer evento, lo persistió antes de pedir terminación y confirmó que el worker terminó. El evento quedó en modo `0600`, con fase y marcos, sin SQL ni valores. La prueba no fija ni afirma una latencia instantánea: existe una ventana entre el evento, la notificación, la escritura/fsync y la señal de terminación.
+3. **Supervisor en prueba unitaria.** Un worker sintético capturó la excepción de un `INSERT` denegado y siguió vivo; el supervisor recibió el primer evento, lo persistió antes de pedir terminación y confirmó que el worker terminó. La prueba no fija ni afirma una latencia instantánea.
+4. **Supervisor subprocess: evento normal.** El helper recibió un evento real del authorizer de SQLite `:memory:`, guardó el evento sanitizado y detuvo al hijo antes de iniciar el siguiente worker.
+5. **Fallo de IPC.** El worker guardó primero el evento y luego se cerró el descriptor de comunicación; el padre recuperó el evento local, detuvo el hijo y no inició otro.
+6. **Fallo de guardado.** Se hicieron fallar las rutas primarias (worker y supervisor); se usó la ruta fallback, se detuvo el hijo y no se inició otro. En todos los casos se verifica el estado detenido, pero no se afirma latencia instantánea.
 
 Salida resumida de las pruebas:
 
 ```text
 TEMP view create/resolve: CREATE_TEMP_VIEW=1; catalog DML on temp during create: INSERT=1, UPDATE=5; catalog DML during resolve=0
 Strict PRAGMA allowlist: allowed database_list + listed main.table_info; denied other PRAGMA forms=5
-Synthetic supervisor: first event durable before termination; worker stopped; mode=0600; instant interruption claimed=false
-Ran 3 tests — OK
+Synthetic supervisor subprocess: normal event saved; IPC failure recovered worker-local event; save failure used fallback
+All 5 diagnostic tests and all 3 subprocess tests — OK
 ```
 
 ## Relación —y límites de la inferencia— con el intento anterior
