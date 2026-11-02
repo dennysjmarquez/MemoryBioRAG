@@ -24,7 +24,22 @@ Las cinco entradas tuvieron tres etiquetas cada una, con una pista estable y dos
 
 Ambas políticas recuperan 3/3 pistas de la última actualización. El resultado **no adjudica** si las facetas previas siguen describiendo el recuerdo: bajo verdad complementaria, reemplazar pierde cobertura; bajo verdad de supersesión, acumular conserva ocho pistas obsoletas y amplía la activación potencial. La acumulación también llevó el conjunto almacenado a 11, aunque cada entrada individual tenía 3 etiquetas (la validación de escritura acepta 2–10 por entrada). Así que el efecto observado es el trade-off cobertura/deriva, no evidencia de que acumular sea mejor.
 
-El código actual reemplaza el par plegado/exacto al recibir etiquetas no vacías en percepción y consolidación; sin etiqueta entrante conserva las actuales. La herramienta llamada `biorag_agregar_sustantivos` también hace `UPDATE` con la lista entrante, no una unión. No se cambió ese comportamiento. El test solo midió pistas de etiqueta en FTS; no midió vecinos, asociaciones, sinapsis ni rankings, que requerirían una evaluación aparte antes de proponer cualquier mejora.
+El código actual reemplaza el par plegado/exacto al recibir etiquetas no vacías en percepción y consolidación; sin etiqueta entrante conserva las actuales. La herramienta llamada `biorag_agregar_sustantivos` también hace `UPDATE` con la lista entrante, no una unión. No se cambió ese comportamiento. El primer sondeo solo midió pistas de etiqueta en FTS. A continuación se ejecutó una prueba distinta de las rutas MCP.
+
+## Rutas MCP: historial útil/contradicho, etiquetas y vecinos
+
+`scripts/diagnosticar_rutas_mcp_historial_pistas_vecinos_e3.py` registra las funciones MCP y las llama directamente sobre copias SQLite sintéticas. Cada fixture tiene un recuerdo objetivo y dos recuerdos vecinos enlazados por sinapsis manuales. Se probaron dos rutas de escritura (`actualizar`, `agregar_sustantivos`), dos rutas de lectura (`sustantivos`, `recordar`), dos supuestos de historial (faceta histórica aún útil; registro histórico explícitamente contradicho) y las ramas de reemplazo actual y acumulación solo en copia: **8 brazos**. La búsqueda usó `recordar` con `asociados=True` y `context_window=1`.
+
+| Supuesto y política en copia | Pista histórica en FTS de etiquetas | Ruta MCP `recordar` encuentra el objetivo por pista histórica | Nuevas/estables | Vecinos al recuperar el objetivo |
+|---|---|---|---|---|
+| Historia útil · reemplazo | No (0/1 pista exclusiva) | No | Sí, objetivo en rango 1 | — al no haber objetivo |
+| Historia útil · acumulación sintética | Sí (1/1) | Sí, rango 1 | Sí, rango 1 | 2/2 en asociaciones y contexto |
+| Historia contradicha · reemplazo | No en etiquetas | **Sí**, rango 1 desde el contenido histórico conservado | Sí, rango 1 | 2/2 en asociaciones y contexto |
+| Historia contradicha · acumulación sintética | Sí en etiquetas | **Sí**, rango 1 | Sí, rango 1 | 2/2 en asociaciones y contexto |
+
+`actualizar` y `agregar_sustantivos` dieron estado `ok` y el mismo resultado de escritura en cada brazo: la segunda ruta también reemplaza las etiquetas entrantes, pese a su nombre. `sustantivos` confirmó el estado almacenado. En el caso útil, la pista exclusiva anterior (fixture: puntuación MCP 0,0726 con acumulación) recupera el objetivo solo cuando sigue en las etiquetas; el contenido no repite ese término. En el caso contradictorio, el término histórico ya no está en las etiquetas del brazo de reemplazo, pero `recordar` aún encuentra el nodo porque la narración conservada contiene ambos lados y la contradicción. La variante de acumulación también lo encuentra y puntúa 0,0749 frente a 0,0721 en ese query de fixture. Estos scores son solo diagnósticos locales de la copia, no mediciones generalizables.
+
+En todos los casos donde se recuperó el objetivo, los dos vecinos sintéticos aparecieron tanto en asociaciones enriquecidas como en contexto expandido. Las escrituras de etiquetas conservaron las aristas en todas las copias; no se borraron vecinos ni recuerdos. Los casos simulados muestran que reemplazar una pista de etiqueta no equivale a borrar el historial del contenido, y que la recuperación textual puede seguir exponiendo una contradicción. No se asignó verdad a datos reales ni se aplicó un filtro manual. La ausencia de etiquetas viejas en la rama de reemplazo es solo una observación de esa ruta en la copia; no es una decisión de descartarlas. No se elige una política.
 
 ## Matriz de estado
 
@@ -52,7 +67,8 @@ Este documento no propone un diff. Si se selecciona un frente para intervención
 - `docs/e3a_investigacion_multilingue_20261027.md` — línea base e inventario de rutas lingüísticas.
 - `docs/e3_cjk_controles_sinteticos_20261101.md` — controles CJK y regresiones del arnés.
 - `docs/e3_investigacion_fp_ingles_y_etiquetas_pendientes_20261102.md` — dos negativos ingleses y 14 marcadores de prueba, con resultados sanitizados.
-- `scripts/diagnosticar_reemplazo_vs_acumulacion_etiquetas_sinteticas_e3.py` — sondeo reproducible solo sintético, con dos copias SQLite temporales y ninguna salida privada.
+- `scripts/diagnosticar_reemplazo_vs_acumulacion_etiquetas_sinteticas_e3.py` — sondeo reproducible solo sintético de dos políticas.
+- `scripts/diagnosticar_rutas_mcp_historial_pistas_vecinos_e3.py` — rutas MCP de escritura/lectura, pistas históricas y dos vecinos en copias temporales.
 - `docs/e3_cambio2_investigacion_sustantivos_20261029.md` y `docs/e3_cambio2_resultados_20261029.md` — historial separado del almacenamiento exacto/plegado; deben leerse junto con el código actual.
 - `docs/e3_unicode_identidad_investigacion_20261028.md` — sondas de normalización en copias, sin decisión nueva en este inventario.
 
