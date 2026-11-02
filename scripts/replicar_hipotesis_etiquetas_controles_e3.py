@@ -5,8 +5,9 @@ Usa únicamente fixtures SQLite sintéticas temporales y el FastMCP stdio real.
 Cada brazo parte del mismo seed por familia, tiene estado DMN propio y reloj
 fijo. El control cambia una sola etiqueta por un término neutral de igual
 longitud; las dos columnas plegada/exacta cambian coherentemente como un par.
-Todos los términos y casos permanecen en un manifiesto inmutable, aunque un
-brazo no los active como etiquetas. No toca código del motor ni bases reales.
+Todos los términos y casos quedan en un manifiesto por corrida, aunque un
+brazo no los active como etiquetas. Se registran hashes canónicos y de archivo;
+el runner usa salidas nuevas y rechaza sobrescribirlas. No toca motor ni bases reales.
 """
 from __future__ import annotations
 
@@ -170,6 +171,10 @@ def resolve_private_output_dir(requested: str | None) -> Path:
     return out_dir
 
 
+def canonical_json_bytes(value: dict) -> bytes:
+    return json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode("utf-8")
+
+
 def write_private_artifacts(report: dict, out_dir: Path) -> dict:
     private_root = (ROOT / ".private_evidence").resolve()
     out_dir = out_dir.resolve()
@@ -178,23 +183,52 @@ def write_private_artifacts(report: dict, out_dir: Path) -> dict:
     if out_dir.exists():
         raise FileExistsError(f"Refusing to overwrite existing evidence directory: {out_dir}")
     ledger = all_clue_manifest()
-    ledger_bytes = json.dumps(ledger, ensure_ascii=False, indent=2, sort_keys=True).encode("utf-8")
-    report["cue_manifest_sha256"] = hashlib.sha256(ledger_bytes).hexdigest()
+    ledger_file_bytes = json.dumps(ledger, ensure_ascii=False, indent=2, sort_keys=True).encode("utf-8") + b"\n"
+    ledger_canonical_hash = hashlib.sha256(canonical_json_bytes(ledger)).hexdigest()
+    ledger_file_hash = hashlib.sha256(ledger_file_bytes).hexdigest()
+    report["manifest_hashes"] = {
+        "canonical_json_utf8_sha256": ledger_canonical_hash,
+        "file_bytes_sha256": ledger_file_hash,
+    }
     report["evidence_revision"] = "corrected_harness_preserving_original"
     out_dir.mkdir(parents=True, exist_ok=False)
     ledger_path = out_dir / "all_synthetic_clues_manifest.json"
     report_path = out_dir / "stdio_cases_full.json"
-    ledger_path.write_bytes(ledger_bytes + b"\n")
-    report_path.write_text(json.dumps(report, ensure_ascii=False, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    ledger_path.write_bytes(ledger_file_bytes)
+    ledger_readback = ledger_path.read_bytes()
+    if ledger_readback != ledger_file_bytes or hashlib.sha256(ledger_readback).hexdigest() != ledger_file_hash:
+        raise RuntimeError("Manifest byte verification failed after write")
+    canonical_readback_hash = hashlib.sha256(canonical_json_bytes(json.loads(ledger_readback))).hexdigest()
+    if canonical_readback_hash != ledger_canonical_hash:
+        raise RuntimeError("Manifest canonical-JSON verification failed after write")
+    report_bytes = json.dumps(report, ensure_ascii=False, indent=2, sort_keys=True).encode("utf-8") + b"\n"
+    report_expected_hash = hashlib.sha256(report_bytes).hexdigest()
+    report_path.write_bytes(report_bytes)
+    report_readback = report_path.read_bytes()
+    report_file_hash = hashlib.sha256(report_readback).hexdigest()
+    if report_readback != report_bytes or report_file_hash != report_expected_hash:
+        raise RuntimeError("Case-report byte verification failed after write")
     manifest = {
         "audit_controls_commit": ledger["audit_controls_commit"],
-        "all_synthetic_clues_manifest.json": hashlib.sha256(ledger_path.read_bytes()).hexdigest(),
-        "stdio_cases_full.json": hashlib.sha256(report_path.read_bytes()).hexdigest(),
+        "all_synthetic_clues_manifest.json": ledger_file_hash,
+        "all_synthetic_clues_manifest_canonical_json_sha256": ledger_canonical_hash,
+        "stdio_cases_full.json": report_file_hash,
         "case_count": len(report["arms"]),
         "source_databases_opened": 0,
     }
-    (out_dir / "SHA256SUMS.json").write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-    return {"private_artifact_dir": str(out_dir), "private_manifest_sha256": report["cue_manifest_sha256"]}
+    sums_path = out_dir / "SHA256SUMS.json"
+    sums_bytes = json.dumps(manifest, indent=2, sort_keys=True).encode("utf-8") + b"\n"
+    sums_path.write_bytes(sums_bytes)
+    if sums_path.read_bytes() != sums_bytes:
+        raise RuntimeError("Checksum-manifest byte verification failed after write")
+    for path, expected_hash in ((ledger_path, ledger_file_hash), (report_path, report_file_hash)):
+        if hashlib.sha256(path.read_bytes()).hexdigest() != expected_hash:
+            raise RuntimeError(f"Evidence file checksum verification failed: {path.name}")
+    return {
+        "private_artifact_dir": str(out_dir),
+        "private_manifest_file_sha256": ledger_file_hash,
+        "private_manifest_canonical_json_sha256": ledger_canonical_hash,
+    }
 
 
 def seed_db(path: Path, family: dict) -> None:
@@ -304,6 +338,22 @@ def parse_tool_result(result) -> dict:
     raise RuntimeError(f"MCP tool result no JSON: {raw[:300]}")
 
 
+def recall_error_fields(result: dict) -> dict:
+    raw_status = result.get("status")
+    mcp_is_error = bool(result.get("_mcp_is_error"))
+    status = "mcp_error" if mcp_is_error and raw_status is None else "ok" if raw_status is None else raw_status
+    return {
+        "response_status": status,
+        "response_status_raw": raw_status,
+        "mcp_is_error": mcp_is_error,
+        "mcp_error_detail": (result.get("error") or result.get("message")) if mcp_is_error else None,
+    }
+
+
+def recall_result_ok(output: dict) -> bool:
+    return not output.get("mcp_is_error") and output.get("response_status") == "ok"
+
+
 class StdioSession:
     def __init__(self, db_path: Path, temp_root: Path):
         self.db_path = db_path.resolve()
@@ -395,8 +445,9 @@ async def run_arm(seed: Path, db_path: Path, temp_root: Path,
         read_after = await mcp.call("sustantivos", {"concepto": TARGET})
         snapshots["after_write"] = full_graph_snapshot(db_path)
         rows["after_write"] = target_row(db_path)
-        observed = read_after.get("sustantivos_clave", "")
-        observed_folded, observed_exact = normalized_pair(observed.split(",") if observed else [])
+        stored_target = rows["after_write"].get("row")
+        stored_folded_actual = stored_target[3] if stored_target and len(stored_target) > 3 else None
+        stored_exact_actual = stored_target[4] if stored_target and len(stored_target) > 4 else None
         for role in query_plan:
             term = family["probe"] if role == "old" else family["current_query"]
             result = await mcp.call("recordar", {
@@ -417,7 +468,7 @@ async def run_arm(seed: Path, db_path: Path, temp_root: Path,
             outputs.append({
                 "role": role,
                 "query_term": term,
-                "response_status": result.get("status", "ok"),
+                **recall_error_fields(result),
                 "total": result.get("total"),
                 "target_primary_found": target_primary is not None,
                 "target_rank": next((i + 1 for i, x in enumerate(primary) if x.get("concepto") == TARGET), None),
@@ -459,7 +510,7 @@ async def run_arm(seed: Path, db_path: Path, temp_root: Path,
     snapshot_queries_ok = all(not snap["query_errors"] for snap in snapshots.values())
     arm_status = "ok" if snapshot_queries_ok \
         and all(r.get("status") == "ok" and not r.get("_mcp_is_error") for r in tool_results) \
-        and all(not q.get("_mcp_is_error") and q.get("response_status") == "ok" for q in outputs) else "inconclusive"
+        and all(recall_result_ok(q) for q in outputs) else "inconclusive"
     return {
         "arm_status": arm_status,
         "family": family_name,
@@ -474,10 +525,14 @@ async def run_arm(seed: Path, db_path: Path, temp_root: Path,
         "payload_char_count": len(",".join(labels_input)),
         "normalized_expected_folded": folded_expected,
         "normalized_expected_exact": exact_expected,
+        "stored_folded_actual_from_sql_column": stored_folded_actual,
+        "stored_exact_actual_from_sql_column": stored_exact_actual,
+        "stored_folded_matches_expected": stored_folded_actual == folded_expected,
+        "stored_exact_matches_expected": stored_exact_actual == exact_expected,
         "mcp_write_result": write,
         "mcp_read_before": read_before,
         "mcp_read_after": read_after,
-        "stored_pair_matches_expected": (observed_folded == folded_expected and observed_exact == exact_expected),
+        "stored_pair_matches_expected": (stored_folded_actual == folded_expected and stored_exact_actual == exact_expected),
         "initial_manual_synapse_rows": manual_seed_rows,
         "manual_synapse_rows_preserved_by_stage": manual_edges_preserved_by_stage,
         "fts_channels": channel_hits,
@@ -561,7 +616,6 @@ def summarize_arms(arms: list[dict]) -> dict:
 
 async def execute_replica() -> dict:
     manifest = all_clue_manifest()
-    manifest_sha = hashlib.sha256(json.dumps(manifest, ensure_ascii=False, sort_keys=True).encode("utf-8")).hexdigest()
     with tempfile.TemporaryDirectory(prefix="e3_etq_controls_") as tmp:
         temp_root = Path(tmp)
         arms = []
@@ -622,13 +676,19 @@ async def execute_replica() -> dict:
             "arms": arms,
             "pair_summary": pair_summary,
             "clue_manifest": manifest,
-            "clue_manifest_sha256": manifest_sha,
         }
 
 
 def public_summary(report: dict, private_paths: dict) -> dict:
     pairs = report["pair_summary"]["pairs"]
     order = report["pair_summary"]["query_order_checks"]
+    all_queries = [q for arm in report["arms"] for q in arm.get("queries", [])]
+    historical_queries = [q for q in all_queries if q.get("role") == "old"]
+    current_queries = [q for q in all_queries if q.get("role") == "current"]
+    historical_modes = {
+        arm.get("mode") for arm in report["arms"]
+        if any(q.get("role") == "old" for q in arm.get("queries", []))
+    }
     valid_pairs = [row for row in pairs if row.get("status") == "ok"]
     valid_order = [row for row in order if row.get("status") == "ok"]
     return {
@@ -649,7 +709,13 @@ def public_summary(report: dict, private_paths: dict) -> dict:
             for a in report["arms"]
             for snap in a.get("graph_snapshots_exact_rows", {}).values()
         ) if report["arms"] else None,
-        "sequence_and_isolated_query_modes": 4,
+        "query_modalities_total": 4,
+        "historical_query_modes_actually_executed": len(historical_modes),
+        "historical_query_calls": len(historical_queries),
+        "current_query_calls": len(current_queries),
+        "recordar_calls_total": len(all_queries),
+        "recordar_mcp_error_flags": sum(bool(q.get("mcp_is_error")) for q in all_queries),
+        "recordar_status_error_responses": sum(q.get("response_status_raw") == "error" for q in all_queries),
         "label_or_neutral_differential_pairs": len(pairs),
         "matched_neutral_lengths": all(
             len(row["probe"]) == len(row["neutral"]) for row in FAMILIES.values()
