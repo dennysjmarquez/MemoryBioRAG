@@ -27,6 +27,7 @@ if str(ROOT) not in sys.path:
 from scripts.replicar_hipotesis_etiquetas_controles_e3 import (
     FIXED_CLOCK,
     GRAPH_QUERIES,
+    GRAPH_SNAPSHOT_SCOPE,
     StdioSession,
     canonical_json_bytes,
     full_graph_snapshot,
@@ -80,6 +81,12 @@ DENSITIES = {
     "candidates_only": {"manual_neighbor_count": 0, "candidate_count": 2},
     "dense": {"manual_neighbor_count": 2, "candidate_count": 2},
 }
+
+MCP_TOOL_STAGES = (
+    "open_first_tool", "preflight_recordar", "create_short", "read_short_labels",
+    "consolidate", "read_long_labels", "historical_recordar",
+)
+RECORDAR_STAGES = ("preflight_recordar", "historical_recordar")
 
 BRIDGES = [
     {"text": "synthetic instrument alternate wording", "angle": "sinonimo"},
@@ -229,6 +236,15 @@ def query_args(term: str) -> dict:
     }
 
 
+def tool_result_is_ok(result: dict) -> bool:
+    return (
+        not result.get("_mcp_is_error")
+        and result.get("status") not in {"error", "exception"}
+        and not result.get("exception_type")
+        and not result.get("error")
+    )
+
+
 def summarize_recall(result: dict) -> dict:
     primary = result.get("resultados", [])
     expanded = result.get("contexto_expandido", [])
@@ -269,6 +285,7 @@ async def run_arm(seed: Path, db_path: Path, temp_root: Path, history_id: str,
     stage_results = {}
     recall_results = {}
     errors = []
+    python_exception_records = []
     async with StdioSession(db_path, temp_root) as mcp:
         stage_results["after_initialize"] = {"graph": full_graph_snapshot(db_path)}
         snapshots["after_initialize"] = stage_results["after_initialize"]["graph"]
@@ -278,14 +295,20 @@ async def run_arm(seed: Path, db_path: Path, temp_root: Path, history_id: str,
             try:
                 result = await mcp.call(name, args)
             except Exception as exc:
-                errors.append({"stage": stage, "tool": name, "error_type": type(exc).__name__, "error": str(exc)[:500]})
+                record = {"stage": stage, "tool": name, "error_type": type(exc).__name__, "error": str(exc)[:500]}
+                errors.append(record)
+                python_exception_records.append(dict(record))
                 return {"status": "exception", "exception_type": type(exc).__name__, "error": str(exc)[:500]}
-            if result.get("_mcp_is_error") or result.get("status") == "error":
+            if (
+                result.get("_mcp_is_error") or result.get("status") in {"error", "exception"}
+                or result.get("exception_type") or result.get("error")
+            ):
                 errors.append({
                     "stage": stage,
                     "tool": name,
                     "mcp_is_error": bool(result.get("_mcp_is_error")),
                     "status": result.get("status"),
+                    "exception_type": result.get("exception_type"),
                     "error": str(result.get("error") or result.get("message") or "")[:500],
                 })
             return result
@@ -344,10 +367,9 @@ async def run_arm(seed: Path, db_path: Path, temp_root: Path, history_id: str,
     all_tool_results = list(stage_results.values())
     snapshot_ok = all(not snap.get("query_errors") for snap in snapshots.values())
     storage_ok = all(not item[table].get("query_error") for item in storage.values() for table in item)
-    statuses_ok = all(
-        not result.get("_mcp_is_error") and result.get("status") != "error"
-        for result in all_tool_results
-    ) and all(recall_result_ok(q) for q in (preflight, recall_results.get("historical", {})))
+    statuses_ok = all(tool_result_is_ok(result) for result in all_tool_results) and all(
+        recall_result_ok(q) for q in (preflight, recall_results.get("historical", {}))
+    )
     direct_storage_ok = (
         short_folded == expected_folded and short_exact == expected_exact
         and long_folded == expected_folded and long_exact == expected_exact
@@ -375,6 +397,8 @@ async def run_arm(seed: Path, db_path: Path, temp_root: Path, history_id: str,
         "historical_recall": recall_results.get("historical", {}),
         "tool_results": stage_results,
         "errors": errors,
+        "python_exception_records": python_exception_records,
+        "preflight_recall_status": preflight,
         "graph_snapshots_full_rows": snapshots,
         "storage_snapshots_exact_rows": storage,
         "graph_deltas_full_rows": graph_deltas,
@@ -433,6 +457,26 @@ def summarize(report: dict) -> dict:
                     },
                 })
     valid_pairs = [p for p in pairs if p.get("status") == "ok"]
+    tool_result_pairs = [
+        (a, stage, a.get("tool_results", {}).get(stage))
+        for a in report["arms"] for stage in MCP_TOOL_STAGES
+        if isinstance(a.get("tool_results", {}).get(stage), dict)
+    ]
+    raw_status_missing_by_stage = {
+        stage: sum(
+            isinstance(a.get("tool_results", {}).get(stage), dict)
+            and "status" not in a["tool_results"][stage]
+            for a in report["arms"]
+        )
+        for stage in MCP_TOOL_STAGES
+    }
+    exception_count = 0
+    for arm in report["arms"]:
+        if "python_exception_records" in arm:
+            exception_count += len(arm["python_exception_records"])
+        else:  # legacy raw artifacts before exception telemetry was explicit
+            exception_count += sum("error_type" in item for item in arm.get("errors", []))
+            exception_count += int(bool(arm.get("error_type")))
     return {
         "successful_arms": len(valid_arms),
         "inconclusive_or_error_arms": sum(a.get("arm_status") != "ok" for a in report["arms"]),
@@ -445,10 +489,24 @@ def summarize(report: dict) -> dict:
         "full_graph_pair_equal_all_stages": all(
             all(p.get("graph_equal_full_rows_by_stage", {}).values()) for p in valid_pairs
         ) if valid_pairs else None,
-        "mcp_error_flag_count": sum(bool(q.get("_mcp_is_error")) for a in report["arms"] for q in a.get("tool_results", {}).values()),
-        "tool_status_error_count": sum(
-            result.get("status") == "error"
-            for a in report["arms"] for result in a.get("tool_results", {}).values()
+        "python_exception_count": exception_count,
+        "mcp_tool_call_count": len(tool_result_pairs),
+        "mcp_error_flag_count": sum(bool(result.get("_mcp_is_error")) for _, _, result in tool_result_pairs),
+        "tool_status_error_count": sum(result.get("status") == "error" for _, _, result in tool_result_pairs),
+        "tool_error_field_count": sum(bool(result.get("error")) for _, _, result in tool_result_pairs),
+        "tool_status_exception_count": sum(
+            result.get("status") == "exception" or bool(result.get("exception_type"))
+            for _, _, result in tool_result_pairs
+        ),
+        "mcp_tool_raw_status_missing_count": sum(raw_status_missing_by_stage.values()),
+        "mcp_tool_raw_status_missing_by_stage": raw_status_missing_by_stage,
+        "recordar_raw_status_missing_without_error_count": sum(
+            stage in RECORDAR_STAGES
+            and "status" not in result
+            and not result.get("_mcp_is_error")
+            and not result.get("error")
+            and not result.get("message")
+            for _, stage, result in tool_result_pairs
         ),
         "snapshot_query_error_count": sum(a.get("graph_snapshot_query_errors", 0) for a in report["arms"]),
         "storage_query_error_count": sum(a.get("storage_query_errors", 0) for a in report["arms"]),
@@ -482,8 +540,19 @@ def write_evidence(report: dict, manifest: dict, out_dir: Path) -> dict:
     report["manifest_hashes"] = {"canonical_json_utf8_sha256": canonical_hash, "file_bytes_sha256": file_hash}
     report["summary"] = summarize(report)
     report["graph_snapshot_scope"] = {
-        "full_row_tables": list(GRAPH_QUERIES.keys()),
-        "complete_sqlite_database_snapshot": False,
+        **GRAPH_SNAPSHOT_SCOPE,
+        "snapshot_result_key_to_source": {
+            "sinapsis": "sinapsis",
+            "sinapsis_latentes": "sinapsis_latentes",
+            "sinapsis_cuarentena": "sinapsis_cuarentena",
+            "dimensiones_nodo": "largo_plazo_dimensiones",
+            "grupos_semanticos": "grupos_semanticos",
+            "grupos_nodo": "nodo_grupos_semanticos",
+            "concept_hubs": "concept_hubs",
+            "concept_hub_nodes": "concept_hub_nodes",
+            "concept_hub_bridges": "concept_hub_bridges",
+            "espejo_asociaciones": "largo_plazo(concepto, asociaciones) [proyección]",
+        },
     }
     out_dir.mkdir(parents=True, exist_ok=False)
     manifest_path = out_dir / "all_synthetic_clues_manifest.json"
@@ -556,8 +625,15 @@ def public_summary(report: dict, private_paths: dict) -> dict:
         "successful_pairs": summary["successful_pairs"],
         "short_and_long_exact_folded_columns_match": summary["exact_label_columns_match_in_short_and_long"],
         "paired_graph_equal_at_every_stage": summary["full_graph_pair_equal_all_stages"],
+        "python_exceptions": summary["python_exception_count"],
+        "mcp_tool_calls": summary["mcp_tool_call_count"],
         "mcp_error_flags": summary["mcp_error_flag_count"],
         "tool_status_errors": summary["tool_status_error_count"],
+        "tool_error_fields": summary["tool_error_field_count"],
+        "tool_status_exceptions": summary["tool_status_exception_count"],
+        "mcp_tool_raw_status_missing": summary["mcp_tool_raw_status_missing_count"],
+        "mcp_tool_raw_status_missing_by_stage": summary["mcp_tool_raw_status_missing_by_stage"],
+        "recordar_raw_status_missing_without_error": summary["recordar_raw_status_missing_without_error_count"],
         "graph_snapshot_query_errors": summary["snapshot_query_error_count"],
         "storage_query_errors": summary["storage_query_error_count"],
         "preflight_target_absent": summary["preflight_target_unseen_all_arms"],
@@ -594,6 +670,9 @@ async def execute() -> dict:
                                 "stage": "seed_creation",
                                 "error_type": type(exc).__name__,
                                 "error": str(exc)[:500],
+                                "python_exception_records": [{
+                                    "stage": "seed_creation", "error_type": type(exc).__name__, "error": str(exc)[:500],
+                                }],
                             })
                     continue
                 for route in ("aprender", "guardar"):
@@ -617,6 +696,9 @@ async def execute() -> dict:
                                 "seed_database_sha256": seed_hash,
                                 "error_type": type(exc).__name__,
                                 "error": str(exc)[:500],
+                                "python_exception_records": [{
+                                    "stage": "arm_execution", "error_type": type(exc).__name__, "error": str(exc)[:500],
+                                }],
                             })
         report = {
             "experiment": "E3 creation routes and graph density",
