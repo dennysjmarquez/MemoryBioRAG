@@ -8,9 +8,9 @@
 
 Se ejecutaron fixtures sintéticas, exclusivamente mediante MCP stdio sobre copias temporales. No se abrieron ni modificaron bases reales. Cada familia parte del mismo origen emparejado en los brazos «pista activa» y «neutral de igual longitud». Se reemplaza una sola etiqueta variable, mientras las demás etiquetas, contenido, asociaciones manuales, sinónimos y configuración permanecen fijos. Las columnas de etiqueta exacta y plegada se escriben y verifican coherentemente.
 
-Se cubrieron cuatro rutas diseñadas: pista solo en etiqueta; pista en contenido con una contradicción textual; pista presente en sinónimos; y pista presente en un vecino enlazado. El manifiesto inmutable conserva todas las pistas y los textos sintéticos usados, incluidos los elementos ausentes del brazo consultado. Se mantuvo el reloj fijo y un estado/copia independiente para cada sesión. Las consultas se ejecutaron en ambos órdenes y, además, en copias aisladas equivalentes.
+Se cubrieron cuatro rutas diseñadas: pista solo en etiqueta; pista en contenido con una contradicción textual; pista presente en sinónimos; y pista presente en un vecino enlazado. El manifiesto íntegro conserva todas las pistas y los textos sintéticos usados, incluidos los elementos ausentes del brazo consultado; cada conjunto de evidencia incluye su hash SHA-256. Se mantuvo el reloj fijo y un estado/copia independiente para cada sesión. Las consultas se ejecutaron en ambos órdenes y, además, en copias aisladas equivalentes.
 
-El experimento comprende **32 sesiones MCP stdio** (4 familias × 2 brazos × 4 modos: dos órdenes y dos consultas aisladas), **16 pares** activo-neutral y 8 comprobaciones de orden por brazo/familia. Se conservaron **176 snapshots** antes de stdio, tras initialize y la primera llamada de herramienta, tras escritura y tras cada consulta. Cada snapshot cubre 10 tablas relacionales del grafo: sinapsis activas, latentes y en cuarentena; asociaciones espejo; dimensiones y grupos semánticos; y nodos, hubs y bridges del Concept Hub. Las 1.760 consultas de snapshot terminaron sin error. La igualdad de grafo se compara por filas completas, no por conteos ni pesos redondeados.
+El experimento comprende **32 sesiones MCP stdio** (4 familias × 2 brazos × 4 modos: dos órdenes y dos consultas aisladas), **16 pares** activo-neutral y 8 comprobaciones de orden por brazo/familia. Se conservaron **176 snapshots** antes de stdio, tras initialize y la primera llamada de herramienta, tras escritura y tras cada consulta. Cada snapshot contiene todas las filas de **nueve tablas de grafo** (`sinapsis`, `sinapsis_latentes`, `sinapsis_cuarentena`, `largo_plazo_dimensiones`, `grupos_semanticos`, `nodo_grupos_semanticos`, `concept_hubs`, `concept_hub_nodes`, `concept_hub_bridges`) más una proyección de todas las filas `largo_plazo(concepto, asociaciones)`: diez consultas SQL por snapshot. No es una copia de todas las tablas SQLite ni de todos los campos de `largo_plazo`. Las 1.760 consultas SQL de snapshot terminaron sin error. La igualdad se compara por filas completas de las nueve tablas y por filas completas de la proyección, no por conteos ni pesos redondeados.
 
 ## Resultados observados
 
@@ -34,7 +34,7 @@ No se propone ni se aplica cambio al motor. No se selecciona reemplazo frente a 
 
 ## Evidencia y reproducibilidad
 
-El agregado de este documento es la evidencia sintética publicable. El manifiesto íntegro de pistas y las trazas por caso —incluidos textos sintéticos, consultas, etiquetas y snapshots completos— permanecen en `.private_evidence/e3_tag_replica_e71d7bc_20261102/` y no deben publicarse. El directorio está excluido del control de versiones.
+El agregado de este documento es la evidencia sintética publicable. El manifiesto íntegro y las trazas por caso —incluidos textos sintéticos, consultas, etiquetas y snapshots— son privados y están excluidos del control de versiones. La evidencia inicial permanece intacta en `.private_evidence/e3_tag_replica_e71d7bc_20261102/`; se conservó además una copia byte-a-byte, verificada por checksum, en `.private_evidence/e3_tag_replica_e71d7bc_20261102_original_preserved/`. La corrida final del arnés corregido está separada en `.private_evidence/e3_tag_replica_e71d7bc_20261102_corrected_02/`; volvió a producir 32 sesiones válidas, 176 snapshots y cero errores de consulta. Los conjuntos de evidencia guardados en esos directorios privados conservan checksums verificables y no se deben publicar.
 
 Desde la rama del operador, con las dependencias de `requirements.txt`:
 
@@ -44,4 +44,4 @@ python -m venv /tmp/e3-mcp-venv
 PYTHONHASHSEED=0 /tmp/e3-mcp-venv/bin/python scripts/replicar_hipotesis_etiquetas_controles_e3.py
 ```
 
-El runner genera el manifiesto, el reporte detallado y sus checksums en el directorio privado indicado, e imprime únicamente el resumen agregado.
+El arnés corregido crea por defecto un directorio UTC nuevo bajo `.private_evidence/`; también acepta `--evidence-dir <ruta-nueva-bajo-.private_evidence>`. Rechaza rutas fuera de ese directorio y no sobreescribe una carpeta de evidencia existente. Genera allí el manifiesto, el reporte detallado y sus checksums, e imprime únicamente el resumen agregado.

@@ -10,6 +10,7 @@ brazo no los active como etiquetas. No toca código del motor ni bases reales.
 """
 from __future__ import annotations
 
+import argparse
 import asyncio
 import contextlib
 import hashlib
@@ -21,6 +22,7 @@ import shutil
 import sqlite3
 import sys
 import tempfile
+from datetime import datetime, timezone
 from pathlib import Path
 from urllib.parse import quote
 
@@ -90,6 +92,18 @@ FAMILIES = {
     },
 }
 
+# Complete rows for the enumerated graph tables plus one node-association projection.
+# This is intentionally a graph-structure snapshot, not a backup of every SQLite table.
+GRAPH_SNAPSHOT_SCOPE = {
+    "full_row_tables": [
+        "sinapsis", "sinapsis_latentes", "sinapsis_cuarentena",
+        "largo_plazo_dimensiones", "grupos_semanticos", "nodo_grupos_semanticos",
+        "concept_hubs", "concept_hub_nodes", "concept_hub_bridges",
+    ],
+    "row_projections": ["largo_plazo(concepto, asociaciones)"],
+    "complete_sqlite_database_snapshot": False,
+}
+
 GRAPH_QUERIES = {
     "sinapsis": "SELECT * FROM sinapsis ORDER BY origen,destino",
     "sinapsis_latentes": "SELECT * FROM sinapsis_latentes ORDER BY origen,destino",
@@ -141,12 +155,33 @@ def all_clue_manifest() -> dict:
     }
 
 
-def write_private_artifacts(report: dict, root: Path) -> dict:
+def resolve_private_output_dir(requested: str | None) -> Path:
+    private_root = (ROOT / ".private_evidence").resolve()
+    if requested:
+        candidate = Path(requested)
+        out_dir = (candidate if candidate.is_absolute() else ROOT / candidate).resolve()
+    else:
+        run_stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+        out_dir = (private_root / f"e3_tag_replica_e71d7bc_20261102_corrected_{run_stamp}").resolve()
+    if private_root not in out_dir.parents:
+        raise ValueError("La evidencia completa debe permanecer bajo .private_evidence/")
+    if out_dir.exists():
+        raise FileExistsError(f"Refusing to overwrite existing evidence directory: {out_dir}")
+    return out_dir
+
+
+def write_private_artifacts(report: dict, out_dir: Path) -> dict:
+    private_root = (ROOT / ".private_evidence").resolve()
+    out_dir = out_dir.resolve()
+    if private_root not in out_dir.parents:
+        raise ValueError("La evidencia completa debe permanecer bajo .private_evidence/")
+    if out_dir.exists():
+        raise FileExistsError(f"Refusing to overwrite existing evidence directory: {out_dir}")
     ledger = all_clue_manifest()
     ledger_bytes = json.dumps(ledger, ensure_ascii=False, indent=2, sort_keys=True).encode("utf-8")
     report["cue_manifest_sha256"] = hashlib.sha256(ledger_bytes).hexdigest()
-    out_dir = ROOT / ".private_evidence" / "e3_tag_replica_e71d7bc_20261102"
-    out_dir.mkdir(parents=True, exist_ok=True)
+    report["evidence_revision"] = "corrected_harness_preserving_original"
+    out_dir.mkdir(parents=True, exist_ok=False)
     ledger_path = out_dir / "all_synthetic_clues_manifest.json"
     report_path = out_dir / "stdio_cases_full.json"
     ledger_path.write_bytes(ledger_bytes + b"\n")
@@ -207,6 +242,7 @@ def readonly_rows(path: Path, query: str) -> list:
 
 
 def full_graph_snapshot(path: Path) -> dict:
+    """Exact rows for GRAPH_SNAPSHOT_SCOPE; not a full SQLite database snapshot."""
     rows_by_table = {}
     query_errors = {}
     for name, query in GRAPH_QUERIES.items():
@@ -582,6 +618,7 @@ async def execute_replica() -> dict:
             "policy_selected": False,
             "e4_advanced": False,
             "source_seed_count": len(FAMILIES),
+            "graph_snapshot_scope": GRAPH_SNAPSHOT_SCOPE,
             "arms": arms,
             "pair_summary": pair_summary,
             "clue_manifest": manifest,
@@ -631,7 +668,8 @@ def public_summary(report: dict, private_paths: dict) -> dict:
             for a in report["arms"] if a.get("arm_status") == "ok"
         ) if any(a.get("arm_status") == "ok" for a in report["arms"]) else None,
         "initialize_db_open_inferred_from_graph_nonchange": False,
-        "graph_compare_method": "exact full rows from graph tables, not counts or rounded weights",
+        "graph_compare_method": "exact full rows from listed graph tables plus the listed association projection, not counts or rounded weights",
+        "graph_snapshot_scope": report["graph_snapshot_scope"],
         "manual_edges_preserved_and_graph_compared_by_full_rows": True,
         "all_probe_and_neutral_terms_preserved_in_manifest": True,
         "private_outputs": private_paths,
@@ -641,10 +679,17 @@ def public_summary(report: dict, private_paths: dict) -> dict:
 
 
 def main() -> None:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--evidence-dir",
+        help="ruta nueva bajo .private_evidence/; se rechaza si ya existe. Si se omite, se usa un directorio UTC único.",
+    )
+    args = parser.parse_args()
+    output_dir = resolve_private_output_dir(args.evidence_dir)
     # Keep tools/logs out of stdout so it contains only the sanitized aggregate.
     with contextlib.redirect_stdout(io.StringIO()):
         report = asyncio.run(execute_replica())
-    private_paths = write_private_artifacts(report, ROOT)
+    private_paths = write_private_artifacts(report, output_dir)
     print(json.dumps(public_summary(report, private_paths), ensure_ascii=False, indent=2, sort_keys=True))
 
 
