@@ -55,7 +55,7 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--salida", type=Path, required=True,
                         help="Directorio nuevo que recibirá los resultados sintéticos")
-    parser.add_argument("--worker", choices=("crear", "buscar"))
+    parser.add_argument("--worker", choices=("crear", "buscar", "forced_fts"))
     parser.add_argument("--source", type=Path)
     parser.add_argument("--cases", type=Path)
     parser.add_argument("--result", type=Path)
@@ -197,9 +197,10 @@ def raw_fts_probe(memory, query: str) -> dict:
             "raw_top10": [r[0] for r in rows[:10]]}
 
 
-def _result_rows(rows: list[tuple]) -> list[dict]:
+def _result_rows(rows: list[tuple], limit: int | None = 5) -> list[dict]:
+    selected = rows if limit is None else rows[:limit]
     return [{"concepto": r[0], "score": float(r[4]), "asociaciones": r[5] or ""}
-            for r in rows[:5]]
+            for r in selected]
 
 
 def _instrument_cjk_error_capture(app: Path) -> None:
@@ -291,7 +292,7 @@ def worker_search(args: argparse.Namespace) -> None:
                 context_errors = list(getattr(context_memory, "_e3_cjk_trigram_errors", []))
                 primary_rows = _result_rows(primary_results)
                 expanded_primary_rows = _result_rows(expanded_primaries)
-                neighbors_rows = _result_rows(explicit_neighbors)
+                neighbors_rows = _result_rows(explicit_neighbors, limit=None)
                 independent_primary_equal = primary_rows == seed_results
                 expansion_primary_equal = seed_results == expanded_primary_rows
                 repetitions.append({
@@ -361,6 +362,71 @@ def worker_search(args: argparse.Namespace) -> None:
                                       ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
 
+def worker_forced_fts(args: argparse.Namespace) -> None:
+    """Prueba controlada de que el catch instrumentado registra un fallo FTS real."""
+    import sqlite3
+    from core.memory_store import SQLiteMemoryBioRAG
+    from scripts.evaluar_qa_multilingue_e3a import RELOJ_FIJO, sha256
+
+    class FailingCursor:
+        def __init__(self, cursor):
+            self._cursor = cursor
+            self.triggered = False
+            self.error_message = "E3_FORCED_FTS_FAILURE"
+
+        def execute(self, sql, parameters=()):
+            first = parameters[0] if parameters else None
+            if (not self.triggered and "largo_plazo_fts MATCH ?" in sql
+                    and isinstance(first, str) and " OR " in first
+                    and first.startswith('"')):
+                self.triggered = True
+                raise sqlite3.OperationalError(self.error_message)
+            return self._cursor.execute(sql, parameters)
+
+        def __getattr__(self, name):
+            return getattr(self._cursor, name)
+
+    if args.temp is None or args.result is None:
+        raise ValueError("forced_fts requiere --temp y --result")
+    args.temp.mkdir(parents=True, exist_ok=True)
+    copy = args.temp / "forced_fts_copy.db"
+    shutil.copyfile(args.source, copy)
+    source_hash = sha256(args.source)
+    memory = SQLiteMemoryBioRAG(str(copy))
+    failing_cursor = FailingCursor(memory.cursor)
+    memory.cursor = failing_cursor
+    query = "灯台警告"
+    try:
+        with patch("time.time", return_value=RELOJ_FIJO):
+            results, total = memory.buscar_por_frase(
+                query, profundidad="activos", limite=5, context_window=0,
+                ignore_peso_sinaptico=True,
+            )
+        recorded = list(getattr(memory, "_e3_cjk_trigram_errors", []))
+        matched = [error for error in recorded if failing_cursor.error_message in error]
+        report = {
+            "test": "forced_cjk_fts_operational_error",
+            "query_sha256": hashlib.sha256(query.encode("utf-8")).hexdigest(),
+            "injected_failure_triggered": failing_cursor.triggered,
+            "injected_error": failing_cursor.error_message,
+            "recorded_cjk_patch_errors": recorded,
+            "injected_error_recorded": bool(matched),
+            "empty_results_are_not_treated_as_success": bool(matched) or bool(results),
+            "returned_primary_count_after_caught_error": len(results),
+            "total_motor": total,
+            "source_unchanged": sha256(args.source) == source_hash,
+        }
+        if not failing_cursor.triggered or not matched:
+            raise RuntimeError(f"Fallo FTS inyectado no quedó registrado: {report}")
+        if not report["source_unchanged"]:
+            raise RuntimeError("La fuente cambió durante la prueba forzada")
+        args.result.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n",
+                               encoding="utf-8")
+    finally:
+        memory.cerrar_sistema()
+        copy.unlink(missing_ok=True)
+
+
 def run_worker(app: Path, args: list[str], env: dict[str, str]) -> None:
     subprocess.run([sys.executable, str(app / "scripts/evaluar_controles_extendidos_cjk_e3.py"),
                     *args], cwd=app, env=env, check=True)
@@ -373,6 +439,9 @@ def main() -> int:
         return 0
     if args.worker == "buscar":
         worker_search(args)
+        return 0
+    if args.worker == "forced_fts":
+        worker_forced_fts(args)
         return 0
     out = args.salida.resolve()
     if out.exists():

@@ -43,6 +43,15 @@ Mediana de búsqueda primaria sobre 15 casos, tres repeticiones:
 
 En OR, las consultas de 68, 132, 260, 504 y 1004 caracteres generaron 66, 130, 258, 502 y 1002 trigramas; las expresiones OR ocuparon 986, 1.946, 3.866, 7.526 y 15.026 bytes. Las medianas de búsqueda fueron 147,1; 158,0; 195,3; 252,8 y 367,5 ms. La mediana de los tres picos por `tracemalloc` fue 437,2; 464,2; 505,4; 609,1 y 772,7 KiB; los máximos observados entre las tres repeticiones fueron 441,0; 469,7; 515,6; 629,8 y 813,0 KiB. No hubo error FTS en esos sondeos. Las consultas de 504 y 1004 caracteres superan el límite MCP de 500; la de 1004 es una sonda directa del motor. Estas cifras son locales a una fixture pequeña, con `tracemalloc` activo; no son SLO, p95 ni estimaciones de toda la memoria nativa de SQLite.
 
+## Pruebas sintéticas de regresión del arnés (2 nov 2026)
+
+Se añadió `scripts/probar_regresiones_harness_cjk_e3_sinteticas.py`, que ejecuta dos pruebas sobre una SQLite inventada, sin insumos japoneses ni datos gold:
+
+- **Desbordamiento de vecinos:** obtiene un único primario en una copia limpia; en una segunda copia añade ocho enlaces manuales sintéticos y llama a la expansión explícita con el límite de vecinos por nodo configurado por encima de ocho. El JSON registró los **ocho** vecinos, todos distintos y completos (`observed_neighbor_count=8`, `complete_neighbor_set_preserved=true`), no solo cinco. El helper del arnés conserva el límite de cinco para primarios, pero permite `limit=None` para el campo de vecinos.
+- **Fallo FTS provocado:** el worker temporal envuelve el cursor para que el `MATCH` OR de trigramas falle una vez con `sqlite3.OperationalError("E3_FORCED_FTS_FAILURE")`. En la copia de aplicación se instrumenta el catch del parche OR solo para que registre la excepción. La salida confirmó `injected_failure_triggered=true`, `injected_error_recorded=true`, y registró `OperationalError: E3_FORCED_FTS_FAILURE`; la búsqueda devolvió cero primarios después del fallo, pero el caso no se confunde con un éxito vacío. El hash de la fuente sintética permaneció intacto.
+
+El parche se aplicó únicamente dentro del árbol temporal de la segunda prueba. No se aplicó ningún parche al checkout, no se borraron ni filtraron pistas o asociaciones y no se cambió el motor. Los tres JSON de evidencia sintética se conservaron en la carpeta privada de Drive junto con sus hashes.
+
 ## Alcance y decisión
 
 La corrección mejora la trazabilidad de repetibilidad, contexto, scores, errores FTS y diferencias entre brazos; no vuelve esta fixture una evaluación de producción. No se evaluaron escala real, p95, agente independiente ni generalización. Mantener ambos parches NO APLICAR; no modificar `core/memory/search.py`, no usar bases originales, no entrenar. **E3 sigue abierto; no avanzar a E4.**
