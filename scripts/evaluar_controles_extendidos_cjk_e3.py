@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
 """Controles sintéticos pareados para CJK E3; no modifica el motor del checkout.
 
-Crea una sola DB sintética, la copia antes de cada consulta y compara base,
-OR CJK y umbral 2 en aplicaciones temporales obtenidas por git archive. Mide
-casos mixtos, conectores, una consulta japonesa negativa, pistas/ranking y costo
-local para longitudes crecientes. No es QA oficial ni evaluación de agente.
+Crea una DB sintética y compara base, OR CJK y umbral 2 en árboles temporales
+de git archive. Usa copias SQLite independientes para cada búsqueda primaria y
+para la expansión explícita de contexto. Guarda resultados, errores y métricas
+de las tres repeticiones, sin guardar textos de consulta. No es QA oficial.
 
-Los controles japoneses se suministran localmente por las variables
-BIORAG_E3_JP_QUERY_A y BIORAG_E3_JP_QUERY_B. No guardes sus textos en el repo.
+Para reproducir los controles japoneses, usa --japanese-inputs con el archivo
+privado JSON guardado en Drive o define localmente BIORAG_E3_JP_QUERY_A/B.
+Nunca añadas ese archivo ni sus textos al repo.
 Ejemplo (el directorio de salida debe ser nuevo):
   env -u BIORAG_PATH PYTHONHASHSEED=0 BIORAG_NEURONA=0 BIORAG_NO_LOG=1 \
     NLTK_DATA="$PWD/MemoryBioRAG_Data/nltk_data" PYTHONPATH=. \
@@ -60,21 +61,29 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--result", type=Path)
     parser.add_argument("--temp", type=Path)
     parser.add_argument("--expected-sha")
+    parser.add_argument("--japanese-inputs", type=Path,
+                        help="JSON local privado con las claves control_a y control_b")
     return parser.parse_args()
 
 
-def make_cases() -> list[dict]:
-    # Supply the two Japanese control strings locally via environment; never
-    # embed source query text, case IDs, labels, or a crosswalk in this script.
-    japanese_a = os.environ.get("BIORAG_E3_JP_QUERY_A", "")
-    japanese_b = os.environ.get("BIORAG_E3_JP_QUERY_B", "")
-    if not japanese_a or not japanese_b:
-        raise SystemExit("Set BIORAG_E3_JP_QUERY_A and BIORAG_E3_JP_QUERY_B locally")
+def make_cases(japanese_inputs: Path | None = None) -> list[dict]:
+    if japanese_inputs is not None:
+        payload = json.loads(japanese_inputs.read_text(encoding="utf-8"))
+        if set(payload) != {"control_a", "control_b"}:
+            raise ValueError("El JSON privado debe tener exactamente control_a y control_b")
+        japanese_a, japanese_b = payload["control_a"], payload["control_b"]
+    else:
+        japanese_a = os.environ.get("BIORAG_E3_JP_QUERY_A", "")
+        japanese_b = os.environ.get("BIORAG_E3_JP_QUERY_B", "")
+    if not isinstance(japanese_a, str) or not japanese_a or not isinstance(japanese_b, str) or not japanese_b:
+        raise SystemExit("Provide both Japanese inputs via --japanese-inputs or local BIORAG_E3_JP_QUERY_A/B")
     cases = [
-        {"id": "jp_control_a", "query": japanese_a, "context_window": 1,
-         "probe": "jp_control_a"},
-        {"id": "jp_control_b", "query": japanese_b, "context_window": 1,
-         "probe": "jp_control_b"},
+        {"id": "jp_control_a", "query": japanese_a,
+         "query_sha256": hashlib.sha256(japanese_a.encode("utf-8")).hexdigest(),
+         "context_window": 1, "probe": "jp_control_a"},
+        {"id": "jp_control_b", "query": japanese_b,
+         "query_sha256": hashlib.sha256(japanese_b.encode("utf-8")).hexdigest(),
+         "context_window": 1, "probe": "jp_control_b"},
         {"id": "mixed_latin_no_space", "query": "灯台ABC警告", "context_window": 1, "probe": "script_compaction"},
         {"id": "mixed_english_connector", "query": "灯台 and 警告", "context_window": 1, "probe": "latin_connector"},
         {"id": "mixed_punctuation", "query": "灯台—警告", "context_window": 1, "probe": "punctuation_boundary"},
@@ -103,27 +112,40 @@ def worker_create(args: argparse.Namespace) -> None:
         raise FileExistsError(args.source)
     with patch("time.time", return_value=qa.RELOJ_FIJO):
         base = qa.crear_base(args.source, cases)
-    memory = SQLiteMemoryBioRAG(str(args.source))
-    try:
-        extras = [
-            ("霧夜観測手掛かり", "濃霧の夜の船上では沿岸の光源を探し続ける。"),
-            ("灯台警告記録", "灯台の黄色い光が三回点滅すると岩礁に注意する。"),
-            ("方位磁針注意記録", "方位磁針の針は北を指す。"),
-        ]
-        for concept, content in extras:
-            aprender(memory, concept, content, consolidar=True)
-        memory.establecer_asociacion("霧夜観測手掛かり", "灯台警告記録")
-        memory.establecer_asociacion("真鍮の方位磁針", "方位磁針注意記録")
-        memory.conn.commit()
-        integrity = memory.conn.execute("PRAGMA integrity_check").fetchone()[0]
-        if integrity != "ok":
-            raise RuntimeError(f"SQLite integrity_check={integrity}")
-        if memory.conn.execute("PRAGMA wal_checkpoint(TRUNCATE)").fetchone()[0] != 0:
-            raise RuntimeError("No se pudo evacuar WAL")
-    finally:
-        memory.cerrar_sistema()
-    base.update({"sha256_sqlite": sha256(args.source), "extras_synthetic": 3,
-                 "manual_links_synthetic": 2, "integrity_check": integrity})
+        memory = SQLiteMemoryBioRAG(str(args.source))
+        try:
+            extras = [
+                ("霧夜観測手掛かり", "濃霧の夜の船上では沿岸の光源を探し続ける。"),
+                ("灯台警告記録", "灯台の黄色い光が三回点滅すると岩礁に注意する。"),
+                ("方位磁針注意記録", "方位磁針の針は北を指す。"),
+            ]
+            for concept, content in extras:
+                aprender(memory, concept, content, consolidar=True)
+            memory.establecer_asociacion("霧夜観測手掛かり", "灯台警告記録")
+            memory.establecer_asociacion("真鍮の方位磁針", "方位磁針注意記録")
+            memory.conn.commit()
+            integrity = memory.conn.execute("PRAGMA integrity_check").fetchone()[0]
+            if integrity != "ok":
+                raise RuntimeError(f"SQLite integrity_check={integrity}")
+            final_counts = {
+                "final_nodes_total": memory.conn.execute(
+                    "SELECT COUNT(*) FROM largo_plazo").fetchone()[0],
+                "final_nodes_active": memory.conn.execute(
+                    "SELECT COUNT(*) FROM largo_plazo WHERE estado='activo'").fetchone()[0],
+                "final_synapse_rows": memory.conn.execute(
+                    "SELECT COUNT(*) FROM sinapsis").fetchone()[0],
+                "final_manual_synapse_rows": memory.conn.execute(
+                    "SELECT COUNT(*) FROM sinapsis WHERE tipo='manual'").fetchone()[0],
+            }
+            if memory.conn.execute("PRAGMA wal_checkpoint(TRUNCATE)").fetchone()[0] != 0:
+                raise RuntimeError("No se pudo evacuar WAL")
+        finally:
+            memory.cerrar_sistema()
+    base.update({"sha256_sqlite": sha256(args.source), "integrity_check": integrity,
+                 "base_nodes_before_extras": base["nodos"],
+                 "base_synapses_before_extras": base["sinapsis"],
+                 "synthetic_extra_records_added": len(extras),
+                 "synthetic_manual_pairs_added": 2, **final_counts})
     args.result.write_text(json.dumps(base, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
 
@@ -175,6 +197,35 @@ def raw_fts_probe(memory, query: str) -> dict:
             "raw_top10": [r[0] for r in rows[:10]]}
 
 
+def _result_rows(rows: list[tuple]) -> list[dict]:
+    return [{"concepto": r[0], "score": float(r[4]), "asociaciones": r[5] or ""}
+            for r in rows[:5]]
+
+
+def _instrument_cjk_error_capture(app: Path) -> None:
+    """En árboles temporales, registra OperationalError que el patch callaría."""
+    path = app / "core/memory/search.py"
+    source = path.read_text(encoding="utf-8")
+    marker = "# E3 EXPERIMENTO AISLADO (NO APROBADO): candidatos CJK por OR de trigramas."
+    start = source.index(marker)
+    needle = "            except sqlite3.OperationalError:\n                pass"
+    position = source.find(needle, start)
+    if position < 0:
+        raise RuntimeError(f"No se encontró el catch OperationalError del patch CJK en {path}")
+    replacement = (
+        "            except sqlite3.OperationalError as _e3_cjk_exc:\n"
+        "                _e3_errors = getattr(self, '_e3_cjk_trigram_errors', [])\n"
+        "                _e3_errors.append(f'{type(_e3_cjk_exc).__name__}: {_e3_cjk_exc}')\n"
+        "                self._e3_cjk_trigram_errors = _e3_errors"
+    )
+    path.write_text(source[:position] + replacement + source[position + len(needle):], encoding="utf-8")
+
+
+def _repeat_signature(repetition: dict, field: str) -> tuple:
+    return tuple((item["concepto"], item["score"], item.get("asociaciones", ""))
+                 for item in repetition[field])
+
+
 def worker_search(args: argparse.Namespace) -> None:
     sys.path.insert(0, str(ROOT))
     from core.memory_store import SQLiteMemoryBioRAG
@@ -187,70 +238,123 @@ def worker_search(args: argparse.Namespace) -> None:
     args.temp.mkdir(parents=True, exist_ok=True)
     before_source = sha256(args.source)
     for case in cases:
-        timings, peaks, last = [], [], None
-        repeats = 3
-        for rep in range(repeats):
+        repetitions = []
+        for rep in range(3):
             folder = args.temp / f"{case['id']}_{rep}"
             folder.mkdir()
-            copy = folder / "copy.db"
-            shutil.copyfile(args.source, copy)
-            memory = SQLiteMemoryBioRAG(str(copy))
-            dmn = folder / "dmn_state.json"
-            os.environ["BIORAG_DMN_ESTADO_PATH"] = str(dmn)
+            primary_copy = folder / "primary.db"
+            context_copy = folder / "context.db"
+            shutil.copyfile(args.source, primary_copy)
+            shutil.copyfile(args.source, context_copy)
+            if sha256(primary_copy) != before_source or sha256(context_copy) != before_source:
+                raise RuntimeError("Una copia de consulta no parte de la fuente pareada limpia")
+            primary_memory = SQLiteMemoryBioRAG(str(primary_copy))
+            context_memory = SQLiteMemoryBioRAG(str(context_copy))
+            os.environ["BIORAG_DMN_ESTADO_PATH"] = str(folder / "dmn_primary.json")
             try:
-                raw_probe = raw_fts_probe(memory, case["query"])
+                raw_probe = raw_fts_probe(primary_memory, case["query"])
                 tracemalloc.start()
                 tracemalloc.reset_peak()
                 start_current, _ = tracemalloc.get_traced_memory()
                 t0 = time.perf_counter_ns()
                 with patch("time.time", return_value=RELOJ_FIJO):
-                    primary_results, total = memory.buscar_por_frase(
+                    primary_results, primary_total = primary_memory.buscar_por_frase(
                         case["query"], profundidad="activos", limite=5,
                         context_window=0, ignore_peso_sinaptico=True,
                     )
-                timings.append((time.perf_counter_ns() - t0) / 1_000_000)
+                search_ms = (time.perf_counter_ns() - t0) / 1_000_000
                 _, peak = tracemalloc.get_traced_memory()
-                peaks.append(max(0, peak - start_current) / 1024)
-                context_t0 = time.perf_counter_ns()
-                if case["context_window"]:
-                    with patch("time.time", return_value=RELOJ_FIJO):
-                        with_context, _ = memory.buscar_por_frase(
-                            case["query"], profundidad="activos", limite=5,
-                            context_window=case["context_window"], ignore_peso_sinaptico=True,
-                        )
-                    context_ms = (time.perf_counter_ns() - context_t0) / 1_000_000
-                    primary_names = {r[0] for r in primary_results}
-                    context = [r for r in with_context if r[0] not in primary_names]
-                else:
-                    context_ms = 0.0
-                    context = []
+                peak_kb = max(0, peak - start_current) / 1024
                 tracemalloc.stop()
-                last = {
-                    "total_motor": total,
-                    "candidate_pool": len(getattr(memory, "last_todos", [])),
-                    "cjk_origin_candidates": sum(
-                        1 for v in getattr(memory, "last_origen_scores", {}).values()
-                        if v and v[0] == "cjk_trigram_or_experimental"
-                    ),
-                    "results": [{"concepto": r[0], "score": float(r[4]),
-                                 "asociaciones": r[5] or ""} for r in primary_results[:5]],
-                    "expanded_context": [{"concepto": r[0], "score": float(r[4]),
-                                          "asociaciones": r[5] or ""} for r in context],
-                    "context_search_ms": round(context_ms, 3),
+                primary_errors = list(getattr(primary_memory, "_e3_cjk_trigram_errors", []))
+                candidate_pool = len(getattr(primary_memory, "last_todos", []))
+                cjk_origin_candidates = sum(
+                    1 for value in getattr(primary_memory, "last_origen_scores", {}).values()
+                    if value and value[0] == "cjk_trigram_or_experimental"
+                )
+
+                os.environ["BIORAG_DMN_ESTADO_PATH"] = str(folder / "dmn_context.json")
+                context_t0 = time.perf_counter_ns()
+                with patch("time.time", return_value=RELOJ_FIJO):
+                    context_seed_results, context_total = context_memory.buscar_por_frase(
+                        case["query"], profundidad="activos", limite=5,
+                        context_window=0, ignore_peso_sinaptico=True,
+                    )
+                context_seed_search_ms = (time.perf_counter_ns() - context_t0) / 1_000_000
+                seed_results = _result_rows(context_seed_results)
+                with patch("time.time", return_value=RELOJ_FIJO):
+                    expanded_primaries, explicit_neighbors = context_memory.expandir_contexto_vecinos(
+                        context_seed_results,
+                        depth=case["context_window"], profundidad="activos", preview_chars=1500,
+                    ) if case["context_window"] else (context_seed_results, [])
+                context_expansion_ms = (time.perf_counter_ns() - context_t0) / 1_000_000 - context_seed_search_ms
+                context_errors = list(getattr(context_memory, "_e3_cjk_trigram_errors", []))
+                primary_rows = _result_rows(primary_results)
+                expanded_primary_rows = _result_rows(expanded_primaries)
+                neighbors_rows = _result_rows(explicit_neighbors)
+                independent_primary_equal = primary_rows == seed_results
+                expansion_primary_equal = seed_results == expanded_primary_rows
+                repetitions.append({
+                    "repetition": rep + 1,
+                    "primary_results": primary_rows,
+                    "independent_context_copy_primary_results": seed_results,
+                    "explicit_expansion_primaries": expanded_primary_rows,
+                    "expanded_context_neighbors": neighbors_rows,
+                    "primary_total_motor": primary_total,
+                    "context_copy_total_motor": context_total,
+                    "independent_primary_results_equal": independent_primary_equal,
+                    "expansion_preserved_primary_ranking_and_scores": expansion_primary_equal,
+                    "search_ms": round(search_ms, 3),
+                    "context_copy_search_ms": round(context_seed_search_ms, 3),
+                    "explicit_context_expansion_ms": round(max(0.0, context_expansion_ms), 3),
+                    "tracemalloc_peak_kb": round(peak_kb, 1),
+                    "candidate_pool": candidate_pool,
+                    "cjk_origin_candidates": cjk_origin_candidates,
                     "raw_fts": raw_probe,
-                }
+                    "cjk_patch_errors_primary": primary_errors,
+                    "cjk_patch_errors_context_copy": context_errors,
+                })
             finally:
                 if tracemalloc.is_tracing():
                     tracemalloc.stop()
-                memory.cerrar_sistema()
-        last["search_ms_median_three_runs"] = round(statistics.median(timings), 3)
-        last["tracemalloc_peak_kb_median_three_runs"] = round(statistics.median(peaks), 1)
-        last["query_chars"] = len(case["query"])
-        last["probe"] = case["probe"]
-        last["context_window"] = case["context_window"]
-        outputs.append({"id": case["id"], **last})
-        shutil.rmtree(args.temp / f"{case['id']}_0")
-        shutil.rmtree(args.temp / f"{case['id']}_1")
+                primary_memory.cerrar_sistema()
+                context_memory.cerrar_sistema()
+                shutil.rmtree(folder)
+        signatures = {field: [_repeat_signature(rep_result, field) for rep_result in repetitions]
+                      for field in ("primary_results", "expanded_context_neighbors")}
+        fts_signatures = [
+            {key: rep_result["raw_fts"].get(key) for key in (
+                "query_trigram_count", "fts_or_query_bytes", "raw_fts_candidates", "fts_error",
+                "overlap_by_candidate", "raw_top10")}
+            for rep_result in repetitions
+        ]
+        outputs.append({
+            "id": case["id"], "probe": case["probe"],
+            "query_chars": len(case["query"]),
+            "query_sha256": case.get("query_sha256"),
+            "context_window": case["context_window"],
+            "repetitions": repetitions,
+            "repeatability": {
+                "primary_results_and_scores_identical_all_three": all(sig == signatures["primary_results"][0] for sig in signatures["primary_results"]),
+                "expanded_neighbors_identical_all_three": all(sig == signatures["expanded_context_neighbors"][0] for sig in signatures["expanded_context_neighbors"]),
+                "raw_fts_structure_identical_all_three": all(sig == fts_signatures[0] for sig in fts_signatures),
+                "independent_primary_copy_mismatches": [r["repetition"] for r in repetitions if not r["independent_primary_results_equal"]],
+                "explicit_expansion_primary_mismatches": [r["repetition"] for r in repetitions if not r["expansion_preserved_primary_ranking_and_scores"]],
+                "cjk_patch_error_repetitions": [r["repetition"] for r in repetitions if r["cjk_patch_errors_primary"] or r["cjk_patch_errors_context_copy"]],
+                "raw_fts_probe_error_repetitions": [r["repetition"] for r in repetitions if r["raw_fts"].get("fts_error")],
+            },
+            "results": repetitions[-1]["primary_results"],
+            "expanded_context": repetitions[-1]["expanded_context_neighbors"],
+            "total_motor": repetitions[-1]["primary_total_motor"],
+            "candidate_pool": repetitions[-1]["candidate_pool"],
+            "cjk_origin_candidates": repetitions[-1]["cjk_origin_candidates"],
+            "raw_fts": repetitions[-1]["raw_fts"],
+            "search_ms_individual_three_runs": [r["search_ms"] for r in repetitions],
+            "search_ms_median_three_runs": round(statistics.median(r["search_ms"] for r in repetitions), 3),
+            "tracemalloc_peak_kb_individual_three_runs": [r["tracemalloc_peak_kb"] for r in repetitions],
+            "tracemalloc_peak_kb_median_three_runs": round(statistics.median(r["tracemalloc_peak_kb"] for r in repetitions), 1),
+            "tracemalloc_peak_kb_max_three_runs": round(max(r["tracemalloc_peak_kb"] for r in repetitions), 1),
+        })
     if sha256(args.source) != before_source:
         raise RuntimeError("La fuente pareada cambió durante las búsquedas")
     args.result.write_text(json.dumps({"source_sha256": before_source, "cases": outputs},
@@ -277,7 +381,7 @@ def main() -> int:
         raise SystemExit("Falta uno de los parches diagnósticos")
     out.mkdir(parents=True)
     head = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip()
-    cases = make_cases()
+    cases = make_cases(args.japanese_inputs)
     with tempfile.TemporaryDirectory(prefix="e3_extended_cjk_") as tmp:
         tmpdir = Path(tmp)
         cases_path = tmpdir / "cases.json"
@@ -299,6 +403,7 @@ def main() -> int:
             if name in PATCHES:
                 subprocess.run(["patch", "--batch", "--forward", "-p1", "-i", str(PATCHES[name])],
                                cwd=app, check=True)
+                _instrument_cjk_error_capture(app)
             apps[name] = app
         source = tmpdir / "paired_synthetic.db"
         env_base = {
@@ -316,6 +421,10 @@ def main() -> int:
         (out / "fuente_sintetica_metadata.json").write_text(
             json.dumps({**json.loads(base_json.read_text()),
                         "audit_head": head,
+                        "runner_sha256": sha256(Path(__file__)),
+                        "japanese_control_input_sha256": {
+                            c["id"]: c["query_sha256"] for c in cases if c.get("query_sha256")
+                        },
                         "query_count": len(cases), "repetitions_per_query": 3},
                        ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
         result_paths = {}
@@ -346,16 +455,34 @@ def main() -> int:
                              - next(r["score"] for r in prev["results"] if r["concepto"] == n), 6)
                     for n in set(prev_names) & set(now_names)
                 }
+            result_paths[name].write_text(json.dumps(arms[name], ensure_ascii=False, indent=2) + "\n",
+                                          encoding="utf-8")
         summary = {
             "audit_head": head, "source_sha256": source_hash,
             "motor_sha256": hashlib.sha256((ROOT / "core/memory/search.py").read_bytes()).hexdigest(),
-            "fixture_scope": "E3A inventada + tres recuerdos y dos enlaces manuales sintéticos",
+            "fixture_scope": "E3A fixture plus three synthetic memories and two manually added pairs; final counts are in fuente_sintetica_metadata.json",
             "paired_base": True, "source_unchanged_after_runs": sha256(source) == source_hash,
             "patches_unapplied_in_checkout": True,
-            "arms": {name: {"median_search_ms": round(statistics.median(
-                [c["search_ms_median_three_runs"] for c in arm["cases"]]), 3),
-                "cases": len(arm["cases"])} for name, arm in arms.items()},
-            "focus": "see per-case files for mixed alphabets, connectors, Japanese control, costs, ranking and context",
+            "cjk_patch_operational_errors_instrumented": True,
+            "arms": {name: {
+                "median_search_ms": round(statistics.median(
+                    [c["search_ms_median_three_runs"] for c in arm["cases"]]), 3),
+                "cases": len(arm["cases"]),
+                "cases_with_unstable_primary_results": sum(
+                    not c["repeatability"]["primary_results_and_scores_identical_all_three"]
+                    for c in arm["cases"]),
+                "cases_with_context_expansion_mismatch": sum(
+                    bool(c["repeatability"]["explicit_expansion_primary_mismatches"])
+                    or bool(c["repeatability"]["independent_primary_copy_mismatches"])
+                    for c in arm["cases"]),
+                "cases_with_cjk_patch_errors": sum(
+                    bool(c["repeatability"]["cjk_patch_error_repetitions"])
+                    for c in arm["cases"]),
+            } for name, arm in arms.items()},
+            "japanese_control_input_sha256": {
+                c["id"]: c["query_sha256"] for c in cases if c.get("query_sha256")
+            },
+            "focus": "per-case files persist every repetition, explicit context expansion, consistency checks, FTS probes and cross-arm comparisons",
         }
         (out / "resumen.json").write_text(json.dumps(summary, ensure_ascii=False, indent=2) + "\n",
                                              encoding="utf-8")

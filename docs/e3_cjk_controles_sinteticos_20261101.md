@@ -1,57 +1,55 @@
-# E3 — controles CJK sintéticos extendidos (corrida corregida, 2 nov 2026)
+# E3 — controles CJK sintéticos extendidos (arnés corregido tras auditoría, 2 nov 2026)
 
-**Estado:** evidencia diagnóstica; E3 continúa abierto. No aplicar. No avanzar a E4 ni entrenar.
+**Estado:** evidencia diagnóstica; E3 sigue abierto. Los parches continúan NO APLICAR. No avanzar a E4 ni entrenar.
 
-## Alcance y método
+## Auditoría atendida
 
-Comparación pareada de tres brazos (`baseline`, propuesta CJK OR y umbral 2) en 15 controles sintéticos: mezcla de alfabetos, conectores, control japonés investigado, paráfrasis/pista alineada y cinco longitudes de consulta. La base SQLite se construyó como fixture sintética independiente a partir del arnés E3A, con tres recuerdos y dos asociaciones manuales sintéticas; cada búsqueda usó una copia. Los parches se aplicaron exclusivamente a árboles temporales extraídos con `git archive`. El corpus NLTK se enlazó en modo lectura; no se abrió ni modificó una base original. `integrity_check=ok` y el hash de la fuente sintética permaneció igual tras las corridas.
+Leí `docs/auditoria_controles_cjk_operador_2438aba_20261102.md`, commit `a40b7e9760de37ebebeca0bdf262793a2b133fa8`. Corrí el arnés corregido sobre el checkout del commit `2438aba890b70e775edc3fb685c5bf5cd684b60b`; el código del arnés probado se identifica además por SHA-256 en `fuente_sintetica_metadata.json` y en el manifiesto privado.
 
-Cada caso tuvo tres repeticiones. La búsqueda primaria se ejecutó con ventana contextual cero; en un segundo llamado se midió la expansión de contexto por separado. Así se evita contar vecinos como resultados primarios o alterar artificialmente el top-k. Los puntajes de vecinos se reportan aparte y no se interpretan como reordenamiento de resultados primarios.
+Correcciones implementadas:
 
-La corrida corregida se ejecutó el 2 nov 2026 sobre HEAD `41e1793abb9e346f01e619c17611dc158ff27f4a`. El JSON completo de la primera corrida ya no estaba disponible en `/tmp`; los valores y artefactos detallados que se conservan son de esta nueva corrida corregida, no una reconstrucción byte a byte de los archivos temporales anteriores.
+1. Cada repetición crea dos copias SQLite limpias desde el mismo hash: una para la búsqueda primaria y otra para repetir la búsqueda primaria y llamar directamente a `expandir_contexto_vecinos`. Se comparan resultados/scores de ambas búsquedas, los primarios devueltos por la expansión explícita y sus vecinos; se registran discrepancias en vez de clasificarlas automáticamente como contexto.
+2. Las comparaciones por caso (`baseline_top5_missing`, `baseline_context_missing`, `top1_changed` y diferencias de score) se escriben de vuelta a los JSON de OR y umbral 2.
+3. Los tres resultados, vecinos, sondeos FTS, errores, tiempos y picos de `tracemalloc` se conservan por repetición. Los JSON señalan estabilidad de primarios/vecinos/sondeo entre repeticiones; informan medianas y máximos de asignaciones observadas, no llaman “máximo” a una mediana.
+4. El reloj fijo cubre la creación de la fixture, los tres recuerdos añadidos y las dos asociaciones manuales.
+5. Los dos textos japoneses se preservan en Drive privado con hashes UTF-8 y receta de derivación inequívoca. El script permite leer el JSON local de Drive mediante `--japanese-inputs`; no escribe los textos en el repo ni en sus JSON de resultados.
 
-## Hallazgos
+Para comprobar los errores antes ocultados por el parche, los árboles experimentales temporales instrumentan únicamente el `except sqlite3.OperationalError` añadido por el patch para registrar el error antes de conservar el comportamiento de recuperación. No se alteraron los parches almacenados ni el motor del checkout. El sondeo FTS independiente también informa sus propios errores.
 
-### Observación del control japonés
+## Fuente pareada y conteos
 
-El sondeo FTS encontró dos candidatos sintéticos y **el único trigrama compartido con cada contenido candidato fue `を指す`**. Con OR aparecieron ambos como resultados primarios (puntajes 0,0417 y 0,0145); baseline y umbral 2 no devolvieron resultados. Al sustituir la frase predicativa final por otra forma común, los tres brazos quedaron sin candidatos ni resultados.
+La fuente parte de la fixture E3A sintética completa: 120 recuerdos y 1 fila sináptica antes de añadir datos. Después se añadieron tres recuerdos y dos pares manuales bidireccionales. El JSON de metadatos verifica el estado final: **123 recuerdos activos, 5 filas sinápticas, 4 filas manuales**, `integrity_check=ok`. El hash SQLite se mantuvo idéntico en las tres condiciones y durante las búsquedas. Cada consulta y repetición se ejecutó en copias nuevas; el corpus NLTK fue el único enlace de solo lectura. No se usó una base original.
 
-Esto apunta a una coincidencia léxica corta y general como explicación inmediata de las recuperaciones observadas, pero no demuestra que el trigrama o la asociación sean siempre irrelevantes. Se conserva solo como pista diagnóstica: no se convierte en regla de filtrado ni se eliminan pistas o asociaciones.
+## Resultados observados
 
-### Mezcla de alfabetos, conectores y límites de extracción
+- En el control japonés A, la sonda FTS encontró dos recuerdos sintéticos; con cada contenido el único trigrama compartido fue **`を指す`**. OR produjo dos resultados primarios (scores 0,0705 y 0,0433); baseline y umbral 2 no devolvieron primarios. El control japonés B no produjo candidatos ni primarios en ninguno de los tres brazos. Es una observación de esta fixture; **`を指す` no se convierte en filtro**.
+- Los primarios y sus scores fueron idénticos entre las tres repeticiones en todos los casos y brazos. Las búsquedas primarias sobre las dos copias independientes coincidieron en todos los casos. La lista de vecinos explícitos también fue idéntica entre repeticiones.
+- Hallazgo importante de la expansión explícita: solo en OR/control japonés A, los primarios conservaron nombres y orden, pero sus scores cambiaron de **0,0705/0,0433 a 0,0894/0,0646** al llamar a la expansión; esa expansión no devolvió vecinos. La discrepancia apareció en las tres repeticiones. Por eso el arnés preserva primarios antes y después de expandir y marca este cambio, en vez de atribuirlo a un vecino añadido. No se propone filtrar ni borrar la asociación.
+- En mezcla de alfabetos, OR recuperó el recuerdo sintético `灯台警告記録` para Latin sin espacio, el conector inglés `and`, puntuación, partícula `の` y Han suplementario U+20000; el asociado `霧夜観測手掛かり` se registró como vecino explícito. Umbral 2 reprodujo las recuperaciones de Latin, puntuación y Han suplementario, pero no la partícula `の`. Hangul mixto no produjo primarios. Baseline no produjo primarios en esos controles. Son resultados sintéticos de esta segmentación, no evidencia general de soporte ni base para filtrar.
+- La pista alineada conservó el primario y el vecino explícito en los tres brazos. La paráfrasis libre produjo primario y vecino con OR y umbral 2; baseline no produjo resultados.
+- **No se registraron errores** ni en el FTS crudo ni en el punto `OperationalError` del parche instrumentado, en ninguna repetición de los tres brazos. Los JSON guardan el detalle por brazo/caso/repetición, no solo este total.
 
-En esta fixture, OR recuperó el recuerdo sintético `灯台警告記録` en los controles con letras latinas sin espacio, con el conector inglés `and`, con puntuación y con la partícula japonesa `の`; el recuerdo asociado `霧夜観測手掛かり` apareció como contexto expandido. Baseline no recuperó resultados primarios en esos controles. Umbral 2 reprodujo las recuperaciones de latín, puntuación y Han suplementario, pero no el control con `の`. La variante Hangul mixta no produjo resultados en ningún brazo.
+## Ranking, comparación y coste local
 
-El carácter Han suplementario U+20000 quedó fuera de los rangos incluidos por estos parches, aunque el sufijo Han restante pudo generar recuperación. Esto evidencia el comportamiento de compactación/segmentación de esta propuesta concreta, no una recomendación para descartar alfabetos ni para filtrar resultados.
+Los JSON de OR y umbral 2 ahora contienen las comparaciones por caso frente al baseline. En el resumen agregado, casos con resultados primarios inestables entre repeticiones: **0** en los tres brazos; casos con discrepancia entre primarios de copias independientes: **0** en los tres; discrepancias de scores de primarios tras expansión explícita: **0 baseline, 1 OR (control japonés A), 0 umbral 2**; casos con errores CJK instrumentados: **0** en los tres.
 
-### Pistas, paráfrasis y ranking
-
-La consulta alineada recuperó el mismo recuerdo primario en los tres brazos; el recuerdo asociado se mantuvo en el contexto expandido en los tres. La paráfrasis libre no devolvió primarios con baseline, pero OR y umbral 2 recuperaron el recuerdo de pista como primario y conservaron el asociado como contexto. En este ejemplo, el score del vecino contextual supera al del primario; el motor lo presenta en un campo/posición de contexto aparte. Por ello no debe describirse como inversión del ranking primario.
-
-### Coste local y consultas largas
-
-Mediana de búsqueda primaria sobre los 15 casos (tres repeticiones por caso):
+Mediana de búsqueda primaria sobre 15 casos, tres repeticiones:
 
 | Brazo | Mediana (ms) |
 |---|---:|
-| Baseline | 146,245 |
-| OR | 146,874 |
-| Umbral 2 | 153,306 |
+| Baseline | 143,796 |
+| OR | 150,312 |
+| Umbral 2 | 149,875 |
 
-En el brazo OR, los cinco controles largos (68, 132, 260, 504 y 1004 caracteres totales) generaron 66, 130, 258, 502 y 1002 trigramas únicos; las expresiones FTS OR ocuparon 986, 1.946, 3.866, 7.526 y 15.026 bytes. No hubo error FTS, incluido el control de 1004 caracteres. Las medianas de búsqueda primaria fueron 143,3; 153,6; 192,9; 258,3 y 363,1 ms, con máximos de asignaciones Python observados por `tracemalloc` de 437,2; 463,9; 505,4; 609,0 y 773,1 KiB.
+En OR, las consultas de 68, 132, 260, 504 y 1004 caracteres generaron 66, 130, 258, 502 y 1002 trigramas; las expresiones OR ocuparon 986, 1.946, 3.866, 7.526 y 15.026 bytes. Las medianas de búsqueda fueron 147,1; 158,0; 195,3; 252,8 y 367,5 ms. La mediana de los tres picos por `tracemalloc` fue 437,2; 464,2; 505,4; 609,1 y 772,7 KiB; los máximos observados entre las tres repeticiones fueron 441,0; 469,7; 515,6; 629,8 y 813,0 KiB. No hubo error FTS en esos sondeos. Las consultas de 504 y 1004 caracteres superan el límite MCP de 500; la de 1004 es una sonda directa del motor. Estas cifras son locales a una fixture pequeña, con `tracemalloc` activo; no son SLO, p95 ni estimaciones de toda la memoria nativa de SQLite.
 
-Los controles de 504 y 1004 caracteres superan el límite MCP de 500; el de 1004 es solo una sonda directa del motor. Todas estas latencias y asignaciones corresponden a esta máquina y a esta fixture minúscula; no son SLO ni evidencia de rendimiento de producción. El umbral 2 no mostró una ventaja de coste global en esta ejecución.
+## Alcance y decisión
 
-## Límites y decisión
+La corrección mejora la trazabilidad de repetibilidad, contexto, scores, errores FTS y diferencias entre brazos; no vuelve esta fixture una evaluación de producción. No se evaluaron escala real, p95, agente independiente ni generalización. Mantener ambos parches NO APLICAR; no modificar `core/memory/search.py`, no usar bases originales, no entrenar. **E3 sigue abierto; no avanzar a E4.**
 
-La evidencia es una fixture pareada, pequeña y artificial. No permite concluir generalización, calidad semántica, impacto con corpus grandes ni conveniencia de activar cualquiera de los parches. Se conservan los controles que muestran diferencias con el umbral 2 y la observación del control japonés permanece como pista diagnóstica, no como motivo para excluir caracteres, asociaciones o pistas.
-
-**Decisión:** mantener los dos parches NO APLICAR; no modificar `core/memory/search.py`; no usar bases originales; no entrenar; E3 sigue abierto y no se inicia E4.
-
-## Artefactos reproducibles y hashes
+## Artefactos y datos privados
 
 - Script sanitizado: `scripts/evaluar_controles_extendidos_cjk_e3.py`.
-- Parches diagnósticos: `docs/e3_cjk_trigram_propuesta_NO_APLICAR_20261101.patch` y `docs/e3_cjk_trigram_umbral2_DIAGNOSTICO_NO_APLICAR_20261101.patch`; solo se aplican en árboles temporales.
-- JSON detallados corregidos: `baseline.json`, `or.json`, `umbral2.json`, `resumen.json` y `fuente_sintetica_metadata.json`. Se conservan en Drive privado junto con un manifiesto SHA-256; no se incluyen en el commit.
-- El script obtiene las dos consultas japonesas mediante `BIORAG_E3_JP_QUERY_A` y `BIORAG_E3_JP_QUERY_B`, suministradas localmente y no almacenadas por el script en el repo. Los resultados no contienen el texto de consulta ni el mapeo a las etiquetas originales.
-- HEAD evaluado: `41e1793abb9e346f01e619c17611dc158ff27f4a`. SHA-256 del motor sin cambios: `7193ee7f9e4fdcc52787d8dc107d7456cbaedecac687e084d4e15f450a4ba8e6`.
+- Los dos parches diagnósticos permanecen en `docs/e3_cjk_trigram_propuesta_NO_APLICAR_20261101.patch` y `docs/e3_cjk_trigram_umbral2_DIAGNOSTICO_NO_APLICAR_20261101.patch`; solo se aplican en árboles temporales.
+- JSON completos de salida y manifiesto SHA-256: carpeta privada de Drive **“E3 CJK correcciones post-auditoría 2026-11-02”**; contiene los dos insumos japoneses exactos y su receta/hash. No se incluye SQLite, texto de consulta ni crosswalk en el commit.
+- Hash SHA-256 del motor sin modificar: `7193ee7f9e4fdcc52787d8dc107d7456cbaedecac687e084d4e15f450a4ba8e6`.
