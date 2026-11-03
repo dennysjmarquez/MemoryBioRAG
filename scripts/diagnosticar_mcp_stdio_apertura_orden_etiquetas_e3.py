@@ -237,6 +237,8 @@ async def run_arm(seed: Path, db: Path, temp_root: Path, scenario_name: str,
             target = next((item for item in primary if item.get("concepto") == TARGET), None)
             query_results.append({
                 "query_role": key,
+                "response_status": result.get("status"),
+                "mcp_is_error": bool(result.get("_mcp_is_error")),
                 "target_found": target is not None,
                 "target_rank": next((i + 1 for i, item in enumerate(primary) if item.get("concepto") == TARGET), None),
                 "target_score": target.get("score_hibrido") if target else None,
@@ -278,8 +280,13 @@ async def run_arm(seed: Path, db: Path, temp_root: Path, scenario_name: str,
         "graph_after_first_tool_open": graph_after_open,
         "edges_added_by_first_tool_open": after_open_new,
         "labels_before_write": labels_before,
+        "opening_tool_mcp_error": bool(labels_before.get("_mcp_is_error")),
         "write_result": write_result,
+        "write_tool_mcp_error": bool(write_result.get("_mcp_is_error")),
         "labels_after_write": labels_after_write,
+        "readback_tool_mcp_error": bool(labels_after_write.get("_mcp_is_error")),
+        "readback_tool_status": labels_after_write.get("status"),
+
         "edges_added_by_write": after_write_new,
         "edges_removed_by_write": after_write_removed,
         "queries": query_results,
@@ -307,8 +314,23 @@ async def run_all() -> dict:
                         cases.append(await run_arm(
                             seed, db, root, scenario_name, scenario, policy, route, query_order
                         ))
+        tool_flags = [
+            c["opening_tool_mcp_error"] or c["write_tool_mcp_error"] or c["readback_tool_mcp_error"]
+            for c in cases
+        ] + [q["mcp_is_error"] for c in cases for q in c["queries"]]
         return {
             "synthetic_only": True,
+            "mcp_sessions": len(cases),
+            "mcp_tool_calls": 5 * len(cases),
+            "mcp_tool_error_flags": sum(bool(flag) for flag in tool_flags),
+            "write_status_counts": {
+                status: sum(c["write_result"].get("status") == status for c in cases)
+                for status in sorted({c["write_result"].get("status") for c in cases}, key=str)
+            },
+            "remember_response_status_counts": {
+                status: sum(q["response_status"] == status for c in cases for q in c["queries"])
+                for status in sorted({q["response_status"] for c in cases for q in c["queries"]}, key=str)
+            },
             "user_databases_opened": 0,
             "source_databases_copied": False,
             "engine_patches_applied": False,

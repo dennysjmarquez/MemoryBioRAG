@@ -135,3 +135,11 @@ Este documento no propone un diff. Si se selecciona un frente para intervención
 - `docs/e3_unicode_identidad_investigacion_20261028.md` — sondas de normalización en copias, sin decisión nueva en este inventario.
 
 **Resultado de esta entrega:** aclaración documental de límites y trabajos abiertos. No se presenta ni se aplica una mejora al motor.
+
+## Actualización 3 nov 2026: revalidación de paráfrasis e historial
+
+La revalidación de MCP stdio repitió 16 sesiones de apertura/orden (80 llamadas de herramienta, 0 flags de error MCP), con 32 búsquedas, 28 recuperaciones del objetivo y preservación de las cuatro filas de aristas manuales iniciales en los 16 brazos. `initialize` no alteró el grafo; la primera herramienta añadió una arista `dmn_synthesized` por copia. No hubo deltas de aristas al escribir ni al buscar. El resultado fue igual al invertir el orden en 8/8 pares de esta fixture. Detalles: `docs/e3_revalidacion_historiales_apertura_orden_20261103.md`.
+
+El nuevo barrido emparejado de paráfrasis ejecutó 10 llamadas MCP stdio en cinco pares. FTS5 directo halló el objetivo por el término de paráfrasis en 5/5; MCP lo devolvió en 4/5 casos con paráfrasis y 4/5 controles sin ella. No hubo un par con recuperación exclusiva del brazo con paráfrasis, y `capa_parafrasis` fue 0.0 en las respuestas con objetivo. Esto no confirma ni descarta el uso de la paráfrasis en un caso individual; confirma que esta matriz todavía no aísla el efecto. Se conserva como limitación investigable de trazabilidad, no como fallo general ni permiso de cambio. Detalles: `docs/e3_paraphrase_sweep_sintetico_20261103.md`.
+
+El runner de apertura/orden ahora conserva flags MCP por llamada y estados por búsqueda. Ambos runners son diagnósticos sintéticos; no cambian `core/`, no tocan bases originales, no escogen política de etiquetas ni E4. E3 permanece abierto hasta resolver o delimitar el positivo diferencial de paráfrasis y completar la revisión de auditoría.
