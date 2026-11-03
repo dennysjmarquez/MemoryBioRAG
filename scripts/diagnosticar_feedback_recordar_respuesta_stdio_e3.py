@@ -32,7 +32,9 @@ NODES = [
 
 CASES = [
     {"case_id":"direct_with_unrelated_paraphrase", "query":"quartz", "parafrasis":"unrelated botanical phrase", "keywords":"quartz,archive", "asociados":True, "context_window":0, "limite":5, "asociaciones_max":0, "completo":True},
-    {"case_id":"paraphrase_route_candidate", "query":"qzxnovelquery", "parafrasis":"quartz", "keywords":"granite,orchid", "asociados":True, "context_window":0, "limite":5, "asociaciones_max":0, "completo":True},
+    {"case_id":"paraphrase_route_candidate", "query":"qzxnovelquery", "parafrasis":"quartz", "keywords":"granite,orchid", "asociados":True, "context_window":0, "limite":5, "asociaciones_max":0, "completo":True, "modo_estricto":False},
+    {"case_id":"paraphrase_route_strict", "query":"qzxnovelquery", "parafrasis":"quartz", "keywords":"granite,orchid", "asociados":True, "context_window":0, "limite":5, "asociaciones_max":0, "completo":True, "modo_estricto":True},
+    {"case_id":"query_without_paraphrase", "query":"qzxnovelquery", "parafrasis":None, "keywords":"granite,orchid", "asociados":True, "context_window":0, "limite":5, "asociaciones_max":0, "completo":True},
     {"case_id":"compact_payload", "query":"quartz", "parafrasis":None, "keywords":"quartz,archive", "asociados":False, "context_window":0, "limite":1, "asociaciones_max":0, "completo":False},
     {"case_id":"expanded_associations_context", "query":"quartz", "parafrasis":None, "keywords":"quartz,archive", "asociados":True, "context_window":2, "limite":10, "asociaciones_max":0, "completo":True},
 ]
@@ -86,6 +88,28 @@ def audit_date_storage(path: Path) -> dict:
     finally: con.close()
 
 
+def audit_fts_terms(path: Path,spec: dict) -> list[dict]:
+    uri="file:"+str(path.resolve())+"?mode=ro"
+    con=sqlite3.connect(uri,uri=True)
+    try:
+        terms=[("query",spec["query"])]
+        terms.extend(("paraphrase",p.strip()) for p in (spec.get("parafrasis") or "").split(",") if p.strip())
+        results=[]
+        for role,term in terms:
+            expression='"'+term.replace('"','""')+'"'
+            try:
+                rows=con.execute(
+                    "SELECT l.concepto FROM largo_plazo_fts f CROSS JOIN largo_plazo l ON l.rowid=f.rowid "
+                    "WHERE largo_plazo_fts MATCH ? ORDER BY l.concepto",(expression,)
+                ).fetchall()
+                concepts=[r[0] for r in rows]
+                results.append({"role":role,"term":term,"row_count":len(concepts),"target_found":TARGET in concepts,"error_type":None,"error":None})
+            except sqlite3.Error as exc:
+                results.append({"role":role,"term":term,"row_count":None,"target_found":False,"error_type":type(exc).__name__,"error":str(exc)})
+        return results
+    finally: con.close()
+
+
 async def run_case(seed: Path,temp_root: Path,spec: dict) -> dict:
     db=temp_root/f"copy_{spec['case_id']}.db"
     src,dst=sqlite3.connect(str(seed)),sqlite3.connect(str(db))
@@ -103,6 +127,7 @@ async def run_case(seed: Path,temp_root: Path,spec: dict) -> dict:
                 "asociados":spec["asociados"],"asociaciones_max":spec["asociaciones_max"],
                 "context_window":spec["context_window"],"limite":spec["limite"],
                 "usar_inferencia":False,"forzar_rafaga":False,
+                "modo_estricto":spec.get("modo_estricto",False),
             }
             mcp_result=await session._session.call_tool("recordar",arguments=args)
             raw_text="\n".join(getattr(block,"text","") for block in (getattr(mcp_result,"content",None) or []))
@@ -134,6 +159,7 @@ async def run_case(seed: Path,temp_root: Path,spec: dict) -> dict:
         "python_exception":error,
         "graph_snapshots":snapshots,
         "date_storage_audit":audit_date_storage(db),
+        "fts_term_controls":audit_fts_terms(db,spec),
         "raw_response_text":raw_text,
         "parsed_response":parsed,
     }
@@ -143,6 +169,8 @@ def public_summary(report:dict)->dict:
     rows=report["cases"]
     direct=next(row for row in rows if row["case_id"]=="direct_with_unrelated_paraphrase")
     paraphrase=next(row for row in rows if row["case_id"]=="paraphrase_route_candidate")
+    paraphrase_strict=next(row for row in rows if row["case_id"]=="paraphrase_route_strict")
+    no_paraphrase=next(row for row in rows if row["case_id"]=="query_without_paraphrase")
     compact=next(row for row in rows if row["case_id"]=="compact_payload")
     expanded=next(row for row in rows if row["case_id"]=="expanded_associations_context")
     date_fields=[r for row in rows for r in row["result_dates"]]
@@ -158,7 +186,14 @@ def public_summary(report:dict)->dict:
         "direct_case_paraphrase_trace":direct["target_trace"].get("capa_parafrasis"),
         "paraphrase_candidate_target_found":paraphrase["target_found"],
         "paraphrase_candidate_trace":paraphrase["target_trace"].get("capa_parafrasis"),
-        "gap_warning_with_results_cases":sum(r["gap_warning_present"] and r["primary_count"]>0 for r in rows),
+        "paraphrase_candidate_response_count":paraphrase["total"],
+        "paraphrase_candidate_fts_term_found":any(x["role"]=="paraphrase" and x["target_found"] for x in paraphrase["fts_term_controls"]),
+        "paraphrase_strict_target_found":paraphrase_strict["target_found"],
+        "paraphrase_strict_trace":paraphrase_strict["target_trace"].get("capa_parafrasis"),
+        "paraphrase_strict_fts_term_found":any(x["role"]=="paraphrase" and x["target_found"] for x in paraphrase_strict["fts_term_controls"]),
+        "no_paraphrase_target_found":no_paraphrase["target_found"],
+        "no_paraphrase_total":no_paraphrase["total"],
+        "gap_warning_with_results_cases": sum(r["gap_warning_present"] and r["primary_count"]>0 for r in rows),
         "gap_warning_cases":sum(r["gap_warning_present"] for r in rows),
         "date_fields_present_rows":sum(bool(r["timestamp_creado"]) and bool(r["fecha_legible"]) for r in date_fields),
         "date_rows_observed":len(date_fields),
