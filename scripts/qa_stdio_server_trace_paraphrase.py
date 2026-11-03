@@ -2,9 +2,9 @@
 """Launcher MCP stdio de diagnóstico con observación pasiva de búsqueda.
 
 Solo para fixtures bajo BIORAG_QA_TEMP_ROOT. Envuelve temporalmente el método
-público buscar_por_frase para registrar parámetros, SQL MATCH ejecutado y
-candidatos/orígenes devueltos, sin cambiar sus argumentos, retorno o efectos.
-La traza JSONL debe guardarse bajo la copia temporal y no publicarse.
+público buscar_por_frase y el cursor SQLite de esa llamada, sin cambiar consultas,
+parámetros, resultados ni efectos. Registra cada MATCH y las filas que esa consulta
+real devuelve, además del pool final. La traza íntegra debe permanecer privada.
 """
 from __future__ import annotations
 
@@ -19,6 +19,209 @@ import time
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
+
+
+class _ObservedCursor:
+    """Proxy transparente que observa las filas ya solicitadas por el motor."""
+
+    def __init__(self, cursor, connection, statements, frase, parafrasis_list, modo_estricto):
+        self._cursor = cursor
+        self._connection = connection
+        self._statements = statements
+        self._current = None
+        self._parameters = ()
+        self._expected_slots = {}
+        for index, value in enumerate([frase] + list(parafrasis_list or [])):
+            safe = " ".join(
+                part for token in str(value).split()
+                for part in re.split(r"-+", token) if part
+            )
+            if modo_estricto:
+                if parafrasis_list:
+                    expression = f"({ ' AND '.join(safe.split()) })" if safe else safe
+                elif len(safe.split()) > 1:
+                    expression = " ".join("+" + word for word in safe.split())
+                else:
+                    expression = safe
+            else:
+                expression = f'"{safe}"'
+            slot = "query" if index == 0 else f"paraphrase_{index}"
+            self._expected_slots.setdefault(expression, []).append(slot)
+
+    @staticmethod
+    def _split_top_level_or(expression):
+        parts, start, depth, quoted, i = [], 0, 0, False, 0
+        while i < len(expression):
+            char = expression[i]
+            if char == '"':
+                if quoted and i + 1 < len(expression) and expression[i + 1] == '"':
+                    i += 2
+                    continue
+                quoted = not quoted
+            elif not quoted:
+                if char == "(":
+                    depth += 1
+                elif char == ")":
+                    depth -= 1
+                elif depth == 0 and expression[i:i + 4].upper() == " OR ":
+                    parts.append(expression[start:i].strip())
+                    start = i + 4
+                    i = start
+                    continue
+            i += 1
+        if parts:
+            parts.append(expression[start:].strip())
+        return parts
+
+    @classmethod
+    def _strip_outer_parens(cls, expression):
+        text = expression.strip()
+        if not (text.startswith("(") and text.endswith(")")):
+            return None
+        depth, quoted = 0, False
+        i = 0
+        while i < len(text):
+            char = text[i]
+            if char == '"':
+                if quoted and i + 1 < len(text) and text[i + 1] == '"':
+                    i += 2
+                    continue
+                quoted = not quoted
+            elif not quoted:
+                depth += (char == "(") - (char == ")")
+                if depth == 0 and i != len(text) - 1:
+                    return None
+            i += 1
+        return text[1:-1].strip() if depth == 0 else None
+
+    @classmethod
+    def _probe_branches(cls, expression):
+        branches = []
+        def collect(text):
+            text = text.strip()
+            parts = cls._split_top_level_or(text)
+            if len(parts) > 1:
+                for part in parts:
+                    collect(part)
+                return
+            inner = cls._strip_outer_parens(text)
+            if inner is not None:
+                collect(inner)
+                return
+            field = re.fullmatch(r"sustantivos_clave:\((.*)\)", text, flags=re.IGNORECASE)
+            if field:
+                terms = cls._split_top_level_or(field.group(1))
+                if len(terms) > 1:
+                    for term in terms:
+                        branches.append(("field_boost", f"sustantivos_clave:({term})"))
+                    return
+                branches.append(("field_boost", text))
+                return
+            branches.append(("fts_branch", text))
+        collect(expression)
+        return branches
+
+    def execute(self, sql, parameters=()):
+        values = parameters if isinstance(parameters, (tuple, list)) else (parameters,)
+        result = self._cursor.execute(sql, parameters)
+        if re.search(r"\bMATCH\b", str(sql), flags=re.IGNORECASE):
+            expression = next((value for value in values if isinstance(value, str)), None)
+            self._current = {
+                "statement_index": len(self._statements) + 1,
+                "sql_sha256": hashlib.sha256(str(sql).encode("utf-8")).hexdigest(),
+                "sql": str(sql),
+                "match_expression": expression,
+                "rows_returned": 0,
+                "candidate_concepts": [],
+                "variant_probes": [],
+            }
+            self._parameters = tuple(values)
+            self._statements.append(self._current)
+        else:
+            self._current = None
+            self._parameters = ()
+        return self
+
+    def executemany(self, sql, parameters):
+        result = self._cursor.executemany(sql, parameters)
+        self._current = None
+        return self
+
+    @staticmethod
+    def _concept(row):
+        if not row:
+            return None
+        # Búsquedas FTS normales devuelven rowid, concepto, ...; consultas de
+        # puente/proyección pueden devolver solo concepto.
+        value = row[1] if len(row) > 1 and isinstance(row[1], str) else row[0]
+        return value if isinstance(value, str) else None
+
+    def _record(self, rows):
+        if self._current is not None:
+            for row in rows:
+                self._current["rows_returned"] += 1
+                concept = self._concept(row)
+                if concept is not None:
+                    self._current["candidate_concepts"].append(concept)
+            if not self._current["variant_probes"]:
+                expression = self._current.get("match_expression")
+                branches = self._probe_branches(expression) if isinstance(expression, str) else []
+                auxiliary_index = 0
+                for branch_kind, branch_expression in branches:
+                    if branch_kind == "field_boost":
+                        label = "sustantivos_clave"
+                    else:
+                        normalized_branch = self._strip_outer_parens(branch_expression) or branch_expression
+                        matched_slots = self._expected_slots.get(normalized_branch, [])
+                        if matched_slots:
+                            label = matched_slots[0] if len(matched_slots) == 1 else "ambiguous_duplicate_variant"
+                        else:
+                            auxiliary_index += 1
+                            label = f"auxiliary_fts_branch_{auxiliary_index}"
+                            matched_slots = []
+                    probe = {
+                        "source_slot": label,
+                        "source_slots": matched_slots if branch_kind != "field_boost" else [label],
+                        "branch_kind": branch_kind,
+                        "match_expression": branch_expression,
+                        "candidate_concepts": [],
+                        "rows_returned": 0,
+                    }
+                    try:
+                        cursor = self._connection.cursor()
+                        params = (branch_expression,) + self._parameters[1:]
+                        cursor.execute(self._current["sql"], params)
+                        probe_rows = cursor.fetchall()
+                        probe["rows_returned"] = len(probe_rows)
+                        probe["candidate_concepts"] = [
+                            concept for concept in (self._concept(row) for row in probe_rows)
+                            if concept is not None
+                        ]
+                    except Exception as exc:
+                        probe["probe_exception"] = type(exc).__name__
+                    self._current["variant_probes"].append(probe)
+        return rows
+
+    def fetchall(self):
+        return self._record(self._cursor.fetchall())
+
+    def fetchone(self):
+        row = self._cursor.fetchone()
+        if row is not None:
+            self._record([row])
+        return row
+
+    def fetchmany(self, size=None):
+        rows = self._cursor.fetchmany() if size is None else self._cursor.fetchmany(size)
+        return self._record(rows)
+
+    def __iter__(self):
+        for row in self._cursor:
+            self._record([row])
+            yield row
+
+    def __getattr__(self, name):
+        return getattr(self._cursor, name)
 
 
 def main() -> int:
@@ -48,20 +251,16 @@ def main() -> int:
     def observed(self, frase, *args, **kwargs):
         nonlocal sequence
         sequence += 1
-        fts_sql = []
-        callback = self.conn.set_trace_callback
-
-        def capture_sql(statement: str) -> None:
-            if re.search(r"largo_plazo_fts\s+MATCH", statement, flags=re.IGNORECASE):
-                match = re.search(
-                    r"largo_plazo_fts\s+MATCH\s+'((?:[^']|'')*)'",
-                    statement,
-                    flags=re.IGNORECASE,
-                )
-                fts_sql.append(match.group(1).replace("''", "'") if match else "<MATCH statement; expression parse unavailable>")
-
-        callback(capture_sql)
+        statements = []
+        original_cursor = self.cursor
+        proxy = _ObservedCursor(
+            original_cursor, self.conn, statements, frase,
+            kwargs.get("parafrasis_list") or [], bool(kwargs.get("modo_estricto", False)),
+        )
         error = None
+        result = []
+        total = None
+        self.cursor = proxy
         try:
             result, total = original(self, frase, *args, **kwargs)
             return result, total
@@ -69,7 +268,7 @@ def main() -> int:
             error = {"type": type(exc).__name__, "message": str(exc)[:300]}
             raise
         finally:
-            callback(None)
+            self.cursor = original_cursor
             pool = getattr(self, "last_todos", []) or []
             origins = getattr(self, "last_origen_scores", {}) or {}
             candidate_concepts = [row[1] for row in pool if len(row) > 1 and row[1]]
@@ -81,7 +280,8 @@ def main() -> int:
                     for value in (kwargs.get("parafrasis_list") or [])
                 ],
                 "modo_estricto": bool(kwargs.get("modo_estricto", False)),
-                "fts_match_expressions": fts_sql,
+                "fts_statements": statements,
+                "fts_match_expressions": [item.get("match_expression") for item in statements],
                 "candidate_count": len(candidate_concepts),
                 "candidate_concepts": candidate_concepts,
                 "candidate_origins": {

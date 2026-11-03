@@ -228,6 +228,22 @@ def summarize(cases: list[dict]) -> dict:
                 for event in trace_with["internal_search_events"]
                 if TARGET in event.get("candidate_concepts", [])
             ],
+            "target_fts_statement_attribution": [
+                {
+                    "search_call_index": event.get("search_call_index"),
+                    "statement_index": statement.get("statement_index"),
+                    "returned_by_statement": TARGET in statement.get("candidate_concepts", []),
+                    "matching_branch_slots": [
+                        slot
+                        for probe in statement.get("variant_probes", [])
+                        if TARGET in probe.get("candidate_concepts", [])
+                        for slot in probe.get("source_slots", [probe.get("source_slot")])
+                    ],
+                }
+                for event in trace_with["internal_search_events"]
+                for statement in event.get("fts_statements", [])
+                if TARGET in statement.get("candidate_concepts", [])
+            ],
             "public_paraphrase_trace": trace_with["public_trace"].get("capa_parafrasis"),
             "fts_paraphrase_control_found": any(
                 item["role"] == "paraphrase" and item["target_found"]
