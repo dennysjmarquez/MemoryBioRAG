@@ -36,18 +36,24 @@ python -m venv .venv
 
 El runner reutiliza `scripts/diagnosticar_traza_interna_parafrasis_e3.py`, clona una fixture sintética para cada brazo MCP, desactiva QCR para aislar el comportamiento en el caso multiword y empareja llamadas baseline/instrumentadas. No modifica `core/` ni recibe una ruta a una base original. `helium,vector` satisface el parámetro obligatorio `sustantivos_clave` sin coincidir con la fixture.
 
+## Separación instrumental del filtro final
+
+El launcher ahora registra toda sentencia SQL que mencione `PALABRA_INICIO_ANCHO` y asigna un `query_role` a partir de la forma SQL observada. Solo clasifica como `final_single_word_prefix_guard` la forma del SELECT final que valida los candidatos ya reunidos mediante `concepto IN (...)` y consulta concepto, contenido, sinónimos y `sustantivos_clave`. Las demás sentencias se mantienen visibles como `content_match_scoring` u `other_prefix_function_query`; no se interpretan como el filtro final. Se conserva además la ubicación de llamada y un SHA-256 del SQL para auditar la clasificación. La atribución es pasiva; no altera consultas, parámetros ni resultados.
+
+La corrida muestra por separado el SELECT final para los casos de una palabra y una sentencia `content_match_scoring` en la consulta multiword. Esta última no entra en la lista de entradas/salidas del filtro final. Una sentencia no final puede usar la función en una expresión de conteo/puntuación; su mera presencia no prueba que el filtro haya eliminado un candidato.
+
 ## Resultado guardado
 
-Corrida de referencia actualizada: `.private_evidence/e3_prefix_guard_paraphrase_20261103_run07/`
+Corrida de referencia actualizada: `.private_evidence/e3_prefix_guard_paraphrase_20261103_run08/`
 
 - `synthetic_prefix_guard_results.json` — resultados íntegros sintéticos.
-- `SHA256SUMS.json` — SHA-256 del JSON: `8923ec4cb55ee87fb5c1699bbdaa08e9a4b456693e3edcf89cef558950759964`.
-- Siete casos, veintiocho llamadas, cero errores MCP; las parejas baseline/instrumentado fueron equivalentes y las ocho comprobaciones pasaron.
+- `SHA256SUMS.json` — SHA-256 del JSON: `dc39e0de24bdf033133ff76b7b51ce333e856d29f4d9f3d78c3f9c29748a116e`.
+- Siete casos, veintiocho llamadas, cero errores MCP; las parejas baseline/instrumentado fueron equivalentes y las nueve comprobaciones pasaron.
 - `articulos_substring_removed_by_guard` comprueba automáticamente y por separado que el candidato de `culo` / `artículos` entra al pool, es descartado por el guardia y no llega a MCP.
-- Los dos controles sin paráfrasis (`qzxnovelquery` y `qzxnovelquery sentinel`) no tienen el candidato en el pool ni en MCP. Al agregar la paráfrasis `quartz`, FTS atribuye el candidato a `paraphrase_1` en ambos casos. En la consulta de una palabra el guardia recibe el candidato y lo elimina; en la consulta multiword el candidato llega a MCP y el guardia no se ejecuta.
+- Los dos controles sin paráfrasis (`qzxnovelquery` y `qzxnovelquery sentinel`) no tienen el candidato en el pool ni en MCP. Al agregar la paráfrasis `quartz`, FTS atribuye el candidato a `paraphrase_1` en ambos casos. En la consulta de una palabra el guardia final recibe el candidato y lo elimina; en la consulta multiword el candidato llega a MCP y el guardia final no se ejecuta.
 - Los casos de protección también se conservan: `probeanchor` dentro de `xxprobeanchorzz` y `culo` dentro de `artículos` se descartan; `react` conserva el prefijo válido `reactive`.
 
-Los intentos anteriores `run01` y `run02` se preservaron; fallaron antes de escribir resultados íntegros. `run03` fue una corrida válida con una etiqueta de rol imprecisa; `run04` fue la referencia corregida de cinco casos y `run05` añadió la comprobación propia de `culo` / `artículos`; ambos permanecen intactos. `run06` falló su nueva aserción porque la consulta control multiword incluía `archive`, palabra presente en el texto sintético, por lo que la búsqueda original ya encontraba el candidato. Se corrigió el control a `sentinel` y se ejecutó `run07`; no se deben interpretar los directorios fallidos como evidencia de resultado.
+Los intentos anteriores `run01` y `run02` se preservaron; fallaron antes de escribir resultados íntegros. `run03` fue una corrida válida con una etiqueta de rol imprecisa; `run04` fue la referencia corregida de cinco casos, `run05` añadió la comprobación propia de `culo` / `artículos`, y `run07` agregó controles de paráfrasis. Todos se conservan sin cambios. `run06` falló una aserción porque la consulta control multiword incluía `archive`, presente en el texto sintético; luego se corrigió a `sentinel`. `run08` repite esa matriz con la clasificación instrumental afinada. No se deben interpretar los directorios fallidos como evidencia de resultado.
 
 ## Límites de inferencia
 

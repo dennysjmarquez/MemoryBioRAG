@@ -4,7 +4,9 @@
 Solo para fixtures bajo BIORAG_QA_TEMP_ROOT. Envuelve temporalmente el método
 público buscar_por_frase y el cursor SQLite de esa llamada, sin cambiar consultas,
 parámetros, resultados ni efectos. Registra cada MATCH y las filas que esa consulta
-real devuelve, además del pool final. La traza íntegra debe permanecer privada.
+real devuelve, además del pool final. Todas las consultas que usan PALABRA_INICIO_ANCHO
+se clasifican por su forma SQL; solo el SELECT final de candidatos se etiqueta como
+guardia final. La traza íntegra debe permanecer privada.
 """
 from __future__ import annotations
 
@@ -24,11 +26,12 @@ if str(ROOT) not in sys.path:
 class _ObservedCursor:
     """Proxy transparente que observa las filas ya solicitadas por el motor."""
 
-    def __init__(self, cursor, connection, statements, filter_statements, frase, parafrasis_list, modo_estricto):
+    def __init__(self, cursor, connection, statements, filter_statements, prefix_predicate_statements, frase, parafrasis_list, modo_estricto):
         self._cursor = cursor
         self._connection = connection
         self._statements = statements
         self._filter_statements = filter_statements
+        self._prefix_predicate_statements = prefix_predicate_statements
         self._current = None
         self._parameters = ()
         self._expected_slots = {}
@@ -122,8 +125,39 @@ class _ObservedCursor:
         collect(expression)
         return branches
 
+    @staticmethod
+    def _prefix_predicate_metadata(sql, values):
+        normalized = " ".join(str(sql).upper().split())
+        final_guard_shape = (
+            normalized.startswith("SELECT CONCEPTO FROM LARGO_PLAZO WHERE ")
+            and "AND CONCEPTO IN (" in normalized
+            and "COALESCE(SUSTANTIVOS_CLAVE" in normalized
+        )
+        is_scoring_query = "AS MATCH_COUNT" in normalized
+        role = "final_single_word_prefix_guard" if final_guard_shape else (
+            "content_match_scoring" if is_scoring_query else "other_prefix_function_query"
+        )
+        caller = sys._getframe(2)
+        return {
+            "filter_kind": role,
+            "query_role": role,
+            "classification_basis": "final_guard_sql_shape" if final_guard_shape else "non_final_sql_shape",
+            "caller_function": caller.f_code.co_name,
+            "caller_file": caller.f_code.co_filename,
+            "caller_line": caller.f_lineno,
+            "sql_sha256": hashlib.sha256(str(sql).encode("utf-8")).hexdigest(),
+            "sql": str(sql),
+            "rows_returned": 0,
+            "candidate_concepts": [],
+            "input_candidates": list(values[4:]) if final_guard_shape and len(values) > 4 else [],
+            "variant_probes": [],
+        }
+
     def execute(self, sql, parameters=()):
         values = parameters if isinstance(parameters, (tuple, list)) else (parameters,)
+        sql_text = str(sql)
+        has_prefix_predicate = "PALABRA_INICIO_ANCHO" in sql_text.upper()
+        prefix_metadata = self._prefix_predicate_metadata(sql_text, values) if has_prefix_predicate else None
         result = self._cursor.execute(sql, parameters)
         if re.search(r"\bMATCH\b", str(sql), flags=re.IGNORECASE):
             expression = next((value for value in values if isinstance(value, str)), None)
@@ -138,21 +172,19 @@ class _ObservedCursor:
                 "candidate_concepts": [],
                 "variant_probes": [],
             }
+            if prefix_metadata is not None:
+                prefix_metadata["statement_kind"] = "fts_match"
+                self._current["prefix_predicate_observation"] = prefix_metadata
+                self._prefix_predicate_statements.append(prefix_metadata)
             self._parameters = tuple(values)
             self._statements.append(self._current)
-        elif "PALABRA_INICIO_ANCHO" in str(sql).upper():
-            self._current = {
-                "filter_index": len(self._filter_statements) + 1,
-                "filter_kind": "single_word_prefix_guard",
-                "sql_sha256": hashlib.sha256(str(sql).encode("utf-8")).hexdigest(),
-                "sql": str(sql),
-                "rows_returned": 0,
-                "candidate_concepts": [],
-                "input_candidates": list(values[4:]) if len(values) > 4 else [],
-                "variant_probes": [],
-            }
+        elif prefix_metadata is not None:
+            prefix_metadata["filter_index"] = len(self._filter_statements) + 1
+            prefix_metadata["statement_kind"] = "non_fts_prefix_predicate"
+            self._current = prefix_metadata
             self._parameters = tuple(values)
             self._filter_statements.append(self._current)
+            self._prefix_predicate_statements.append(self._current)
         else:
             self._current = None
             self._parameters = ()
@@ -179,6 +211,12 @@ class _ObservedCursor:
                 concept = self._concept(row)
                 if concept is not None:
                     self._current["candidate_concepts"].append(concept)
+            prefix_observation = self._current.get("prefix_predicate_observation")
+            if prefix_observation is not None:
+                prefix_observation["rows_returned"] += len(rows)
+                prefix_observation["candidate_concepts"].extend(
+                    concept for concept in (self._concept(row) for row in rows) if concept is not None
+                )
             if "COUNT(" in self._current["sql"].upper() and rows:
                 try:
                     self._current["count_value"] = rows[0][0]
@@ -277,9 +315,11 @@ def main() -> int:
         sequence += 1
         statements = []
         filter_statements = []
+        prefix_predicate_statements = []
         original_cursor = self.cursor
         proxy = _ObservedCursor(
-            original_cursor, self.conn, statements, filter_statements, frase,
+            original_cursor, self.conn, statements, filter_statements,
+            prefix_predicate_statements, frase,
             kwargs.get("parafrasis_list") or [], bool(kwargs.get("modo_estricto", False)),
         )
         error = None
@@ -366,6 +406,7 @@ def main() -> int:
                 "modo_estricto": bool(kwargs.get("modo_estricto", False)),
                 "fts_statements": statements,
                 "post_search_filter_statements": filter_statements,
+                "prefix_predicate_statements": prefix_predicate_statements,
                 "query_token_count": len(re.findall(r"\w{3,}", str(frase).lower())),
                 "fts_match_expressions": [item.get("match_expression") for item in statements],
                 "candidate_count": len(candidate_concepts),

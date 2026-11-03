@@ -3,8 +3,9 @@
 
 Empareja MCP stdio baseline/instrumentado para mostrar una defensa contra hits
 subword y una ruta válida de prefijo, y para detectar el caso donde un hit de
-paráfrasis se somete al token de una query distinta. No modifica core/ ni datos
-originales. La salida íntegra contiene fixture/queries y debe quedar privada.
+paráfrasis se somete al token de una query distinta. Distingue el SELECT de guardia
+final de otras consultas que también invocan PALABRA_INICIO_ANCHO. No modifica
+core/ ni datos originales. La salida íntegra contiene fixture/queries y debe quedar privada.
 """
 from __future__ import annotations
 
@@ -89,7 +90,20 @@ def attribution(run: dict) -> dict:
         }
         for event in events
         for statement in event.get("post_search_filter_statements", [])
-        if TARGET in statement.get("input_candidates", [])
+        if statement.get("query_role") == "final_single_word_prefix_guard"
+        and TARGET in statement.get("input_candidates", [])
+    ]
+    other_prefix_queries = [
+        {
+            "query_role": statement.get("query_role"),
+            "statement_kind": statement.get("statement_kind"),
+            "rows_returned": statement.get("rows_returned"),
+            "candidate_concepts": statement.get("candidate_concepts", []),
+            "caller_line": statement.get("caller_line"),
+        }
+        for event in events
+        for statement in event.get("prefix_predicate_statements", [])
+        if statement.get("query_role") != "final_single_word_prefix_guard"
     ]
     stages = [stage for event in events for stage in event.get("search_stage_trace", [])]
     return {
@@ -101,6 +115,7 @@ def attribution(run: dict) -> dict:
             if stage.get("stage") == "resultados_con_hibrido"
         ],
         "prefix_guard_inputs_and_outputs": filters,
+        "other_prefix_predicate_queries": other_prefix_queries,
         "engine_returned_target": any(TARGET in event.get("returned_concepts", []) for event in events),
         "query_token_counts": [event.get("query_token_count") for event in events],
         "mcp_contingency": bool(run.get("raw_response_text", {}).get("contingencia_contexto")),
@@ -187,6 +202,11 @@ async def execute() -> dict:
             any("paraphrase_1" in s["branch_slots"] for s in para_multi["fts_statements_returning_target"])
             and not para_multi["prefix_guard_inputs_and_outputs"]
             and para_multi["mcp_target_found"]
+        ),
+        "other_prefix_predicate_is_not_mislabeled_final_guard": (
+            any(q["query_role"] == "content_match_scoring" for q in para_multi["other_prefix_predicate_queries"])
+            and not para_multi["prefix_guard_inputs_and_outputs"]
+            and all(q["query_role"] != "final_single_word_prefix_guard" for q in para_multi["other_prefix_predicate_queries"])
         ),
         "all_baseline_instrumentation_pairs_equal": all(row["instrumentation_equivalent"] for row in rows),
     }
