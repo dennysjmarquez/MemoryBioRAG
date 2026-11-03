@@ -55,6 +55,15 @@ Corrida de referencia actualizada: `.private_evidence/e3_prefix_guard_paraphrase
 
 Los intentos anteriores `run01` y `run02` se preservaron; fallaron antes de escribir resultados íntegros. `run03` fue una corrida válida con una etiqueta de rol imprecisa; `run04` fue la referencia corregida de cinco casos, `run05` añadió la comprobación propia de `culo` / `artículos`, y `run07` agregó controles de paráfrasis. Todos se conservan sin cambios. `run06` falló una aserción porque la consulta control multiword incluía `archive`, presente en el texto sintético; luego se corrigió a `sentinel`. `run08` repite esa matriz con la clasificación instrumental afinada. No se deben interpretar los directorios fallidos como evidencia de resultado.
 
+## Compatibilidad de los dos runners con la etiqueta nueva
+
+`diagnosticar_traza_interna_parafrasis_e3.py` ahora espera `final_single_word_prefix_guard` y nombra su comprobación `target_excluded_by_final_single_word_prefix_guard`, en línea con la clasificación del launcher. Ejecuté tanto ese runner como `diagnosticar_filtro_prefijo_parafrasis_e3.py` después del ajuste:
+
+- `.private_evidence/e3_internal_paraphrase_trace_20261103_run09/`: 24 llamadas MCP, cero errores, `far_query_exclusion_path_confirmed=true` e instrumentación equivalente en todos los pares. Checksum manifestados en `SHA256SUMS.json`: `stdio_cases_full.json` `21286622affaacea7f69e1d139ea0fcc7bf17dd6f470da6ffd83d77573194d19`; `synthetic_manifest.json` `e642cada4b5752304cdb9318646c3baad3b246c8654362ecabc5681c961f06f4`.
+- `.private_evidence/e3_prefix_guard_paraphrase_20261103_run10/`: siete casos, 28 llamadas, cero errores y las nueve comprobaciones pasaron. SHA-256 del JSON íntegro: `48cb7fba2633adf238da61bb259f589945cf5e7f663e282342cea2fd6559d0f1`.
+
+Ambas corridas son sintéticas; las trazas y manifiestos completos se conservan en esos directorios privados y no se incluyen en Git.
+
 ## Límites de inferencia
 
 - Las consultas y los documentos son sintéticos; no se abrieron ni modificaron bases originales.

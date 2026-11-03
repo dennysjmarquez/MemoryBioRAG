@@ -285,9 +285,9 @@ def summarize(cases: list[dict]) -> dict:
                         for event in trace_with["internal_search_events"] for stage in event.get("search_stage_trace", []))
                 and not any(TARGET in event.get("engine_final_concepts", []) for event in trace_with["internal_search_events"])
             ),
-            "target_excluded_by_single_word_prefix_guard": any(
+            "target_excluded_by_final_single_word_prefix_guard": any(
                 TARGET in statement.get("input_candidates", [])
-                and statement.get("filter_kind") == "single_word_prefix_guard"
+                and statement.get("filter_kind") == "final_single_word_prefix_guard"
                 and statement.get("rows_returned") == 0
                 for event in trace_with["internal_search_events"]
                 for statement in event.get("post_search_filter_statements", [])
@@ -313,7 +313,7 @@ def summarize(cases: list[dict]) -> dict:
         far_case.get(key) is True
         for key in (
             "target_removed_inside_search",
-            "target_excluded_by_single_word_prefix_guard",
+            "target_excluded_by_final_single_word_prefix_guard",
             "query_count_zero_in_single_sql_row",
             "mcp_contingency_after_engine_empty",
         )
