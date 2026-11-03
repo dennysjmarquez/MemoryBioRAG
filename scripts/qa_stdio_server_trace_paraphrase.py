@@ -24,10 +24,11 @@ if str(ROOT) not in sys.path:
 class _ObservedCursor:
     """Proxy transparente que observa las filas ya solicitadas por el motor."""
 
-    def __init__(self, cursor, connection, statements, frase, parafrasis_list, modo_estricto):
+    def __init__(self, cursor, connection, statements, filter_statements, frase, parafrasis_list, modo_estricto):
         self._cursor = cursor
         self._connection = connection
         self._statements = statements
+        self._filter_statements = filter_statements
         self._current = None
         self._parameters = ()
         self._expected_slots = {}
@@ -128,15 +129,30 @@ class _ObservedCursor:
             expression = next((value for value in values if isinstance(value, str)), None)
             self._current = {
                 "statement_index": len(self._statements) + 1,
+                "statement_kind": "fts_match",
                 "sql_sha256": hashlib.sha256(str(sql).encode("utf-8")).hexdigest(),
                 "sql": str(sql),
                 "match_expression": expression,
                 "rows_returned": 0,
+                "count_value": None,
                 "candidate_concepts": [],
                 "variant_probes": [],
             }
             self._parameters = tuple(values)
             self._statements.append(self._current)
+        elif "PALABRA_INICIO_ANCHO" in str(sql).upper():
+            self._current = {
+                "filter_index": len(self._filter_statements) + 1,
+                "filter_kind": "single_word_prefix_guard",
+                "sql_sha256": hashlib.sha256(str(sql).encode("utf-8")).hexdigest(),
+                "sql": str(sql),
+                "rows_returned": 0,
+                "candidate_concepts": [],
+                "input_candidates": list(values[4:]) if len(values) > 4 else [],
+                "variant_probes": [],
+            }
+            self._parameters = tuple(values)
+            self._filter_statements.append(self._current)
         else:
             self._current = None
             self._parameters = ()
@@ -163,6 +179,11 @@ class _ObservedCursor:
                 concept = self._concept(row)
                 if concept is not None:
                     self._current["candidate_concepts"].append(concept)
+            if "COUNT(" in self._current["sql"].upper() and rows:
+                try:
+                    self._current["count_value"] = rows[0][0]
+                except (IndexError, TypeError):
+                    pass
             if not self._current["variant_probes"]:
                 expression = self._current.get("match_expression")
                 branches = self._probe_branches(expression) if isinstance(expression, str) else []
@@ -186,6 +207,7 @@ class _ObservedCursor:
                         "match_expression": branch_expression,
                         "candidate_concepts": [],
                         "rows_returned": 0,
+                        "count_value": None,
                     }
                     try:
                         cursor = self._connection.cursor()
@@ -193,6 +215,8 @@ class _ObservedCursor:
                         cursor.execute(self._current["sql"], params)
                         probe_rows = cursor.fetchall()
                         probe["rows_returned"] = len(probe_rows)
+                        if "COUNT(" in self._current["sql"].upper() and probe_rows:
+                            probe["count_value"] = probe_rows[0][0]
                         probe["candidate_concepts"] = [
                             concept for concept in (self._concept(row) for row in probe_rows)
                             if concept is not None
@@ -252,15 +276,74 @@ def main() -> int:
         nonlocal sequence
         sequence += 1
         statements = []
+        filter_statements = []
         original_cursor = self.cursor
         proxy = _ObservedCursor(
-            original_cursor, self.conn, statements, frase,
+            original_cursor, self.conn, statements, filter_statements, frase,
             kwargs.get("parafrasis_list") or [], bool(kwargs.get("modo_estricto", False)),
         )
         error = None
         result = []
         total = None
+        target_concept = os.environ.get("BIORAG_QA_TRACE_TARGET")
+        search_stage_trace = []
+        prior_trace = sys.gettrace()
+        previous_presence = {}
+
+        def trace_search(frame, event_name, arg):
+            if (frame.f_code.co_name != "buscar_por_frase"
+                    or not os.path.normpath(frame.f_code.co_filename).endswith(
+                        os.path.join("core", "memory", "search.py")
+                    )
+                    or frame.f_locals.get("self") is not self):
+                return None
+            if event_name == "call":
+                frame.f_trace_lines = True
+                return trace_search
+            if event_name == "line" and target_concept:
+                local_vars = frame.f_locals
+                for name in ("todos", "resultados_con_hibrido", "filtrados_qcr", "pagina_base", "pagina_resultados"):
+                    rows = local_vars.get(name)
+                    if not isinstance(rows, (list, tuple)):
+                        continue
+                    concept_index = 1 if name == "todos" else 0
+                    found = [(i, row) for i, row in enumerate(rows)
+                             if isinstance(row, (list, tuple)) and len(row) > concept_index
+                             and row[concept_index] == target_concept]
+                    present = bool(found)
+                    key = (id(frame), name)
+                    was_present = previous_presence.get(key, False)
+                    if present != was_present and (present or was_present):
+                        rank, row = found[0] if found else (None, None)
+                        origin_map = local_vars.get("origen_scores", {})
+                        origin = origin_map.get(target_concept) if isinstance(origin_map, dict) else None
+                        search_stage_trace.append({
+                            "stage": name,
+                            "transition": "candidate_present" if present else "candidate_removed",
+                            "line": frame.f_lineno,
+                            "rank": rank,
+                            "score": row[4] if row is not None and name != "todos" and len(row) > 4 else None,
+                            "row_width": len(row) if row is not None else None,
+                            "origin": origin[0] if isinstance(origin, (tuple, list)) and origin else None,
+                        })
+                    previous_presence[key] = present
+            elif event_name == "return" and target_concept:
+                returned_rows = arg[0] if isinstance(arg, tuple) and arg else arg
+                returned_has_target = (
+                    isinstance(returned_rows, (list, tuple))
+                    and any(isinstance(row, (list, tuple)) and row and row[0] == target_concept
+                            for row in returned_rows)
+                )
+                search_stage_trace.append({
+                    "stage": "search_function_return",
+                    "transition": "candidate_returned" if returned_has_target else "candidate_absent",
+                    "line": frame.f_lineno,
+                    "returned_total": arg[1] if isinstance(arg, tuple) and len(arg) > 1 else None,
+                })
+            return trace_search
+
         self.cursor = proxy
+        sys.settrace(trace_search)
         try:
             result, total = original(self, frase, *args, **kwargs)
             return result, total
@@ -268,6 +351,7 @@ def main() -> int:
             error = {"type": type(exc).__name__, "message": str(exc)[:300]}
             raise
         finally:
+            sys.settrace(prior_trace)
             self.cursor = original_cursor
             pool = getattr(self, "last_todos", []) or []
             origins = getattr(self, "last_origen_scores", {}) or {}
@@ -281,9 +365,16 @@ def main() -> int:
                 ],
                 "modo_estricto": bool(kwargs.get("modo_estricto", False)),
                 "fts_statements": statements,
+                "post_search_filter_statements": filter_statements,
+                "query_token_count": len(re.findall(r"\w{3,}", str(frase).lower())),
                 "fts_match_expressions": [item.get("match_expression") for item in statements],
                 "candidate_count": len(candidate_concepts),
                 "candidate_concepts": candidate_concepts,
+                "search_stage_trace": search_stage_trace,
+                "engine_final_concepts": [
+                    row[0] for row in (getattr(self, "last_pagina_resultados", []) or [])
+                    if isinstance(row, (tuple, list)) and row
+                ],
                 "candidate_origins": {
                     name: {"origin": value[0], "score": value[1]}
                     for name, value in origins.items()

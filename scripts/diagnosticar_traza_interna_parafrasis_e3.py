@@ -125,6 +125,7 @@ class StdioSession:
         launcher = "qa_stdio_server_trace_paraphrase.py" if self.instrumented else "qa_stdio_server_intuicion.py"
         if self.instrumented:
             env["BIORAG_QA_TRACE_PATH"] = str(self.temp_root / "telemetry" / f"{self.db_path.stem}.jsonl")
+            env["BIORAG_QA_TRACE_TARGET"] = TARGET
         params = StdioServerParameters(
             command=sys.executable,
             args=[str(ROOT / "scripts" / launcher)],
@@ -244,16 +245,84 @@ def summarize(cases: list[dict]) -> dict:
                 for statement in event.get("fts_statements", [])
                 if TARGET in statement.get("candidate_concepts", [])
             ],
+            "query_only_count_statement": [
+                {
+                    "rows_returned": statement.get("rows_returned"),
+                    "count_value": statement.get("count_value"),
+                }
+                for event in trace_with["internal_search_events"]
+                for statement in event.get("fts_statements", [])
+                if statement.get("statement_index") == 1 and "COUNT(" in statement.get("sql", "").upper()
+            ],
+            "target_prefix_guard_outcome": [
+                {
+                    "query_token_count": event.get("query_token_count"),
+                    "filter_kind": statement.get("filter_kind"),
+                    "input_candidates": statement.get("input_candidates"),
+                    "rows_returned": statement.get("rows_returned"),
+                    "candidate_concepts": statement.get("candidate_concepts"),
+                }
+                for event in trace_with["internal_search_events"]
+                for statement in event.get("post_search_filter_statements", [])
+                if TARGET in statement.get("input_candidates", [])
+            ],
+            "target_search_stage_trace": [
+                {
+                    "search_call_index": event.get("search_call_index"),
+                    **stage,
+                }
+                for event in trace_with["internal_search_events"]
+                for stage in event.get("search_stage_trace", [])
+            ],
+            "engine_final_contains_target": any(
+                TARGET in event.get("engine_final_concepts", [])
+                for event in trace_with["internal_search_events"]
+            ),
+            "target_removed_inside_search": (
+                any(stage.get("stage") == "resultados_con_hibrido" and stage.get("transition") == "candidate_present"
+                    for event in trace_with["internal_search_events"] for stage in event.get("search_stage_trace", []))
+                and any(stage.get("stage") == "resultados_con_hibrido" and stage.get("transition") == "candidate_removed"
+                        for event in trace_with["internal_search_events"] for stage in event.get("search_stage_trace", []))
+                and not any(TARGET in event.get("engine_final_concepts", []) for event in trace_with["internal_search_events"])
+            ),
+            "target_excluded_by_single_word_prefix_guard": any(
+                TARGET in statement.get("input_candidates", [])
+                and statement.get("filter_kind") == "single_word_prefix_guard"
+                and statement.get("rows_returned") == 0
+                for event in trace_with["internal_search_events"]
+                for statement in event.get("post_search_filter_statements", [])
+            ),
+            "query_count_zero_in_single_sql_row": any(
+                statement.get("rows_returned") == 1 and statement.get("count_value") == 0
+                for event in trace_with["internal_search_events"]
+                for statement in event.get("fts_statements", [])
+                if statement.get("statement_index") == 1 and "COUNT(" in statement.get("sql", "").upper()
+            ),
+            "mcp_contingency_after_engine_empty": (
+                bool(trace_with.get("raw_response_text", {}).get("contingencia_contexto"))
+                and not any(event.get("returned_concepts") for event in trace_with["internal_search_events"])
+            ),
             "public_paraphrase_trace": trace_with["public_trace"].get("capa_parafrasis"),
             "fts_paraphrase_control_found": any(
                 item["role"] == "paraphrase" and item["target_found"]
                 for item in trace_with["fts_term_controls"]
             ),
         })
+    far_case = next(pair for pair in pairs if pair["pair_id"] == "far_query")
+    exclusion_path_confirmed = all(
+        far_case.get(key) is True
+        for key in (
+            "target_removed_inside_search",
+            "target_excluded_by_single_word_prefix_guard",
+            "query_count_zero_in_single_sql_row",
+            "mcp_contingency_after_engine_empty",
+        )
+    )
     return {
         "synthetic_only": True,
         "engine_source_modified": False,
         "runtime_instrumentation_only": True,
+        "far_query_exclusion_path_confirmed": exclusion_path_confirmed,
         "mcp_tool_calls": 4 * len(cases),
         "mcp_error_flags": sum(
             run[key]
@@ -301,6 +370,8 @@ def main() -> None:
         raise ValueError("Use a new directory under .private_evidence/")
     out.mkdir(parents=True, exist_ok=False)
     report = asyncio.run(execute())
+    if not report["public_aggregate"]["far_query_exclusion_path_confirmed"]:
+        raise AssertionError("La ruta sintética de exclusión del candidato no quedó confirmada")
     manifest = {"nodes": NODES, "pairs": PAIRS, "cases": make_cases(), "purpose": "trace MCP search paths without source edits"}
     for name, payload in (("stdio_cases_full.json", report), ("synthetic_manifest.json", manifest)):
         (out / name).write_text(json.dumps(payload, ensure_ascii=False, indent=2, sort_keys=True) + "\n")

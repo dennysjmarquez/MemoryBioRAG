@@ -154,6 +154,14 @@ Un segundo experimento emuló únicamente el bucle de agregación 0bf sobre el c
 
 No se eliminaron paráfrasis ni asociaciones, no se modificó `core/`, no se tocó una base original, no se aplicaron parches CJK, no se eligió política de etiquetas y no se avanzó a E4. E3 sigue abierto; hace falta ampliar cobertura de ramas de consulta y mantener separadas inclusión FTS, score y salida MCP.
 
+## Actualización 3 nov 2026: punto de exclusión dentro de búsqueda
+
+Se corrigió la expresión sobre la primera MATCH: era un `COUNT(*)`, que devolvió **una fila escalar con valor 0**; significa cero documentos coincidentes, no cero filas SQL. La corrección está en `docs/e3_instrumentacion_traza_parafrasis_20261103.md`.
+
+La corrida sintética final `.private_evidence/e3_paraphrase_search_stages_20261103_run03/` capturó el `COUNT(*)`, las filas de MATCH, la presencia del objetivo por etapas y la salida del filtro `PALABRA_INICIO_ANCHO`; la corrida previa `run02` se conserva intacta. El MATCH combinado obtuvo el candidato por `paraphrase_1`; luego siguió en el pool y se puntuó 0.0686, con origen lateral `literal`. Como la query de fixture tenía un token, el filtro final de prefijo probó ese token contra el concepto, contenido, sinónimos y `sustantivos_clave`; recibió el candidato pero devolvió cero filas válidas. Allí salió de `resultados_con_hibrido`, antes del retorno de `buscar_por_frase`. El método devolvió lista vacía (`total=1` previo al filtro); MCP la formateó después como contingencia (`total=0`). Por tanto, para esta copia la exclusión ocurrió dentro del buscador, no en una etapa posterior MCP. No se atribuye causa general ni se propone cambiar la regla.
+
+El wrapper de etapas es runtime y solo observacional en launcher QA; la corrida emparejada se mantuvo 3/3 equivalente, 0 flags MCP y sin cambios del grafo. No hubo cambios en `core/`, no se tocaron DB originales, no se eliminaron pistas y E4 no se inició.
+
 ## Actualización 3 nov 2026: instrumentación pasiva de búsqueda
 
 Se instrumentó en runtime el método `buscar_por_frase` únicamente en un launcher hijo de QA. El wrapper registra expresiones FTS ejecutadas, candidatos internos y orígenes declarados; conserva aparte la respuesta MCP final. Baseline e instrumentación produjeron la misma salida y traza pública en 3/3 pares emparejados (12 llamadas de búsqueda; 24 herramientas incluyendo apertura), con 0 flags MCP y sin cambios de grafo. En un brazo sintético, el `MATCH` combinado incorporó el objetivo al pool con origen `literal` aunque el query directo no lo encontraba y la paráfrasis directa sí; MCP no entregó ese objetivo. En los otros dos pares, el origen capturado fue `simbolico` en ambos brazos, con y sin paráfrasis. No hay un positivo diferencial devuelto por MCP.
