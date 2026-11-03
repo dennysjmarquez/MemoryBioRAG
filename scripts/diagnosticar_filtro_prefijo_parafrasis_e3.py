@@ -142,6 +142,7 @@ async def execute() -> dict:
 
     by_id = {row["case_id"]: row for row in rows}
     subword = by_id["subword_guard"]["attribution"]
+    articulos = by_id["short_word_boundary"]["attribution"]
     prefix = by_id["valid_word_prefix"]["attribution"]
     para_one = by_id["one_word_paraphrase"]["attribution"]
     para_multi = by_id["multiword_paraphrase"]["attribution"]
@@ -150,6 +151,11 @@ async def execute() -> dict:
             subword["target_in_internal_pool"]
             and any(f["input_target"] and f["rows_returned"] == 0 for f in subword["prefix_guard_inputs_and_outputs"])
             and not subword["mcp_target_found"]
+        ),
+        "articulos_substring_removed_by_guard": (
+            articulos["target_in_internal_pool"]
+            and any(f["input_target"] and f["rows_returned"] == 0 for f in articulos["prefix_guard_inputs_and_outputs"])
+            and not articulos["mcp_target_found"]
         ),
         "valid_prefix_survives_guard": (
             prefix["target_in_internal_pool"]

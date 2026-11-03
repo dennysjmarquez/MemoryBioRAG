@@ -1,7 +1,7 @@
 # Informe reproducible: guardia final de prefijo y pistas de paráfrasis (E3)
 
-**Fecha de ejecución:** 2026-11-03  
-**Alcance:** fixture sintética única; cinco consultas; comparación MCP baseline/instrumentado.  
+**Fecha de ejecución:** 2026-11-03
+**Alcance:** fixture sintética única; cinco consultas; comparación MCP baseline/instrumentado.
 **No se modificó el motor ni se abrió ninguna base de usuario.** No se propone aquí un cambio de política ni del motor.
 
 ## Conclusión breve
@@ -38,14 +38,15 @@ El runner reutiliza `scripts/diagnosticar_traza_interna_parafrasis_e3.py`, clona
 
 ## Resultado guardado
 
-Corrida de referencia: `.private_evidence/e3_prefix_guard_paraphrase_20261103_run04/`
+Corrida de referencia actualizada: `.private_evidence/e3_prefix_guard_paraphrase_20261103_run05/`
 
 - `synthetic_prefix_guard_results.json` — resultados íntegros sintéticos.
-- `SHA256SUMS.json` — checksum del JSON: `0a74b457a17a862d7bf7a62e18ba90e7a723a2f20f36ef8779831a1329e33f58`.
-- Cinco casos, veinte llamadas, cero errores MCP; las parejas baseline/instrumentado fueron equivalentes y las cinco comprobaciones pasaron.
-- Resumen: `probeanchor` dentro de `xxprobeanchorzz` y `culo` dentro de `artículos` entran al pool y son eliminados por el guardia de una palabra; `react` conserva el candidato `reactive`; `qzxnovelquery` no devuelve el candidato aunque la rama FTS de paráfrasis lo encontró (`quartz`); con `qzxnovelquery archive`, la misma pista de paráfrasis llega al resultado y no hay ejecución del guardia de prefijo.
+- `SHA256SUMS.json` — checksum del JSON: `54acaf26d642a3199c595aeee6489f5dc40eceee95d60da6784c3773d1931d96`.
+- Cinco casos, veinte llamadas, cero errores MCP; las parejas baseline/instrumentado fueron equivalentes y las seis comprobaciones pasaron.
+- `articulos_substring_removed_by_guard` comprueba automáticamente y por separado que el candidato de `culo` / `artículos` entra al pool, es descartado por el guardia y no llega a MCP.
+- Resumen de los demás casos: `probeanchor` dentro de `xxprobeanchorzz` también se descarta; `react` conserva el candidato `reactive`; `qzxnovelquery` no devuelve el candidato aunque la rama FTS de paráfrasis lo encontró (`quartz`); con `qzxnovelquery archive`, la misma pista de paráfrasis llega al resultado y no hay ejecución del guardia de prefijo.
 
-Los intentos anteriores `run01` y `run02` se preservaron; fallaron antes de escribir resultados íntegros. `run03` fue una corrida válida con una etiqueta de rol imprecisa; `run04` es la corrida de referencia corregida. No se deben interpretar los directorios fallidos como evidencia de resultado.
+Los intentos anteriores `run01` y `run02` se preservaron; fallaron antes de escribir resultados íntegros. `run03` fue una corrida válida con una etiqueta de rol imprecisa; `run04` fue la referencia corregida de cinco casos y se conserva sin cambios. `run05` añade la comprobación automática explícita para `culo` / `artículos`. No se deben interpretar los directorios fallidos como evidencia de resultado.
 
 ## Límites de inferencia
 
