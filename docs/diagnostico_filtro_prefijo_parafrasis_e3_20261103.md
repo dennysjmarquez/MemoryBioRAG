@@ -1,12 +1,12 @@
 # Informe reproducible: guardia final de prefijo y pistas de paráfrasis (E3)
 
 **Fecha de ejecución:** 2026-11-03
-**Alcance:** fixture sintética única; cinco consultas; comparación MCP baseline/instrumentado.
+**Alcance:** fixture sintética única; siete casos (incluidos controles sin paráfrasis); comparación MCP baseline/instrumentado.
 **No se modificó el motor ni se abrió ninguna base de usuario.** No se propone aquí un cambio de política ni del motor.
 
 ## Conclusión breve
 
-La revisión histórica identifica dos objetivos relacionados, pero distintos: el filtro anterior `PALABRA_COMPLETA` restringía matches a límites de palabra para evitar falsos positivos de subcadena; el filtro final `PALABRA_PREFIJO`, introducido después, permite además coincidencias morfológicas por prefijo, por ejemplo `react` → `reactive`. La ejecución sintética confirma que el guardia actual elimina los dos candidatos de una palabra con subcadena interna, conserva el prefijo válido y, en una ruta concreta, también puede eliminar una pista que FTS halló desde la paráfrasis cuando se evalúa contra la consulta original.
+La revisión histórica identifica dos objetivos relacionados, pero distintos: el filtro anterior `PALABRA_COMPLETA` restringía matches a límites de palabra para evitar falsos positivos de subcadena; el filtro final `PALABRA_PREFIJO`, introducido después, permite además coincidencias morfológicas por prefijo, por ejemplo `react` → `reactive`. La ejecución sintética confirma que el guardia actual elimina los dos candidatos de una palabra con subcadena interna y conserva el prefijo válido. Los controles sin paráfrasis no encuentran el candidato; al añadir `quartz`, FTS sí lo encuentra por la rama de paráfrasis. Para la consulta de una palabra, el filtro luego descarta ese candidato; en el caso multiword, lo conserva y el guardia no se ejecuta.
 
 Esto demuestra el mecanismo en estas fixtures, no su frecuencia ni impacto sobre datos reales. No se consultó ninguna base original.
 
@@ -38,15 +38,16 @@ El runner reutiliza `scripts/diagnosticar_traza_interna_parafrasis_e3.py`, clona
 
 ## Resultado guardado
 
-Corrida de referencia actualizada: `.private_evidence/e3_prefix_guard_paraphrase_20261103_run05/`
+Corrida de referencia actualizada: `.private_evidence/e3_prefix_guard_paraphrase_20261103_run07/`
 
 - `synthetic_prefix_guard_results.json` — resultados íntegros sintéticos.
-- `SHA256SUMS.json` — checksum del JSON: `54acaf26d642a3199c595aeee6489f5dc40eceee95d60da6784c3773d1931d96`.
-- Cinco casos, veinte llamadas, cero errores MCP; las parejas baseline/instrumentado fueron equivalentes y las seis comprobaciones pasaron.
+- `SHA256SUMS.json` — SHA-256 del JSON: `8923ec4cb55ee87fb5c1699bbdaa08e9a4b456693e3edcf89cef558950759964`.
+- Siete casos, veintiocho llamadas, cero errores MCP; las parejas baseline/instrumentado fueron equivalentes y las ocho comprobaciones pasaron.
 - `articulos_substring_removed_by_guard` comprueba automáticamente y por separado que el candidato de `culo` / `artículos` entra al pool, es descartado por el guardia y no llega a MCP.
-- Resumen de los demás casos: `probeanchor` dentro de `xxprobeanchorzz` también se descarta; `react` conserva el candidato `reactive`; `qzxnovelquery` no devuelve el candidato aunque la rama FTS de paráfrasis lo encontró (`quartz`); con `qzxnovelquery archive`, la misma pista de paráfrasis llega al resultado y no hay ejecución del guardia de prefijo.
+- Los dos controles sin paráfrasis (`qzxnovelquery` y `qzxnovelquery sentinel`) no tienen el candidato en el pool ni en MCP. Al agregar la paráfrasis `quartz`, FTS atribuye el candidato a `paraphrase_1` en ambos casos. En la consulta de una palabra el guardia recibe el candidato y lo elimina; en la consulta multiword el candidato llega a MCP y el guardia no se ejecuta.
+- Los casos de protección también se conservan: `probeanchor` dentro de `xxprobeanchorzz` y `culo` dentro de `artículos` se descartan; `react` conserva el prefijo válido `reactive`.
 
-Los intentos anteriores `run01` y `run02` se preservaron; fallaron antes de escribir resultados íntegros. `run03` fue una corrida válida con una etiqueta de rol imprecisa; `run04` fue la referencia corregida de cinco casos y se conserva sin cambios. `run05` añade la comprobación automática explícita para `culo` / `artículos`. No se deben interpretar los directorios fallidos como evidencia de resultado.
+Los intentos anteriores `run01` y `run02` se preservaron; fallaron antes de escribir resultados íntegros. `run03` fue una corrida válida con una etiqueta de rol imprecisa; `run04` fue la referencia corregida de cinco casos y `run05` añadió la comprobación propia de `culo` / `artículos`; ambos permanecen intactos. `run06` falló su nueva aserción porque la consulta control multiword incluía `archive`, palabra presente en el texto sintético, por lo que la búsqueda original ya encontraba el candidato. Se corrigió el control a `sentinel` y se ejecutó `run07`; no se deben interpretar los directorios fallidos como evidencia de resultado.
 
 ## Límites de inferencia
 

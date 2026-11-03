@@ -32,8 +32,10 @@ CASES = [
     ("subword_guard", "probeanchor", None, "protect_subword"),
     ("short_word_boundary", "culo", None, "substring_inside_articulos"),
     ("valid_word_prefix", "react", None, "allow_prefix"),
+    ("one_word_no_paraphrase", "qzxnovelquery", None, "original_query_control"),
     ("one_word_paraphrase", "qzxnovelquery", "quartz", "drop_para_hint"),
-    ("multiword_paraphrase", "qzxnovelquery archive", "quartz", "prefix_guard_skipped"),
+    ("multiword_no_paraphrase", "qzxnovelquery sentinel", None, "original_query_control"),
+    ("multiword_paraphrase", "qzxnovelquery sentinel", "quartz", "prefix_guard_skipped"),
 ]
 
 
@@ -144,7 +146,9 @@ async def execute() -> dict:
     subword = by_id["subword_guard"]["attribution"]
     articulos = by_id["short_word_boundary"]["attribution"]
     prefix = by_id["valid_word_prefix"]["attribution"]
+    para_one_control = by_id["one_word_no_paraphrase"]["attribution"]
     para_one = by_id["one_word_paraphrase"]["attribution"]
+    para_multi_control = by_id["multiword_no_paraphrase"]["attribution"]
     para_multi = by_id["multiword_paraphrase"]["attribution"]
     checks = {
         "subword_hit_removed_by_guard": (
@@ -162,10 +166,22 @@ async def execute() -> dict:
             and any(f["input_target"] and f["returned_target"] for f in prefix["prefix_guard_inputs_and_outputs"])
             and prefix["mcp_target_found"]
         ),
+        "one_word_paraphrase_adds_candidate_not_found_by_original_query": (
+            not para_one_control["target_in_internal_pool"]
+            and not para_one_control["mcp_target_found"]
+            and any("paraphrase_1" in s["branch_slots"] for s in para_one["fts_statements_returning_target"])
+            and para_one["target_in_internal_pool"]
+        ),
         "one_word_paraphrase_hit_removed_by_guard": (
             any("paraphrase_1" in s["branch_slots"] for s in para_one["fts_statements_returning_target"])
             and any(f["input_target"] and f["rows_returned"] == 0 for f in para_one["prefix_guard_inputs_and_outputs"])
             and not para_one["mcp_target_found"]
+        ),
+        "multiword_paraphrase_adds_candidate_not_found_by_original_query": (
+            not para_multi_control["target_in_internal_pool"]
+            and not para_multi_control["mcp_target_found"]
+            and any("paraphrase_1" in s["branch_slots"] for s in para_multi["fts_statements_returning_target"])
+            and para_multi["target_in_internal_pool"]
         ),
         "multiword_paraphrase_survives_without_prefix_guard": (
             any("paraphrase_1" in s["branch_slots"] for s in para_multi["fts_statements_returning_target"])
