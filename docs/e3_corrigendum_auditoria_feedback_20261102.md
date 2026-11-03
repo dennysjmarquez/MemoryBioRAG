@@ -14,9 +14,10 @@ Se completó el runner sintético `scripts/diagnosticar_feedback_recordar_respue
 
 | Observación agregada (6 casos sintéticos) | Resultado |
 |---|---:|
-| Casos con respuesta de `recordar` | 3 |
-| Casos con bandera MCP `isError` / excepción Python escapada | 0 / 0 |
-| Aviso de brecha presente; casos con resultados útiles y aviso | 6; 3 |
+| Llamadas MCP `recordar` completadas | 6 |
+| Llamadas con bandera MCP `isError` / excepción Python escapada | 0 / 0 |
+| Respuestas con resultados | 3 |
+| Aviso de brecha presente; respuestas con resultados y aviso | 6; 3 |
 | Caso base con coincidencia literal objetivo | Sí (1 resultado; traza de capa paráfrasis 0.0) |
 | Paráfrasis sola: término presente en FTS5 del fixture | Sí |
 | Paráfrasis sola: resultado objetivo por MCP, modo normal / estricto | No / no (0 resultados en ambos) |
@@ -26,7 +27,7 @@ Se completó el runner sintético `scripts/diagnosticar_feedback_recordar_respue
 
 La consulta FTS5 directa confirma que el término de paráfrasis está indexado y puede localizar el nodo sintético. **No demuestra que el flujo MCP recupere ese nodo por paráfrasis**: los dos casos MCP diseñados para ello no lo devolvieron. Tampoco se demostró una atribución errónea de un resultado efectivamente devuelto como `literal`; esa hipótesis queda abierta y sin confirmar. La búsqueda sin paráfrasis también devolvió cero en esta configuración, lo que limita la interpretación causal del contraste. No se modificó el motor.
 
-Los seis casos reprodujeron aviso de brecha; tres también tenían resultados. Esto es un agregado sintético, no una afirmación de fallo operacional en datos reales. Las fechas persistidas no se emitieron como fechas legibles en los tres resultados observados. Los sondeos de unión de fecha y esquema se conservan en el reporte privado; no deben confundirse con fallos de MCP.
+Las seis llamadas reprodujeron aviso de brecha; tres de sus respuestas contenían resultados. “Con resultados” describe únicamente la presencia de resultados en la respuesta; no se evaluó ni se afirma su utilidad para una persona. Esto es un agregado sintético, no una afirmación de fallo operacional en datos reales. Las fechas persistidas no se emitieron como fechas legibles en los tres resultados observados. Los sondeos de unión de fecha y esquema se conservan en el reporte privado; no deben confundirse con fallos de MCP.
 
 ## Integridad, alcance y controles
 
