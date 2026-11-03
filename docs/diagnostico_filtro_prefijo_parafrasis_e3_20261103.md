@@ -1,0 +1,56 @@
+# Informe reproducible: guardia final de prefijo y pistas de paráfrasis (E3)
+
+**Fecha de ejecución:** 2026-11-03  
+**Alcance:** fixture sintética única; cinco consultas; comparación MCP baseline/instrumentado.  
+**No se modificó el motor ni se abrió ninguna base de usuario.** No se propone aquí un cambio de política ni del motor.
+
+## Conclusión breve
+
+La revisión histórica identifica dos objetivos relacionados, pero distintos: el filtro anterior `PALABRA_COMPLETA` restringía matches a límites de palabra para evitar falsos positivos de subcadena; el filtro final `PALABRA_PREFIJO`, introducido después, permite además coincidencias morfológicas por prefijo, por ejemplo `react` → `reactive`. La ejecución sintética confirma que el guardia actual elimina los dos candidatos de una palabra con subcadena interna, conserva el prefijo válido y, en una ruta concreta, también puede eliminar una pista que FTS halló desde la paráfrasis cuando se evalúa contra la consulta original.
+
+Esto demuestra el mecanismo en estas fixtures, no su frecuencia ni impacto sobre datos reales. No se consultó ninguna base original.
+
+## Evolución histórica relevante
+
+- **`57e232e44206411d636b827f6639c510d1cc5bed` (2026-06-18):** introduce `PALABRA_COMPLETA` como UDF SQLite basada en un límite de palabra (`re.search(r'\\b' + re.escape(token) + r'\\b', texto.lower())`). El código documenta el falso positivo de FTS5 trigram: `culo` no debe coincidir con `artículos`. Se aplicó como condición adicional de búsqueda literal en contenido, concepto y sinónimos, y en fallbacks/semi-llas pertinentes. La intención era precisión, no aceptar extensiones morfológicas.
+- **`d310ae985647874791226d297f2a8490395e2e76` (2026-06-23):** cambia el filtro final de palabra completa a `PALABRA_PREFIJO`, para que una consulta como `react` recupere `reactive` y siga rechazando una aparición interna como `culo` dentro de `artículos`. También incorpora una tabla FTS5 `unicode61` con comodines de prefijo. El cambio del filtro final no equivale a eliminar toda condición `PALABRA_COMPLETA` del motor: siguen existiendo usos en otros caminos/fallbacks.
+- **`b373946ca45724498bc2468838728c93756508a2` (2026-07-11):** cambia la preservación del filtro según una lista de orígenes no literales excluidos. Un origen no enumerado se trata como literal; por ello, una rama `paraphrase` no reconocida puede acabar sujeta al token de la consulta original. Es una explicación de una ruta posible, no una afirmación de que todas las paráfrasis se atribuyan así.
+- **`2e94312f4b80562f650de01fd5ea51e47e1fbf1a` (2026-09-17):** amplía el criterio para abarcar `sustantivos_clave`.
+- **`94c372d645955fac203cd356954006c76821adbb` (2026-10-28):** extiende el límite de palabra con la semántica `PALABRA_INICIO_ANCHO` para caracteres Unicode de ancho W/F; las pruebas asociadas comprueban el predicado Unicode aislado. El commit posterior `c695310` integra identidad Unicode validada.
+
+Estos hitos se pueden inspeccionar con `git show <hash> -- core/memory_store.py tests/test_memory.py` para los commits previos a la extracción, y con `git show <hash> -- core/memory/search.py tests/test_memory.py` para los posteriores. En particular, antes de `d310ae9`, la búsqueda final con token único requería palabra completa; la motivación explícita y el ejemplo `culo`/`artículos` ya estaban documentados en `57e232e`.
+
+## Protocolo de reproducción
+
+Desde la raíz del repositorio, usando Python compatible con las dependencias del proyecto:
+
+```bash
+python -m venv .venv
+.venv/bin/python -m pip install -r requirements.txt
+.venv/bin/python -m py_compile scripts/diagnosticar_filtro_prefijo_parafrasis_e3.py
+.venv/bin/python scripts/diagnosticar_filtro_prefijo_parafrasis_e3.py \
+  --evidence-dir .private_evidence/e3_prefix_guard_paraphrase_YYYYMMDD_runNN
+```
+
+`runNN` debe ser un directorio nuevo; el runner se niega a reutilizar un directorio existente y solo acepta una ruta dentro de `.private_evidence/`. La ejecución escribe el JSON íntegro y `SHA256SUMS.json` allí. Esos archivos son evidencia de operador y no se publican en Git; el runner y este informe sí son reproducibles desde el repositorio. La fixture se crea en un temporal y se elimina al terminar.
+
+El runner reutiliza `scripts/diagnosticar_traza_interna_parafrasis_e3.py`, clona una fixture sintética para cada brazo MCP, desactiva QCR para aislar el comportamiento en el caso multiword y empareja llamadas baseline/instrumentadas. No modifica `core/` ni recibe una ruta a una base original. `helium,vector` satisface el parámetro obligatorio `sustantivos_clave` sin coincidir con la fixture.
+
+## Resultado guardado
+
+Corrida de referencia: `.private_evidence/e3_prefix_guard_paraphrase_20261103_run04/`
+
+- `synthetic_prefix_guard_results.json` — resultados íntegros sintéticos.
+- `SHA256SUMS.json` — checksum del JSON: `0a74b457a17a862d7bf7a62e18ba90e7a723a2f20f36ef8779831a1329e33f58`.
+- Cinco casos, veinte llamadas, cero errores MCP; las parejas baseline/instrumentado fueron equivalentes y las cinco comprobaciones pasaron.
+- Resumen: `probeanchor` dentro de `xxprobeanchorzz` y `culo` dentro de `artículos` entran al pool y son eliminados por el guardia de una palabra; `react` conserva el candidato `reactive`; `qzxnovelquery` no devuelve el candidato aunque la rama FTS de paráfrasis lo encontró (`quartz`); con `qzxnovelquery archive`, la misma pista de paráfrasis llega al resultado y no hay ejecución del guardia de prefijo.
+
+Los intentos anteriores `run01` y `run02` se preservaron; fallaron antes de escribir resultados íntegros. `run03` fue una corrida válida con una etiqueta de rol imprecisa; `run04` es la corrida de referencia corregida. No se deben interpretar los directorios fallidos como evidencia de resultado.
+
+## Límites de inferencia
+
+- Las consultas y los documentos son sintéticos; no se abrieron ni modificaron bases originales.
+- La atribución de rama y la salida MCP observadas aplican a esta fixture y configuración. No miden prevalencia en producción.
+- El control multiword confirma que, en esta ruta y con QCR desactivado, el guardia no corre cuando la consulta tiene dos tokens extraídos; no generaliza a otras capas o configuraciones.
+- El hallazgo de la historia (`paraphrase` puede ser evaluado como literal si no se reconoce como origen no literal) explica la susceptibilidad; la fixture confirma un caso observable, no que toda ruta de paráfrasis se comporte igual.
+- Este informe presenta evidencia y límites; no recomienda cambiar el motor, borrar etiquetas/pistas ni adoptar una política de retención.
