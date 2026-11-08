@@ -68,8 +68,11 @@ jobs:
           pip install -r requirements.txt
           pip install -e .
 
-      - name: Verify SQLite canonical paths and runtime policy
-        run: python -m pytest tests/test_sqlite_paths.py tests/test_sqlite_runtime.py -q
+      - name: Verify SQLite canonical paths
+        run: python -m pytest tests/test_sqlite_paths.py -q
+
+      - name: Verify SQLite runtime policy
+        run: python -m pytest tests/test_sqlite_runtime.py -q
 
       - name: Verify SQLite generations, sidecars and retained handles
         run: python -m pytest tests/test_sqlite_generation.py -q
