@@ -71,8 +71,24 @@ jobs:
       - name: Verify SQLite canonical paths
         run: python -m pytest tests/test_sqlite_paths.py -q
 
-      - name: Verify SQLite runtime policy
-        run: python -m pytest tests/test_sqlite_runtime.py -q
+      - name: Verify SQLite consumer and diagnostic policy
+        run: >-
+          python -m pytest
+          tests/test_sqlite_runtime.py::test_consumidores_de_produccion_usan_aperturas_clasificadas
+          tests/test_sqlite_runtime.py::test_open_reader_es_readonly_y_emite_diagnostico_sin_ruta_cruda
+          tests/test_sqlite_runtime.py::test_open_writer_registra_commit_cooperativo_por_ruta
+          tests/test_sqlite_runtime.py::test_open_writer_registra_consumidor_runtime_y_timeout -q
+
+      - name: Verify SQLite WAL safety policy
+        run: >-
+          python -m pytest
+          tests/test_sqlite_runtime.py::test_clasifica_runtime_afectado_por_wal_reset
+          tests/test_sqlite_runtime.py::test_runtime_vulnerable_usa_delete_en_base_nueva
+          tests/test_sqlite_runtime.py::test_runtime_vulnerable_transicion_wal_a_delete_conserva_filas
+          tests/test_sqlite_runtime.py::test_runtime_vulnerable_no_degrada_wal_si_otra_conexion_sigue_abierta
+          tests/test_sqlite_runtime.py::test_base_wal_existente_no_se_cambia_sin_opt_in
+          tests/test_sqlite_runtime.py::test_almacen_principal_y_dmn_aplican_la_misma_politica
+          tests/test_sqlite_runtime.py::test_runtime_corregido_conserva_wal_y_memoria_no_se_fuerza_a_wal -q
 
       - name: Verify SQLite generations, sidecars and retained handles
         run: python -m pytest tests/test_sqlite_generation.py -q
