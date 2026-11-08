@@ -42,7 +42,8 @@ def test_consumidores_de_produccion_usan_aperturas_clasificadas():
 
 
 def test_open_reader_es_readonly_y_emite_diagnostico_sin_ruta_cruda(tmp_path, caplog):
-    path = tmp_path / "diagnostico #? sensible.db"
+    # '#' verifies URI escaping; '?' is not a legal Windows filename character.
+    path = tmp_path / "diagnostico # sensible.db"
     seed = sqlite3.connect(path)
     seed.execute("CREATE TABLE probe (value TEXT)")
     seed.execute("INSERT INTO probe VALUES ('safe')")
