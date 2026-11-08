@@ -1,6 +1,7 @@
 """Detección de sustitución de DB con conexiones abiertas, solo en fixtures temporales."""
 
 import os
+import shutil
 import sqlite3
 
 import pytest
@@ -51,6 +52,111 @@ def test_motor_antiguo_rechaza_escritura_tras_reemplazo_de_db(tmp_path):
                 ).fetchone()[0] == expected
             finally:
                 check.close()
+    finally:
+        cerebro.cerrar_sistema()
+
+
+def test_motor_rechaza_cambio_in_place_y_dbapi_handles_retenidos(tmp_path):
+    db_path = tmp_path / "in_place.db"
+    replacement_path = tmp_path / "replacement.db"
+    cerebro = SQLiteMemoryBioRAG(str(db_path))
+    try:
+        cerebro.cursor.execute(
+            "CREATE TABLE generation_probe (value TEXT NOT NULL)"
+        )
+        cerebro.cursor.execute(
+            "INSERT INTO generation_probe VALUES ('old-generation')"
+        )
+        cerebro.conn.commit()
+
+        retained_cursor = cerebro.cursor
+        retained_connection = cerebro.conn
+        assert retained_cursor.execute(
+            "SELECT value FROM generation_probe"
+        ).fetchone()[0] == "old-generation"
+
+        replacement = sqlite3.connect(replacement_path)
+        try:
+            replacement.execute(
+                "CREATE TABLE generation_probe (value TEXT NOT NULL)"
+            )
+            replacement.execute(
+                "INSERT INTO generation_probe VALUES ('new-generation')"
+            )
+            replacement.commit()
+        finally:
+            replacement.close()
+
+        inode_before = os.stat(db_path).st_ino
+        try:
+            shutil.copyfile(replacement_path, db_path)
+        except PermissionError as exc:
+            if os.name == "nt":
+                pytest.skip(f"Windows impidió sobrescribir el archivo abierto: {exc}")
+            raise
+        assert os.stat(db_path).st_ino == inode_before
+        replacement_bytes = db_path.read_bytes()
+
+        with pytest.raises(SQLiteDatabaseIdentityChangedError):
+            retained_cursor.execute("SELECT value FROM generation_probe")
+        with pytest.raises(SQLiteDatabaseIdentityChangedError):
+            retained_connection.execute("SELECT value FROM generation_probe")
+        assert db_path.read_bytes() == replacement_bytes
+
+        check = sqlite3.connect(db_path)
+        try:
+            assert check.execute(
+                "SELECT value FROM generation_probe"
+            ).fetchone()[0] == "new-generation"
+        finally:
+            check.close()
+    finally:
+        cerebro.cerrar_sistema()
+
+
+def test_cursor_retenido_no_devuelve_filas_stale_tras_copia_mismo_esquema(tmp_path):
+    db_path = tmp_path / "same_schema.db"
+    replacement_path = tmp_path / "same_schema_replacement.db"
+    cerebro = SQLiteMemoryBioRAG(str(db_path))
+    try:
+        cerebro.cursor.execute(
+            "CREATE TABLE stable_schema_probe (value TEXT NOT NULL)"
+        )
+        cerebro.cursor.execute(
+            "INSERT INTO stable_schema_probe VALUES ('old-generation')"
+        )
+        cerebro.conn.commit()
+        retained_cursor = cerebro.cursor
+        retained_connection = cerebro.conn
+
+        replacement = sqlite3.connect(replacement_path)
+        try:
+            retained_connection.backup(replacement)
+            replacement.execute(
+                "UPDATE stable_schema_probe SET value='new-generation'"
+            )
+            replacement.commit()
+        finally:
+            replacement.close()
+
+        inode_before = os.stat(db_path).st_ino
+        try:
+            shutil.copyfile(replacement_path, db_path)
+        except PermissionError as exc:
+            if os.name == "nt":
+                pytest.skip(f"Windows impidió sobrescribir el archivo abierto: {exc}")
+            raise
+        assert os.stat(db_path).st_ino == inode_before
+
+        try:
+            result = retained_cursor.execute(
+                "SELECT value FROM stable_schema_probe"
+            ).fetchone()[0]
+        except SQLiteDatabaseIdentityChangedError:
+            result = None  # fail closed es válido; devolver datos de la generación vieja no.
+        assert result != "old-generation"
+        if result is not None:
+            assert result == "new-generation"
     finally:
         cerebro.cerrar_sistema()
 

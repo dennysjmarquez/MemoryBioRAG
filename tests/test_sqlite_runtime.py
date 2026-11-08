@@ -68,6 +68,19 @@ def test_open_reader_es_readonly_y_emite_diagnostico_sin_ruta_cruda(tmp_path, ca
     assert str(path) not in diagnostic
 
 
+def test_open_writer_registra_commit_cooperativo_por_ruta(tmp_path):
+    path = tmp_path / "commit_epoch.db"
+    before = sqlite_runtime.database_commit_epoch(path)
+    conn = sqlite_runtime.open_writer(path, consumer="commit_epoch_test")
+    try:
+        conn.execute("CREATE TABLE commit_probe (value INTEGER)")
+        conn.execute("INSERT INTO commit_probe VALUES (1)")
+        conn.commit()
+    finally:
+        conn.close()
+    assert sqlite_runtime.database_commit_epoch(path) > before
+
+
 def test_open_writer_registra_consumidor_runtime_y_timeout(tmp_path, caplog):
     path = tmp_path / "writer.db"
     caplog.set_level("DEBUG", logger="BioRAG.SQLiteRuntime")

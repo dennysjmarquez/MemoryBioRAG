@@ -9,6 +9,7 @@ import hashlib
 import logging
 import os
 import sqlite3
+import threading
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -109,6 +110,46 @@ def _database_route_id(database: str | Path) -> str:
     except (TypeError, ValueError, OSError):
         value = os.fsdecode(os.fspath(database))
     return hashlib.sha256(value.encode("utf-8", errors="replace")).hexdigest()[:12]
+
+
+_COMMIT_EPOCH_LOCK = threading.Lock()
+_COMMIT_EPOCHS: dict[str, int] = {}
+
+
+def database_commit_epoch(database: str | Path) -> int:
+    key = _database_route_id(database)
+    with _COMMIT_EPOCH_LOCK:
+        return _COMMIT_EPOCHS.get(key, 0)
+
+
+def note_database_commit(database: str | Path) -> int:
+    key = _database_route_id(database)
+    with _COMMIT_EPOCH_LOCK:
+        epoch = _COMMIT_EPOCHS.get(key, 0) + 1
+        _COMMIT_EPOCHS[key] = epoch
+        return epoch
+
+
+class _TrackedSQLiteConnection(sqlite3.Connection):
+    """Tags commits by connections opened through the shared writer factory."""
+
+    def __init__(self, database, *args, **kwargs):
+        super().__init__(database, *args, **kwargs)
+        self._biorag_database = database
+
+    def commit(self):
+        had_transaction = self.in_transaction
+        result = super().commit()
+        if had_transaction:
+            note_database_commit(self._biorag_database)
+        return result
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        had_transaction = self.in_transaction
+        result = super().__exit__(exc_type, exc_value, traceback)
+        if had_transaction and exc_type is None:
+            note_database_commit(self._biorag_database)
+        return result
 
 
 def connection_diagnostics(
@@ -257,7 +298,12 @@ def open_writer(
     requiere `allow_existing_journal_transition=True` explícito por el operador.
     """
     database_existed = _database_existed_before_open(database)
-    conn = sqlite3.connect(database, timeout=timeout, **connect_kwargs)
+    if "factory" in connect_kwargs:
+        raise TypeError("open_writer administra la subclase de conexión")
+    conn = sqlite3.connect(
+        database, timeout=timeout, factory=_TrackedSQLiteConnection,
+        **connect_kwargs,
+    )
     try:
         policy = configure_writer(
             conn,
