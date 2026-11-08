@@ -94,8 +94,14 @@ jobs:
           tests/test_sqlite_runtime.py::test_almacen_principal_y_dmn_aplican_la_misma_politica
           tests/test_sqlite_runtime.py::test_runtime_corregido_conserva_wal_y_memoria_no_se_fuerza_a_wal -q
 
-      - name: Verify SQLite generations, sidecars and retained handles
-        run: python -m pytest tests/test_sqlite_generation.py -q
+      - name: Verify SQLite database replacement detection
+        run: python -m pytest tests/test_sqlite_generation.py::test_motor_antiguo_rechaza_escritura_tras_reemplazo_de_db -q
+
+      - name: Verify SQLite in-place replacement and retained handles
+        run: python -m pytest tests/test_sqlite_generation.py::test_motor_rechaza_cambio_in_place_y_dbapi_handles_retenidos tests/test_sqlite_generation.py::test_cursor_retenido_no_devuelve_filas_stale_tras_copia_mismo_esquema -q
+
+      - name: Verify SQLite sidecar replacement detection
+        run: python -m pytest tests/test_sqlite_generation.py::test_motor_rechaza_reemplazo_del_sidecar_sin_modificarlo -q
 
       - name: Verify daemon locks across processes
         run: python -m pytest tests/test_daemon_lifecycle.py -q
