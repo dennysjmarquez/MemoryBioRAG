@@ -71,13 +71,17 @@ jobs:
       - name: Verify SQLite canonical paths
         run: python -m pytest tests/test_sqlite_paths.py -q
 
-      - name: Verify SQLite consumer and diagnostic policy
-        run: >-
-          python -m pytest
-          tests/test_sqlite_runtime.py::test_consumidores_de_produccion_usan_aperturas_clasificadas
-          tests/test_sqlite_runtime.py::test_open_reader_es_readonly_y_emite_diagnostico_sin_ruta_cruda
-          tests/test_sqlite_runtime.py::test_open_writer_registra_commit_cooperativo_por_ruta
-          tests/test_sqlite_runtime.py::test_open_writer_registra_consumidor_runtime_y_timeout -q
+      - name: Verify SQLite consumer classifications
+        run: python -m pytest tests/test_sqlite_runtime.py::test_consumidores_de_produccion_usan_aperturas_clasificadas -q
+
+      - name: Verify SQLite read-only diagnostics
+        run: python -m pytest tests/test_sqlite_runtime.py::test_open_reader_es_readonly_y_emite_diagnostico_sin_ruta_cruda -q
+
+      - name: Verify SQLite commit epoch tracking
+        run: python -m pytest tests/test_sqlite_runtime.py::test_open_writer_registra_commit_cooperativo_por_ruta -q
+
+      - name: Verify SQLite writer diagnostics
+        run: python -m pytest tests/test_sqlite_runtime.py::test_open_writer_registra_consumidor_runtime_y_timeout -q
 
       - name: Verify SQLite WAL safety policy
         run: >-
