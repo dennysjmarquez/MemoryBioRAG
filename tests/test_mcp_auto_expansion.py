@@ -22,6 +22,10 @@ def recordar(tmp_path, monkeypatch):
         pytest.skip("sin snapshot")
     db = str(tmp_path / "s.db")
     shutil.copyfile(_SNAPSHOT, db)
+    # La copia disposable se normaliza explícitamente para SQLite vulnerable.
+    from core.sqlite_runtime import open_writer
+    normalizer = open_writer(db, allow_existing_journal_transition=True)
+    normalizer.close()
     monkeypatch.setenv("BIORAG_PATH", db)
     monkeypatch.setenv("BIORAG_NO_LOG", "1")
     monkeypatch.setenv("BIORAG_NEURONA", "0")

@@ -26,6 +26,7 @@ from config import _load_env_local
 _load_env_local()
 
 from core.paths import resolve_db_path
+from core.sqlite_runtime import open_writer
 from core.memory_service import get_cerebro, buscar as svc_buscar, aprender as svc_aprender
 
 DB_PATH = resolve_db_path()
@@ -42,7 +43,7 @@ app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], all
 def limpiar_log_busquedas(ttl_days: int = 7):
     """Limpia logs de búsqueda mayores a TTL_days días. Se ejecuta al arrancar."""
     try:
-        conn = sqlite3.connect(DB_PATH)
+        conn = open_writer(DB_PATH, consumer="dashboard")
         cutoff = time.time() - ttl_days * 86400
         cursor = conn.execute("DELETE FROM log_busquedas WHERE creado_en < ?", (cutoff,))
         eliminados = cursor.rowcount
@@ -61,7 +62,7 @@ limpiar_log_busquedas(ttl_days=7)
 def limpiar_cuarentena(ttl_days: int = 30):
     """Limpia sinapsis_cuarentena con más de TTL_days días. Se ejecuta al arrancar."""
     try:
-        conn = sqlite3.connect(DB_PATH)
+        conn = open_writer(DB_PATH, consumer="dashboard")
         cutoff = time.time() - ttl_days * 86400
         cursor = conn.execute("DELETE FROM sinapsis_cuarentena WHERE eliminado_en < ?", (cutoff,))
         eliminados = cursor.rowcount
@@ -95,7 +96,7 @@ threading.Thread(target=_auto_clear_loop, daemon=True, name="auto-clear-log").st
 
 
 def get_db():
-    conn = sqlite3.connect(DB_PATH)
+    conn = open_writer(DB_PATH, consumer="dashboard")
     conn.row_factory = sqlite3.Row
     return conn
 

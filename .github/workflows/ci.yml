@@ -2,7 +2,7 @@ name: BioRAG CI
 
 on:
   push:
-    branches: [ master, main ]
+    branches: [ master, main, "arena/**" ]
   pull_request:
     branches: [ master, main ]
 
@@ -42,3 +42,32 @@ jobs:
       - name: Verify Concept Hub 5-Angles
         run: |
           python scripts/test_concept_hub.py
+
+  sqlite-portability:
+    name: SQLite and daemon locking (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python-version: ["3.11"]
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: 'pip'
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install -e .
+
+      - name: Verify SQLite paths, sidecars, runtime and process locks
+        run: |
+          python -m pytest tests/test_sqlite_paths.py tests/test_sqlite_runtime.py tests/test_sqlite_generation.py tests/test_daemon_lifecycle.py -q

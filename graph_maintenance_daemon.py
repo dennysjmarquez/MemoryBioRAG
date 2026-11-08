@@ -23,7 +23,8 @@ Uso:
 Variables de entorno:
     BIORAG_DAEMON_INTERVALO_HORAS  — Intervalo entre ciclos (default: 6)
     BIORAG_DAEMON_MAX_NODOS        — Nodos por ciclo (default: 10)
-    BIORAG_DAEMON_LOCK_PATH        — Ruta del lock file (default: .hormiguita.lock)
+    BIORAG_DAEMON_LOCK_PATH        — Override interno; debe coincidir con BIORAG_PATH
+    BIORAG_DAEMON_PID_PATH         — Override interno; debe coincidir con BIORAG_PATH
     BIORAG_DAEMON_LOG_PATH         — Ruta del log (default: logs/hormiguita.log)
     BIORAG_DAEMON_LOG_ENABLED      — Logging ON/OFF (default: off = silencio).
                                      Con 1/true: archivo único hormiguita.log,
@@ -37,7 +38,6 @@ import time
 import signal
 import logging
 import argparse
-import fcntl
 from datetime import datetime
 
 # Asegurar que el path incluya el directorio actual
@@ -56,20 +56,37 @@ try:
 except ImportError:
     pass
 
-from core.memory_store import SQLiteMemoryBioRAG
-from core.dmn_reflexion import ejecutar_ciclo_reflexivo, _cargar_estado, _guardar_estado
+from core.paths import project_root, resolve_db_path
+from core.daemon_lifecycle import daemon_artifact_paths
+from core.file_lock import FileLock
 
 # --- Configuración -----------------------------------------------------------
 
 INTERVALO_HORAS = float(os.environ.get("BIORAG_DAEMON_INTERVALO_HORAS", "1"))
 MAX_NODOS_POR_CICLO = int(os.environ.get("BIORAG_DAEMON_MAX_NODOS", "10"))
-_PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
-_LOCK_DEFAULT = os.path.join(_PROJECT_ROOT, ".hormiguita.lock")
-_PID_DEFAULT = os.path.join(_PROJECT_ROOT, ".hormiguita.pid")
+_PROJECT_ROOT = project_root()
+_DB_PATH_AT_START = resolve_db_path()
+_ARTIFACTS_AT_START = daemon_artifact_paths(_DB_PATH_AT_START)
+_LOCK_DEFAULT = _ARTIFACTS_AT_START.lock_path
+_PID_DEFAULT = _ARTIFACTS_AT_START.pid_path
 _LOG_DEFAULT = os.path.join(_PROJECT_ROOT, "logs")
-LOCK_PATH = os.environ.get("BIORAG_DAEMON_LOCK_PATH", _LOCK_DEFAULT)
-PID_PATH = os.environ.get("BIORAG_DAEMON_PID_PATH", _PID_DEFAULT)
+for _variable, _expected in (
+    ("BIORAG_DAEMON_LOCK_PATH", _LOCK_DEFAULT),
+    ("BIORAG_DAEMON_PID_PATH", _PID_DEFAULT),
+):
+    _configured = os.environ.get(_variable)
+    if _configured and os.path.realpath(_configured) != os.path.realpath(_expected):
+        raise RuntimeError(
+            f"{_variable} no coincide con la ruta de artifacts derivada de BIORAG_PATH; "
+            "use BIORAG_PATH para seleccionar la DB."
+        )
+LOCK_PATH = _LOCK_DEFAULT
+PID_PATH = _PID_DEFAULT
+os.environ.setdefault("BIORAG_DMN_ESTADO_PATH", _ARTIFACTS_AT_START.state_path)
 LOG_DIR = os.environ.get("BIORAG_DAEMON_LOG_PATH", _LOG_DEFAULT)
+
+from core.memory_store import SQLiteMemoryBioRAG
+from core.dmn_reflexion import ejecutar_ciclo_reflexivo, _cargar_estado, _guardar_estado
 
 # --- Logging -----------------------------------------------------------------
 
@@ -126,33 +143,25 @@ def configurar_logging(log_dir):
 # --- Lock file ---------------------------------------------------------------
 
 class DaemonLock:
-    """Lock file para evitar que el daemon se ejecute múltiples veces."""
-    
+    """Lock file cross-platform para evitar duplicados de la misma DB."""
+
     def __init__(self, lock_path):
         self.lock_path = lock_path
-        self.lock_file = None
-    
+        self._lock = FileLock(lock_path)
+
     def adquirir(self):
-        """Adquiere el lock. Retorna True si éxito, False si ya está tomado."""
+        """Adquiere el lock. Retorna False si ya está tomado."""
         try:
-            self.lock_file = open(self.lock_path, "w")
-            fcntl.flock(self.lock_file, fcntl.LOCK_EX | fcntl.LOCK_NB)
-            self.lock_file.write(str(os.getpid()))
-            self.lock_file.flush()
-            return True
+            return self._lock.acquire(blocking=False)
         except (IOError, OSError):
             return False
-    
+
     def liberar(self):
-        """Libera el lock. NO borra el archivo: el flock es sobre el inode,
-        y borrarlo permitiría que una segunda instancia adquiera un lock nuevo
-        sobre un inode distinto (causa raíz del doble daemon)."""
-        if self.lock_file:
-            try:
-                fcntl.flock(self.lock_file, fcntl.LOCK_UN)
-                self.lock_file.close()
-            except (IOError, OSError):
-                pass
+        """Libera el advisory lock, pero conserva el archivo de lock."""
+        try:
+            self._lock.release()
+        except (IOError, OSError):
+            pass
 
 
 # --- PID file ----------------------------------------------------------------
@@ -187,7 +196,8 @@ class GraphMaintenanceDaemon:
         self.max_nodos = max_nodos
         self.intervalo_horas = intervalo_horas
         self.running = True
-        self._db_path = None
+        # Fijar DB y artifacts a la misma ruta canónica al arrancar el proceso.
+        self._db_path = _DB_PATH_AT_START
         
         # Configurar signal handlers para graceful shutdown
         signal.signal(signal.SIGINT, self._signal_handler)
@@ -196,18 +206,15 @@ class GraphMaintenanceDaemon:
     def _signal_handler(self, signum, frame):
         """Maneja señales de shutdown."""
         self.logger.info(f"[Daemon] Señal {signum} recibida, shutting down gracefully...")
+        # El PID file se retira después de liberar el run-lock en main(); así el
+        # probe no confunde un shutdown en curso con un slot disponible.
         self.running = False
-        _borrar_pid()
     
     def _get_db_path(self):
-        """Obtiene la ruta de la base de datos."""
+        """Obtiene la ruta canónica de la base configurada para este proceso."""
         if self._db_path:
             return self._db_path
-        default = os.path.join(
-            os.path.dirname(os.path.abspath(__file__)),
-            "MemoryBioRAG_Data", "memory_biorag.db"
-        )
-        self._db_path = os.environ.get("BIORAG_PATH") or default
+        self._db_path = resolve_db_path(os.environ.get("BIORAG_PATH"))
         return self._db_path
     
     def ejecutar_ciclo(self):
@@ -318,11 +325,8 @@ class GraphMaintenanceDaemon:
     
     def ejecutar_daemon(self):
         """Ejecuta el daemon en modo continuo."""
-        import atexit
-        
-        # Escribir PID file al arrancar el loop
+        # Escribir PID file al arrancar el loop; main lo retirará bajo el lock.
         _escribir_pid()
-        atexit.register(_borrar_pid)
         
         self.logger.info(
             f"[Daemon] Iniciando daemon (PID: {os.getpid()}, "
@@ -450,8 +454,8 @@ def main():
         else:
             daemon.ejecutar_daemon()
     finally:
-        lock.liberar()
         _borrar_pid()
+        lock.liberar()
 
 
 if __name__ == "__main__":

@@ -7,6 +7,7 @@ temporal aislada del snapshot y NUNCA toque ni mute `MemoryBioRAG_Data/memory_bi
 
 import os
 import shutil
+import sqlite3
 import tempfile
 import pytest
 
@@ -23,6 +24,17 @@ def _aislar_base_datos_para_tests():
             tmp_dir = tempfile.mkdtemp(prefix="biorag_pytest_")
             tmp_db = os.path.join(tmp_dir, "pytest_memory.db")
             shutil.copyfile(_SNAPSHOT, tmp_db)
+            # Solo la copia desechable de tests puede cambiar journal. Un snapshot
+            # WAL no es compatible con escritores SQLite vulnerables; normalizar
+            # esta copia evita que tests distintos compartan accidentalmente WAL.
+            from core.sqlite_runtime import is_wal_reset_vulnerable
+            if is_wal_reset_vulnerable():
+                conn = sqlite3.connect(tmp_db)
+                try:
+                    if conn.execute("PRAGMA journal_mode").fetchone()[0].lower() == "wal":
+                        conn.execute("PRAGMA journal_mode=DELETE")
+                finally:
+                    conn.close()
             os.environ["BIORAG_PATH"] = tmp_db
             created_tmp = tmp_dir
     
