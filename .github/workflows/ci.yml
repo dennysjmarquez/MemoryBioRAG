@@ -68,17 +68,8 @@ jobs:
           pip install -r requirements.txt
           pip install -e .
 
-      - name: Verify SQLite relative and environment paths
-        run: python -m pytest tests/test_sqlite_paths.py::test_ruta_relativa_se_resuelve_desde_cwd_sin_crear_archivos tests/test_sqlite_paths.py::test_argumento_explicito_gana_y_se_canoniza -q
-
-      - name: Verify SQLite symlink canonicalization
-        run: python -m pytest tests/test_sqlite_paths.py::test_alias_symlink_y_ruta_real_convergen -q
-
-      - name: Verify SQLite store canonical path
-        run: python -m pytest tests/test_sqlite_paths.py::test_motor_abre_y_expone_ruta_canonica_para_path_relativo -q
-
-      - name: Verify SQLite URI preservation
-        run: python -m pytest tests/test_sqlite_paths.py::test_memory_uri_y_sqlite_uri_se_preservan -q
+      - name: Verify SQLite canonical paths
+        run: python -m pytest tests/test_sqlite_paths.py -q
 
       - name: Verify SQLite runtime policy
         run: python -m pytest tests/test_sqlite_runtime.py -q
