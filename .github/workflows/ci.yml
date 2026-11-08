@@ -68,6 +68,11 @@ jobs:
           pip install -r requirements.txt
           pip install -e .
 
-      - name: Verify SQLite paths, sidecars, runtime and process locks
-        run: |
-          python -m pytest tests/test_sqlite_paths.py tests/test_sqlite_runtime.py tests/test_sqlite_generation.py tests/test_daemon_lifecycle.py -q
+      - name: Verify SQLite canonical paths and runtime policy
+        run: python -m pytest tests/test_sqlite_paths.py tests/test_sqlite_runtime.py -q
+
+      - name: Verify SQLite generations, sidecars and retained handles
+        run: python -m pytest tests/test_sqlite_generation.py -q
+
+      - name: Verify daemon locks across processes
+        run: python -m pytest tests/test_daemon_lifecycle.py -q
