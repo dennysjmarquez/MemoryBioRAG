@@ -223,10 +223,12 @@ def _database_file_signature(database: str | Path) -> tuple[Any, ...] | None:
         # the epoch without a main-file attestation and let later commits attach
         # a full signature. A live guard still fails closed on an invalid header.
         return None
-    # Deliberately excludes the -wal/-shm sidecars: checkpoints truncate or
-    # delete them without a new commit, and their stat data is pure noise for
-    # generation detection. The main-file counters plus a mtime/ctime match are
-    # enough, because WAL commits are detected through PRAGMA data_version.
+    # The -wal *contents* belong in the signature: in WAL mode a commit barely
+    # touches the main file, so leaving the WAL out let a coordinated commit
+    # followed by a raw one match the attested signature and be accepted. The
+    # digest is normalized so a passive/truncate checkpoint is not a false
+    # change, and file stat data is still excluded because mtime/ctime move on
+    # any write, checkpoints included.
     return (
         int(st.st_size),
         int(getattr(st, "st_mtime_ns", int(st.st_mtime * 1_000_000_000))),
@@ -234,6 +236,49 @@ def _database_file_signature(database: str | Path) -> tuple[Any, ...] | None:
         int.from_bytes(header[24:28], "big"),
         int.from_bytes(header[40:44], "big"),
         header,
+        _wal_content_signature(canonical),
+    )
+
+
+_WAL_DIGEST_HEAD = 64
+_WAL_DIGEST_TAIL = 4096
+
+
+def _wal_content_signature(canonical: str) -> tuple[int, str, str] | None:
+    """Content digest of the WAL, stable across checkpoints.
+
+    Frames are appended at the end of the WAL, so size plus the head and tail
+    chunks capture every commit that has not been checkpointed yet. An absent or
+    fully truncated WAL is normalized to ``None`` so a checkpoint performed by a
+    cooperative writer reads as the same state it published.
+
+    This is an integrity signal, not a cryptographic commitment: anyone able to
+    write the WAL can also rewrite the marker. It detects uncoordinated commits
+    and in-place replacement, which is the contract of this guard.
+    """
+    wal_path = canonical + "-wal"
+    try:
+        st = os.stat(wal_path)
+    except FileNotFoundError:
+        return None
+    size = int(st.st_size)
+    if size == 0:
+        return None
+    try:
+        with open(wal_path, "rb") as wal:
+            head = wal.read(min(_WAL_DIGEST_HEAD, size))
+            if size > _WAL_DIGEST_HEAD:
+                wal.seek(max(size - _WAL_DIGEST_TAIL, 0))
+                tail = wal.read()
+            else:
+                tail = b""
+    except FileNotFoundError:
+        # A checkpoint truncated it between stat and read: same as empty.
+        return None
+    return (
+        size,
+        hashlib.sha256(head).hexdigest(),
+        hashlib.sha256(tail).hexdigest(),
     )
 
 
@@ -250,9 +295,14 @@ def _read_shared_state(marker_path: str) -> tuple[int, tuple[Any, ...] | None]:
         signature = None
         if signature_json is not None:
             signature = tuple(signature_json)
-            if len(signature) != 6 or not isinstance(signature[5], str):
+            if len(signature) != 7 or not isinstance(signature[5], str):
                 raise ValueError("firma atestiguada inválida")
-            signature = signature[:5] + (bytes.fromhex(signature[5]),)
+            wal_digest = signature[6]
+            if wal_digest is not None:
+                wal_digest = (int(wal_digest[0]), str(wal_digest[1]), str(wal_digest[2]))
+            signature = (
+                signature[:5] + (bytes.fromhex(signature[5]),) + (wal_digest,)
+            )
     except (ValueError, TypeError, KeyError, json.JSONDecodeError) as exc:
         raise sqlite3.OperationalError(
             "El marcador compartido de commits SQLite está dañado; "
@@ -298,6 +348,8 @@ def _publish_state_locked(marker_path: str, database: str | Path) -> int:
     signature_json = None if signature is None else list(signature)
     if signature_json is not None:
         signature_json[5] = signature[5].hex()  # raw header bytes are not JSON
+        if signature_json[6] is not None:
+            signature_json[6] = list(signature_json[6])
     state = json.dumps(
         {"epoch": epoch, "signature": signature_json},
         separators=(",", ":"),

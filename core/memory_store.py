@@ -8,6 +8,7 @@ import threading
 from contextlib import contextmanager
 from core.sqlite_runtime import (
     SQLiteDatabaseIdentityChangedError,
+    _wal_content_signature,
     database_commit_state,
     database_read_window,
     database_file_identity,
@@ -471,6 +472,7 @@ class SQLiteMemoryBioRAG(metaclass=_OperationTrackedMeta):
             int.from_bytes(header[24:28], "big"),
             int.from_bytes(header[40:44], "big"),
             header,
+            _wal_content_signature(self.db_path),
         )
 
     def _remember_connection_snapshot(self, connection):

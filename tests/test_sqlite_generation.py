@@ -456,3 +456,80 @@ def test_commit_sin_cambios_no_pierde_economia_ni_bloquea(tmp_path, monkeypatch)
         ).fetchone()[0] == 0
     finally:
         cerebro.cerrar_sistema()
+
+
+def test_commit_coordinado_seguido_de_raw_en_wal_no_se_acepta(tmp_path, monkeypatch):
+    """Regresión de docs/auditoria_pr13_wal_9b39f4b.md (secuencia en WAL).
+
+    En WAL el commit apenas toca el archivo principal, así que una firma que lo
+    ignoraba aceptaba un commit raw posterior a uno coordinado. El contraste
+    debe fallar cerrado igual que el control.
+    """
+    from core.sqlite_runtime import open_writer
+
+    monkeypatch.setattr(sqlite_runtime, "_effective_sqlite_version", lambda: (3, 51, 3))
+
+    def _explorar(con_previo_coordinado):
+        db_path = tmp_path / ("wal_seq_compat.db" if con_previo_coordinado else "wal_seq_control.db")
+        cerebro = SQLiteMemoryBioRAG(str(db_path))
+        try:
+            cerebro.cursor.execute("CREATE TABLE wal_seq_probe (value INTEGER NOT NULL)")
+            cerebro.conn.commit()
+            retained = cerebro.cursor
+            assert retained.execute(
+                "SELECT COUNT(*) FROM wal_seq_probe"
+            ).fetchone()[0] == 0
+            assert cerebro._journal_mode == "wal"
+
+            if con_previo_coordinado:
+                peer = open_writer(db_path, consumer="wal_seq_peer")
+                try:
+                    peer.execute("INSERT INTO wal_seq_probe VALUES (1)")
+                    peer.commit()
+                finally:
+                    peer.close()
+
+            raw = sqlite3.connect(db_path)
+            try:
+                raw.execute("INSERT INTO wal_seq_probe VALUES (99)")
+                raw.commit()
+            finally:
+                raw.close()
+
+            with pytest.raises(SQLiteDatabaseIdentityChangedError):
+                retained.execute("SELECT value FROM wal_seq_probe ORDER BY value").fetchall()
+        finally:
+            cerebro.cerrar_sistema()
+
+    # Control: solo el cliente raw debe alertar.
+    _explorar(False)
+    # Contraste: coordinado y después raw, también debe alertar.
+    _explorar(True)
+
+
+def test_checkpoint_cooperativo_no_es_un_cambio_no_atestiguado(tmp_path, monkeypatch):
+    """Un checkpoint de un escritor compatible no debe disparar falsa alarma."""
+    from core.sqlite_runtime import open_writer
+
+    monkeypatch.setattr(sqlite_runtime, "_effective_sqlite_version", lambda: (3, 51, 3))
+    db_path = tmp_path / "wal_ckpt_probe.db"
+    cerebro = SQLiteMemoryBioRAG(str(db_path))
+    try:
+        cerebro.cursor.execute("CREATE TABLE wal_ckpt_probe (value INTEGER)")
+        cerebro.cursor.execute("INSERT INTO wal_ckpt_probe VALUES (1)")
+        cerebro.conn.commit()
+        assert cerebro.cursor.execute(
+            "SELECT COUNT(*) FROM wal_ckpt_probe"
+        ).fetchone()[0] == 1
+
+        checkpoint = open_writer(db_path, consumer="ckpt_peer")
+        try:
+            assert checkpoint.execute("PRAGMA wal_checkpoint(TRUNCATE)").fetchone()[0] == 0
+        finally:
+            checkpoint.close()
+
+        assert cerebro.cursor.execute(
+            "SELECT COUNT(*) FROM wal_ckpt_probe"
+        ).fetchone()[0] == 1
+    finally:
+        cerebro.cerrar_sistema()
