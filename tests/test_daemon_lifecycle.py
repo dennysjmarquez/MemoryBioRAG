@@ -123,7 +123,7 @@ def test_legacy_daemon_ambiguo_impide_spawn_de_una_segunda_ruta(tmp_path, monkey
 def test_spawn_pasa_ruta_y_artifacts_canonicos_al_hijo(tmp_path, monkeypatch):
     monkeypatch.setattr(lifecycle, "PROJECT_ROOT", str(tmp_path))
     db_path = tmp_path / "data" / ".." / "memoria.db"
-    expected_db = os.path.realpath(db_path)
+    expected_db = os.path.normcase(os.path.realpath(db_path))
     captured = {}
 
     class Process:
