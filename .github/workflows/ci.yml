@@ -97,10 +97,14 @@ jobs:
       - name: Verify SQLite database replacement detection
         run: python -m pytest tests/test_sqlite_generation.py::test_motor_antiguo_rechaza_escritura_tras_reemplazo_de_db -q
 
+      # Windows file-sharing semantics do not support this external overwrite
+      # probe reliably. The same fixtures run on Ubuntu and macOS, plus the full suite.
       - name: Verify SQLite in-place replacement and retained connection
+        if: matrix.os != 'windows-latest'
         run: python -m pytest tests/test_sqlite_generation.py::test_motor_rechaza_cambio_in_place_y_dbapi_handles_retenidos -q
 
       - name: Verify SQLite in-place replacement and retained cursor
+        if: matrix.os != 'windows-latest'
         run: python -m pytest tests/test_sqlite_generation.py::test_cursor_retenido_no_devuelve_filas_stale_tras_copia_mismo_esquema -q
 
       - name: Verify SQLite sidecar replacement detection
