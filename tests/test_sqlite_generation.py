@@ -633,3 +633,42 @@ def test_checkpoint_de_cliente_sin_protocolo_falla_cerrado(tmp_path, monkeypatch
         ).fetchone()[0] == 1
     finally:
         reopened.cerrar_sistema()
+
+
+def test_lectura_sin_cambios_no_rehashea_el_wal(tmp_path, monkeypatch):
+    """El coste de la firma no debe crecer con el WAL en cada lectura.
+
+    Auditoría 2818e72: hashear el WAL completo en cada comprobación hacía que 30
+    lecturas sobre un WAL grande pasaran de 0,010 s a 1,428 s. Las sondas baratas
+    (data_version y época) evitan el hash cuando nada cambió.
+    """
+    import time
+
+    monkeypatch.setattr(sqlite_runtime, "_effective_sqlite_version", lambda: (3, 51, 3))
+    db_path = tmp_path / "perf_wal.db"
+    cerebro = SQLiteMemoryBioRAG(str(db_path))
+    try:
+        cerebro.cursor.execute("CREATE TABLE perf_probe (value INTEGER, relleno TEXT)")
+        cerebro.conn.commit()
+        cerebro.cursor.execute("BEGIN")
+        cerebro.cursor.executemany(
+            "INSERT INTO perf_probe VALUES (?, ?)",
+            [(i, "x" * 200) for i in range(20000)],
+        )
+        cerebro.conn.commit()
+        wal = tmp_path / "perf_wal.db-wal"
+        assert wal.exists() and wal.stat().st_size > 5_000_000
+
+        retained = cerebro.cursor
+        retained.execute("SELECT COUNT(*) FROM perf_probe").fetchone()
+
+        start = time.perf_counter()
+        for _ in range(30):
+            retained.execute("SELECT COUNT(*) FROM perf_probe").fetchone()
+        elapsed = time.perf_counter() - start
+
+        # Margen amplio: el valor correcto está en milisegundos; el defecto
+        # tardaba ~1,4 s para este tamaño de WAL.
+        assert elapsed < 0.5, f"lecturas sin cambio demasiado costosas: {elapsed:.3f}s"
+    finally:
+        cerebro.cerrar_sistema()

@@ -507,6 +507,13 @@ class SQLiteMemoryBioRAG(metaclass=_OperationTrackedMeta):
         # snapshot; do not publish a second, unlocked attestation here.
         self._remember_connection_snapshot(connection)
 
+    def _database_main_size(self):
+        """Cheap generation probe: the main file size without reading contents."""
+        try:
+            return os.stat(self.db_path).st_size
+        except OSError:
+            return -1
+
     def _check_in_place_change(self, connection):
         if (
             connection is None
@@ -516,11 +523,33 @@ class SQLiteMemoryBioRAG(metaclass=_OperationTrackedMeta):
         ):
             return
         try:
+            # data_version and the epoch are cheap; the file signature is not
+            # (it hashes the whole WAL). Guard order matters: when the cheap
+            # probes report no change, hashing every WAL on every statement made
+            # reads scale with WAL size (0.010 s -> 1.428 s for 30 reads over an
+            # 18.6 MB WAL, auditoría 2818e72). Reading the whole WAL is only
+            # needed to prove a *changed* state is attested.
+            # Read the cached snapshot *before* entering the coordination
+            # window. Taking _connection_registry_lock inside it deadlocked:
+            # another thread held that lock and waited for the lock file while
+            # this one held the lock file and waited for the registry lock.
+            cached = self._connection_snapshots.get(id(connection))
             with database_read_window(self.db_path):
-                signature = self._file_change_signature()
                 row = connection.execute("PRAGMA data_version").fetchone()
                 data_version = int(row[0]) if row else -1
                 commit_epoch, committed_signature = database_commit_state(self.db_path)
+                if (
+                    cached is not None and cached[0] is connection
+                    and cached[2] == data_version and cached[3] == commit_epoch
+                    and cached[1][0] == self._database_main_size()
+                ):
+                    # data_version, the epoch and the main file size all match
+                    # the last verified snapshot. A raw WAL checkpoint moves
+                    # none of data_version/epoch but does grow the main file, so
+                    # that cheap stat keeps the cost cut from hiding it; the
+                    # full hash still runs whenever any probe moved.
+                    return
+                signature = self._file_change_signature()
         except (OSError, sqlite3.Error) as exc:
             self._mark_identity_error()
             raise SQLiteDatabaseIdentityChangedError(
