@@ -110,5 +110,15 @@ jobs:
       - name: Verify SQLite sidecar replacement detection
         run: python -m pytest tests/test_sqlite_generation.py::test_motor_rechaza_reemplazo_del_sidecar_sin_modificarlo -q
 
-      - name: Verify daemon locks across processes
-        run: python -m pytest tests/test_daemon_lifecycle.py -q
+      - name: Verify daemon artifact identity and lifecycle
+        run: >-
+          python -m pytest
+          tests/test_daemon_lifecycle.py::test_artifacts_del_daemon_varian_por_db_y_comparten_aliases
+          tests/test_daemon_lifecycle.py::test_pid_reutilizado_sin_lock_del_daemon_no_es_alive
+          tests/test_daemon_lifecycle.py::test_run_lock_route_specifico_confirma_daemon_aunque_pid_aun_no_exista
+          tests/test_daemon_lifecycle.py::test_legacy_daemon_ambiguo_impide_spawn_de_una_segunda_ruta
+          tests/test_daemon_lifecycle.py::test_spawn_pasa_ruta_y_artifacts_canonicos_al_hijo -q
+
+      - name: Verify daemon cross-process locks
+        if: matrix.os != 'windows-latest'
+        run: python -m pytest tests/test_daemon_lifecycle.py::test_lock_de_proceso_distinto_es_detectable -q
