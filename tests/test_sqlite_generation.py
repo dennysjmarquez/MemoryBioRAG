@@ -107,6 +107,10 @@ def test_motor_rechaza_cambio_in_place_y_dbapi_handles_retenidos(tmp_path):
             assert rows != ("old-generation",)
         assert db_path.read_bytes() == replacement_bytes
 
+        # Windows may deny an independent SQLite open while the original handle
+        # is still alive; verify the replacement only after orderly closure.
+        cerebro.cerrar_sistema()
+        cerebro = None
         check = sqlite3.connect(db_path)
         try:
             assert check.execute(
@@ -115,7 +119,8 @@ def test_motor_rechaza_cambio_in_place_y_dbapi_handles_retenidos(tmp_path):
         finally:
             check.close()
     finally:
-        cerebro.cerrar_sistema()
+        if cerebro is not None:
+            cerebro.cerrar_sistema()
 
 
 def test_cursor_retenido_no_devuelve_filas_stale_tras_copia_mismo_esquema(tmp_path):
