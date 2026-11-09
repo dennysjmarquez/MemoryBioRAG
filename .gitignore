@@ -81,3 +81,8 @@ scripts/snapshot_prf_real.db-wal
 # Volcados de la base viva subidos desde Google Drive para medir (nunca al repo)
 google_drive/
 *.sql
+
+# Marcador y lock del protocolo de épocas de commit SQLite (estado local, no versionar)
+*.biorag-commit-epoch
+*.biorag-commit-epoch.lock
+.biorag-epoch-*

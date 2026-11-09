@@ -8,9 +8,9 @@ import threading
 from contextlib import contextmanager
 from core.sqlite_runtime import (
     SQLiteDatabaseIdentityChangedError,
-    database_commit_epoch,
+    database_commit_state,
+    database_read_window,
     database_file_identity,
-    note_database_commit,
     open_writer,
 )
 from collections import deque
@@ -456,23 +456,6 @@ class SQLiteMemoryBioRAG(metaclass=_OperationTrackedMeta):
         if state is not None and getattr(state, "depth", 0):
             state.identity_error = True
 
-    def _wal_file_signature(self):
-        if getattr(self, "_journal_mode", None) != "wal":
-            return None
-        try:
-            st = os.stat(self.db_path + "-wal")
-        except FileNotFoundError:
-            return None
-        except OSError as exc:
-            raise SQLiteDatabaseIdentityChangedError(
-                "No se pudo comprobar la generación WAL de SQLite."
-            ) from exc
-        return (
-            int(st.st_dev), int(st.st_ino), int(st.st_size),
-            int(getattr(st, "st_mtime_ns", int(st.st_mtime * 1_000_000_000))),
-            int(getattr(st, "st_ctime_ns", int(st.st_ctime * 1_000_000_000))),
-        )
-
     def _file_change_signature(self):
         st = os.stat(self.db_path)
         with open(self.db_path, "rb") as database_file:
@@ -488,7 +471,6 @@ class SQLiteMemoryBioRAG(metaclass=_OperationTrackedMeta):
             int.from_bytes(header[24:28], "big"),
             int.from_bytes(header[40:44], "big"),
             header,
-            self._wal_file_signature(),
         )
 
     def _remember_connection_snapshot(self, connection):
@@ -499,9 +481,14 @@ class SQLiteMemoryBioRAG(metaclass=_OperationTrackedMeta):
         ):
             return
         try:
-            signature = self._file_change_signature()
-            row = connection.execute("PRAGMA data_version").fetchone()
-            data_version = int(row[0]) if row else -1
+            # Sample the file state and the published attestation under the same
+            # coordination lock: a cooperative commit cannot be observed half
+            # published, which used to reject perfectly valid generations.
+            with database_read_window(self.db_path):
+                signature = self._file_change_signature()
+                row = connection.execute("PRAGMA data_version").fetchone()
+                data_version = int(row[0]) if row else -1
+                commit_epoch, committed_signature = database_commit_state(self.db_path)
         except (OSError, sqlite3.Error) as exc:
             raise SQLiteDatabaseIdentityChangedError(
                 "No se pudo comprobar la generación SQLite del archivo; "
@@ -510,11 +497,12 @@ class SQLiteMemoryBioRAG(metaclass=_OperationTrackedMeta):
         with self._connection_registry_lock:
             self._connection_snapshots[id(connection)] = (
                 connection, signature, data_version,
-                database_commit_epoch(self.db_path),
+                commit_epoch, committed_signature,
             )
 
     def _note_cooperative_commit(self, connection):
-        note_database_commit(self.db_path)
+        # The tracked SQLite cursor publishes autocommitted DDL before this
+        # snapshot; do not publish a second, unlocked attestation here.
         self._remember_connection_snapshot(connection)
 
     def _check_in_place_change(self, connection):
@@ -526,9 +514,11 @@ class SQLiteMemoryBioRAG(metaclass=_OperationTrackedMeta):
         ):
             return
         try:
-            signature = self._file_change_signature()
-            row = connection.execute("PRAGMA data_version").fetchone()
-            data_version = int(row[0]) if row else -1
+            with database_read_window(self.db_path):
+                signature = self._file_change_signature()
+                row = connection.execute("PRAGMA data_version").fetchone()
+                data_version = int(row[0]) if row else -1
+                commit_epoch, committed_signature = database_commit_state(self.db_path)
         except (OSError, sqlite3.Error) as exc:
             self._mark_identity_error()
             raise SQLiteDatabaseIdentityChangedError(
@@ -541,27 +531,24 @@ class SQLiteMemoryBioRAG(metaclass=_OperationTrackedMeta):
             if snapshot is None or snapshot[0] is not connection:
                 self._connection_snapshots[id(connection)] = (
                     connection, signature, data_version,
-                    database_commit_epoch(self.db_path),
+                    commit_epoch, committed_signature,
                 )
                 return
-            _same_connection, old_signature, old_data_version, old_epoch = snapshot
-            current_epoch = database_commit_epoch(self.db_path)
+            (
+                _same_connection, old_signature, old_data_version,
+                old_epoch, _old_committed_signature,
+            ) = snapshot
+            current_epoch = commit_epoch
             changed = signature != old_signature or data_version != old_data_version
-            data_version_delta = (data_version - old_data_version) & 0xFFFFFFFF
-            schema_cookie_changed = signature[4] != old_signature[4]
-            wal_commit_observed = (
-                self._journal_mode == "wal"
-                and signature[-1] != old_signature[-1]
+            # The sidecar signature is recorded while the cooperative writer
+            # holds SQLite's write reservation. It must exactly match the file
+            # observed now; this prevents a later legacy write or in-place copy
+            # from piggybacking on an unrelated epoch increment.
+            attested_commit = (
+                current_epoch > old_epoch
+                and committed_signature == signature
             )
-            sqlite_commit_observed = (
-                0 < data_version_delta < 0x80000000
-                and not schema_cookie_changed
-                and (
-                    signature[3] != old_signature[3]
-                    or wal_commit_observed
-                )
-            )
-            if changed and current_epoch == old_epoch and not sqlite_commit_observed:
+            if changed and not attested_commit:
                 self._mark_identity_error()
                 raise SQLiteDatabaseIdentityChangedError(
                     "La generación del archivo cambió sin una transición de commit "
@@ -569,7 +556,8 @@ class SQLiteMemoryBioRAG(metaclass=_OperationTrackedMeta):
                     "escribir sobre una sustitución in-place."
                 )
             self._connection_snapshots[id(connection)] = (
-                connection, signature, data_version, current_epoch
+                connection, signature, data_version,
+                current_epoch, committed_signature,
             )
 
     def _assert_database_identity(self, connection=None):
