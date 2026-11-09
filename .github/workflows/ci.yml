@@ -69,7 +69,20 @@ jobs:
           pip install -e .
 
       - name: Verify SQLite canonical paths
-        run: python -m pytest tests/test_sqlite_paths.py -q
+        shell: bash
+        run: |
+          set -o pipefail
+          python -m pytest tests/test_sqlite_paths.py -q 2>&1 | tee canonical.log
+          status=${PIPESTATUS[0]}
+          if [ "$status" -ne 0 ]; then
+            {
+              echo "::error title=Verify SQLite canonical paths failed on ${{ runner.os }}::"
+              # Solo se publican aserciones y excepciones: los logs de GitHub
+              # viven en almacenamiento externo que la revisión no siempre puede leer.
+              grep -E "^(FAILED|E  |>  )" canonical.log | head -20
+            } || true
+          fi
+          exit "$status"
 
       - name: Verify SQLite consumer classifications
         run: python -m pytest tests/test_sqlite_runtime.py::test_consumidores_de_produccion_usan_aperturas_clasificadas -q

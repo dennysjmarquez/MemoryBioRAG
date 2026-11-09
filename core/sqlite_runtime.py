@@ -99,8 +99,15 @@ def _raw_execute(conn: sqlite3.Connection, sql: str, parameters: Any = ()):
     not publish a commit epoch. Bypassing the tracked cursor also avoids keeping
     an untracked cursor alive in a traceback when a journal transition fails,
     which used to defer sqlite3_close and leave a WAL read lock behind.
+
+    The class is looked up at call time on purpose: the tracked connection is
+    defined further down this module, and a direct reference here would be an
+    UnboundLocalError raised during ``configure_writer`` (inside the very
+    ``except`` handler that builds the actionable journal error) instead of the
+    real SQLite failure.
     """
-    if isinstance(conn, _TrackedSQLiteConnection):
+    tracked = globals().get("_TrackedSQLiteConnection")
+    if tracked is not None and isinstance(conn, tracked):
         return sqlite3.Connection.execute(conn, sql, parameters)
     return conn.execute(sql, parameters)
 
@@ -146,12 +153,32 @@ def _shared_epoch_paths(database: str | Path) -> tuple[str, str] | None:
     return marker, marker + ".lock"
 
 
+_EPOCH_LOCK_HELD = threading.local()
+
+
+def _epoch_lock_held(lock_path: str) -> bool:
+    """Consumers and the runtime re-enter the same lock; flock would deadlock."""
+    held = getattr(_EPOCH_LOCK_HELD, "paths", None)
+    return bool(held) and os.path.abspath(lock_path) in held
+
+
 @contextmanager
 def _shared_epoch_guard(lock_path: str, *, exclusive: bool):
     """Cross-process lock for the tiny commit epoch sidecar protocol."""
     local_key = os.path.abspath(lock_path)
+    if _epoch_lock_held(local_key):
+        # Already owned by this thread (database_read_window + commit_state, or
+        # an exclusive publication that re-reads its own state). Re-locking the
+        # same file through a second descriptor would block forever, and on
+        # Windows a second msvcrt.locking on our own byte raises OSError.
+        yield
+        return
     with _COMMIT_EPOCH_LOCK:
         os.makedirs(os.path.dirname(local_key) or ".", exist_ok=True)
+        held = getattr(_EPOCH_LOCK_HELD, "paths", None)
+        if held is None:
+            held = set()
+            _EPOCH_LOCK_HELD.paths = held
         with open(local_key, "a+b") as lock_file:
             if os.name == "nt":
                 import msvcrt
@@ -161,9 +188,11 @@ def _shared_epoch_guard(lock_path: str, *, exclusive: bool):
                     lock_file.flush()
                 lock_file.seek(0)
                 msvcrt.locking(lock_file.fileno(), msvcrt.LK_LOCK, 1)
+                held.add(local_key)
                 try:
                     yield
                 finally:
+                    held.discard(local_key)
                     lock_file.seek(0)
                     msvcrt.locking(lock_file.fileno(), msvcrt.LK_UNLCK, 1)
             else:
@@ -172,9 +201,11 @@ def _shared_epoch_guard(lock_path: str, *, exclusive: bool):
                     lock_file.fileno(),
                     fcntl.LOCK_EX if exclusive else fcntl.LOCK_SH,
                 )
+                held.add(local_key)
                 try:
                     yield
                 finally:
+                    held.discard(local_key)
                     fcntl.flock(lock_file.fileno(), fcntl.LOCK_UN)
 
 
