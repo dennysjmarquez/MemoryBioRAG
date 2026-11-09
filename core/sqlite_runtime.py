@@ -240,19 +240,21 @@ def _database_file_signature(database: str | Path) -> tuple[Any, ...] | None:
     )
 
 
-_WAL_DIGEST_HEAD = 64
-_WAL_DIGEST_TAIL = 4096
+def _wal_content_signature(canonical: str) -> tuple[int, str] | None:
+    """Full content digest of the WAL, stable across checkpoints.
 
+    Sampling the head and tail is not enough: after a checkpoint SQLite keeps the
+    WAL at a fixed size and later commits reuse frames *inside* the already valid
+    area, so size plus edge samples can stay byte-identical while a new commit is
+    present (docs/auditoria_pr13_reuso_wal_68e4151.md). Only the whole content
+    distinguishes that case.
 
-def _wal_content_signature(canonical: str) -> tuple[int, str, str] | None:
-    """Content digest of the WAL, stable across checkpoints.
+    An absent or empty WAL is normalized to ``None`` so a checkpoint performed by
+    a cooperative writer reads as the same state it published, and a torn read
+    (a raw writer appending without the coordination lock) produces an unexpected
+    digest, which fails closed rather than open.
 
-    Frames are appended at the end of the WAL, so size plus the head and tail
-    chunks capture every commit that has not been checkpointed yet. An absent or
-    fully truncated WAL is normalized to ``None`` so a checkpoint performed by a
-    cooperative writer reads as the same state it published.
-
-    This is an integrity signal, not a cryptographic commitment: anyone able to
+    This is an integrity signal, not a cryptographic commitment: whoever can
     write the WAL can also rewrite the marker. It detects uncoordinated commits
     and in-place replacement, which is the contract of this guard.
     """
@@ -264,22 +266,15 @@ def _wal_content_signature(canonical: str) -> tuple[int, str, str] | None:
     size = int(st.st_size)
     if size == 0:
         return None
+    digest = hashlib.sha256()
     try:
         with open(wal_path, "rb") as wal:
-            head = wal.read(min(_WAL_DIGEST_HEAD, size))
-            if size > _WAL_DIGEST_HEAD:
-                wal.seek(max(size - _WAL_DIGEST_TAIL, 0))
-                tail = wal.read()
-            else:
-                tail = b""
+            for chunk in iter(lambda: wal.read(1 << 20), b""):
+                digest.update(chunk)
     except FileNotFoundError:
         # A checkpoint truncated it between stat and read: same as empty.
         return None
-    return (
-        size,
-        hashlib.sha256(head).hexdigest(),
-        hashlib.sha256(tail).hexdigest(),
-    )
+    return size, digest.hexdigest()
 
 
 def _read_shared_state(marker_path: str) -> tuple[int, tuple[Any, ...] | None]:
@@ -299,7 +294,7 @@ def _read_shared_state(marker_path: str) -> tuple[int, tuple[Any, ...] | None]:
                 raise ValueError("firma atestiguada inválida")
             wal_digest = signature[6]
             if wal_digest is not None:
-                wal_digest = (int(wal_digest[0]), str(wal_digest[1]), str(wal_digest[2]))
+                wal_digest = (int(wal_digest[0]), str(wal_digest[1]))
             signature = (
                 signature[:5] + (bytes.fromhex(signature[5]),) + (wal_digest,)
             )

@@ -533,3 +533,103 @@ def test_checkpoint_cooperativo_no_es_un_cambio_no_atestiguado(tmp_path, monkeyp
         ).fetchone()[0] == 1
     finally:
         cerebro.cerrar_sistema()
+
+
+def test_reuso_de_wal_tras_checkpoint_no_oculta_commit_raw(tmp_path, monkeypatch):
+    """Regresión de docs/auditoria_pr13_reuso_wal_68e4151.md.
+
+    Tras un checkpoint PASSIVE el WAL conserva su tamaño y los commits reutilizan
+    frames dentro del área ya válida. Muestrear cabecera y cola no alcanza: solo
+    el digest completo distingue el commit raw posterior a uno coordinado.
+    """
+    from core.sqlite_runtime import open_writer
+
+    monkeypatch.setattr(sqlite_runtime, "_effective_sqlite_version", lambda: (3, 51, 3))
+
+    def _preparar(nombre):
+        db_path = tmp_path / f"{nombre}.db"
+        cerebro = SQLiteMemoryBioRAG(str(db_path))
+        cerebro.cursor.execute("CREATE TABLE reuso_probe (value INTEGER, relleno TEXT)")
+        cerebro.conn.commit()
+        cerebro.cursor.execute("BEGIN")
+        cerebro.cursor.executemany(
+            "INSERT INTO reuso_probe VALUES (?, ?)",
+            [(i, "x" * 200) for i in range(4000)],
+        )
+        cerebro.conn.commit()
+        assert cerebro._journal_mode == "wal"
+        peer = open_writer(db_path, consumer="reuso_checkpoint")
+        try:
+            assert peer.execute("PRAGMA wal_checkpoint(PASSIVE)").fetchone()[0] == 0
+        finally:
+            peer.close()
+        return cerebro, db_path
+
+    def _explorar(nombre, con_previo_coordinado):
+        cerebro, db_path = _preparar(nombre)
+        try:
+            retained = cerebro.cursor
+            assert retained.execute("SELECT COUNT(*) FROM reuso_probe").fetchone()[0] > 0
+
+            if con_previo_coordinado:
+                peer = open_writer(db_path, consumer="reuso_peer")
+                try:
+                    peer.execute("INSERT INTO reuso_probe VALUES (1, 'coord')")
+                    peer.commit()
+                finally:
+                    peer.close()
+
+            raw = sqlite3.connect(db_path)
+            try:
+                raw.execute("INSERT INTO reuso_probe VALUES (99, 'raw')")
+                raw.commit()
+            finally:
+                raw.close()
+
+            with pytest.raises(SQLiteDatabaseIdentityChangedError):
+                retained.execute("SELECT COUNT(*) FROM reuso_probe").fetchall()
+        finally:
+            cerebro.cerrar_sistema()
+
+    _explorar("reuso_control", False)
+    _explorar("reuso_contraste", True)
+
+
+def test_checkpoint_de_cliente_sin_protocolo_falla_cerrado(tmp_path, monkeypatch):
+    """Límite operativo documentado, no un bug (auditoría 68e4151).
+
+    Un checkpoint ejecutado por una conexión que no acata el protocolo reescribe
+    el archivo principal (páginas del WAL pasan al .db). Es el mismo tipo de
+    cambio que una sustitución in-place, así que la política es fallar cerrado:
+    los checkpoints de mantenimiento deben hacerse con `open_writer`.
+    """
+    monkeypatch.setattr(sqlite_runtime, "_effective_sqlite_version", lambda: (3, 51, 3))
+    db_path = tmp_path / "raw_checkpoint.db"
+    cerebro = SQLiteMemoryBioRAG(str(db_path))
+    try:
+        cerebro.cursor.execute("CREATE TABLE raw_ckpt_probe (value INTEGER)")
+        cerebro.cursor.execute("INSERT INTO raw_ckpt_probe VALUES (1)")
+        cerebro.conn.commit()
+        retained = cerebro.cursor
+        assert retained.execute("SELECT COUNT(*) FROM raw_ckpt_probe").fetchone()[0] == 1
+
+        # Cliente sin protocolo: no escribe datos, solo ejecuta mantenimiento.
+        raw = sqlite3.connect(db_path)
+        try:
+            raw.execute("PRAGMA wal_checkpoint(PASSIVE)").fetchone()
+        finally:
+            raw.close()
+
+        with pytest.raises(SQLiteDatabaseIdentityChangedError):
+            retained.execute("SELECT COUNT(*) FROM raw_ckpt_probe").fetchone()
+    finally:
+        cerebro.cerrar_sistema()
+
+    # La base sigue íntegra y accesible tras reabrir: no se perdió nada.
+    reopened = SQLiteMemoryBioRAG(str(db_path))
+    try:
+        assert reopened.cursor.execute(
+            "SELECT COUNT(*) FROM raw_ckpt_probe"
+        ).fetchone()[0] == 1
+    finally:
+        reopened.cerrar_sistema()
