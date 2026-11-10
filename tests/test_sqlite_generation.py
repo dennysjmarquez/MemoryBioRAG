@@ -2,6 +2,7 @@
 
 import os
 import shutil
+from pathlib import Path
 import sqlite3
 
 import pytest
@@ -849,3 +850,121 @@ def test_cambio_durante_la_instantanea_no_se_bendice(tmp_path, monkeypatch):
     finally:
         monkeypatch.setattr(SQLiteMemoryBioRAG, "_file_change_signature", original)
         cerebro.cerrar_sistema()
+
+
+def _preparar_dos_generaciones(tmp_path, nombre="rama"):
+    """Base con dos versiones distintas, como dos ramas de git que la versionan."""
+    db_path = tmp_path / f"{nombre}.db"
+    conn = sqlite3.connect(db_path)
+    try:
+        conn.execute("PRAGMA journal_mode=WAL")
+        conn.execute("CREATE TABLE memoria (id INTEGER PRIMARY KEY, texto TEXT)")
+        conn.executemany(
+            "INSERT INTO memoria (texto) VALUES (?)",
+            [(f"A{i}" * 40,) for i in range(50)],
+        )
+        conn.commit()
+        conn.execute("PRAGMA wal_checkpoint(TRUNCATE)")
+    finally:
+        conn.close()
+    shutil.copyfile(db_path, tmp_path / f"{nombre}-version-B.db")
+
+    conn = sqlite3.connect(tmp_path / f"{nombre}-version-B.db")
+    try:
+        conn.execute("PRAGMA journal_mode=WAL")
+        conn.execute("CREATE TABLE otra_cosa (x)")
+        conn.executemany(
+            "INSERT INTO otra_cosa (x) VALUES (?)", [(f"B{i}" * 30,) for i in range(80)]
+        )
+        conn.commit()
+        conn.execute("PRAGMA wal_checkpoint(TRUNCATE)")
+    finally:
+        conn.close()
+    return db_path, tmp_path / f"{nombre}-version-B.db"
+
+
+def test_wal_heredado_de_otra_generacion_no_rompe_la_base(tmp_path, monkeypatch):
+    """Caso real reportado: guardar, cambiar de rama y quedarse un -wal ajeno.
+
+    Sin protección, al reabrir SQLite consolida el diario de la otra rama sobre
+    el archivo bueno y la base queda dañada de verdad. Aquí se comprueba que el
+    motor lo detecta ANTES de abrir con SQLite, aparta el diario (sin borrarlo)
+    y deja la base legible y escribible, con las filas intactas.
+    """
+    monkeypatch.setattr(sqlite_runtime, "_effective_sqlite_version", lambda: (3, 51, 3))
+    db_path, version_b = _preparar_dos_generaciones(tmp_path)
+
+    # El motor abre la versión B y guarda: el WAL queda vivo y su propiedad
+    # anotada. Así es exactamente como le ocurrió al usuario.
+    cerebro = SQLiteMemoryBioRAG(str(version_b))
+    cerebro.cursor.execute("INSERT INTO otra_cosa (x) VALUES ('guardado')")
+    cerebro.conn.commit()
+    wal = Path(str(version_b) + "-wal")
+    assert wal.exists() and wal.stat().st_size > 0
+
+    # Cambio de rama: git sustituye el .db y deja el -wal de la versión B.
+    shutil.copyfile(db_path, version_b.with_suffix(".db.tmp"))
+    os.replace(version_b.with_suffix(".db.tmp"), version_b)
+    assert sqlite_runtime._wal_is_foreign(version_b)
+    cerebro.cerrar_sistema()
+
+    # Al reabrir debe recuperarse sola, sin intervención del usuario.
+    cerebro = SQLiteMemoryBioRAG(str(version_b))
+    try:
+        assert cerebro.conn.execute("PRAGMA quick_check").fetchone()[0] == "ok"
+        filas = cerebro.conn.execute("SELECT COUNT(*) FROM memoria").fetchone()[0]
+        assert filas == 50, "las filas de la base buena deben sobrevivir"
+        cerebro.cursor.execute("INSERT INTO memoria (texto) VALUES ('despues')")
+        cerebro.conn.commit()
+        assert cerebro.conn.execute("SELECT COUNT(*) FROM memoria").fetchone()[0] == 51
+    finally:
+        cerebro.cerrar_sistema()
+
+    apartados = sorted(p.name for p in tmp_path.glob("*.huerfano-*"))
+    assert apartados, "el -wal heredado debe quedar guardado, no borrado"
+
+
+def test_base_sana_con_wal_legitimo_no_se_toca(tmp_path, monkeypatch):
+    """La protección no debe apartar un -wal que sí pertenece a la base."""
+    monkeypatch.setattr(sqlite_runtime, "_effective_sqlite_version", lambda: (3, 51, 3))
+    db_path = tmp_path / "sana.db"
+
+    escritor = sqlite3.connect(db_path)
+    try:
+        escritor.execute("PRAGMA journal_mode=WAL")
+        escritor.execute("CREATE TABLE prueba (v TEXT)")
+        escritor.executemany("INSERT INTO prueba (v) VALUES (?)", [("dato" * 50,) for _ in range(500)])
+        escritor.commit()
+        wal = tmp_path / "sana.db-wal"
+        assert wal.exists() and wal.stat().st_size > 0
+
+        cerebro = SQLiteMemoryBioRAG(str(db_path))
+        try:
+            assert cerebro.conn.execute("SELECT COUNT(*) FROM prueba").fetchone()[0] == 500
+        finally:
+            cerebro.cerrar_sistema()
+    finally:
+        escritor.close()
+
+    assert not list(tmp_path.glob("*.huerfano-*")), "no se debe apartar un WAL válido"
+
+
+def test_wal_heredado_ilegible_se_rechaza_sin_tocar_el_archivo_principal(tmp_path):
+    """Un -wal que no es un WAL de verdad se rechaza; la base no se modifica."""
+    db_path = tmp_path / "rota.db"
+    conn = sqlite3.connect(db_path)
+    try:
+        conn.execute("CREATE TABLE t (v)")
+        conn.execute("INSERT INTO t VALUES ('original')")
+        conn.commit()
+    finally:
+        conn.close()
+    antes = db_path.read_bytes()
+
+    wal = tmp_path / "rota.db-wal"
+    wal.write_bytes(b"esto no es un wal" * 100)
+
+    with pytest.raises(sqlite_runtime.SQLiteDatabaseCorruptError):
+        sqlite_runtime._quarantine_orphan_sidecars(db_path)
+
+    assert db_path.read_bytes() == antes, "el archivo principal no debe modificarse"

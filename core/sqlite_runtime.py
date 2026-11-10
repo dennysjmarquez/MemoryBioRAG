@@ -10,6 +10,7 @@ import json
 import logging
 import os
 import re
+import shutil
 import sqlite3
 import threading
 import tempfile
@@ -30,6 +31,15 @@ _MAX_BUSY_TIMEOUT_MS = 300_000
 
 class UnsafeSQLiteJournalModeError(sqlite3.OperationalError):
     """La conexión no puede abrirse para escribir en un journal seguro."""
+
+
+class SQLiteDatabaseCorruptError(RuntimeError):
+    """La base no se puede leer de forma segura tal como está en disco.
+
+    Se distingue de un fallo de identidad: aquí el archivo principal puede
+    estar sano y el problema ser un `-wal` que no le pertenece. Nunca implica
+    que se haya modificado o reparado algo: el motor solo aparta el diario.
+    """
 
 
 class SQLiteDatabaseIdentityChangedError(sqlite3.OperationalError):
@@ -90,6 +100,286 @@ def _database_existed_before_open(database: str | Path) -> bool:
     if value.startswith("file:"):
         return True
     return Path(os.path.expanduser(value)).exists()
+
+
+# Señales de que la base no se puede leer tal como está en disco. Un `-wal`
+# heredado de otra generación se manifiesta de las tres formas: la lectura
+# rechaza la imagen ("malformed"), el archivo no parece una base ("not a
+# database"), o la lectura de páginas falla al no poder aplicar el diario ajeno
+# ("disk I/O error"). Las tres son recuperables apartando el diario.
+_UNREADABLE_MARKERS = ("malformed", "not a database", "disk i/o error", "disk i/o")
+
+
+def _looks_unreadable(exc: BaseException) -> bool:
+    message = str(exc).lower()
+    return any(marker in message for marker in _UNREADABLE_MARKERS)
+
+
+def _sqlite_header(path: str) -> bytes:
+    try:
+        with open(path, "rb") as handle:
+            return handle.read(100)
+    except OSError:
+        return b""
+
+
+def _rename_sidecars_aside(main: Path) -> list[str]:
+    """Renombra (nunca borra) los sidecars a `<nombre>.huerfano-N`."""
+    moved: list[str] = []
+    for suffix in ("-wal", "-shm"):
+        sidecar = Path(str(main) + suffix)
+        if not sidecar.exists():
+            continue
+        index = 1
+        while True:
+            target = Path(f"{sidecar}.huerfano-{index}")
+            if not target.exists():
+                break
+            index += 1
+        try:
+            sidecar.rename(target)
+        except OSError as exc:
+            raise SQLiteDatabaseCorruptError(
+                "No se pudo apartar el -wal heredado. No se modificó ningún "
+                "archivo de la base."
+            ) from exc
+        moved.append(str(target))
+    return moved
+
+
+def _preserve_sidecars(main: Path) -> list[str]:
+    """Copia los sidecars antes de cerrar, para no perder la evidencia.
+
+    Cerrar la última conexión SQLite elimina el `-wal`. Si ese diario era el
+    problema, la copia queda como rastro de lo ocurrido sin impedir la
+    recuperación.
+    """
+    kept: list[str] = []
+    for suffix in ("-wal", "-shm"):
+        sidecar = Path(str(main) + suffix)
+        if not sidecar.exists():
+            continue
+        index = 1
+        while True:
+            target = Path(f"{sidecar}.huerfano-{index}")
+            if not target.exists():
+                break
+            index += 1
+        try:
+            shutil.copy2(sidecar, target)
+        except OSError:
+            logger.exception("No se pudo conservar una copia de %s", sidecar)
+            continue
+        kept.append(str(target))
+    return kept
+
+
+_OWNER_SUFFIX = ".biorag-wal-owner"
+
+
+def _owner_path(database) -> str | None:
+    value = os.fsdecode(os.fspath(database))
+    if _is_memory_database(value) or value.startswith("file:"):
+        return None
+    return os.path.expanduser(value) + _OWNER_SUFFIX
+
+
+def _main_signature(database) -> list[int] | None:
+    """Huella barata del archivo principal: tamaño y sellos de tiempo."""
+    try:
+        st = os.stat(os.fsdecode(os.fspath(database)))
+    except OSError:
+        return None
+    return [
+        int(st.st_size),
+        int(getattr(st, "st_mtime_ns", int(st.st_mtime * 1_000_000_000))),
+        int(getattr(st, "st_ctime_ns", int(st.st_ctime * 1_000_000_000))),
+    ]
+
+
+def _record_main_signature(database) -> None:
+    """Anota la huella del archivo principal, solo cuando es seguro hacerlo.
+
+    El único momento sin ambigüedad es cuando NO hay `-wal` con contenido: ahí
+    el archivo y la base son lo mismo. Con un diario vivo no se sobrescribe,
+    porque entonces se perdería la referencia contra la que comparar.
+    """
+    mark = _owner_path(database)
+    if mark is None or _has_nonempty_wal(database):
+        return
+    signature = _main_signature(database)
+    if signature is None:
+        return
+    import json as _json
+
+    try:
+        with open(mark, "w", encoding="ascii") as handle:
+            handle.write(_json.dumps({"main": signature}))
+            handle.flush()
+            os.fsync(handle.fileno())
+    except OSError:
+        logger.debug("No se pudo anotar la huella del archivo principal")
+
+
+def _main_changed_since_record(database) -> bool:
+    mark = _owner_path(database)
+    if mark is None:
+        return False
+    import json as _json
+
+    try:
+        with open(mark, "r", encoding="ascii") as handle:
+            recorded = _json.loads(handle.read() or "{}").get("main")
+    except (OSError, ValueError):
+        return False
+    if not isinstance(recorded, list):
+        return False
+    current = _main_signature(database)
+    if current is None:
+        return False
+    try:
+        return [int(v) for v in recorded] != current
+    except (TypeError, ValueError):
+        return False
+
+
+def _copy_is_unreadable(database) -> bool:
+    """Abre una COPIA de la base con su `-wal` y dice si SQLite puede leerla.
+
+    Este es el paso de verificación y nunca toca la base real. Es necesario
+    porque abrir el par real cuando el diario no le pertenece puede consolidarlo
+    y dañar el archivo bueno; sobre una copia, el daño no importa.
+
+    Solo se ejecuta cuando la huella del archivo principal cambió habiendo un
+    `-wal` vivo, es decir, en la rara sospecha de sustitución. Copia la base
+    entera (una vez), no en cada apertura.
+    """
+    value = os.fsdecode(os.fspath(database))
+    main = os.path.expanduser(value)
+    staging = tempfile.mkdtemp(prefix=".biorag-verify-", dir=os.path.dirname(main) or ".")
+    try:
+        copy_main = os.path.join(staging, "copia.db")
+        shutil.copy2(main, copy_main)
+        for suffix in ("-wal", "-shm"):
+            if os.path.exists(main + suffix):
+                shutil.copy2(main + suffix, copy_main + suffix)
+        try:
+            probe = sqlite3.connect(copy_main)
+        except sqlite3.Error:
+            return False
+        try:
+            try:
+                row = probe.execute("PRAGMA quick_check").fetchone()
+            except sqlite3.DatabaseError as exc:
+                return _looks_unreadable(exc)
+            return not (row and str(row[0]).lower() == "ok")
+        finally:
+            probe.close()
+    finally:
+        shutil.rmtree(staging, ignore_errors=True)
+
+
+def _wal_is_foreign(database) -> bool:
+    """¿El `-wal` presente no pertenece al archivo principal actual?
+
+    Dos condiciones, ambas necesarias:
+      1. la huella del archivo principal cambió desde que se anotó, y
+      2. al abrir una copia con ese `-wal`, SQLite no puede leerla.
+
+    La segunda condición es la que evita falsos positivos: un checkpoint
+    legítimo también cambia el tamaño del archivo principal, pero su diario sí
+    se puede aplicar.
+    """
+    value = os.fsdecode(os.fspath(database))
+    if _is_memory_database(value) or value.startswith("file:"):
+        return False
+    if not _has_nonempty_wal(value):
+        return False
+    if not _main_changed_since_record(value):
+        return False
+    if not _sqlite_header(os.path.expanduser(value)).startswith(b"SQLite format 3\x00"):
+        raise SQLiteDatabaseCorruptError(
+            "La base en disco no tiene una cabecera SQLite válida. No se tocó "
+            "ningún archivo. Restaure una copia de seguridad."
+        )
+    return _copy_is_unreadable(value)
+
+
+def _quarantine_orphan_sidecars(database: str | Path) -> list[str]:
+    """Aparta un `-wal` heredado de otra generación del archivo principal.
+
+    Escenario real (reportado por el usuario): la base está versionada en git;
+    el operador guarda, cambia de rama, y git sustituye el `.db` mientras el
+    `-wal` de la rama anterior se queda en disco (los sidecars están ignorados
+    por git). Al abrir, SQLite aplica ese diario ajeno sobre un archivo que no
+    le corresponde y falla con "database disk image is malformed".
+
+    El archivo principal NO está dañado en ese caso. Solo el diario sobra.
+
+    Esta función es deliberadamente mínima y conservadora:
+      * solo actúa si el `.db` tiene cabecera SQLite válida;
+      * solo actúa si el `-wal` tiene cabecera WAL válida;
+      * nunca borra: renombra a `.huerfano-<n>` para que sea recuperable;
+      * un `-wal` que no es un WAL de verdad se rechaza sin tocar nada.
+    """
+    value = str(database)
+    if _is_memory_database(database) or value.startswith("file:"):
+        return []
+
+    main = Path(os.path.expanduser(value))
+    wal = Path(str(main) + "-wal")
+    shm = Path(str(main) + "-shm")
+    if not wal.exists() or wal.stat().st_size == 0:
+        return []
+
+    if not _sqlite_header(str(main)).startswith(b"SQLite format 3\x00"):
+        raise SQLiteDatabaseCorruptError(
+            "La base en disco no tiene una cabecera SQLite válida. No se tocó "
+            "ningún archivo. Restaure una copia de seguridad."
+        )
+    # Magic number de un WAL: 0x377f0682 o 0x377f0683. Se acepta el sufijo
+    # (checksum de 32 o 64 bits) por su primer byte significativo.
+    if _sqlite_header(str(wal))[:4][:3] != b"7\x7f\x06":
+        raise SQLiteDatabaseCorruptError(
+            "El archivo -wal no tiene un formato válido y no pertenece a esta "
+            "base. No se tocó ningún archivo."
+        )
+
+    moved = _rename_sidecars_aside(main)
+    logger.warning(
+        "Se apartó un -wal que no pertenecía a la base actual: %s",
+        ", ".join(moved),
+    )
+    return moved
+
+
+def _database_is_readable(conn: sqlite3.Connection) -> bool:
+    """¿Se puede leer la base tal como está en disco, con su `-wal` actual?
+
+    Un `-wal` heredado de otra generación deja el archivo principal intacto pero
+    hace que SQLite se niegue a leerlo ("malformed" / "disk I/O error"). Esta
+    comprobación lo detecta antes de que el motor empiece a trabajar.
+
+    `quick_check` no repara ni escribe nada; en una base de 300 MB tarda del
+    orden de 0,15 s y solo se ejecuta al abrir, nunca por consulta.
+    """
+    try:
+        row = _raw_execute(conn, "PRAGMA quick_check").fetchone()
+    except sqlite3.DatabaseError as exc:
+        if _looks_unreadable(exc):
+            return False
+        raise
+    return bool(row) and str(row[0]).lower() == "ok"
+
+
+def _has_nonempty_wal(database) -> bool:
+    value = os.fsdecode(os.fspath(database))
+    if _is_memory_database(value) or value.startswith("file:"):
+        return False
+    try:
+        return os.path.getsize(os.path.expanduser(value) + "-wal") > 0
+    except OSError:
+        return False
 
 
 def _raw_execute(conn: sqlite3.Connection, sql: str, parameters: Any = ()):
@@ -746,18 +1036,54 @@ def open_writer(
     database_existed = _database_existed_before_open(database)
     if "factory" in connect_kwargs:
         raise TypeError("open_writer administra la subclase de conexión")
-    conn = sqlite3.connect(
-        database, timeout=timeout, factory=_TrackedSQLiteConnection,
-        **connect_kwargs,
-    )
-    try:
-        policy = configure_writer(
-            conn,
+    def _abrir():
+        return sqlite3.connect(
+            database, timeout=timeout, factory=_TrackedSQLiteConnection,
+            **connect_kwargs,
+        )
+
+    def _configurar(connection):
+        return configure_writer(
+            connection,
             database,
             busy_timeout_ms=busy_timeout_ms,
             database_existed=database_existed,
             allow_existing_journal_transition=allow_existing_journal_transition,
         )
+
+    # Decisión ANTES de abrir: si el `-wal` que hay en disco no pertenece a este
+    # archivo (p. ej. porque git sustituyó la base al cambiar de rama), abrirlo
+    # con SQLite puede consolidar ese diario ajeno y dañar la base buena. La
+    # comprobación se hace sobre una copia, nunca sobre el archivo real.
+    if _wal_is_foreign(database):
+        main = Path(os.path.expanduser(os.fsdecode(os.fspath(database))))
+        _preserve_sidecars(main)
+        _quarantine_orphan_sidecars(database)
+        logger.warning(
+            "Se apartó un -wal que no pertenecía a esta base (verificado sobre "
+            "una copia; p. ej. tras cambiar de rama con la base versionada). "
+            "Copia conservada en .huerfano-N; el archivo principal no cambió"
+        )
+
+    conn = _abrir()
+    try:
+        policy = _configurar(conn)
+        if _has_nonempty_wal(database) and not _database_is_readable(conn):
+            # Red de seguridad para un diario heredado sin huella anotada.
+            main = Path(os.path.expanduser(os.fsdecode(os.fspath(database))))
+            _preserve_sidecars(main)
+            conn.close()
+            _quarantine_orphan_sidecars(database)
+            conn = _abrir()
+            policy = _configurar(conn)
+            if not _database_is_readable(conn):
+                raise SQLiteDatabaseCorruptError(
+                    "La base no se puede leer ni siquiera apartando el -wal "
+                    "heredado. No se modificó el archivo principal. Restaure "
+                    "una copia de seguridad."
+                )
+            logger.warning("Se apartó un -wal heredado; la base siguió intacta")
+        _record_main_signature(database)
     except BaseException:
         conn.close()
         raise
