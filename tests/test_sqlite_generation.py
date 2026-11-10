@@ -1,5 +1,7 @@
 """Detección de sustitución de DB con conexiones abiertas, solo en fixtures temporales."""
 
+import subprocess
+import sys
 import os
 import shutil
 from pathlib import Path
@@ -537,6 +539,9 @@ def test_checkpoint_cooperativo_no_es_un_cambio_no_atestiguado(tmp_path, monkeyp
 
 
 def test_reuso_de_wal_tras_checkpoint_no_oculta_commit_raw(tmp_path, monkeypatch):
+    # Política cerrada: tras un checkpoint externo el principal cambia y el
+    # motor pide confirmación explícita antes de reabrir.
+    monkeypatch.setenv("BIORAG_SQLITE_FORCE_OPEN", "1")
     """Regresión de docs/auditoria_pr13_reuso_wal_68e4151.md.
 
     Tras un checkpoint PASSIVE el WAL conserva su tamaño y los commits reutilizan
@@ -711,6 +716,9 @@ def test_alteracion_in_place_de_tamano_constante_se_detecta(tmp_path, monkeypatc
 
 
 def test_checkpoint_raw_sin_cambio_de_tamano_se_detecta(tmp_path, monkeypatch):
+    # Política cerrada: tras un checkpoint externo el principal cambia y el
+    # motor pide confirmación explícita antes de reabrir.
+    monkeypatch.setenv("BIORAG_SQLITE_FORCE_OPEN", "1")
     """Regresión de docs/auditoria_pr13_d5c3834.md, caso 2.
 
     Un checkpoint PASSIVE ejecutado por un cliente sin protocolo puede mover
@@ -964,3 +972,199 @@ def test_el_principal_cambia_tanto_en_mantenimiento_legitimo_como_en_sustitucion
         "una operación legítima también cambia el tamaño del principal, así que "
         "ese cambio no distingue una sustitución de un mantenimiento normal"
     )
+
+
+def test_caida_con_wal_vivo_recupera_los_datos(tmp_path, monkeypatch):
+    """Escenario 1 de la auditora: caída del proceso.
+
+    Tras una caída el `-wal` es de ESTA base: contiene commits propios que aún
+    no se consolidaron. La capa no debe impedir que SQLite los aplique, porque
+    impedirlo sería perder esos datos. Se mata un proceso real (no se cierran
+    conexiones a mano) para que la prueba sea una caída de verdad.
+    """
+    monkeypatch.setattr(sqlite_runtime, "_effective_sqlite_version", lambda: (3, 51, 3))
+    db_path = tmp_path / "caida.db"
+    repo = Path(__file__).resolve().parent.parent
+
+    cerebro = SQLiteMemoryBioRAG(str(db_path))
+    try:
+        cerebro.cursor.execute("CREATE TABLE t (id INTEGER PRIMARY KEY, v TEXT)")
+        cerebro.cursor.execute("INSERT INTO t VALUES (1, 'antes')")
+        cerebro.conn.commit()
+    finally:
+        cerebro.cerrar_sistema()
+
+    guion = f"""
+import sys, time
+sys.path.insert(0, {str(repo)!r})
+import core.sqlite_runtime as rt
+rt._effective_sqlite_version = lambda: (3, 51, 3)  # entorno de pruebas
+from core.memory_store import SQLiteMemoryBioRAG
+c = SQLiteMemoryBioRAG({str(db_path)!r})
+c.cursor.execute("INSERT INTO t VALUES (2, 'sin_consolidar')")
+c.conn.commit()
+print("LISTO", flush=True)
+time.sleep(60)
+"""
+    proceso = subprocess.Popen(
+        [sys.executable, "-c", guion],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+    )
+    try:
+        salida = proceso.stdout.readline().strip()
+        if salida != "LISTO":
+            raise AssertionError("hijo falló: " + proceso.stderr.read()[:3000])
+        assert Path(str(db_path) + "-wal").stat().st_size > 0
+    finally:
+        proceso.kill()  # caída abrupta: sin consolidar, sin cerrar
+        proceso.wait(timeout=30)
+
+    assert Path(str(db_path) + "-wal").stat().st_size > 0, (
+        "la caída debe dejar un WAL con datos pendientes"
+    )
+
+    reabierto = SQLiteMemoryBioRAG(str(db_path))
+    try:
+        assert reabierto.conn.execute("SELECT COUNT(*) FROM t").fetchone()[0] == 2, (
+            "los datos del proceso caído deben recuperarse"
+        )
+        assert reabierto.conn.execute("PRAGMA integrity_check").fetchone()[0] == "ok"
+    finally:
+        reabierto.cerrar_sistema()
+
+
+def test_wal_ajeno_tras_cambio_de_rama_no_se_aplica(tmp_path, monkeypatch):
+    """Escenario 2: el agente seguía abierto al cambiar de rama.
+
+    Es el caso que originó todo esto. El `-wal` de la rama anterior no
+    pertenece al principal actual: la capa lo detecta sin abrir el par y
+    rechaza, conservando los archivos intactos.
+    """
+    monkeypatch.setattr(sqlite_runtime, "_effective_sqlite_version", lambda: (3, 51, 3))
+    principal = tmp_path / "principal.db"
+
+    cerebro = SQLiteMemoryBioRAG(str(principal))
+    try:
+        cerebro.cursor.execute("CREATE TABLE t (id INTEGER PRIMARY KEY, v TEXT)")
+        cerebro.cursor.execute("INSERT INTO t VALUES (1, 'branch_B')")
+        cerebro.conn.commit()
+    finally:
+        cerebro.cerrar_sistema()
+
+    otra = tmp_path / "otra.db"
+    shutil.copyfile(principal, otra)
+    conn = sqlite3.connect(otra)
+    try:
+        conn.execute("PRAGMA journal_mode=WAL")
+        conn.execute("UPDATE t SET v='branch_A' WHERE id=1")
+        conn.commit()
+        wal_bytes = Path(str(otra) + "-wal").read_bytes()
+        shm_bytes = Path(str(otra) + "-shm").read_bytes()
+    finally:
+        conn.close()
+
+    for suffix in ("-wal", "-shm"):
+        leftover = Path(str(principal) + suffix)
+        if leftover.exists():
+            leftover.unlink()
+    (tmp_path / "principal.db-wal").write_bytes(wal_bytes)
+    (tmp_path / "principal.db-shm").write_bytes(shm_bytes)
+
+    db_antes = principal.read_bytes()
+    with pytest.raises(sqlite_runtime.SQLiteSidecarConflictError):
+        SQLiteMemoryBioRAG(str(principal))
+
+    assert principal.read_bytes() == db_antes, "el principal no debe cambiar"
+    assert (tmp_path / "principal.db-wal").exists(), "el -wal no debe moverse"
+    assert list(tmp_path.glob("*.conflicto.json")), "debe quedar constancia"
+
+
+def test_consolidacion_imposible_no_rompe_el_cierre(tmp_path, monkeypatch):
+    """Escenario 3: no se puede completar la consolidación al cerrar."""
+    monkeypatch.setattr(sqlite_runtime, "_effective_sqlite_version", lambda: (3, 51, 3))
+    db_path = tmp_path / "solo_lectura.db"
+
+    cerebro = SQLiteMemoryBioRAG(str(db_path))
+    try:
+        cerebro.cursor.execute("CREATE TABLE t (v TEXT)")
+        cerebro.cursor.execute("INSERT INTO t VALUES ('dato')")
+        cerebro.conn.commit()
+    finally:
+        os.chmod(db_path, 0o444)
+        try:
+            cerebro.cerrar_sistema()  # no debe lanzar
+        finally:
+            os.chmod(db_path, 0o644)
+
+    comprobacion = sqlite3.connect(db_path)
+    try:
+        assert comprobacion.execute("SELECT COUNT(*) FROM t").fetchone()[0] == 1
+    finally:
+        comprobacion.close()
+
+
+def test_la_capa_se_puede_desactivar(tmp_path, monkeypatch):
+    """Arquitectura: la protección es sustituible y se apaga sin tocar código."""
+    monkeypatch.setattr(sqlite_runtime, "_effective_sqlite_version", lambda: (3, 51, 3))
+    db_path = tmp_path / "apagada.db"
+
+    cerebro = SQLiteMemoryBioRAG(str(db_path))
+    try:
+        cerebro.cursor.execute("CREATE TABLE t (v TEXT)")
+        cerebro.cursor.execute("INSERT INTO t VALUES ('dato')")
+        cerebro.conn.commit()
+    finally:
+        cerebro.cerrar_sistema()
+
+    monkeypatch.setenv("BIORAG_SQLITE_GUARD", "0")
+    assert sqlite_runtime.guard_enabled() is False
+
+    # Con la capa apagada no se consulta el estado del par: abre directo.
+    conn = sqlite_runtime.open_writer(db_path, consumer="sin_capa")
+    try:
+        assert conn.execute("SELECT COUNT(*) FROM t").fetchone()[0] == 1
+    finally:
+        conn.close()
+
+    monkeypatch.setenv("BIORAG_SQLITE_GUARD", "1")
+    assert sqlite_runtime.guard_enabled() is True
+
+
+def test_force_open_es_la_via_de_escape_autorizada(tmp_path, monkeypatch):
+    """La recuperación no es automática: requiere autorización explícita."""
+    monkeypatch.setattr(sqlite_runtime, "_effective_sqlite_version", lambda: (3, 51, 3))
+    principal = tmp_path / "forzada.db"
+
+    cerebro = SQLiteMemoryBioRAG(str(principal))
+    try:
+        cerebro.cursor.execute("CREATE TABLE t (id INTEGER PRIMARY KEY, v TEXT)")
+        cerebro.cursor.execute("INSERT INTO t VALUES (1, 'original')")
+        cerebro.conn.commit()
+    finally:
+        cerebro.cerrar_sistema()
+
+    otra = tmp_path / "o.db"
+    shutil.copyfile(principal, otra)
+    conn = sqlite3.connect(otra)
+    try:
+        conn.execute("PRAGMA journal_mode=WAL")
+        conn.execute("UPDATE t SET v='ajeno' WHERE id=1")
+        conn.commit()
+        wal_bytes = Path(str(otra) + "-wal").read_bytes()
+    finally:
+        conn.close()
+    (tmp_path / "forzada.db-wal").write_bytes(wal_bytes)
+
+    with pytest.raises(sqlite_runtime.SQLiteSidecarConflictError):
+        sqlite_runtime.open_writer(principal)
+
+    # Autorización explícita del operador: abre y deja constancia.
+    monkeypatch.setenv("BIORAG_SQLITE_FORCE_OPEN", "1")
+    conn = sqlite_runtime.open_writer(principal, consumer="forzada")
+    try:
+        conn.execute("SELECT COUNT(*) FROM t").fetchone()
+    finally:
+        conn.close()
+    assert list(tmp_path.glob("*.conflicto.json"))

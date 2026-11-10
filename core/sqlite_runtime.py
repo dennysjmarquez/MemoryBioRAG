@@ -13,6 +13,7 @@ import re
 import sqlite3
 import threading
 import tempfile
+import time
 from contextlib import contextmanager
 from dataclasses import dataclass
 from pathlib import Path
@@ -25,7 +26,40 @@ logger = logging.getLogger("BioRAG.SQLiteRuntime")
 # Releases con corrección publicada por SQLite para el WAL-reset bug.
 _FIRST_WAL_RELEASE = (3, 7, 0)
 _DEFAULT_BUSY_TIMEOUT_MS = 30_000
+
+# Interruptor de la capa de protección del par SQLite. Se puede desactivar sin
+# tocar código: `BIORAG_SQLITE_GUARD=0`. Al desactivarla, el motor abre siempre
+# (comportamiento de un cliente SQLite normal) y deja de consolidar al cerrar.
+_GUARD_ENV = "BIORAG_SQLITE_GUARD"
+_FORCE_OPEN_ENV = "BIORAG_SQLITE_FORCE_OPEN"
+
+
+def guard_enabled() -> bool:
+    """¿Está activa la capa de protección del par SQLite?"""
+    return (os.environ.get(_GUARD_ENV, "1") or "1").strip().lower() not in {
+        "0", "false", "no", "off",
+    }
+
+
+def force_open_authorized() -> bool:
+    """¿El operador autorizó explícitamente abrir un par no verificado?"""
+    return (os.environ.get(_FORCE_OPEN_ENV, "0") or "0").strip().lower() in {
+        "1", "true", "yes", "on",
+    }
 _MAX_BUSY_TIMEOUT_MS = 300_000
+
+
+class SQLiteSidecarConflictError(sqlite3.OperationalError):
+    """No se puede probar que el `-wal` presente pertenezca a este archivo.
+
+    Se lanza ANTES de abrir el par real, porque abrir con un diario ajeno
+    presente puede hacer que SQLite lo aplique y la base termine con datos de
+    otra versión. Nunca se mueve, renombra ni borra nada: la recuperación es
+    una decisión explícita del operador.
+
+    Para continuar hay una autorización explícita:
+    `BIORAG_SQLITE_FORCE_OPEN=1` (se registra en el log y reanota el estado).
+    """
 
 
 class UnsafeSQLiteJournalModeError(sqlite3.OperationalError):
@@ -598,6 +632,11 @@ class _TrackedSQLiteConnection(sqlite3.Connection):
             self._biorag_pending_write = False
             self._assert_no_foreign_commit(data_version)
             publish()
+            # Anotar el par tras cada commit propio: si el proceso se cae
+            # después, la próxima apertura puede distinguir un diario nuevo
+            # legítimo de uno heredado comparando el principal.
+            if guard_enabled():
+                record_pair_state(self._biorag_database)
         return result
 
     def rollback(self):
@@ -744,6 +783,205 @@ def configure_writer(
     return SQLiteWriterRuntime(version, source_id, actual, vulnerable, transition_applied)
 
 
+_PAIR_STATE_SUFFIX = ".biorag-pair-state"
+
+
+def _has_nonempty_wal(database) -> bool:
+    value = os.fsdecode(os.fspath(database))
+    if _is_memory_database(value) or value.startswith("file:"):
+        return False
+    try:
+        return os.path.getsize(os.path.expanduser(value) + "-wal") > 0
+    except OSError:
+        return False
+
+
+def _pair_state_path(database) -> str | None:
+    value = os.fsdecode(os.fspath(database))
+    if _is_memory_database(value) or value.startswith("file:"):
+        return None
+    return os.path.expanduser(value) + _PAIR_STATE_SUFFIX
+
+
+def _file_forensics(path: str) -> dict[str, Any] | None:
+    """Tamaño, fechas y sha256 de un archivo. Solo lectura."""
+    try:
+        st = os.stat(path)
+        with open(path, "rb") as handle:
+            digest = hashlib.sha256()
+            for chunk in iter(lambda: handle.read(1 << 20), b""):
+                digest.update(chunk)
+    except OSError:
+        return None
+    return {
+        "size": int(st.st_size),
+        "mtime_ns": int(getattr(st, "st_mtime_ns", int(st.st_mtime * 1e9))),
+        "sha256": digest.hexdigest(),
+    }
+
+
+def _wal_header_salt(path: str) -> str | None:
+    """Sal (8 bytes) de la cabecera del WAL. Identifica AL DIARIO, no su dueño.
+
+    Se anota solo como dato forense: por sí sola no prueba pertenencia
+    (`docs/auditoria_pr13_039a819.md`)."""
+    try:
+        with open(path, "rb") as handle:
+            head = handle.read(24)
+    except OSError:
+        return None
+    if len(head) < 24 or head[:3] != b"7\x7f\x06":
+        return None
+    return head[16:24].hex()
+
+
+def record_pair_state(database: str | Path) -> None:
+    """Anota el estado del par (principal + diario) cuando es verificable.
+
+    Se escribe en los dos momentos en que el par es coherente por construcción:
+    tras cerrar ordenadamente (el diario queda consolidado y vacío) y tras un
+    commit propio del motor. Nunca se escribe con un diario ajeno presente.
+    """
+    if not guard_enabled():
+        return
+    state_path = _pair_state_path(database)
+    if state_path is None:
+        return
+    value = os.path.expanduser(os.fsdecode(os.fspath(database)))
+    # Evitar hashear el archivo completo si tamaño y fecha no cambiaron.
+    recorded = _recorded_pair_state(database)
+    if recorded is not None:
+        try:
+            st = os.stat(value)
+            if (
+                int(st.st_size) == int(recorded["main"]["size"])
+                and int(st.st_mtime_ns) == int(recorded["main"]["mtime_ns"])
+                and _wal_header_salt(value + "-wal") == recorded.get("wal_salt")
+            ):
+                return
+        except (OSError, KeyError, TypeError, ValueError):
+            pass
+    main = _file_forensics(value)
+    if main is None:
+        return
+    payload = {
+        "main": main,
+        "wal_salt": _wal_header_salt(value + "-wal"),
+        "guard": True,
+        "recorded_at": time.time(),
+    }
+    try:
+        with open(state_path, "w", encoding="ascii") as handle:
+            json.dump(payload, handle)
+            handle.flush()
+            os.fsync(handle.fileno())
+    except OSError:
+        logger.debug("No se pudo anotar el estado del par SQLite")
+
+
+def _recorded_pair_state(database) -> dict[str, Any] | None:
+    state_path = _pair_state_path(database)
+    if state_path is None:
+        return None
+    try:
+        with open(state_path, "r", encoding="ascii") as handle:
+            data = json.loads(handle.read() or "{}")
+    except (OSError, ValueError):
+        return None
+    return data if isinstance(data, dict) and "main" in data else None
+
+
+def _journal_from_header(value: str) -> str | None:
+    """Modo de journal según la cabecera del archivo, sin abrir SQLite."""
+    try:
+        with open(value, "rb") as handle:
+            head = handle.read(100)
+    except OSError:
+        return None
+    if len(head) < 100 or not head.startswith(b"SQLite format 3\x00"):
+        return None
+    return "wal" if head[18] == 2 or head[19] == 2 else "rollback"
+
+
+def _pair_can_be_opened(database) -> bool:
+    """Decide si el par se puede abrir, SIN abrir el par real.
+
+    Orden de comprobaciones (todas de solo lectura sobre los archivos):
+
+    1. Sin `-wal` o con el diario vacío -> se puede abrir. No hay nada que
+       pueda aplicarse; es el estado que deja un cierre ordenado.
+    2. El modo de journal se lee de la cabecera (byte 18/19). Si no es WAL pero
+       hay un `-wal` en disco, ese archivo no corresponde a este principal.
+    3. Con anotación y principal idéntico (sha256) -> se puede abrir. Un diario
+       nuevo entonces viene de una escritura externa legítima.
+    4. Con anotación y principal distinto, o sin anotación -> hay riesgo de
+       aplicar un diario de otra generación. No se puede probar pertenencia:
+       se rechaza y se conserva todo.
+
+    El caso 4 es el precio de la política cerrada: también rechaza algún
+    mantenimiento legítimo que cambie el principal. Es deliberado: preferimos
+    pedir una confirmación a aplicar datos de otra versión.
+    """
+    value = os.path.expanduser(os.fsdecode(os.fspath(database)))
+    wal = value + "-wal"
+    try:
+        wal_size = os.path.getsize(wal)
+    except OSError:
+        return True
+    if wal_size == 0:
+        return True
+
+    journal = _journal_from_header(value)
+    if journal is None:
+        # Cabecera inválida o archivo ausente: no se puede afirmar nada.
+        return False
+    if journal != "wal":
+        return False
+
+    recorded = _recorded_pair_state(value)
+    if recorded is None:
+        return False
+    try:
+        expected = recorded["main"]["sha256"]
+    except (KeyError, TypeError):
+        return False
+    current = _file_forensics(value)
+    if current is None:
+        return False
+    if current["sha256"] == expected:
+        return True
+    # El principal cambió con un diario vivo: no se puede distinguir un
+    # checkpoint legítimo de una sustitución. Se pide confirmación.
+    return False
+
+
+def _save_conflict_forensics(database, **extra) -> str | None:
+    """Deja constancia verificable de lo que había. No mueve ni borra nada."""
+    state_path = _pair_state_path(database)
+    if state_path is None:
+        return None
+    value = os.path.expanduser(os.fsdecode(os.fspath(database)))
+    payload = {
+        "motivo": extra.get("motivo"),
+        "principal": _file_forensics(value),
+        "wal": _file_forensics(value + "-wal"),
+        "shm": _file_forensics(value + "-shm"),
+        "wal_salt": _wal_header_salt(value + "-wal"),
+        "anotado": _recorded_pair_state(value),
+        "detectado_en": time.time(),
+    }
+    target = state_path + ".conflicto.json"
+    try:
+        with open(target, "w", encoding="ascii") as handle:
+            json.dump(payload, handle, indent=2)
+            handle.flush()
+            os.fsync(handle.fileno())
+    except OSError:
+        logger.exception("No se pudo dejar constancia del conflicto de sidecars")
+        return None
+    return target
+
+
 def open_writer(
     database: str | Path,
     *,
@@ -761,6 +999,31 @@ def open_writer(
     database_existed = _database_existed_before_open(database)
     if "factory" in connect_kwargs:
         raise TypeError("open_writer administra la subclase de conexión")
+
+    # Comprobación del par ANTES de abrir: abrir con un `-wal` de otra
+    # generación presente puede hacer que SQLite lo aplique sobre el archivo
+    # bueno. Se decide con los archivos, sin abrirlos con SQLite.
+    if guard_enabled() and database_existed and not _pair_can_be_opened(database):
+        if force_open_authorized():
+            forense = _save_conflict_forensics(database, motivo="apertura_forzada")
+            logger.warning(
+                "Apertura forzada con un -wal no verificado (%s); constancia en %s",
+                consumer, forense,
+            )
+        else:
+            forense = _save_conflict_forensics(database, motivo="par_no_verificado")
+            raise SQLiteSidecarConflictError(
+                "BioRAG no abrió la base porque hay un -wal que no se puede "
+                "atribuir con certeza a este archivo principal (por ejemplo, "
+                "tras cambiar de rama con la base versionada, tras una caída "
+                "del proceso o si quedó un cliente antiguo abierto). Abrirla "
+                "así podría aplicar datos de otra versión sobre los actuales. "
+                "No se movió, renombró ni borró ningún archivo; hay una "
+                f"constancia con los sha256 en {forense}. Para revisar y "
+                "decidir: docs/sqlite_par_no_verificado.md. Para continuar "
+                "bajo tu responsabilidad: BIORAG_SQLITE_FORCE_OPEN=1."
+            )
+
     conn = sqlite3.connect(
         database, timeout=timeout, factory=_TrackedSQLiteConnection,
         **connect_kwargs,
@@ -785,6 +1048,9 @@ def open_writer(
         policy.journal_mode, busy_timeout_ms, policy.wal_reset_vulnerable,
         policy.transition_applied, _database_route_id(database),
     )
+    # Con el diario vacío el par es coherente por construcción: se anota.
+    if guard_enabled() and not _has_nonempty_wal(database):
+        record_pair_state(database)
     return conn
 
 

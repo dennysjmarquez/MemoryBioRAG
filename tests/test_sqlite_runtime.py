@@ -185,6 +185,12 @@ def test_runtime_vulnerable_no_degrada_wal_si_otra_conexion_sigue_abierta(
     owner.execute("INSERT INTO t VALUES ('intacto')")
     owner.commit()
 
+    # El `-wal` vivo de otro cliente es, por politica, un par no verificado:
+    # esta prueba mide el rechazo por modo journal, asi que se autoriza la
+    # apertura para llegar a esa comprobacion (es el coste asumido de fallar
+    # cerrado, ver docs/sqlite_par_no_verificado.md).
+    monkeypatch.setenv("BIORAG_SQLITE_FORCE_OPEN", "1")
+
     _usar_runtime(monkeypatch, (3, 45, 1))
     try:
         with pytest.raises(sqlite_runtime.UnsafeSQLiteJournalModeError):
