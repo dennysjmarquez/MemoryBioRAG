@@ -495,13 +495,13 @@ class SQLiteMemoryBioRAG(metaclass=_OperationTrackedMeta):
                 if (
                     cached is not None and cached[0] is connection
                     and cached[2] == data_version and cached[3] == commit_epoch
-                    and probe is not None and cached[1][:3] == probe
+                    and probe is not None
+                    and len(cached) > 5 and cached[5] == probe
                 ):
                     # data_version and epoch unchanged (no foreign commit through
-                    # SQLite) and the main file metadata is identical. A change
-                    # that leaves size, mtime and ctime untouched is not
-                    # expressible without rewriting the file while preserving all
-                    # three, so the full signature cannot add information here.
+                    # SQLite) and neither the main file nor the WAL moved in size,
+                    # inode, mtime or ctime. Covering both files is required: a
+                    # direct edit inside the WAL changes nothing in the main file.
                     return
                 signature = self._file_change_signature()
         except (OSError, sqlite3.Error) as exc:
@@ -512,7 +512,7 @@ class SQLiteMemoryBioRAG(metaclass=_OperationTrackedMeta):
         with self._connection_registry_lock:
             self._connection_snapshots[id(connection)] = (
                 connection, signature, data_version,
-                commit_epoch, committed_signature,
+                commit_epoch, committed_signature, self._cheap_file_probe(),
             )
 
     def _note_cooperative_commit(self, connection):
@@ -521,22 +521,32 @@ class SQLiteMemoryBioRAG(metaclass=_OperationTrackedMeta):
         self._remember_connection_snapshot(connection)
 
     def _cheap_file_probe(self):
-        """Stat-only probe: size, mtime and ctime of the main file.
+        """Stat-only probe over the main file *and* the WAL sidecar.
 
-        Both reverted-regression cases move at least one of these, and none of
-        them requires reading file contents. It is a *necessary* condition, so a
-        match lets the full signature be skipped; a mismatch never decides
-        anything on its own, the full signature still runs.
+        Skips reading file contents, so it is cheap, but it must cover both
+        files: a direct change inside the WAL leaves every main-file field
+        intact (auditoría 4747ca8), so a main-file-only probe reported "nothing
+        changed" while the WAL had been altered.
+
+        The comparison is a *necessary* condition used to skip the expensive
+        digest. It never decides on its own: any mismatch runs the full
+        signature, which is what actually accepts or rejects.
         """
-        try:
-            st = os.stat(self.db_path)
-        except OSError:
-            return None
-        return (
-            int(st.st_size),
-            int(getattr(st, "st_mtime_ns", int(st.st_mtime * 1_000_000_000))),
-            int(getattr(st, "st_ctime_ns", int(st.st_ctime * 1_000_000_000))),
-        )
+        probe = []
+        for path in (self.db_path, self.db_path + "-wal"):
+            try:
+                st = os.stat(path)
+            except OSError:
+                probe.append(None)
+                continue
+            probe.append(
+                (
+                    int(st.st_size),
+                    int(getattr(st, "st_mtime_ns", int(st.st_mtime * 1_000_000_000))),
+                    int(getattr(st, "st_ctime_ns", int(st.st_ctime * 1_000_000_000))),
+                )
+            )
+        return tuple(probe)
 
     def _check_in_place_change(self, connection):
         if (
@@ -566,13 +576,13 @@ class SQLiteMemoryBioRAG(metaclass=_OperationTrackedMeta):
                 if (
                     cached is not None and cached[0] is connection
                     and cached[2] == data_version and cached[3] == commit_epoch
-                    and probe is not None and cached[1][:3] == probe
+                    and probe is not None
+                    and len(cached) > 5 and cached[5] == probe
                 ):
                     # data_version and epoch unchanged (no foreign commit through
-                    # SQLite) and the main file metadata is identical. A change
-                    # that leaves size, mtime and ctime untouched is not
-                    # expressible without rewriting the file while preserving all
-                    # three, so the full signature cannot add information here.
+                    # SQLite) and neither the main file nor the WAL moved in size,
+                    # inode, mtime or ctime. Covering both files is required: a
+                    # direct edit inside the WAL changes nothing in the main file.
                     return
                 signature = self._file_change_signature()
         except (OSError, sqlite3.Error) as exc:
@@ -587,12 +597,12 @@ class SQLiteMemoryBioRAG(metaclass=_OperationTrackedMeta):
             if snapshot is None or snapshot[0] is not connection:
                 self._connection_snapshots[id(connection)] = (
                     connection, signature, data_version,
-                    commit_epoch, committed_signature,
+                    commit_epoch, committed_signature, probe,
                 )
                 return
             (
                 _same_connection, old_signature, old_data_version,
-                old_epoch, _old_committed_signature,
+                old_epoch, _old_committed_signature, *_rest,
             ) = snapshot
             current_epoch = commit_epoch
             changed = signature != old_signature or data_version != old_data_version
@@ -613,7 +623,7 @@ class SQLiteMemoryBioRAG(metaclass=_OperationTrackedMeta):
                 )
             self._connection_snapshots[id(connection)] = (
                 connection, signature, data_version,
-                current_epoch, committed_signature,
+                current_epoch, committed_signature, probe,
             )
 
     def _assert_database_identity(self, connection=None):

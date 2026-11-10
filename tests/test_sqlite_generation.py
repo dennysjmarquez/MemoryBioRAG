@@ -756,3 +756,50 @@ def test_checkpoint_raw_sin_cambio_de_tamano_se_detecta(tmp_path, monkeypatch):
             retained.execute("SELECT COUNT(*) FROM ckpt_size_probe").fetchone()
     finally:
         cerebro.cerrar_sistema()
+
+
+def test_alteracion_directa_del_wal_se_detecta(tmp_path, monkeypatch):
+    """Regresión de docs/auditoria_pr13_4747ca8.md.
+
+    Una alteración directa de un byte del WAL no toca el archivo principal ni
+    data_version. Una sonda barata limitada al archivo principal la dejaba pasar;
+    la sonda debe cubrir también el WAL.
+    """
+    import os
+
+    monkeypatch.setattr(sqlite_runtime, "_effective_sqlite_version", lambda: (3, 51, 3))
+    db_path = tmp_path / "wal_byte.db"
+    cerebro = SQLiteMemoryBioRAG(str(db_path))
+    try:
+        cerebro.cursor.execute("CREATE TABLE wal_byte_probe (value INTEGER, relleno TEXT)")
+        cerebro.cursor.execute("INSERT INTO wal_byte_probe VALUES (1, 'a')")
+        cerebro.conn.commit()
+        retained = cerebro.cursor
+        assert retained.execute("SELECT COUNT(*) FROM wal_byte_probe").fetchone()[0] == 1
+
+        wal_path = tmp_path / "wal_byte.db-wal"
+        wal_stat = os.stat(wal_path)
+        main_stat = os.stat(db_path)
+        digest_before = sqlite_runtime._wal_content_signature(str(db_path))
+
+        with open(wal_path, "r+b") as handle:
+            handle.seek(-20, os.SEEK_END)
+            byte = handle.read(1)
+            handle.seek(-20, os.SEEK_END)
+            handle.write(bytes([byte[0] ^ 0xFF]))
+
+        # El WAL cambia de contenido sin cambiar de tamaño ni de inodo, y el
+        # archivo principal queda intacto.
+        assert sqlite_runtime._wal_content_signature(str(db_path)) != digest_before
+        assert os.stat(wal_path).st_size == wal_stat.st_size
+        assert os.stat(wal_path).st_ino == wal_stat.st_ino
+        assert (
+            os.stat(db_path).st_size,
+            os.stat(db_path).st_mtime_ns,
+            os.stat(db_path).st_ctime_ns,
+        ) == (main_stat.st_size, main_stat.st_mtime_ns, main_stat.st_ctime_ns)
+
+        with pytest.raises(SQLiteDatabaseIdentityChangedError):
+            retained.execute("SELECT COUNT(*) FROM wal_byte_probe").fetchone()
+    finally:
+        cerebro.cerrar_sistema()
