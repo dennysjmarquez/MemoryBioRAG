@@ -1168,3 +1168,49 @@ def test_force_open_es_la_via_de_escape_autorizada(tmp_path, monkeypatch):
     finally:
         conn.close()
     assert list(tmp_path.glob("*.conflicto.json"))
+
+
+def test_la_proteccion_viene_activada_por_defecto(monkeypatch):
+    """Requisito explicito: sin configurar nada, la capa esta encendida.
+
+    Si alguien cambia el default a apagado, esto falla. No se prueba solo
+    `guard_enabled()`: se prueba que la comprobacion del par realmente corre.
+    """
+    monkeypatch.delenv("BIORAG_SQLITE_GUARD", raising=False)
+    monkeypatch.delenv("BIORAG_SQLITE_FORCE_OPEN", raising=False)
+
+    assert sqlite_runtime.guard_enabled() is True
+    assert sqlite_runtime.force_open_authorized() is False
+
+    llamadas = []
+    original = sqlite_runtime._pair_can_be_opened
+
+    def espia(database):
+        llamadas.append(str(database))
+        return original(database)
+
+    monkeypatch.setattr(sqlite_runtime, "_pair_can_be_opened", espia)
+    monkeypatch.setattr(sqlite_runtime, "_effective_sqlite_version", lambda: (3, 51, 3))
+
+    import tempfile
+
+    with tempfile.TemporaryDirectory() as tmp:
+        db_path = os.path.join(tmp, "defecto.db")
+        cerebro = SQLiteMemoryBioRAG(db_path)
+        try:
+            cerebro.cursor.execute("CREATE TABLE t (v TEXT)")
+            cerebro.conn.commit()
+        finally:
+            cerebro.cerrar_sistema()
+
+        assert os.path.exists(db_path), "la base debe existir para reabrirla"
+
+        # Segunda apertura: la base ya existe, asi que la comprobacion del par
+        # tiene que ejecutarse sin que nadie configure nada.
+        cerebro = SQLiteMemoryBioRAG(db_path)
+        try:
+            cerebro.cursor.execute("SELECT COUNT(*) FROM t").fetchone()
+        finally:
+            cerebro.cerrar_sistema()
+
+    assert llamadas, "con el default, la comprobacion del par debe ejecutarse"
