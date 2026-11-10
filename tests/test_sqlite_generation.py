@@ -672,3 +672,87 @@ def test_lectura_sin_cambios_no_rehashea_el_wal(tmp_path, monkeypatch):
         assert elapsed < 0.5, f"lecturas sin cambio demasiado costosas: {elapsed:.3f}s"
     finally:
         cerebro.cerrar_sistema()
+
+
+def test_alteracion_in_place_de_tamano_constante_se_detecta(tmp_path, monkeypatch):
+    """Regresión de docs/auditoria_pr13_d5c3834.md, caso 1.
+
+    Un fast path basado en data_version, época y tamaño del archivo principal
+    dejaba pasar una reescritura externa con el mismo tamaño e inodo: solo
+    cambian mtime/ctime y el contenido. La firma completa debe detectarlo.
+    """
+    import os
+
+    monkeypatch.setattr(sqlite_runtime, "_effective_sqlite_version", lambda: (3, 45, 1))
+    db_path = tmp_path / "in_place_same_size.db"
+    cerebro = SQLiteMemoryBioRAG(str(db_path))
+    try:
+        cerebro.cursor.execute("CREATE TABLE tamano_probe (value TEXT)")
+        cerebro.cursor.execute("INSERT INTO tamano_probe VALUES ('AAAA')")
+        cerebro.conn.commit()
+        retained = cerebro.cursor
+        assert retained.execute("SELECT value FROM tamano_probe").fetchone() == ("AAAA",)
+
+        data = db_path.read_bytes()
+        offset = data.find(b"AAAA")
+        assert offset >= 0
+        st = os.stat(db_path)
+        with open(db_path, "r+b") as handle:
+            handle.write(data[:offset] + b"BBBB" + data[offset + 4:])
+        os.utime(db_path, ns=(st.st_atime_ns, st.st_mtime_ns + 5_000_000_000))
+        assert os.stat(db_path).st_size == st.st_size
+        assert os.stat(db_path).st_ino == st.st_ino
+
+        with pytest.raises(SQLiteDatabaseIdentityChangedError):
+            retained.execute("SELECT value FROM tamano_probe").fetchone()
+    finally:
+        cerebro.cerrar_sistema()
+
+
+def test_checkpoint_raw_sin_cambio_de_tamano_se_detecta(tmp_path, monkeypatch):
+    """Regresión de docs/auditoria_pr13_d5c3834.md, caso 2.
+
+    Un checkpoint PASSIVE ejecutado por un cliente sin protocolo puede mover
+    páginas del WAL al archivo principal sin cambiar su tamaño ni data_version.
+    Debe seguir fallando cerrado.
+    """
+    import os
+
+    from core.sqlite_runtime import open_writer
+
+    monkeypatch.setattr(sqlite_runtime, "_effective_sqlite_version", lambda: (3, 51, 3))
+    db_path = tmp_path / "raw_ckpt_same_size.db"
+    cerebro = SQLiteMemoryBioRAG(str(db_path))
+    try:
+        cerebro.cursor.execute("CREATE TABLE ckpt_size_probe (value INTEGER, relleno TEXT)")
+        cerebro.cursor.execute("INSERT INTO ckpt_size_probe VALUES (1, 'a')")
+        cerebro.conn.commit()
+
+        peer = open_writer(db_path, consumer="ckpt_size_setup")
+        try:
+            peer.execute("PRAGMA wal_checkpoint(PASSIVE)").fetchone()
+        finally:
+            peer.close()
+
+        peer = open_writer(db_path, consumer="ckpt_size_update")
+        try:
+            peer.execute("UPDATE ckpt_size_probe SET relleno='b' WHERE value=1")
+            peer.commit()
+        finally:
+            peer.close()
+
+        retained = cerebro.cursor
+        retained.execute("SELECT COUNT(*) FROM ckpt_size_probe").fetchone()
+        size_before = os.stat(db_path).st_size
+
+        raw = sqlite3.connect(db_path)
+        try:
+            raw.execute("PRAGMA wal_checkpoint(PASSIVE)").fetchone()
+        finally:
+            raw.close()
+        assert os.stat(db_path).st_size == size_before
+
+        with pytest.raises(SQLiteDatabaseIdentityChangedError):
+            retained.execute("SELECT COUNT(*) FROM ckpt_size_probe").fetchone()
+    finally:
+        cerebro.cerrar_sistema()

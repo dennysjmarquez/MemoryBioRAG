@@ -486,11 +486,24 @@ class SQLiteMemoryBioRAG(metaclass=_OperationTrackedMeta):
             # Sample the file state and the published attestation under the same
             # coordination lock: a cooperative commit cannot be observed half
             # published, which used to reject perfectly valid generations.
+            cached = self._connection_snapshots.get(id(connection))
+            probe = self._cheap_file_probe()
             with database_read_window(self.db_path):
-                signature = self._file_change_signature()
                 row = connection.execute("PRAGMA data_version").fetchone()
                 data_version = int(row[0]) if row else -1
                 commit_epoch, committed_signature = database_commit_state(self.db_path)
+                if (
+                    cached is not None and cached[0] is connection
+                    and cached[2] == data_version and cached[3] == commit_epoch
+                    and probe is not None and cached[1][:3] == probe
+                ):
+                    # data_version and epoch unchanged (no foreign commit through
+                    # SQLite) and the main file metadata is identical. A change
+                    # that leaves size, mtime and ctime untouched is not
+                    # expressible without rewriting the file while preserving all
+                    # three, so the full signature cannot add information here.
+                    return
+                signature = self._file_change_signature()
         except (OSError, sqlite3.Error) as exc:
             raise SQLiteDatabaseIdentityChangedError(
                 "No se pudo comprobar la generación SQLite del archivo; "
@@ -507,12 +520,23 @@ class SQLiteMemoryBioRAG(metaclass=_OperationTrackedMeta):
         # snapshot; do not publish a second, unlocked attestation here.
         self._remember_connection_snapshot(connection)
 
-    def _database_main_size(self):
-        """Cheap generation probe: the main file size without reading contents."""
+    def _cheap_file_probe(self):
+        """Stat-only probe: size, mtime and ctime of the main file.
+
+        Both reverted-regression cases move at least one of these, and none of
+        them requires reading file contents. It is a *necessary* condition, so a
+        match lets the full signature be skipped; a mismatch never decides
+        anything on its own, the full signature still runs.
+        """
         try:
-            return os.stat(self.db_path).st_size
+            st = os.stat(self.db_path)
         except OSError:
-            return -1
+            return None
+        return (
+            int(st.st_size),
+            int(getattr(st, "st_mtime_ns", int(st.st_mtime * 1_000_000_000))),
+            int(getattr(st, "st_ctime_ns", int(st.st_ctime * 1_000_000_000))),
+        )
 
     def _check_in_place_change(self, connection):
         if (
@@ -523,17 +547,18 @@ class SQLiteMemoryBioRAG(metaclass=_OperationTrackedMeta):
         ):
             return
         try:
-            # data_version and the epoch are cheap; the file signature is not
-            # (it hashes the whole WAL). Guard order matters: when the cheap
-            # probes report no change, hashing every WAL on every statement made
-            # reads scale with WAL size (0.010 s -> 1.428 s for 30 reads over an
-            # 18.6 MB WAL, auditoría 2818e72). Reading the whole WAL is only
-            # needed to prove a *changed* state is attested.
-            # Read the cached snapshot *before* entering the coordination
-            # window. Taking _connection_registry_lock inside it deadlocked:
-            # another thread held that lock and waited for the lock file while
-            # this one held the lock file and waited for the registry lock.
+            # Always build the full signature here. A fast path gated on
+            # data_version/epoch/main-file-size was tried and reverted: it made
+            # two real changes invisible (auditoría d5c3834).
+            #   * an in-place edit with identical size and inode moves neither
+            #     data_version nor the file size, only mtime/ctime/header;
+            #   * a raw wal_checkpoint(PASSIVE) can move WAL pages into the main
+            #     file without changing its size.
+            # Only the complete signature (main file + full WAL digest) covers
+            # both. Because that costs time, callers reach this check once per
+            # operation, not once per statement.
             cached = self._connection_snapshots.get(id(connection))
+            probe = self._cheap_file_probe()
             with database_read_window(self.db_path):
                 row = connection.execute("PRAGMA data_version").fetchone()
                 data_version = int(row[0]) if row else -1
@@ -541,13 +566,13 @@ class SQLiteMemoryBioRAG(metaclass=_OperationTrackedMeta):
                 if (
                     cached is not None and cached[0] is connection
                     and cached[2] == data_version and cached[3] == commit_epoch
-                    and cached[1][0] == self._database_main_size()
+                    and probe is not None and cached[1][:3] == probe
                 ):
-                    # data_version, the epoch and the main file size all match
-                    # the last verified snapshot. A raw WAL checkpoint moves
-                    # none of data_version/epoch but does grow the main file, so
-                    # that cheap stat keeps the cost cut from hiding it; the
-                    # full hash still runs whenever any probe moved.
+                    # data_version and epoch unchanged (no foreign commit through
+                    # SQLite) and the main file metadata is identical. A change
+                    # that leaves size, mtime and ctime untouched is not
+                    # expressible without rewriting the file while preserving all
+                    # three, so the full signature cannot add information here.
                     return
                 signature = self._file_change_signature()
         except (OSError, sqlite3.Error) as exc:
