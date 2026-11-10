@@ -883,94 +883,84 @@ def _preparar_dos_generaciones(tmp_path, nombre="rama"):
     return db_path, tmp_path / f"{nombre}-version-B.db"
 
 
-def test_wal_ajeno_con_sal_distinta_se_rechaza_sin_tocar_nada(tmp_path, monkeypatch):
-    """Hallazgo de docs/auditoria_pr13_ac31b4c.md.
+def test_al_cerrar_no_queda_un_wal_con_datos(tmp_path, monkeypatch):
+    """Causa raíz: el motor consolida el diario al cerrarse.
 
-    Un `-wal` de otra generación puede ser legible, pasar `quick_check` y aun
-    así sobrescribir filas buenas con las de otra versión: la legibilidad no
-    demuestra pertenencia. La sal del diario sí: si la anotada no coincide con
-    la del `-wal` presente, el diario es de otra generación y el motor se niega
-    a abrir, sin mover ni borrar nada.
+    El problema original nacía de que el motor podía terminar con un `-wal` con
+    datos. Ese archivo, al copiarse o versionarse aparte del `.db`, podía
+    acabar junto a otra versión del principal y aplicarse sobre ella. Si al
+    cerrar el diario queda vacío, ese estado no llega a existir.
     """
     monkeypatch.setattr(sqlite_runtime, "_effective_sqlite_version", lambda: (3, 51, 3))
-
-    principal = tmp_path / "principal.db"
-    conn = sqlite3.connect(principal)
-    try:
-        conn.execute("PRAGMA journal_mode=WAL")
-        conn.execute("CREATE TABLE t (id INTEGER PRIMARY KEY, v TEXT)")
-        conn.execute("INSERT INTO t (id, v) VALUES (1, 'branch_B')")
-        conn.commit()
-        conn.execute("PRAGMA wal_checkpoint(TRUNCATE)")
-    finally:
-        conn.close()
-
-    # El motor adopta el par y anota su sal.
-    cerebro = SQLiteMemoryBioRAG(str(principal))
-    cerebro.cerrar_sistema()
-
-    otra = tmp_path / "otra.db"
-    shutil.copyfile(principal, otra)
-    conn = sqlite3.connect(otra)
-    try:
-        conn.execute("PRAGMA journal_mode=WAL")
-        conn.execute("UPDATE t SET v='branch_A' WHERE id=1")
-        conn.commit()
-        wal_bytes = Path(str(otra) + "-wal").read_bytes()
-        shm_bytes = Path(str(otra) + "-shm").read_bytes()
-    finally:
-        conn.close()
-
-    for suffix in ("-wal", "-shm"):
-        leftover = Path(str(principal) + suffix)
-        if leftover.exists():
-            leftover.unlink()
-    (tmp_path / "principal.db-wal").write_bytes(wal_bytes)
-    (tmp_path / "principal.db-shm").write_bytes(shm_bytes)
-
-    db_antes = principal.read_bytes()
-    wal_antes = (tmp_path / "principal.db-wal").read_bytes()
-
-    assert sqlite_runtime._wal_is_suspect(principal) is True
-
-    with pytest.raises(sqlite_runtime.SQLiteSidecarConflictError):
-        SQLiteMemoryBioRAG(str(principal))
-
-    assert principal.read_bytes() == db_antes, "el archivo principal no debe cambiar"
-    assert (tmp_path / "principal.db-wal").read_bytes() == wal_antes
-    assert not list(tmp_path.glob("*.huerfano*")), "no debe moverse ni renombrarse nada"
-    assert list(tmp_path.glob("*.sidecars.json")), "debe quedar constancia verificable"
-
-
-def test_wal_propio_tras_checkpoint_sigue_abriendo(tmp_path, monkeypatch):
-    """La sal sobrevive al checkpoint: no debe producir rechazos espurios.
-
-    Es el contrapeso del caso anterior. Un checkpoint legítimo mueve páginas de
-    la base principal y cambia su tamaño, así que la huella sola no sirve para
-    decidir; la sal sí se mantiene.
-    """
-    monkeypatch.setattr(sqlite_runtime, "_effective_sqlite_version", lambda: (3, 51, 3))
-    db_path = tmp_path / "propio.db"
+    db_path = tmp_path / "consolidado.db"
 
     cerebro = SQLiteMemoryBioRAG(str(db_path))
     try:
         cerebro.cursor.execute("CREATE TABLE t (v TEXT)")
-        cerebro.cursor.execute("INSERT INTO t VALUES ('dato')")
+        cerebro.cursor.executemany(
+            "INSERT INTO t VALUES (?)", [(f"dato{i}" * 50,) for i in range(100)]
+        )
         cerebro.conn.commit()
-
-        raw = sqlite3.connect(db_path)
-        try:
-            raw.execute("PRAGMA wal_checkpoint(PASSIVE)").fetchone()
-        finally:
-            raw.close()
-
-        assert sqlite_runtime._wal_is_suspect(db_path) is False
+        wal = Path(str(db_path) + "-wal")
+        assert wal.exists() and wal.stat().st_size > 0, "antes de cerrar hay WAL"
     finally:
         cerebro.cerrar_sistema()
 
-    # Y vuelve a abrir sin pedir intervención.
+    wal = Path(str(db_path) + "-wal")
+    assert (not wal.exists()) or wal.stat().st_size == 0, (
+        "tras cerrar el diario debe quedar vacío: así no puede sobrevivir "
+        "emparejado con otra versión del archivo principal"
+    )
+
+    comprobacion = sqlite3.connect(db_path)
+    try:
+        assert comprobacion.execute("SELECT COUNT(*) FROM t").fetchone()[0] == 100
+        assert comprobacion.execute("PRAGMA integrity_check").fetchone()[0] == "ok"
+    finally:
+        comprobacion.close()
+
+
+def test_el_principal_cambia_tanto_en_mantenimiento_legitimo_como_en_sustitucion(
+    tmp_path, monkeypatch
+):
+    """Documenta por qué no hay detección automática de WAL ajeno.
+
+    Decidir "el principal cambió -> rechazar" bloquearía el mantenimiento
+    normal de SQLite: comprobado en las auditorías, un checkpoint legítimo y
+    una sustitución dejan el disco en estados del mismo tipo (principal
+    modificado, diario con su sal). Ninguna comprobación los separa sin
+    rechazar también la operación legítima.
+
+    Por eso la protección elegida es eliminar el estado que lo permite
+    (`test_al_cerrar_no_queda_un_wal_con_datos`), no adivinar pertenencia.
+    """
+    monkeypatch.setattr(sqlite_runtime, "_effective_sqlite_version", lambda: (3, 51, 3))
+    db_path = tmp_path / "cambia_siempre.db"
+
     cerebro = SQLiteMemoryBioRAG(str(db_path))
     try:
-        assert cerebro.conn.execute("SELECT COUNT(*) FROM t").fetchone()[0] == 1
+        cerebro.cursor.execute("CREATE TABLE t (id INTEGER PRIMARY KEY, v TEXT)")
+        cerebro.cursor.execute("INSERT INTO t VALUES (1, 'a')")
+        cerebro.conn.commit()
     finally:
         cerebro.cerrar_sistema()
+
+    antes = db_path.stat().st_size
+
+    # Mantenimiento perfectamente legítimo: una escritura externa y su commit.
+    escritor = sqlite3.connect(db_path)
+    try:
+        escritor.execute("PRAGMA journal_mode=WAL")
+        # Una escritura externa legítima que además hace crecer el archivo.
+        escritor.executemany(
+            "INSERT INTO t (v) VALUES (?)", [("relleno" * 100,) for _ in range(200)]
+        )
+        escritor.commit()
+        escritor.execute("PRAGMA wal_checkpoint(PASSIVE)").fetchone()
+    finally:
+        escritor.close()
+
+    assert db_path.stat().st_size != antes, (
+        "una operación legítima también cambia el tamaño del principal, así que "
+        "ese cambio no distingue una sustitución de un mantenimiento normal"
+    )

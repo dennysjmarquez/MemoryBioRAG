@@ -1327,6 +1327,29 @@ class SQLiteMemoryBioRAG(metaclass=_OperationTrackedMeta):
     def buscar_en_cuarentena(self, frase: str, limite: int = 3):
         return quarantine.buscar_en_cuarentena(self, frase=frase, limite=limite)
 
+    def _consolidar_antes_de_cerrar(self, connections):
+        """Deja el diario vacío para que el `.db` sea autosuficiente al cerrar.
+
+        Motivo: si el motor termina con un `-wal` con datos y ese archivo se
+        copia, se versiona o se sincroniza aparte del `.db`, el diario puede
+        acabar junto a otra versión del archivo principal. Al reabrir, SQLite
+        aplica ese diario ajeno y la base termina con datos que no le
+        corresponden. Consolidar al cerrar hace que ese estado no llegue a
+        existir.
+
+        Es best-effort y nunca impide cerrar: si falla (base en solo lectura,
+        otro proceso trabajando, plataforma sin soporte) se registra y se sigue.
+        """
+        if getattr(self, "_is_memory_database", False):
+            return
+        for conn in connections:
+            try:
+                if getattr(conn, "in_transaction", False):
+                    continue
+                conn.execute("PRAGMA wal_checkpoint(TRUNCATE)").fetchall()
+            except sqlite3.Error as exc:
+                logger.debug("No se pudo consolidar el WAL al cerrar: %s", exc)
+
     def cerrar_sistema(self):
         """Espera operaciones activas y cierra todas las conexiones de la instancia."""
         if getattr(self, "_persistente", False):
@@ -1349,6 +1372,7 @@ class SQLiteMemoryBioRAG(metaclass=_OperationTrackedMeta):
                 self._closed = True
 
         try:
+            self._consolidar_antes_de_cerrar(connections)
             for conn in connections:
                 try:
                     conn.close()
