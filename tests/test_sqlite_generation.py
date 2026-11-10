@@ -803,3 +803,49 @@ def test_alteracion_directa_del_wal_se_detecta(tmp_path, monkeypatch):
             retained.execute("SELECT COUNT(*) FROM wal_byte_probe").fetchone()
     finally:
         cerebro.cerrar_sistema()
+
+
+def test_cambio_durante_la_instantanea_no_se_bendice(tmp_path, monkeypatch):
+    """Regresión de docs/auditoria_pr13_41a98a3.md.
+
+    Un cambio directo del WAL intercalado entre el cálculo de la firma y el
+    registro del stat dejaba guardada una firma previa junto a un stat posterior,
+    de modo que la lectura siguiente coincidía y no alertaba. La instantánea
+    debe rechazarse cuando lo observado no coincide con lo atestiguado.
+    """
+    import os
+
+    monkeypatch.setattr(sqlite_runtime, "_effective_sqlite_version", lambda: (3, 51, 3))
+    db_path = tmp_path / "snapshot_race.db"
+    cerebro = SQLiteMemoryBioRAG(str(db_path))
+    original = SQLiteMemoryBioRAG._file_change_signature
+    state = {"armed": False, "fired": False}
+
+    def hooked(self, *args, **kwargs):
+        result = original(self, *args, **kwargs)
+        if state["armed"] and not state["fired"]:
+            state["fired"] = True
+            wal = tmp_path / "snapshot_race.db-wal"
+            with open(wal, "r+b") as handle:
+                handle.seek(-20, os.SEEK_END)
+                byte = handle.read(1)
+                handle.seek(-20, os.SEEK_END)
+                handle.write(bytes([byte[0] ^ 0xFF]))
+        return result
+
+    try:
+        cerebro.cursor.execute("CREATE TABLE snapshot_probe (value INTEGER, relleno TEXT)")
+        cerebro.cursor.execute("INSERT INTO snapshot_probe VALUES (1, 'a')")
+        cerebro.conn.commit()
+        retained = cerebro.cursor
+        retained.execute("SELECT COUNT(*) FROM snapshot_probe").fetchone()
+
+        monkeypatch.setattr(SQLiteMemoryBioRAG, "_file_change_signature", hooked)
+        cerebro.cursor.execute("INSERT INTO snapshot_probe VALUES (2, 'b')")
+        state["armed"] = True
+        with pytest.raises(SQLiteDatabaseIdentityChangedError):
+            cerebro.conn.commit()
+        assert state["fired"], "el hook no llegó a intercalarse"
+    finally:
+        monkeypatch.setattr(SQLiteMemoryBioRAG, "_file_change_signature", original)
+        cerebro.cerrar_sistema()

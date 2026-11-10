@@ -475,6 +475,29 @@ class SQLiteMemoryBioRAG(metaclass=_OperationTrackedMeta):
             _wal_content_signature(self.db_path),
         )
 
+    def _consistent_snapshot_state(self):
+        """Sample the stat probe and the full signature as one consistent pair.
+
+        Both must describe the same instant. Computing the signature and only
+        later stat-ing allowed a direct WAL edit to land in between: the probe
+        then recorded the post-edit metadata while the stored signature came from
+        the pre-edit content, so the next read matched and never alerted
+        (auditoría 41a98a3). Here the probe is taken first and re-taken after the
+        signature; if it moved, the whole sample is repeated a few times before
+        failing closed.
+        """
+        last_error = None
+        for _ in range(3):
+            probe = self._cheap_file_probe()
+            signature = self._file_change_signature()
+            if self._cheap_file_probe() == probe:
+                return probe, signature
+            last_error = "la instantánea cambió mientras se calculaba"
+        raise SQLiteDatabaseIdentityChangedError(
+            "No se pudo obtener una instantánea consistente del archivo SQLite "
+            f"({last_error}); se rechazó el acceso por seguridad."
+        )
+
     def _remember_connection_snapshot(self, connection):
         if (
             not getattr(self, "_generation_guard_ready", False)
@@ -498,12 +521,31 @@ class SQLiteMemoryBioRAG(metaclass=_OperationTrackedMeta):
                     and probe is not None
                     and len(cached) > 5 and cached[5] == probe
                 ):
-                    # data_version and epoch unchanged (no foreign commit through
-                    # SQLite) and neither the main file nor the WAL moved in size,
-                    # inode, mtime or ctime. Covering both files is required: a
-                    # direct edit inside the WAL changes nothing in the main file.
+                    # data_version and epoch unchanged and neither the main file
+                    # nor the WAL moved in size, mtime or ctime.
                     return
-                signature = self._file_change_signature()
+                probe, signature = self._consistent_snapshot_state()
+                if cached is not None and cached[0] is connection:
+                    cached_epoch = cached[3]
+                else:
+                    cached_epoch = None
+                if (
+                    committed_signature is not None
+                    and commit_epoch > (cached_epoch or 0)
+                    and committed_signature != signature
+                ):
+                    # The writer attested one file state and this reader sees a
+                    # different one at the same epoch: something changed the file
+                    # outside the protocol while the snapshot was being taken.
+                    # Storing the observed signature here would bless exactly
+                    # that change, so fail closed instead (auditoría 41a98a3).
+                    raise SQLiteDatabaseIdentityChangedError(
+                        "La instantánea observada no coincide con la generación "
+                        "atestiguada por el escritor; se rechazó el acceso por "
+                        "seguridad."
+                    )
+        except SQLiteDatabaseIdentityChangedError:
+            raise
         except (OSError, sqlite3.Error) as exc:
             raise SQLiteDatabaseIdentityChangedError(
                 "No se pudo comprobar la generación SQLite del archivo; "
@@ -512,7 +554,7 @@ class SQLiteMemoryBioRAG(metaclass=_OperationTrackedMeta):
         with self._connection_registry_lock:
             self._connection_snapshots[id(connection)] = (
                 connection, signature, data_version,
-                commit_epoch, committed_signature, self._cheap_file_probe(),
+                commit_epoch, committed_signature, probe,
             )
 
     def _note_cooperative_commit(self, connection):
@@ -579,12 +621,10 @@ class SQLiteMemoryBioRAG(metaclass=_OperationTrackedMeta):
                     and probe is not None
                     and len(cached) > 5 and cached[5] == probe
                 ):
-                    # data_version and epoch unchanged (no foreign commit through
-                    # SQLite) and neither the main file nor the WAL moved in size,
-                    # inode, mtime or ctime. Covering both files is required: a
-                    # direct edit inside the WAL changes nothing in the main file.
+                    # data_version and epoch unchanged and neither the main file
+                    # nor the WAL moved in size, mtime or ctime.
                     return
-                signature = self._file_change_signature()
+                probe, signature = self._consistent_snapshot_state()
         except (OSError, sqlite3.Error) as exc:
             self._mark_identity_error()
             raise SQLiteDatabaseIdentityChangedError(
