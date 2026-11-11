@@ -7,6 +7,7 @@ from pathlib import Path
 import pytest
 
 from core import sqlite_runtime
+from core.sqlite import config as _sqlite_config
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -122,7 +123,7 @@ def test_clasifica_runtime_afectado_por_wal_reset(version, vulnerable):
 
 
 def _usar_runtime(monkeypatch, version):
-    monkeypatch.setattr(sqlite_runtime, "_effective_sqlite_version", lambda: version)
+    monkeypatch.setattr(_sqlite_config, "_effective_sqlite_version", lambda: version)
 
 
 def test_runtime_vulnerable_usa_delete_en_base_nueva(tmp_path, monkeypatch):

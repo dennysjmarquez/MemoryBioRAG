@@ -10,6 +10,8 @@ import sqlite3
 import pytest
 
 import core.sqlite_runtime as sqlite_runtime
+from core.sqlite import config as _sqlite_config
+from core.sqlite import pair_guard as _sqlite_pair_guard
 from core.memory_store import SQLiteMemoryBioRAG
 from core.sqlite_runtime import SQLiteDatabaseIdentityChangedError
 
@@ -177,7 +179,7 @@ def test_cursor_retenido_no_devuelve_filas_stale_tras_copia_mismo_esquema(tmp_pa
 def test_motor_rechaza_reemplazo_del_sidecar_sin_modificarlo(tmp_path, monkeypatch, suffix):
     # El sandbox incluye SQLite 3.40; simular solo el clasificador de versión
     # fija permite ejercitar WAL sobre un archivo descartable.
-    monkeypatch.setattr(sqlite_runtime, "_effective_sqlite_version", lambda: (3, 51, 3))
+    monkeypatch.setattr(_sqlite_config, "_effective_sqlite_version", lambda: (3, 51, 3))
     db_path = tmp_path / "wal.db"
     cerebro = SQLiteMemoryBioRAG(str(db_path))
     sidecar_path = tmp_path / f"wal.db{suffix}"
@@ -307,9 +309,10 @@ def test_crash_after_sqlite_commit_before_epoch_publication_fails_closed(tmp_pat
     code = r'''
 import os, sys
 import core.sqlite_runtime as runtime
+import core.sqlite.epoch as epoch_mod
 conn = runtime.open_writer(sys.argv[1], consumer="crash_gap_test")
 conn.execute("INSERT INTO crash_probe VALUES (9)")
-runtime._publish_state_locked = (
+epoch_mod._publish_state_locked = (
     lambda _marker, _db: (_ for _ in ()).throw(OSError("simulated crash gap"))
 )
 try:
@@ -341,7 +344,7 @@ def test_wal_checkpoint_without_commit_is_accepted(tmp_path, monkeypatch):
     """A real checkpoint is not confused with an external logical transaction."""
     from core.sqlite_runtime import open_writer
 
-    monkeypatch.setattr(sqlite_runtime, "_effective_sqlite_version", lambda: (3, 51, 3))
+    monkeypatch.setattr(_sqlite_config, "_effective_sqlite_version", lambda: (3, 51, 3))
     db_path = tmp_path / "wal_checkpoint.db"
     cerebro = SQLiteMemoryBioRAG(str(db_path))
     pinned_reader = None
@@ -425,7 +428,7 @@ def test_legacy_commit_after_cooperative_commit_does_not_borrow_epoch(tmp_path):
 
 def test_atestacion_no_degrada_wal_y_conserva_sidecars(tmp_path, monkeypatch):
     """La publicación de commits no debe cambiar el journal ni perder sidecars."""
-    monkeypatch.setattr(sqlite_runtime, "_effective_sqlite_version", lambda: (3, 51, 3))
+    monkeypatch.setattr(_sqlite_config, "_effective_sqlite_version", lambda: (3, 51, 3))
     db_path = tmp_path / "wal_attest.db"
     cerebro = SQLiteMemoryBioRAG(str(db_path))
     try:
@@ -445,7 +448,7 @@ def test_atestacion_no_degrada_wal_y_conserva_sidecars(tmp_path, monkeypatch):
 
 def test_commit_sin_cambios_no_pierde_economia_ni_bloquea(tmp_path, monkeypatch):
     """Un commit vacío debe respetar el contrato DB-API sin publicar generación."""
-    monkeypatch.setattr(sqlite_runtime, "_effective_sqlite_version", lambda: (3, 51, 3))
+    monkeypatch.setattr(_sqlite_config, "_effective_sqlite_version", lambda: (3, 51, 3))
     db_path = tmp_path / "empty_commit.db"
     cerebro = SQLiteMemoryBioRAG(str(db_path))
     try:
@@ -470,7 +473,7 @@ def test_commit_coordinado_seguido_de_raw_en_wal_no_se_acepta(tmp_path, monkeypa
     """
     from core.sqlite_runtime import open_writer
 
-    monkeypatch.setattr(sqlite_runtime, "_effective_sqlite_version", lambda: (3, 51, 3))
+    monkeypatch.setattr(_sqlite_config, "_effective_sqlite_version", lambda: (3, 51, 3))
 
     def _explorar(con_previo_coordinado):
         db_path = tmp_path / ("wal_seq_compat.db" if con_previo_coordinado else "wal_seq_control.db")
@@ -514,7 +517,7 @@ def test_checkpoint_cooperativo_no_es_un_cambio_no_atestiguado(tmp_path, monkeyp
     """Un checkpoint de un escritor compatible no debe disparar falsa alarma."""
     from core.sqlite_runtime import open_writer
 
-    monkeypatch.setattr(sqlite_runtime, "_effective_sqlite_version", lambda: (3, 51, 3))
+    monkeypatch.setattr(_sqlite_config, "_effective_sqlite_version", lambda: (3, 51, 3))
     db_path = tmp_path / "wal_ckpt_probe.db"
     cerebro = SQLiteMemoryBioRAG(str(db_path))
     try:
@@ -550,7 +553,7 @@ def test_reuso_de_wal_tras_checkpoint_no_oculta_commit_raw(tmp_path, monkeypatch
     """
     from core.sqlite_runtime import open_writer
 
-    monkeypatch.setattr(sqlite_runtime, "_effective_sqlite_version", lambda: (3, 51, 3))
+    monkeypatch.setattr(_sqlite_config, "_effective_sqlite_version", lambda: (3, 51, 3))
 
     def _preparar(nombre):
         db_path = tmp_path / f"{nombre}.db"
@@ -609,7 +612,7 @@ def test_checkpoint_de_cliente_sin_protocolo_falla_cerrado(tmp_path, monkeypatch
     cambio que una sustitución in-place, así que la política es fallar cerrado:
     los checkpoints de mantenimiento deben hacerse con `open_writer`.
     """
-    monkeypatch.setattr(sqlite_runtime, "_effective_sqlite_version", lambda: (3, 51, 3))
+    monkeypatch.setattr(_sqlite_config, "_effective_sqlite_version", lambda: (3, 51, 3))
     db_path = tmp_path / "raw_checkpoint.db"
     cerebro = SQLiteMemoryBioRAG(str(db_path))
     try:
@@ -650,7 +653,7 @@ def test_lectura_sin_cambios_no_rehashea_el_wal(tmp_path, monkeypatch):
     """
     import time
 
-    monkeypatch.setattr(sqlite_runtime, "_effective_sqlite_version", lambda: (3, 51, 3))
+    monkeypatch.setattr(_sqlite_config, "_effective_sqlite_version", lambda: (3, 51, 3))
     db_path = tmp_path / "perf_wal.db"
     cerebro = SQLiteMemoryBioRAG(str(db_path))
     try:
@@ -689,7 +692,7 @@ def test_alteracion_in_place_de_tamano_constante_se_detecta(tmp_path, monkeypatc
     """
     import os
 
-    monkeypatch.setattr(sqlite_runtime, "_effective_sqlite_version", lambda: (3, 45, 1))
+    monkeypatch.setattr(_sqlite_config, "_effective_sqlite_version", lambda: (3, 45, 1))
     db_path = tmp_path / "in_place_same_size.db"
     cerebro = SQLiteMemoryBioRAG(str(db_path))
     try:
@@ -729,7 +732,7 @@ def test_checkpoint_raw_sin_cambio_de_tamano_se_detecta(tmp_path, monkeypatch):
 
     from core.sqlite_runtime import open_writer
 
-    monkeypatch.setattr(sqlite_runtime, "_effective_sqlite_version", lambda: (3, 51, 3))
+    monkeypatch.setattr(_sqlite_config, "_effective_sqlite_version", lambda: (3, 51, 3))
     db_path = tmp_path / "raw_ckpt_same_size.db"
     cerebro = SQLiteMemoryBioRAG(str(db_path))
     try:
@@ -776,7 +779,7 @@ def test_alteracion_directa_del_wal_se_detecta(tmp_path, monkeypatch):
     """
     import os
 
-    monkeypatch.setattr(sqlite_runtime, "_effective_sqlite_version", lambda: (3, 51, 3))
+    monkeypatch.setattr(_sqlite_config, "_effective_sqlite_version", lambda: (3, 51, 3))
     db_path = tmp_path / "wal_byte.db"
     cerebro = SQLiteMemoryBioRAG(str(db_path))
     try:
@@ -824,7 +827,7 @@ def test_cambio_durante_la_instantanea_no_se_bendice(tmp_path, monkeypatch):
     """
     import os
 
-    monkeypatch.setattr(sqlite_runtime, "_effective_sqlite_version", lambda: (3, 51, 3))
+    monkeypatch.setattr(_sqlite_config, "_effective_sqlite_version", lambda: (3, 51, 3))
     db_path = tmp_path / "snapshot_race.db"
     cerebro = SQLiteMemoryBioRAG(str(db_path))
     original = SQLiteMemoryBioRAG._file_change_signature
@@ -899,7 +902,7 @@ def test_al_cerrar_no_queda_un_wal_con_datos(tmp_path, monkeypatch):
     acabar junto a otra versión del principal y aplicarse sobre ella. Si al
     cerrar el diario queda vacío, ese estado no llega a existir.
     """
-    monkeypatch.setattr(sqlite_runtime, "_effective_sqlite_version", lambda: (3, 51, 3))
+    monkeypatch.setattr(_sqlite_config, "_effective_sqlite_version", lambda: (3, 51, 3))
     db_path = tmp_path / "consolidado.db"
 
     cerebro = SQLiteMemoryBioRAG(str(db_path))
@@ -942,7 +945,7 @@ def test_el_principal_cambia_tanto_en_mantenimiento_legitimo_como_en_sustitucion
     Por eso la protección elegida es eliminar el estado que lo permite
     (`test_al_cerrar_no_queda_un_wal_con_datos`), no adivinar pertenencia.
     """
-    monkeypatch.setattr(sqlite_runtime, "_effective_sqlite_version", lambda: (3, 51, 3))
+    monkeypatch.setattr(_sqlite_config, "_effective_sqlite_version", lambda: (3, 51, 3))
     db_path = tmp_path / "cambia_siempre.db"
 
     cerebro = SQLiteMemoryBioRAG(str(db_path))
@@ -982,7 +985,7 @@ def test_caida_con_wal_vivo_recupera_los_datos(tmp_path, monkeypatch):
     impedirlo sería perder esos datos. Se mata un proceso real (no se cierran
     conexiones a mano) para que la prueba sea una caída de verdad.
     """
-    monkeypatch.setattr(sqlite_runtime, "_effective_sqlite_version", lambda: (3, 51, 3))
+    monkeypatch.setattr(_sqlite_config, "_effective_sqlite_version", lambda: (3, 51, 3))
     db_path = tmp_path / "caida.db"
     repo = Path(__file__).resolve().parent.parent
 
@@ -998,7 +1001,8 @@ def test_caida_con_wal_vivo_recupera_los_datos(tmp_path, monkeypatch):
 import sys, time
 sys.path.insert(0, {str(repo)!r})
 import core.sqlite_runtime as rt
-rt._effective_sqlite_version = lambda: (3, 51, 3)  # entorno de pruebas
+from core.sqlite import config as _cfg
+_cfg._effective_sqlite_version = lambda: (3, 51, 3)  # entorno de pruebas
 from core.memory_store import SQLiteMemoryBioRAG
 c = SQLiteMemoryBioRAG({str(db_path)!r})
 c.cursor.execute("INSERT INTO t VALUES (2, 'sin_consolidar')")
@@ -1042,7 +1046,7 @@ def test_wal_ajeno_tras_cambio_de_rama_no_se_aplica(tmp_path, monkeypatch):
     pertenece al principal actual: la capa lo detecta sin abrir el par y
     rechaza, conservando los archivos intactos.
     """
-    monkeypatch.setattr(sqlite_runtime, "_effective_sqlite_version", lambda: (3, 51, 3))
+    monkeypatch.setattr(_sqlite_config, "_effective_sqlite_version", lambda: (3, 51, 3))
     principal = tmp_path / "principal.db"
 
     cerebro = SQLiteMemoryBioRAG(str(principal))
@@ -1083,7 +1087,7 @@ def test_wal_ajeno_tras_cambio_de_rama_no_se_aplica(tmp_path, monkeypatch):
 
 def test_consolidacion_imposible_no_rompe_el_cierre(tmp_path, monkeypatch):
     """Escenario 3: no se puede completar la consolidación al cerrar."""
-    monkeypatch.setattr(sqlite_runtime, "_effective_sqlite_version", lambda: (3, 51, 3))
+    monkeypatch.setattr(_sqlite_config, "_effective_sqlite_version", lambda: (3, 51, 3))
     db_path = tmp_path / "solo_lectura.db"
 
     cerebro = SQLiteMemoryBioRAG(str(db_path))
@@ -1107,7 +1111,7 @@ def test_consolidacion_imposible_no_rompe_el_cierre(tmp_path, monkeypatch):
 
 def test_la_capa_se_puede_desactivar(tmp_path, monkeypatch):
     """Arquitectura: la protección es sustituible y se apaga sin tocar código."""
-    monkeypatch.setattr(sqlite_runtime, "_effective_sqlite_version", lambda: (3, 51, 3))
+    monkeypatch.setattr(_sqlite_config, "_effective_sqlite_version", lambda: (3, 51, 3))
     db_path = tmp_path / "apagada.db"
 
     cerebro = SQLiteMemoryBioRAG(str(db_path))
@@ -1134,7 +1138,7 @@ def test_la_capa_se_puede_desactivar(tmp_path, monkeypatch):
 
 def test_force_open_es_la_via_de_escape_autorizada(tmp_path, monkeypatch):
     """La recuperación no es automática: requiere autorización explícita."""
-    monkeypatch.setattr(sqlite_runtime, "_effective_sqlite_version", lambda: (3, 51, 3))
+    monkeypatch.setattr(_sqlite_config, "_effective_sqlite_version", lambda: (3, 51, 3))
     principal = tmp_path / "forzada.db"
 
     cerebro = SQLiteMemoryBioRAG(str(principal))
@@ -1189,8 +1193,8 @@ def test_la_proteccion_viene_activada_por_defecto(monkeypatch):
         llamadas.append(str(database))
         return original(database)
 
-    monkeypatch.setattr(sqlite_runtime, "_pair_can_be_opened", espia)
-    monkeypatch.setattr(sqlite_runtime, "_effective_sqlite_version", lambda: (3, 51, 3))
+    monkeypatch.setattr(_sqlite_pair_guard, "_pair_can_be_opened", espia)
+    monkeypatch.setattr(_sqlite_config, "_effective_sqlite_version", lambda: (3, 51, 3))
 
     import tempfile
 
