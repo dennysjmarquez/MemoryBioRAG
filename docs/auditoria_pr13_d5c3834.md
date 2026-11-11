@@ -105,8 +105,13 @@ deliberado: el precio de fallar cerrado.
 3. **El runtime de producción no está cubierto** por las pruebas de CI, igual que
    señaló ella en §2. La CI usa el SQLite de cada plataforma, no el binario real
    de despliegue.
-4. **La decisión de fondo no es técnica y sigue sin tomarse: ¿la base se
-   versiona en git?** Todo el blindaje de esta capa existe porque el modelo de
+4. **DECIDIDA: la base se versiona en git, completa.** El usuario confirmó que
+   sube la versión completa al repositorio y que quien clona trabaja con su
+   copia local. Ver §"El flujo declarado: base versionada en git" para lo que
+   esto implica y lo que queda por hacer. Se deja aquí la pregunta antigua,
+   porque fue el eje de la revisión:
+
+   ~~¿la base se versiona en git?~~ Todo el blindaje de esta capa existe porque el modelo de
    amenaza es "alguien puede sustituir el principal o el diario por debajo", y
    **eso es exactamente lo que hace `git checkout` al cambiar de rama**. Si la
    base deja de versionarse, buena parte de esta complejidad sobra; mientras se
@@ -296,6 +301,63 @@ Las 60 pruebas de SQLite pasaban y los dos fallos seguían ahí. La razón es qu
 las pruebas cubrían los caminos que yo había imaginado. Una revisión
 independiente busca los que no imaginé. **Eso no lo sustituye ninguna prueba
 propia**, y es el argumento más fuerte que hay para que la revisión exista.
+
+## 7bis. El flujo declarado: base versionada en git
+
+**Decisión del usuario:** la base se sube al repositorio completa. Quien clona
+tiene su copia local. Eso convierte el escenario `git checkout` en el **caso de
+uso real**, no en una hipótesis. Estas son las comprobaciones hechas contra git
+de verdad, en repositorios temporales.
+
+### Lo que funciona
+
+| Escenario | Resultado |
+|---|---|
+| A cierra, commitea y B clona | B lee correctamente. |
+| A añade datos, commitea y B hace `pull` | B lee correctamente. |
+| Cambiar de rama con el motor **cerrado** | Correcto en las tres transiciones (A→B→A). |
+| Lo anterior **sin** versionar el estado del par | También correcto: el cierre ordenado consolida el diario y no queda nada que aplicar. |
+
+### El riesgo real, medido
+
+| Escenario | Con protección | Sin protección (`GUARD=0`) |
+|---|---|---|
+| `git checkout -f` con el motor **abierto** | **Rechazo** | Abre y muestra los datos de la rama anterior y una escritura sin consolidar **sobre la base de la rama actual** |
+
+Esa última fila es la justificación entera de esta capa. Está convertida en la
+prueba `test_cambio_de_rama_forzado_con_el_motor_abierto_se_rechaza`, que usa
+git real.
+
+### Dos protecciones que ya existían sin proponérselo
+
+1. **Git se niega a cambiar de rama** si hay un archivo del par modificado
+   (`error: Your local changes ... would be overwritten`). Es una red de
+   seguridad útil: obliga a parar antes de sustituir la base por debajo.
+2. **Una conexión ya abierta es inmune** a que sustituyan el archivo: sigue
+   leyendo el inodo viejo.
+
+### Dos huecos que sí encontré y he corregido
+
+1. **El estado del par y las constancias forenses no estaban en `.gitignore`.**
+   Un `git add -A` los subía: hashes de un equipo que no sirven en otro, y el
+   par quedaría "verificado" contra archivos que no existen allí. Añadidos.
+2. **La base está en git-lfs y un clon sin `git lfs pull` no la tiene.** El
+   archivo son 134 bytes de texto y SQLite decía `file is not a database`, que
+   no distingue "falta descargarla" de "está corrupta". Ahora se detecta y el
+   mensaje dice qué hacer (`git lfs install && git lfs pull`, con el `oid` y el
+   tamaño real). Comprobado que el puntero **no se daña** al intentar abrirlo.
+
+### Lo que este flujo exige como disciplina
+
+1. **Cerrar el motor antes de hacer commit de la base.** Si se commitea con el
+   motor abierto, el `.db` versionado **no contiene los datos**: están en el
+   `-wal`, que no se versiona. Comprobado: el archivo versionado responde
+   `no such table`, y el `.db` local solo se rellena al cerrar. No es un fallo
+   de la protección; es cómo funciona WAL. Pero es la forma más fácil de subir
+   una base vacía sin darse cuenta.
+2. **`git lfs pull` después de clonar.**
+3. **No cambiar de rama con el daemon corriendo.** Si pasa, la protección
+   rechaza la apertura siguiente; hay que resolverlo conscientemente.
 
 ## 8. Estado de la rama
 

@@ -86,3 +86,11 @@ google_drive/
 *.biorag-commit-epoch
 *.biorag-commit-epoch.lock
 .biorag-epoch-*
+
+# Estado del par SQLite y constancias forenses: son de ESTA máquina, no del repo.
+# Si se versionan, cada `git add -A` sube hashes de un equipo que no sirven en
+# otro, y el par queda "verificado" contra archivos que no existen allí.
+*.biorag-pair-state
+*.biorag-pair-state.conflicto.json
+# Marcador de secuencia WAL: describe un diario local, no la base versionada.
+*.biorag-wal-seq

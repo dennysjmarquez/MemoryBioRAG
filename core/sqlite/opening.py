@@ -26,10 +26,12 @@ from core.paths import resolve_db_path
 from core.sqlite import constants as _cfg
 from core.sqlite import pair_guard as _pair_guard
 from core.sqlite.constants import (
+    SQLiteLfsPointerError,
     SQLiteSidecarConflictError,
     _DEFAULT_BUSY_TIMEOUT_MS,
     _MAX_BUSY_TIMEOUT_MS,
     _database_existed_before_open,
+    lfs_pointer_info,
     logger,
 )
 from core.sqlite.epoch import _database_route_id
@@ -66,6 +68,27 @@ def record_pair_state(database) -> None:
     """Reenvío: la anotación del par se hace donde se define."""
     return _pair_guard.record_pair_state(database)
 
+def _reject_lfs_pointer(database, *, purpose: str) -> None:
+    """Falla con un mensaje accionable si el archivo es un puntero de git-lfs.
+
+    Este proyecto versiona la base con git-lfs. Al clonar sin `git lfs pull` el
+    archivo son 134 bytes de texto y SQLite responde `file is not a database`,
+    que no distingue "falta bajarla" de "está corrupta". No son lo mismo: en el
+    primer caso no hay nada que reparar.
+    """
+    info = lfs_pointer_info(database)
+    if info is None:
+        return
+    raise SQLiteLfsPointerError(
+        f"El archivo no es una base de datos sino un PUNTERO de git-lfs "
+        f"(oid {info.get('oid', '?')}, tamaño real "
+        f"{info.get('size', '?')} bytes). Esto pasa al clonar sin descargar "
+        f"los objetos LFS. No hay nada que reparar: ejecuta "
+        f"`git lfs install && git lfs pull` y vuelve a intentarlo. "
+        f"(apertura para {purpose})"
+    )
+
+
 def open_writer(
     database: str | Path,
     *,
@@ -80,6 +103,7 @@ def open_writer(
     La transición de journal de una DB existente está desactivada por defecto y
     requiere `allow_existing_journal_transition=True` explícito por el operador.
     """
+    _reject_lfs_pointer(database, purpose="escritura")
     database_existed = _database_existed_before_open(database)
     if "factory" in connect_kwargs:
         raise TypeError("open_writer administra la subclase de conexión")
@@ -209,6 +233,7 @@ def open_reader(
     database_existed = _database_existed_before_open(canonical)
     # Fotografía del par junto a la comprobación, para verificar después de
     # abrir que se abrió EXACTAMENTE lo que se verificó.
+    _reject_lfs_pointer(canonical, purpose="lectura")
     con_diario = _has_nonempty_wal(canonical) if guard_enabled() and database_existed else False
     antes = (
         _pair_snapshot(canonical, deep=con_diario)

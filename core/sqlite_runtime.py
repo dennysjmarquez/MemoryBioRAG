@@ -28,6 +28,7 @@ from __future__ import annotations
 # --- config: constantes, interruptores, versión y errores -------------------
 from core.sqlite.constants import (
     SQLiteDatabaseIdentityChangedError,
+    SQLiteLfsPointerError,
     SQLiteSidecarConflictError,
     UnsafeSQLiteJournalModeError,
     _DEFAULT_BUSY_TIMEOUT_MS,
@@ -95,6 +96,7 @@ __all__ = [
     "configure_writer",
     "SQLiteWriterRuntime",
     # errores
+    "SQLiteLfsPointerError",
     "SQLiteSidecarConflictError",
     "SQLiteDatabaseIdentityChangedError",
     "UnsafeSQLiteJournalModeError",

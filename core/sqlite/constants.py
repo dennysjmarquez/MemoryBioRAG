@@ -54,6 +54,55 @@ def force_open_authorized() -> bool:
 
 _MAX_BUSY_TIMEOUT_MS = 300_000
 
+class SQLiteLfsPointerError(sqlite3.OperationalError):
+    """El archivo que se intenta abrir es un PUNTERO de git-lfs, no una base.
+
+    Por qué existe: la base de este proyecto se versiona con git-lfs. Al clonar
+    sin `git lfs pull`, el archivo contiene 134 bytes de texto
+    (`version https://git-lfs.github.com/spec/v1`) en lugar de la base. SQLite
+    responde `file is not a database`, que no dice nada útil y no distingue este
+    caso de una base corrupta.
+
+    Distinguirlos importa: aquí **no hay nada que reparar**, solo falta bajar el
+    contenido con `git lfs pull`.
+
+    Comprobado que el puntero no se daña al intentarlo: el archivo queda igual
+    (`file is not a database` es de solo lectura sobre esta ruta).
+    """
+
+
+_LFS_POINTER_PREFIX = b"version https://git-lfs.github.com/spec/v1"
+_LFS_POINTER_MAX_SIZE = 1024
+
+
+def lfs_pointer_info(database) -> dict[str, str] | None:
+    """¿Este archivo es un puntero de git-lfs? Devuelve `oid` y `size` si lo es.
+
+    Se lee solo la cabecera y solo si el archivo es diminuto: un puntero de LFS
+    no llega a 1 KB. Ninguna base real cae en ese rango, así que el coste en el
+    camino normal es despreciable y no hay falsos positivos.
+    """
+    value = str(database)
+    if _is_memory_database(database) or value.startswith("file:"):
+        return None
+    try:
+        ruta = Path(os.path.expanduser(value))
+        if ruta.stat().st_size > _LFS_POINTER_MAX_SIZE:
+            return None
+        cabecera = ruta.read_bytes()
+    except OSError:
+        return None
+    if not cabecera.startswith(_LFS_POINTER_PREFIX):
+        return None
+    datos: dict[str, str] = {}
+    for linea in cabecera.decode("utf-8", "replace").splitlines():
+        if linea.startswith("oid sha256:"):
+            datos["oid"] = linea.split(":", 1)[1].strip()
+        elif linea.startswith("size "):
+            datos["size"] = linea.split(" ", 1)[1].strip()
+    return datos or {"oid": "desconocido"}
+
+
 class SQLiteSidecarConflictError(sqlite3.OperationalError):
     """No se puede probar que el `-wal` presente pertenezca a este archivo.
 

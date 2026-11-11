@@ -1690,3 +1690,120 @@ def test_ventana_sin_diario_inicial_escritura(tmp_path, monkeypatch):
 
     with pytest.raises(sqlite_runtime.SQLiteSidecarConflictError):
         sqlite_runtime.open_writer(db_path)
+
+
+def test_puntero_lfs_se_detecta_con_mensaje_accionable(tmp_path, monkeypatch):
+    """La base se versiona con git-lfs: un clon sin `git lfs pull` no la tiene.
+
+    Sin esta comprobación SQLite responde `file is not a database`, que no
+    distingue "falta descargarla" de "está corrupta". No es lo mismo: en el
+    primer caso no hay nada que reparar.
+    """
+    monkeypatch.setattr(_sqlite_config, "_effective_sqlite_version", lambda: (3, 51, 3))
+    db_path = tmp_path / "puntero.db"
+    db_path.write_bytes(
+        b"version https://git-lfs.github.com/spec/v1\n"
+        b"oid sha256:" + b"a" * 64 + b"\n"
+        b"size 117948\n"
+    )
+    contenido_antes = db_path.read_bytes()
+
+    for puerta in (sqlite_runtime.open_reader, sqlite_runtime.open_writer):
+        with pytest.raises(sqlite_runtime.SQLiteLfsPointerError) as capturado:
+            puerta(db_path)
+        mensaje = str(capturado.value)
+        assert "git lfs pull" in mensaje, "el mensaje debe decir qué hacer"
+        assert "117948" in mensaje, "el mensaje debe dar el tamaño real"
+
+    # El puntero no se toca: no hay nada que reparar y nada que destruir.
+    assert db_path.read_bytes() == contenido_antes
+
+
+def test_base_real_no_se_confunde_con_un_puntero_lfs(tmp_path, monkeypatch):
+    """Una base normal no debe disparar la detección de LFS.
+
+    El puntero no llega a 1 KB y una base real siempre lo supera, así que la
+    comprobación no tiene falsos positivos. Aquí se verifica que no estorba.
+    """
+    from core.sqlite.constants import lfs_pointer_info
+
+    monkeypatch.setattr(_sqlite_config, "_effective_sqlite_version", lambda: (3, 51, 3))
+    db_path = tmp_path / "normal.db"
+    cerebro = SQLiteMemoryBioRAG(str(db_path))
+    try:
+        cerebro.cursor.execute("CREATE TABLE t (v TEXT)")
+        cerebro.conn.commit()
+    finally:
+        cerebro.cerrar_sistema()
+
+    assert lfs_pointer_info(db_path) is None
+    conn = sqlite_runtime.open_reader(db_path)
+    try:
+        assert conn.execute("SELECT COUNT(*) FROM t").fetchone()[0] == 0
+    finally:
+        conn.close()
+
+
+def test_cambio_de_rama_forzado_con_el_motor_abierto_se_rechaza(tmp_path, monkeypatch):
+    """El caso que da sentido a toda la capa, reproducido con git de verdad.
+
+    Flujo declarado por el usuario: la base se sube al repositorio completa y
+    quien clona trabaja con su copia local. El escenario de riesgo real es
+    cambiar de rama **con el motor abierto**: `git checkout -f` sustituye el
+    principal por debajo, el `-wal` viejo sigue ahí, y sin protección SQLite lo
+    aplica sobre la base de la otra rama.
+
+    Comprobado sin la protección (`BIORAG_SQLITE_GUARD=0`): abre y muestra los
+    datos de la rama anterior sobre la actual. Con ella: rechazo.
+    """
+    import subprocess
+
+    monkeypatch.setattr(_sqlite_config, "_effective_sqlite_version", lambda: (3, 51, 3))
+    repo = tmp_path / "repo"
+    repo.mkdir()
+
+    def git(*argumentos):
+        return subprocess.run(
+            ["git", *argumentos], cwd=repo, capture_output=True, text=True
+        )
+
+    git("init", "-q")
+    git("config", "user.email", "prueba@ejemplo.test")
+    git("config", "user.name", "prueba")
+    (repo / ".gitignore").write_text("*.db-wal\n*.db-shm\n*.biorag-pair-state\n")
+    db_path = repo / "memoria.db"
+
+    def escribir(texto):
+        cerebro = SQLiteMemoryBioRAG(str(db_path))
+        try:
+            cerebro.cursor.execute("CREATE TABLE IF NOT EXISTS recuerdos (v TEXT)")
+            cerebro.cursor.execute("INSERT INTO recuerdos VALUES (?)", (texto,))
+            cerebro.conn.commit()
+        finally:
+            cerebro.cerrar_sistema()
+
+    git("checkout", "-q", "-b", "rama-a")
+    escribir("solo de A")
+    git("add", "-A")
+    git("commit", "-qm", "A")
+    git("checkout", "-q", "-b", "rama-b")
+    escribir("solo de B")
+    git("add", "-A")
+    git("commit", "-qm", "B")
+    git("checkout", "-q", "rama-a")
+
+    # Motor abierto escribiendo: el commit vive en el -wal, no en el principal.
+    motor = SQLiteMemoryBioRAG(str(db_path))
+    try:
+        motor.cursor.execute("INSERT INTO recuerdos VALUES ('sin consolidar')")
+        motor.conn.commit()
+        assert Path(str(db_path) + "-wal").exists(), "debe haber diario vivo"
+
+        # Cambio de rama FORZADO con el motor abierto.
+        assert git("checkout", "-q", "-f", "rama-b").returncode == 0
+
+        # Abrir ahora aplicaría el diario de la rama A sobre la base de la B.
+        with pytest.raises(sqlite_runtime.SQLiteSidecarConflictError):
+            sqlite_runtime.open_reader(db_path)
+    finally:
+        motor.cerrar_sistema()
