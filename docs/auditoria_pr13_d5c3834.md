@@ -105,6 +105,13 @@ deliberado: el precio de fallar cerrado.
 3. **El runtime de producción no está cubierto** por las pruebas de CI, igual que
    señaló ella en §2. La CI usa el SQLite de cada plataforma, no el binario real
    de despliegue.
+4. **La decisión de fondo no es técnica y sigue sin tomarse: ¿la base se
+   versiona en git?** Todo el blindaje de esta capa existe porque el modelo de
+   amenaza es "alguien puede sustituir el principal o el diario por debajo", y
+   **eso es exactamente lo que hace `git checkout` al cambiar de rama**. Si la
+   base deja de versionarse, buena parte de esta complejidad sobra; mientras se
+   versione, la protección es necesaria y está en su forma final. No la puede
+   tomar quien escribe el código.
 
 ## 7. Revisión independiente sobre `88ef43f` (dos hallazgos, ambos reales)
 
@@ -292,9 +299,37 @@ propia**, y es el argumento más fuerte que hay para que la revisión exista.
 
 ## 8. Estado de la rama
 
-- Commit revisado por la revisión independiente: `88ef43f0382cf31d2091f748598c045e810ae6f6`.
-- Los dos hallazgos de §7 están corregidos en el commit siguiente a ese.
-- Sin merge a `master`. Sin tocar la base real ni sus archivos auxiliares.
+**Ciclo de revisión completo.** Cinco commits revisados, cinco hallazgos, todos
+reproducidos y corregidos:
+
+| Revisado | Hallazgo | Corregido en |
+|---|---|---|
+| `88ef43f` | 1: `-wal` ajeno aceptado con el principal coincidente | `d98a946` |
+| `88ef43f` | 2: `open_reader` abría el par que `open_writer` rechazaba | `d98a946` |
+| `d98a946` | 3: el `-wal` copiado conservaba la sal | `2b3b11c` |
+| `2b3b11c` | 4: ventana TOCTOU entre comprobar y abrir | `3912d68` |
+| `3912d68` | 5: la ventana seguía abierta sin diario inicial | `17fbae2` |
+
+Cada corrección va con una prueba que **falla sin ella**: eso se comprobó
+revirtiendo el arreglo (`git stash`) en cada caso, no solo viendo la prueba en
+verde.
+
+**Dos de los cinco hallazgos (3 y 5) los introdujo el propio autor de la rama
+optimizando.** Está documentado en §"Una lección sobre mis propios arreglos"
+porque es la parte del proceso que más conviene recordar.
+
+**Regla de diseño que queda vigente, y es la que hay que respetar en cualquier
+cambio futuro:**
+
+> La verificación posterior debe comprobar exactamente lo que asumió la
+> anterior. Sin diario: identidad + tamaño + fecha. Con diario: identidad +
+> contenido.
+
+**Estado operativo:**
+
+- Sin merge a `master` (decisión pendiente de autorización explícita).
+- Sin tocar la base real ni sus archivos auxiliares durante toda la revisión.
+- PR #13 abierto y fusionable; CI 5/5 verde en la última ejecución.
 - La capa vive en `core/sqlite/` (seis módulos) con `core/sqlite_runtime.py` como
   fachada. Cero lógica nueva en esa división: los 54 bloques se movieron
   literalmente y se compararon con el AST (`0 diferencias`).
