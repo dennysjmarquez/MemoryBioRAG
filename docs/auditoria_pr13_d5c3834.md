@@ -106,9 +106,61 @@ deliberado: el precio de fallar cerrado.
    señaló ella en §2. La CI usa el SQLite de cada plataforma, no el binario real
    de despliegue.
 
-## 7. Estado de la rama
+## 7. Revisión independiente sobre `88ef43f` (dos hallazgos, ambos reales)
 
-- Commit final revisado: `174b7163d9275d4d35726a7260806ead11356494`.
+La revisión independiente encontró dos fallos que las 60 pruebas de SQLite no
+cubrían. **Los dos se reprodujeron y se corrigieron.**
+
+### Hallazgo 1 — Un `-wal` ajeno se aceptaba si el principal coincidía
+
+**Causa:** el caso 3 de `_pair_can_be_opened` aceptaba con solo comparar el
+sha256 del **principal** con el anotado. Eso descarta que hayan sustituido el
+archivo principal, **pero no que el `-wal` sea de otra base**.
+
+**El escenario exacto que lo dispara:** un proceso hace commit y **se cae**. El
+principal queda intacto y el registro sigue siendo válido. En ese hueco se
+coloca un `-wal` de otra base y se aplicaba en silencio sin alerta.
+
+**Arreglo:** la **sal de la cabecera del `-wal`** identifica al diario y ya
+estaba anotada; ahora **participa en la decisión**. Si el principal coincide
+pero la sal no es la anotada, ese diario no es el que había cuando se verificó
+el par: se rechaza.
+
+**Lo que esto conserva:** tras una caída legítima el diario es el mismo que
+había en el último commit propio (misma sal), así que se sigue aceptando y
+SQLite recupera los datos. La recuperación tras caída sigue probada y verde.
+
+**Prueba:** `test_wal_ajeno_con_principal_intacto_se_rechaza`. Reproduce una
+caída real (`subprocess` + `kill`) y coloca el diario ajeno. **Falla sin el
+arreglo, pasa con él** (comprobado con `git stash`).
+
+### Hallazgo 2 — `open_reader` abría el par que `open_writer` rechazaba
+
+**Causa:** la comprobación de pertenencia solo estaba en `open_writer`.
+`open_reader` no comprobaba nada.
+
+**Por qué importa:** un lector también abre el par y SQLite aplica el `-wal`
+al abrirlo, igual que en escritura. La lectura veía datos de otra versión por
+la puerta de al lado, aunque la de escritura estuviera cerrada.
+
+**Arreglo:** `open_reader` aplica la **misma** política, antes de abrir:
+`SQLiteSidecarConflictError` con constancia forense, y `FORCE_OPEN` como vía de
+escape autorizada.
+
+**Prueba:** `test_open_reader_rechaza_el_mismo_par_que_open_writer`. **Falla sin
+el arreglo, pasa con él.**
+
+### Lo que esta revisión demuestra sobre el método
+
+Las 60 pruebas de SQLite pasaban y los dos fallos seguían ahí. La razón es que
+las pruebas cubrían los caminos que yo había imaginado. Una revisión
+independiente busca los que no imaginé. **Eso no lo sustituye ninguna prueba
+propia**, y es el argumento más fuerte que hay para que la revisión exista.
+
+## 8. Estado de la rama
+
+- Commit revisado por la revisión independiente: `88ef43f0382cf31d2091f748598c045e810ae6f6`.
+- Los dos hallazgos de §7 están corregidos en el commit siguiente a ese.
 - Sin merge a `master`. Sin tocar la base real ni sus archivos auxiliares.
 - La capa vive en `core/sqlite/` (seis módulos) con `core/sqlite_runtime.py` como
   fachada. Cero lógica nueva en esa división: los 54 bloques se movieron

@@ -1222,3 +1222,123 @@ def test_la_proteccion_viene_activada_por_defecto(monkeypatch):
             cerebro.cerrar_sistema()
 
     assert llamadas, "con el default, la comprobacion del par debe ejecutarse"
+
+
+def test_wal_ajeno_con_principal_intacto_se_rechaza(tmp_path, monkeypatch):
+    """Regresión de la revisión independiente sobre `88ef43f`, hallazgo 1.
+
+    El caso 3 de `_pair_can_be_opened` aceptaba solo con que el sha256 del
+    principal coincidiera con el anotado. Eso descarta la sustitución del
+    archivo principal, pero NO que el `-wal` sea de otra base: tras una caída
+    el principal queda intacto y el registro sigue valiendo, así que un diario
+    ajeno puesto en ese hueco se aplicaba en silencio.
+
+    La sal de la cabecera identifica al diario y ya estaba anotada; ahora
+    participa en la decisión.
+    """
+    import subprocess
+    import sys
+
+    monkeypatch.setattr(_sqlite_config, "_effective_sqlite_version", lambda: (3, 51, 3))
+    db_path = tmp_path / "principal_intacto.db"
+    repo = Path(__file__).resolve().parent.parent
+
+    # Proceso real que hace commit y se queda abierto: el principal queda
+    # registrado y sin cambios, que es el estado del fallo.
+    guion = f"""
+import sys, time
+sys.path.insert(0, {str(repo)!r})
+from core.sqlite import constants as _cfg
+_cfg._effective_sqlite_version = lambda: (3, 51, 3)
+from core.memory_store import SQLiteMemoryBioRAG
+c = SQLiteMemoryBioRAG({str(db_path)!r})
+c.cursor.execute("CREATE TABLE t (id INTEGER PRIMARY KEY, v TEXT)")
+c.cursor.execute("INSERT INTO t VALUES (1, 'original')")
+c.conn.commit()
+print("LISTO", flush=True)
+time.sleep(60)
+"""
+    proceso = subprocess.Popen(
+        [sys.executable, "-c", guion],
+        stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True,
+    )
+    try:
+        salida = proceso.stdout.readline().strip()
+        if salida != "LISTO":
+            raise AssertionError("hijo falló: " + proceso.stderr.read()[:3000])
+    finally:
+        proceso.kill()  # caída: el principal queda como estaba, el registro vale
+        proceso.wait(timeout=30)
+
+    principal_antes = db_path.read_bytes()
+
+    # Un `-wal` de OTRA base, colocado junto a este principal intacto.
+    otra = tmp_path / "otra_base.db"
+    conn = sqlite3.connect(otra)
+    try:
+        conn.execute("PRAGMA journal_mode=WAL")
+        conn.execute("CREATE TABLE t (id INTEGER PRIMARY KEY, v TEXT)")
+        conn.execute("UPDATE t SET v='INYECTADO' WHERE id=1")
+        conn.commit()
+        wal_bytes = Path(str(otra) + "-wal").read_bytes()
+    finally:
+        conn.close()
+    for suffix in ("-wal", "-shm"):
+        leftover = Path(str(db_path) + suffix)
+        if leftover.exists():
+            leftover.unlink()
+    Path(str(db_path) + "-wal").write_bytes(wal_bytes)
+
+    with pytest.raises(sqlite_runtime.SQLiteSidecarConflictError):
+        SQLiteMemoryBioRAG(str(db_path))
+
+    assert db_path.read_bytes() == principal_antes, "el principal no debe cambiar"
+    assert Path(str(db_path) + "-wal").exists(), "el -wal no debe moverse"
+
+
+def test_open_reader_rechaza_el_mismo_par_que_open_writer(tmp_path, monkeypatch):
+    """Regresión de la revisión independiente sobre `88ef43f`, hallazgo 2.
+
+    `open_reader` abría el par sin comprobar pertenencia, así que aceptaba lo
+    que `open_writer` rechazaba y las lecturas veían datos de otra versión.
+    Las dos puertas deben aplicar la misma política.
+    """
+    monkeypatch.setattr(_sqlite_config, "_effective_sqlite_version", lambda: (3, 51, 3))
+    principal = tmp_path / "dos_puertas.db"
+
+    cerebro = SQLiteMemoryBioRAG(str(principal))
+    try:
+        cerebro.cursor.execute("CREATE TABLE t (v TEXT)")
+        cerebro.cursor.execute("INSERT INTO t VALUES ('base')")
+        cerebro.conn.commit()
+    finally:
+        cerebro.cerrar_sistema()
+
+    otra = tmp_path / "ajena.db"
+    shutil.copyfile(principal, otra)
+    conn = sqlite3.connect(otra)
+    try:
+        conn.execute("PRAGMA journal_mode=WAL")
+        conn.execute("UPDATE t SET v='AJENO'")
+        conn.commit()
+        wal_bytes = Path(str(otra) + "-wal").read_bytes()
+    finally:
+        conn.close()
+    for suffix in ("-wal", "-shm"):
+        leftover = Path(str(principal) + suffix)
+        if leftover.exists():
+            leftover.unlink()
+    Path(str(principal) + "-wal").write_bytes(wal_bytes)
+
+    with pytest.raises(sqlite_runtime.SQLiteSidecarConflictError):
+        sqlite_runtime.open_writer(principal)
+    with pytest.raises(sqlite_runtime.SQLiteSidecarConflictError):
+        sqlite_runtime.open_reader(principal)
+
+    # La vía de escape autorizada también aplica a la lectura.
+    monkeypatch.setenv("BIORAG_SQLITE_FORCE_OPEN", "1")
+    conn = sqlite_runtime.open_reader(principal, consumer="lectura_forzada")
+    try:
+        conn.execute("SELECT COUNT(*) FROM t").fetchone()
+    finally:
+        conn.close()

@@ -192,11 +192,29 @@ def _pair_can_be_opened(database) -> bool:
     current = _file_forensics(value)
     if current is None:
         return False
-    if current["sha256"] == expected:
-        return True
-    # El principal cambió con un diario vivo: no se puede distinguir un
-    # checkpoint legítimo de una sustitución. Se pide confirmación.
-    return False
+    if current["sha256"] != expected:
+        # El principal cambió con un diario vivo: no se puede distinguir un
+        # checkpoint legítimo de una sustitución. Se pide confirmación.
+        return False
+
+    # El principal NO cambió respecto a lo anotado. Eso solo descarta la
+    # sustitución del archivo principal; NO descarta que el `-wal` sea de otra
+    # base (hallazgo de la revisión independiente sobre 88ef43f). La sal de la
+    # cabecera identifica AL DIARIO, y está anotada junto al principal: si la
+    # sal de ahora no es la anotada, este diario no es el que había cuando se
+    # verificó el par, así que no se puede probar que le pertenezca.
+    #
+    # Este es el caso de una caída del proceso: el diario es el mismo que había
+    # en el último commit propio (misma sal), así que se acepta y SQLite
+    # recupera. Un diario de otra base trae otra sal y se rechaza.
+    recorded_salt = recorded.get("wal_salt")
+    if not recorded_salt:
+        # Se anotó el par sin diario vivo: cualquier diario que aparezca ahora
+        # es nuevo y no está atestiguado.
+        return False
+    if _wal_header_salt(wal) != recorded_salt:
+        return False
+    return True
 
 def _save_conflict_forensics(database, **extra) -> str | None:
     """Deja constancia verificable de lo que había. No mueve ni borra nada."""

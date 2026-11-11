@@ -157,6 +157,34 @@ def open_reader(
     if "uri" in connect_kwargs:
         raise TypeError("open_reader administra el parámetro uri internamente")
 
+    # Misma comprobación de pertenencia que `open_writer`, ANTES de abrir.
+    # Motivo (revisión independiente sobre 88ef43f): un lector también abre el
+    # par, y SQLite aplica el `-wal` al abrirlo igual que en escritura. Sin esta
+    # comprobación, `open_reader` aceptaba un par que `open_writer` rechazaba, y
+    # las lecturas veían datos de otra versión de la base. Es el mismo riesgo,
+    # por la puerta de al lado.
+    database_existed = _database_existed_before_open(canonical)
+    if guard_enabled() and database_existed and not _pair_can_be_opened(canonical):
+        if force_open_authorized():
+            forense = _save_conflict_forensics(canonical, motivo="lectura_forzada")
+            logger.warning(
+                "Lectura forzada con un -wal no verificado (%s); constancia en %s",
+                consumer, forense,
+            )
+        else:
+            forense = _save_conflict_forensics(canonical, motivo="par_no_verificado")
+            raise SQLiteSidecarConflictError(
+                "BioRAG no abrió la base para lectura porque hay un -wal que no "
+                "se puede atribuir con certeza a este archivo principal (por "
+                "ejemplo, tras cambiar de rama con la base versionada, tras una "
+                "caída del proceso o si quedó un cliente antiguo abierto). "
+                "Abrirla así podría aplicar datos de otra versión sobre los "
+                "actuales. No se movió, renombró ni borró ningún archivo; hay "
+                f"una constancia con los sha256 en {forense}. Para revisar y "
+                "decidir: docs/sqlite_par_no_verificado.md. Para continuar "
+                "bajo tu responsabilidad: BIORAG_SQLITE_FORCE_OPEN=1."
+            )
+
     timeout_ms = int(round(timeout * 1000))
     uri = Path(canonical).as_uri() + "?mode=ro"
     conn = sqlite3.connect(uri, uri=True, timeout=timeout, **connect_kwargs)
