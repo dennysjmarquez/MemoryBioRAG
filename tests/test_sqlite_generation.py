@@ -719,16 +719,20 @@ def test_alteracion_in_place_de_tamano_constante_se_detecta(tmp_path, monkeypatc
 
 
 def test_checkpoint_raw_sin_cambio_de_tamano_se_detecta(tmp_path, monkeypatch):
-    # Política cerrada: tras un checkpoint externo el principal cambia y el
-    # motor pide confirmación explícita antes de reabrir.
-    monkeypatch.setenv("BIORAG_SQLITE_FORCE_OPEN", "1")
     """Regresión de docs/auditoria_pr13_d5c3834.md, caso 2.
 
     Un checkpoint PASSIVE ejecutado por un cliente sin protocolo puede mover
     páginas del WAL al archivo principal sin cambiar su tamaño ni data_version.
     Debe seguir fallando cerrado.
+
+    Lleva FORCE_OPEN porque esta prueba mide el rechazo por firma, y la capa
+    nueva rechaza antes de llegar a esa comprobación: tras un checkpoint externo
+    el principal cambió y el par no se puede verificar. Es el coste declarado de
+    fallar cerrado, no un atajo de la prueba.
     """
     import os
+
+    monkeypatch.setenv("BIORAG_SQLITE_FORCE_OPEN", "1")
 
     from core.sqlite_runtime import open_writer
 
