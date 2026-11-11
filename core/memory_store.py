@@ -370,6 +370,8 @@ class SQLiteMemoryBioRAG(metaclass=_OperationTrackedMeta):
                     self._lifecycle_condition.wait()
                 if self._closed:
                     raise RuntimeError("La instancia SQLiteMemoryBioRAG ya fue cerrada")
+                if self._close_failed:
+                    raise RuntimeError("El cierre anterior falló; solo se puede reintentar el cierre")
                 self._active_operations += 1
             try:
                 if self._is_memory_database:
@@ -423,6 +425,8 @@ class SQLiteMemoryBioRAG(metaclass=_OperationTrackedMeta):
             self._end_operation()
 
     def _ensure_database_identity_for_db_access(self, connection=None):
+        if getattr(self, "_close_failed", False):
+            raise RuntimeError("El cierre anterior falló; solo se puede reintentar el cierre")
         operation_state = self._operation_local
         if getattr(operation_state, "depth", 0):
             if getattr(operation_state, "identity_checked", False):
@@ -704,6 +708,8 @@ class SQLiteMemoryBioRAG(metaclass=_OperationTrackedMeta):
         self._check_in_place_change(connection)
 
     def _check_connection_access(self, connection):
+        if getattr(self, "_close_failed", False):
+            raise RuntimeError("El cierre anterior falló; solo se puede reintentar el cierre")
         if getattr(self._operation_local, "depth", 0):
             self._ensure_database_identity_for_db_access(connection=connection)
         else:
@@ -797,6 +803,9 @@ class SQLiteMemoryBioRAG(metaclass=_OperationTrackedMeta):
         self._active_operations = 0
         self._closing = False
         self._closed = False
+        self._close_failed = False
+        self._close_checkpoint_complete = False
+        self._close_pending = None
         self._last_defaults = {}
         self._persistente = False
 
@@ -1358,26 +1367,36 @@ class SQLiteMemoryBioRAG(metaclass=_OperationTrackedMeta):
             raise RuntimeError("cerrar_sistema no puede ejecutarse desde una operación activa")
 
         with self._lifecycle_condition:
+            while self._closing:
+                self._lifecycle_condition.wait()
             if self._closed:
-                return
-            if self._closing:
-                while self._closing and not self._closed:
-                    self._lifecycle_condition.wait()
                 return
             self._closing = True
             while self._active_operations:
                 self._lifecycle_condition.wait()
             with self._connection_registry_lock:
-                connections = tuple(self._connections)
-                self._closed = True
+                if self._close_pending is None:
+                    self._close_pending = list(self._connections)
 
         try:
-            self._consolidar_antes_de_cerrar(connections)
-            for conn in connections:
-                try:
-                    conn.close()
-                except sqlite3.Error:
-                    logger.exception("No se pudo cerrar una conexión SQLite del motor")
+            # Si un cierre parcial falló, sus conexiones ya cerradas no deben
+            # volver a usarse para el checkpoint durante el reintento.
+            if not self._close_checkpoint_complete:
+                self._consolidar_antes_de_cerrar(tuple(self._close_pending))
+                self._close_checkpoint_complete = True
+            while self._close_pending:
+                conn = self._close_pending[0]
+                conn.close()
+                self._close_pending.pop(0)
+            with self._lifecycle_condition:
+                self._closed = True
+                self._close_failed = False
+        except BaseException:
+            # Bloquear operaciones también después de liberar _closing: una
+            # conexión puede haberse cerrado antes de que otra fallara.
+            with self._lifecycle_condition:
+                self._close_failed = True
+            raise
         finally:
             with self._lifecycle_condition:
                 self._closing = False

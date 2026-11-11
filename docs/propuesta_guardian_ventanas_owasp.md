@@ -59,6 +59,10 @@ Aplicar el checklist del repo `docs/SEGURIDAD_OWASP.md` a **cada diseño concret
 | A09 Logging y monitoreo | Fallos silenciosos y filtración de recuerdos en logs. Auditoría acotada sin contenido sensible, fallos visibles sin falsa confirmación. | Pruebas de redacción, rotación, permisos y errores si logging falla. |
 | A10 SSRF | Si instalador descarga por red o acepta URLs configurables, evitar destinos arbitrarios y redirecciones no confiables. | Lista de fuentes permitidas, validación de URL/redirecciones, timeout y pruebas sin red. |
 
+## Revisión previa OWASP: cambio acotado de estado de cierre
+
+**Superficie:** no añade archivos, entradas, red ni permisos; sí cambia la salida de error al fallar el cierre de una conexión, que deja de registrarse como éxito aparente. No introduce recuperación ni modifica sidecars por sí mismo. A01: sin acceso nuevo; A02: sin criptografía nueva; A03: sin SQL ni rutas nuevas; A04: tras fallo, bloquear operaciones y permitir reintento de cierre sin dar éxito falso, probar cierre parcial y esperas concurrentes; A05: no cambiar configuración SQLite; A06: sin dependencias nuevas; A07: sin autenticación nueva; A08: conservar las conexiones que no se han cerrado y no ejecutar nuevamente el checkpoint después de un cierre parcial; A09: excepciones sin incluir recuerdos; A10: sin red. Limitación: no protege el WAL ante checkpoint correcto o ante caída del proceso, ni acredita fuentes o genera backups. Revisar el parche y esta evaluación con la auditora antes del merge.
+
 ## Pruebas y dictamen solicitado
 
 Añadir por fases: cierres normales y checkpoint busy/parcial; caídas inyectadas en cada fila de la tabla; pérdida y truncamiento del WAL; marcadores viejos/ausentes/dañados; checkout activo y cerrado; cambios después de validación; múltiples procesos coordinados y externos; verificación del runtime y FTS5 por proceso; cortes de actualización y rollback; recuperación desde artefacto del producto; pruebas 20/50/100 clientes, latencia, memoria y recall sobre snapshot y copia consistente real. Registrar entornos; no confundir simulación de versión con runtime corregido real.

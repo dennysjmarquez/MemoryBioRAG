@@ -11,15 +11,6 @@ import pytest
 from test_sqlite_cierre_tras_checkout import motor_tras_checkout_forzado
 
 
-class CierreDeclaradoAntesDeTerminar(AssertionError):
-    """El motor se marcó cerrado aunque falló una etapa previa al cierre."""
-
-
-@pytest.mark.xfail(
-    strict=True,
-    raises=CierreDeclaradoAntesDeTerminar,
-    reason="El cierre actual marca la instancia cerrada antes de completar sus etapas",
-)
 def test_fallo_en_etapa_previa_no_debe_declarar_motor_cerrado(motor_tras_checkout_forzado, monkeypatch):
     """Una etapa fallida no debe declarar cerrado el motor con handles vivos."""
     motor, _db, _wal, _principal_a, _contenido, _hash_b, _tmp_path = motor_tras_checkout_forzado
@@ -35,8 +26,10 @@ def test_fallo_en_etapa_previa_no_debe_declarar_motor_cerrado(motor_tras_checkou
         # Verificar el handle directamente, sin consultar ni modificar el par.
         for conn in conexiones:
             assert isinstance(conn.in_transaction, bool)
-        if motor._closed:
-            raise CierreDeclaradoAntesDeTerminar("_closed=True con conexiones aún abiertas")
+        assert not motor._closed
+        assert motor._close_failed
+        with pytest.raises(RuntimeError, match="cierre anterior falló"):
+            motor.conn.execute("SELECT 1")
     finally:
         # Limpieza exclusiva de la fixture. No modela recuperación de producción.
         for conn in conexiones:
