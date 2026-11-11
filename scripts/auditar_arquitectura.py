@@ -10,6 +10,7 @@ Qué comprueba:
   2. Anidamiento máximo de tres niveles en `core/`.
   3. Funciones sin docstring en los paquetes de `core/`.
   4. Ciclos de importación entre módulos de un mismo paquete.
+  5. Antipatrones de `docs/CODIGO_LIMPIO.md` §3: `except:` desnudo e `import *`.
 
 Cómo se usa:
     python3 scripts/auditar_arquitectura.py            # todo core/
@@ -85,6 +86,27 @@ def revisar_docstrings(carpeta: Path) -> list[dict]:
     return faltan
 
 
+def revisar_antipatrones(carpeta: Path) -> list[dict]:
+    """Reglas de `docs/CODIGO_LIMPIO.md` §3: antipatrones que no cuestan nada evitar."""
+    encontrados = []
+    for archivo in carpeta.glob("*.py"):
+        try:
+            arbol = ast.parse(archivo.read_text())
+        except SyntaxError:
+            continue
+        for nodo in ast.walk(arbol):
+            if isinstance(nodo, ast.ExceptHandler) and nodo.type is None:
+                encontrados.append(hallazgo(
+                    "except_desnudo", f"{archivo.relative_to(RAIZ)}:{nodo.lineno}",
+                    "`except:` se traga hasta Ctrl-C; usa `except Exception` "
+                    "o la excepcion concreta"))
+            elif isinstance(nodo, ast.ImportFrom) and any(a.name == "*" for a in nodo.names):
+                encontrados.append(hallazgo(
+                    "import_estrella", f"{archivo.relative_to(RAIZ)}:{nodo.lineno}",
+                    "`import *` rompe el rastreo de dependencias; importa nombres"))
+    return encontrados
+
+
 def revisar_ciclos(carpeta: Path) -> list[dict]:
     """Regla 4b.3: sin ciclos entre los módulos de un mismo paquete."""
     grafo: dict[str, set[str]] = {}
@@ -133,6 +155,7 @@ def main(argv: list[str]) -> int:
         encontrados += revisar_anidamiento(carpeta)
         encontrados += revisar_docstrings(carpeta)
         encontrados += revisar_ciclos(carpeta)
+        encontrados += revisar_antipatrones(carpeta)
 
     if not encontrados:
         print(f"Arquitectura OK ({len(paquetes(objetivo))} paquetes revisados).")

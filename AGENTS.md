@@ -204,6 +204,25 @@ qué se hizo así, para que nadie la "simplifique" y rompa algo.
 qué es, por qué existe, con qué se conecta y su estado. Se actualiza **en el
 mismo cambio** que toca el archivo.
 
+### 4b.4b Código limpio, SOLID y antipatrones
+
+El detalle está en **`docs/CODIGO_LIMPIO.md`**. En corto:
+
+- **SOLID aplicado aquí**, con el caso real de cada principio (no teoría).
+- **Antipatrones medidos en este repo**, no de manual: archivo Dios
+  (11 archivos de `core/` pasan de 600 líneas), función Dios
+  (`buscar_por_frase` con 24 parámetros), documentación ausente (114
+  funciones), números mágicos, `except:` desnudo, `import *`.
+- **Convenciones de nombres, errores, comentarios y pruebas**, con ejemplos.
+- **Deuda congelada**: `tests/test_arquitectura.py` falla si la cifra sube.
+  Regla de convivencia: el archivo que toques lo dejas mejor de como estaba.
+
+Se comprueba con:
+
+```bash
+python3 scripts/auditar_arquitectura.py
+```
+
 ### 4b.5 Reglas de código que no se negocian
 
 - **Cero funciones sin docstring** en un paquete nuevo. Se verifica con el AST,

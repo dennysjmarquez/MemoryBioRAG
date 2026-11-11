@@ -18,6 +18,9 @@ GUION = RAIZ / "scripts" / "auditar_arquitectura.py"
 
 # Deuda congelada al crear la regla (2026-11-07). Solo puede bajar.
 DEUDA_INICIAL = 114
+# Antipatrones de docs/CODIGO_LIMPIO.md §3. Eran 7; se corrigieron todas.
+EXCEPT_DESNUDOS_MAX = 0
+IMPORT_ESTRELLA_MAX = 0
 
 
 def _auditar(*args: str) -> subprocess.CompletedProcess:
@@ -42,6 +45,27 @@ def test_la_deuda_de_arquitectura_no_crece():
         f"la deuda de arquitectura creció de {DEUDA_INICIAL} a {total}.\n"
         f"Documenta tus funciones (AGENTS.md §4b.4):\n{resultado.stdout[:3000]}"
     )
+
+
+def test_sin_except_desnudos():
+    """`except:` se traga hasta Ctrl-C y esconde fallos reales.
+
+    Habia 7 en core/ (mcp_server/search.py y memory/schema.py). Se corrigieron
+    todas el 2026-11-07: ahora el tope es cero.
+    """
+    resultado = _auditar()
+    desnudos = resultado.stdout.count("[except_desnudo]")
+    assert desnudos <= EXCEPT_DESNUDOS_MAX, (
+        f"hay {desnudos} `except:` desnudos; usa la excepcion concreta "
+        f"(docs/CODIGO_LIMPIO.md §3)"
+    )
+
+
+def test_sin_import_estrella():
+    """`import *` rompe el rastreo de dependencias del que vive la arquitectura."""
+    resultado = _auditar()
+    estrellas = resultado.stdout.count("[import_estrella]")
+    assert estrellas <= IMPORT_ESTRELLA_MAX, f"hay {estrellas} `import *`"
 
 
 def test_sin_nombres_de_cajon_de_sastre():
