@@ -23,6 +23,8 @@ def base_con_commit_en_wal(tmp_path, monkeypatch):
     """Prepara esquema consolidado y un commit en WAL de un proceso caído."""
     # Solo simula la política de versión; no verifica el runtime corregido.
     monkeypatch.setattr(constants, "_effective_sqlite_version", lambda: (3, 51, 3))
+    monkeypatch.setenv("BIORAG_SQLITE_GUARD", "1")
+    monkeypatch.setenv("BIORAG_SQLITE_FORCE_OPEN", "0")
     db = tmp_path / "memoria.db"
     inicial = sqlite3.connect(db)
     try:
@@ -98,14 +100,23 @@ def test_no_abrir_silenciosamente_si_desaparece_wal_con_commit(base_con_commit_e
 def test_checkpoint_normal_conserva_recuerdo_al_reabrir(tmp_path, monkeypatch):
     """Control: no se debe rechazar automáticamente todo WAL desaparecido."""
     monkeypatch.setattr(constants, "_effective_sqlite_version", lambda: (3, 51, 3))
+    monkeypatch.setenv("BIORAG_SQLITE_GUARD", "1")
+    monkeypatch.setenv("BIORAG_SQLITE_FORCE_OPEN", "0")
     db = tmp_path / "checkpoint.db"
     conn = open_writer(db)
     try:
         assert conn.execute("PRAGMA journal_mode").fetchone()[0] == "wal"
+        conn.execute("PRAGMA wal_autocheckpoint=0")
+        assert conn.execute("PRAGMA wal_autocheckpoint").fetchone()[0] == 0
         conn.execute("CREATE TABLE recuerdos (texto TEXT NOT NULL)")
         conn.execute("INSERT INTO recuerdos VALUES ('conservado')")
         conn.commit()
-        assert Path(str(db) + "-wal").stat().st_size > 0
+        wal = Path(str(db) + "-wal")
+        assert wal.stat().st_size > 0
+        estado = json.loads(Path(str(db) + ".biorag-pair-state").read_text())
+        assert estado["wal_salt"] and estado["wal_salt"] == pair_guard._wal_header_salt(str(wal))
+        assert estado["wal_content"] and estado["wal_content"] == pair_guard._wal_content_digest(str(wal))
+        assert estado["main"]["sha256"] == pair_guard._file_forensics(str(db))["sha256"]
         assert conn.execute("PRAGMA wal_checkpoint(TRUNCATE)").fetchone() == (0, 0, 0)
     finally:
         conn.close()
