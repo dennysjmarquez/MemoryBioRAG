@@ -97,6 +97,7 @@ __all__ = [
     "SQLiteWriterRuntime",
     # errores
     "SQLiteLfsPointerError",
+    "is_wal_reset_vulnerable",
     "SQLiteSidecarConflictError",
     "SQLiteDatabaseIdentityChangedError",
     "UnsafeSQLiteJournalModeError",

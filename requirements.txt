@@ -1,3 +1,19 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# REQUISITO QUE NO SE RESUELVE CON PIP: SQLite >= 3.51.3 (o 3.50.7, o 3.44.6)
+#
+# SQLite NO es un paquete de Python: viene COMPILADO dentro del intérprete.
+# Añadirlo aquí no lo actualiza, y `pip install sqlite3` no existe.
+#
+# Por qué importa: las versiones anteriores a las indicadas tienen el WAL-reset
+# bug, que puede CORROMPER la base cuando dos procesos escriben a la vez. Con
+# ellas BioRAG permite leer pero rechaza guardar, y lo avisa al arrancar.
+#
+# Comprobar con el MISMO intérprete que arranca el servidor:
+#     python -c "import sqlite3; print(sqlite3.sqlite_version)"
+#
+# Si sale una versión afectada: actualiza Python (3.13+ suele traerla). No hay
+# forma de arreglarlo desde requirements.
+# ─────────────────────────────────────────────────────────────────────────────
 # BioRAG deps PINNED (==) — lección 2026-09-12: un reinstall con rangos (>=)
 # movió el 921 de 97.37/90.74/0.9331/23/FP15% a 97.60/90.51/0.9323/21/FP0
 # SIN cambiar ni código ni DB (deriva de entorno: numpy 2.4.6 et al).

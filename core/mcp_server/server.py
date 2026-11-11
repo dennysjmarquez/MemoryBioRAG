@@ -164,6 +164,19 @@ def main(argv: Optional[list[str]] = None) -> int:
             except ValueError:
                 pass
 
+    # Comprobación del runtime ANTES de construir el servidor: si el SQLite
+    # enlazado tiene el WAL-reset bug, el usuario debe saberlo al arrancar y no
+    # a mitad de una conversación, cuando le pide al agente que recuerde algo.
+    # Informa y no impide arrancar: se puede seguir leyendo, y dejar al usuario
+    # sin servicio por un requisito del entorno no es aceptable.
+    try:
+        from core.paths import resolve_db_path
+        from core.sqlite.preflight import anunciar_si_hay_problema
+
+        anunciar_si_hay_problema(resolve_db_path())
+    except Exception as exc:  # nunca impedir el arranque por el aviso
+        logger.debug("No se pudo comprobar el runtime de SQLite: %s", exc)
+
     try:
         server = _build_server()
     except ImportError as exc:

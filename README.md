@@ -9,6 +9,33 @@
 
 ---
 
+## ⚠️ Requisito del entorno: versión de SQLite
+
+**Antes de nada, comprueba esto.** BioRAG usa WAL, y las versiones de SQLite
+anteriores a **3.51.3** (o al backport **3.50.7** / **3.44.6**) tienen un fallo
+conocido que puede **corromper la base** cuando dos procesos escriben a la vez.
+
+```bash
+python -c "import sqlite3; print(sqlite3.sqlite_version)"
+```
+
+| Resultado | Qué hacer |
+|---|---|
+| `3.51.3` o superior | Nada. |
+| `3.50.7` exacta, o `3.44.6` con el backport | Nada. |
+| Cualquier otra anterior | **Actualiza Python.** |
+
+**No se arregla con `pip`.** SQLite viene **compilado dentro de Python**; no es
+un paquete instalable. Actualizar el intérprete es la única vía.
+
+Si arrancas con una versión afectada, BioRAG **lo avisa al arrancar** y funciona
+en modo de solo lectura: puedes consultar tu memoria, pero las operaciones que
+guardan serán rechazadas. Nunca escribe a ciegas sobre una base que podría
+corromperse.
+
+Detalle completo y procedimiento de migración de journal:
+`docs/sqlite_journal_migration_runbook.md`
+
 ## 📊 Métricas de la suite oficial (v33.0 · 2026-10-14 · vigentes en v34.0)
 
 > **v34.0:** con una DB nueva, o sin campeón, la neurona no actúa y estos números se mantienen **idénticos** (son el piso). Con el campeón ya aprendido sobre la copia del snapshot (`despertar_neurona.sh`, 500 ciclos), la misma suite da **Recall@5 100.00 % · Recall@1 94.06 % (823/875) · MRR 0.964 · FP 0/40**, sin ninguna categoría por debajo del piso. Detalle en [La Neurona de BioRAG](#-novedades-de-la-versión-v340--la-neurona-de-biorag).
