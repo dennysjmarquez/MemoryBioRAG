@@ -76,6 +76,9 @@ def motor_tras_checkout_forzado(tmp_path, monkeypatch, request):
         assert motor.conn.execute("PRAGMA journal_mode").fetchone()[0] == "wal"
         motor.conn.execute("INSERT INTO recuerdos VALUES ('confirmado en A')")
         motor.conn.commit()
+        wal = Path(str(db) + "-wal")
+        assert wal.exists() and wal.stat().st_size > 0
+        assert motor.conn.execute("SELECT texto FROM recuerdos WHERE texto='confirmado en A'").fetchone() == ("confirmado en A",)
         if getattr(request, "param", False):
             errores = []
 
@@ -92,9 +95,6 @@ def motor_tras_checkout_forzado(tmp_path, monkeypatch, request):
             assert not hilo.is_alive(), "el escritor auxiliar no terminó"
             assert not errores, errores
             assert len(motor._connections) >= 2
-        wal = Path(str(db) + "-wal")
-        assert wal.exists() and wal.stat().st_size > 0
-        assert motor.conn.execute("SELECT texto FROM recuerdos WHERE texto='confirmado en A'").fetchone() == ("confirmado en A",)
         # No hay otro escritor en esta fixture: fotografiamos ambos archivos
         # antes del checkout. Estas copias sirven solo de control del test; no
         # cuentan como artefacto de recuperación producido por BioRAG.
