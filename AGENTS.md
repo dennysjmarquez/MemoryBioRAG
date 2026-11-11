@@ -65,6 +65,9 @@ No neuron enters the engine without a **floor** (the hand formula stays the guar
 
 ---
 
+### Invariant 9: Security First — OWASP Top 10, Every Time (`CONSTITUTION.md` Pilar 12)
+Every change that adds a new **input, output, connection or permission** must walk the OWASP Top 10 checklist in `docs/SEGURIDAD_OWASP.md` **before** being implemented, and answer it in the PR. The point is to build on something already verified, not to fix it later. Injection (A03) is the critical one here: no external value ever reaches SQL, a shell command or a path unvalidated. A small change that adds no surface (docstring, refactor, extracting a pure function) only declares that it adds none. If a real doubt about security appears, **the change stops** and the reason is written down — that doubt is information, not an obstacle.
+
 ## 3. The Search Pipeline Anatomy (`core/memory_store.py`)
 
 All retrieval through `buscar_por_frase` flows through three deterministic phases:
@@ -366,6 +369,10 @@ Before claiming readiness to tackle any new feature or fix:
 4. [ ] State clearly the hypothesis and isolated change you intend to make (One change at a time).
 5. [ ] Ensure your proposed solution adheres to the **"Antes de construir, justifica"** UX-first rule.
 6. [ ] Read Section 10 (Pre-flight Search Protocol) and confirm you understand the mandatory search invariant.
+7. [ ] Read `docs/SEGURIDAD_OWASP.md` and be ready to answer the OWASP Top 10 checklist for your change (Invariant 9).
+8. [ ] Read `docs/FLUJO_AVANZAR.md`: know what is **blocking** (can corrupt data, leak data, or break startup) and what is **declared debt** that does not block a merge.
+9. [ ] Read `docs/CODIGO_LIMPIO.md` before writing new modules: SOLID, naming, error handling, measured antipatterns, frozen debt.
+10. [ ] Run `python3 scripts/auditar_arquitectura.py` and confirm your target package passes (`--strict`).
 
 ---
 

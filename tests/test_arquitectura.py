@@ -21,6 +21,10 @@ DEUDA_INICIAL = 114
 # Antipatrones de docs/CODIGO_LIMPIO.md §3. Eran 7; se corrigieron todas.
 EXCEPT_DESNUDOS_MAX = 0
 IMPORT_ESTRELLA_MAX = 0
+# SQL con f-string: 62 revisados uno a uno con el AST el 2026-11-07. Todos
+# interpolan placeholders, nombres de tabla constantes o enteros del propio
+# codigo. Solo puede bajar (docs/SEGURIDAD_OWASP.md §5).
+SQL_FSTRING_MAX = 62
 
 
 def _auditar(*args: str) -> subprocess.CompletedProcess:
@@ -40,7 +44,7 @@ def test_el_paquete_sqlite_cumple_las_reglas_estrictamente():
 def test_la_deuda_de_arquitectura_no_crece():
     """Cada cambio nuevo debe dejar el número igual o menor."""
     resultado = _auditar()
-    total = int(resultado.stdout.split(" hallazgo")[0]) if "hallazgo" in resultado.stdout else 0
+    total = resultado.stdout.count("[sin_docstring]")
     assert total <= DEUDA_INICIAL, (
         f"la deuda de arquitectura creció de {DEUDA_INICIAL} a {total}.\n"
         f"Documenta tus funciones (AGENTS.md §4b.4):\n{resultado.stdout[:3000]}"
@@ -66,6 +70,27 @@ def test_sin_import_estrella():
     resultado = _auditar()
     estrellas = resultado.stdout.count("[import_estrella]")
     assert estrellas <= IMPORT_ESTRELLA_MAX, f"hay {estrellas} `import *`"
+
+
+def test_el_sql_con_fstring_no_crece():
+    """OWASP A03: cada f-string de SQL es una decision que hay que justificar.
+
+    No se prohibe (PRAGMA no admite parametros y las listas de `?` son
+    legitimas), pero el numero no puede crecer sin que alguien lo revise.
+    """
+    resultado = _auditar()
+    total = resultado.stdout.count("[sql_fstring]")
+    assert total <= SQL_FSTRING_MAX, (
+        f"hay {total} SQL con f-string (tope {SQL_FSTRING_MAX}). "
+        f"Revisa que cada uno interpole solo placeholders o identificadores "
+        f"(docs/SEGURIDAD_OWASP.md §3 A03):\n{resultado.stdout[:2000]}"
+    )
+
+
+def test_sin_shell_true_en_subprocess():
+    """OWASP A03: nunca shell=True con datos que no controlas."""
+    resultado = _auditar()
+    assert "[shell_true]" not in resultado.stdout, resultado.stdout[:2000]
 
 
 def test_sin_nombres_de_cajon_de_sastre():

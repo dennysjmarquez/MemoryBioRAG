@@ -161,7 +161,11 @@ def open_reader(
     uri = Path(canonical).as_uri() + "?mode=ro"
     conn = sqlite3.connect(uri, uri=True, timeout=timeout, **connect_kwargs)
     try:
-        conn.execute(f"PRAGMA busy_timeout={timeout_ms}")
+        # PRAGMA no admite parametros (`?`), asi que el valor se interpola.
+        # `timeout_ms` viene de `int(round(...))` sobre un float ya validado
+        # contra `_MAX_BUSY_TIMEOUT_MS`: es un entero de este codigo, nunca un
+        # dato de fuera. OWASP A03 (docs/SEGURIDAD_OWASP.md).
+        conn.execute("PRAGMA busy_timeout=%d" % timeout_ms)
         conn.execute("PRAGMA query_only=ON")
         connection_diagnostics(
             conn, canonical, role="read-only", consumer=consumer

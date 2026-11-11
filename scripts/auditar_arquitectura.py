@@ -11,6 +11,8 @@ Qué comprueba:
   3. Funciones sin docstring en los paquetes de `core/`.
   4. Ciclos de importación entre módulos de un mismo paquete.
   5. Antipatrones de `docs/CODIGO_LIMPIO.md` §3: `except:` desnudo e `import *`.
+  6. Seguridad (OWASP A03, `docs/SEGURIDAD_OWASP.md`): SQL construido con
+     f-string y `subprocess` con `shell=True`.
 
 Cómo se usa:
     python3 scripts/auditar_arquitectura.py            # todo core/
@@ -107,6 +109,42 @@ def revisar_antipatrones(carpeta: Path) -> list[dict]:
     return encontrados
 
 
+def revisar_seguridad(carpeta: Path) -> list[dict]:
+    """OWASP A03 (inyeccion): SQL por f-string y ejecucion de shell.
+
+    Un f-string en SQL SOLO es aceptable cuando lo que se interpola es un
+    identificador o una lista de `?` que construye el propio codigo. Este
+    revisor marca todos los casos para revision humana: no puede distinguir
+    por si solo uno seguro de uno inseguro, y equivocarse hacia el silencio
+    seria peor.
+    """
+    encontrados = []
+    for archivo in carpeta.glob("*.py"):
+        try:
+            arbol = ast.parse(archivo.read_text())
+        except SyntaxError:
+            continue
+        for nodo in ast.walk(arbol):
+            if isinstance(nodo, ast.Call) and isinstance(nodo.func, ast.Attribute):
+                nombre = nodo.func.attr
+                if nombre in {"execute", "executescript", "executemany"} and nodo.args:
+                    primer = nodo.args[0]
+                    if isinstance(primer, ast.JoinedStr):
+                        encontrados.append(hallazgo(
+                            "sql_fstring", f"{archivo.relative_to(RAIZ)}:{nodo.lineno}",
+                            "SQL construido con f-string: revisar que solo se "
+                            "interpola un identificador o placeholders, nunca un "
+                            "valor de fuera (OWASP A03)"))
+                if nombre in {"run", "Popen", "call", "check_output"} and nodo.args:
+                    for kw in nodo.keywords:
+                        if kw.arg == "shell" and isinstance(kw.value, ast.Constant) and kw.value.value:
+                            encontrados.append(hallazgo(
+                                "shell_true", f"{archivo.relative_to(RAIZ)}:{nodo.lineno}",
+                                "subprocess con shell=True (OWASP A03): usar lista "
+                                "de argumentos y shell=False"))
+    return encontrados
+
+
 def revisar_ciclos(carpeta: Path) -> list[dict]:
     """Regla 4b.3: sin ciclos entre los módulos de un mismo paquete."""
     grafo: dict[str, set[str]] = {}
@@ -156,6 +194,7 @@ def main(argv: list[str]) -> int:
         encontrados += revisar_docstrings(carpeta)
         encontrados += revisar_ciclos(carpeta)
         encontrados += revisar_antipatrones(carpeta)
+        encontrados += revisar_seguridad(carpeta)
 
     if not encontrados:
         print(f"Arquitectura OK ({len(paquetes(objetivo))} paquetes revisados).")
