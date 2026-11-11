@@ -98,17 +98,32 @@ def _file_identity(path: str) -> dict[str, Any] | None:
     }
 
 
-def _pair_snapshot(database) -> dict[str, Any]:
+def _pair_snapshot(database, *, deep: bool) -> dict[str, Any]:
     """Fotografía verificable del par: identidad + contenido de principal y diario.
 
     Es la referencia contra la que se comprueba que el par **no cambió** entre
     la verificación y la apertura. Los campos `dev`/`ino` detectan sustitución
     por renombrado; los `sha256` detectan reescritura in situ.
+
+    `deep` decide si se hashea el contenido. La regla no es de coste, es de
+    correspondencia: **la verificación posterior debe comprobar exactamente lo
+    que asumió la anterior.**
+
+    - Si al comprobar **había** diario, la decisión se apoyó en el contenido
+      (sha256 del principal y del diario), así que la posterior debe rehashear.
+    - Si **no** había diario, la decisión solo asumió "no hay diario y el
+      principal es este archivo". Basta identidad + tamaño + fecha para
+      detectar que en la ventana apareció uno o se sustituyó el principal.
+      Hashear ahí no añadiría garantía y sí coste en **todas** las aperturas.
+
+    El error que corrigió esto (revisión independiente sobre `3912d68`): saltarse
+    la fotografía cuando no había `-wal` dejaba sin verificar justo el caso en
+    que un diario ajeno aparece antes de abrir.
     """
     value = os.path.expanduser(os.fsdecode(os.fspath(database)))
     wal = value + "-wal"
     principal = _file_identity(value)
-    if principal is not None:
+    if principal is not None and deep:
         forense = _file_forensics(value)
         if forense is not None:
             principal = {**principal, "sha256": forense["sha256"]}
@@ -119,7 +134,8 @@ def _pair_snapshot(database) -> dict[str, Any]:
         except (KeyError, TypeError):
             tamano = 0
         if tamano > 0:
-            diario = {**diario, "content": _wal_content_digest(wal)}
+            if deep:
+                diario = {**diario, "content": _wal_content_digest(wal)}
         else:
             diario = None
     return {"main": principal, "wal": diario}
@@ -158,6 +174,12 @@ def _pair_snapshot_stable(before: dict[str, Any], after: dict[str, Any]) -> bool
     principal_a, principal_b = before["main"], after["main"]
     if principal_a.get("sha256") != principal_b.get("sha256"):
         return False
+    # En modo superficial no hay sha256; la identidad, el tamaño y la fecha ya
+    # se compararon en `_pair_identity_stable`... salvo tamaño y fecha, que se
+    # comprueban aquí porque una reescritura in situ conserva el inodo.
+    for campo in ("size", "mtime_ns"):
+        if principal_a.get(campo) != principal_b.get(campo):
+            return False
     diario_a, diario_b = before.get("wal"), after.get("wal")
     if diario_a is None:
         return diario_b is None

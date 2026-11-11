@@ -225,6 +225,46 @@ entonces.
 `..._renombrado`, `..._lectura` y `test_sin_diario_no_hay_ventana_ni_coste`.
 Las cuatro **fallan sin el arreglo, pasan con él**.
 
+### Hallazgo 5 — La ventana seguía abierta cuando no había diario inicial
+
+**Causa, y es un error mío de razonamiento, no un descuido:** para no pagar el
+sha256 en el camino normal puse una condición de coste — "si no hay `-wal`, no
+se toma fotografía". Esa condición **desactivaba la verificación posterior
+justo en la puerta que debía proteger**: no había diario, `_pair_can_be_opened`
+aceptaba por ausencia de diario, aparecía un `-wal` ajeno antes de la apertura,
+y el lector mostraba su dato.
+
+**La regla correcta no es de coste, es de correspondencia:** la verificación
+posterior debe comprobar **exactamente lo que asumió la anterior**.
+
+| Estado al comprobar | Qué asumió la comprobación | Qué debe verificar después |
+|---|---|---|
+| Sin `-wal` | "no hay diario y el principal es este archivo" | Identidad + tamaño + fecha. Detecta que aparezca un diario o se sustituya el principal. |
+| Con `-wal` | "el contenido es este" (sha256) | Identidad + contenido. |
+
+Por eso la fotografía **se toma siempre**, con la profundidad que corresponda
+al estado verificado. Si no había diario basta lo superficial; si había, se
+rehashéa.
+
+**Pruebas:** `test_ventana_sin_diario_inicial_con_diario_que_aparece`,
+`test_ventana_sin_diario_inicial_escritura` y
+`test_sin_diario_se_verifica_sin_hashear`. **Las tres fallan sin el arreglo.**
+
+**Coste:** 100 aperturas sobre 8,9 MB sin diario dan ~0,78–0,84 ms antes y
+~0,77–0,90 ms después. La diferencia cae dentro del ruido de medida del
+entorno; no se paga hashing en el camino normal.
+
+### Una lección sobre mis propios arreglos
+
+Dos de los cinco hallazgos (3 y 5) los introduje **optimizando**. En el 3
+comparé la sal porque era barata, y la sal se copia. En el 5 me salté la
+verificación para no hashear, y con eso desactivé la protección donde hacía
+falta.
+
+La raíz común es la misma: **elegí qué comprobar por su coste en vez de por lo
+que la comprobación anterior había asumido**. Eso no se corrige con más
+comprobaciones; se corrige con la regla de correspondencia de arriba.
+
 ### Escenarios explorados además del reportado
 
 Se probaron antes de que los reportara la revisión. Resultado:

@@ -1476,7 +1476,7 @@ def _atacar_en_la_ventana(monkeypatch, db_destino, wal_ajeno, *, por_renombrado)
     original = opening._pair_snapshot
     estado = {"llamadas": 0}
 
-    def hook(database):
+    def hook(database, *, deep):
         estado["llamadas"] += 1
         if estado["llamadas"] == 2:  # la comprobación POSTERIOR a abrir
             destino = Path(str(db_destino) + "-wal")
@@ -1487,7 +1487,7 @@ def _atacar_en_la_ventana(monkeypatch, db_destino, wal_ajeno, *, por_renombrado)
                 os.replace(temporal, destino)
             else:
                 destino.write_bytes(wal_ajeno)  # in situ: conserva el inodo
-        return original(database)
+        return original(database, deep=deep)
 
     monkeypatch.setattr(opening, "_pair_snapshot", hook)
     return estado
@@ -1546,12 +1546,14 @@ def test_ventana_entre_comprobacion_y_apertura_lectura(tmp_path, monkeypatch):
         propietario.close()
 
 
-def test_sin_diario_no_hay_ventana_ni_coste(tmp_path, monkeypatch):
-    """La verificación posterior solo se paga cuando hay un diario que aplicar.
+def test_sin_diario_se_verifica_sin_hashear(tmp_path, monkeypatch):
+    """Sin diario se verifica igual, pero sin pagar sha256.
 
-    Sin `-wal` no hay nada que SQLite pueda aplicar, así que no hay decisión que
-    dependa de los archivos ni ventana que cerrar. Es el camino normal (cierre
-    ordenado) y debe seguir igual de barato: no se toma fotografía.
+    Esta prueba fijaba antes la política contraria (no tomar fotografía cuando
+    no había `-wal`). Esa política era el hallazgo 5: dejaba sin verificar el
+    caso en que un diario aparece antes de abrir. La regla vigente es que la
+    verificación posterior comprueba lo que asumió la anterior: sin diario,
+    identidad + tamaño + fecha; con diario, también el contenido.
     """
     from core.sqlite import opening
 
@@ -1565,12 +1567,12 @@ def test_sin_diario_no_hay_ventana_ni_coste(tmp_path, monkeypatch):
         cerebro.cerrar_sistema()
     assert not Path(str(db_path) + "-wal").exists()
 
-    llamadas = {"n": 0}
+    profundidades = []
     original = opening._pair_snapshot
 
-    def contar(database):
-        llamadas["n"] += 1
-        return original(database)
+    def contar(database, *, deep):
+        profundidades.append(deep)
+        return original(database, deep=deep)
 
     monkeypatch.setattr(opening, "_pair_snapshot", contar)
     conn = sqlite_runtime.open_reader(db_path)
@@ -1578,4 +1580,113 @@ def test_sin_diario_no_hay_ventana_ni_coste(tmp_path, monkeypatch):
         assert conn.execute("SELECT COUNT(*) FROM t").fetchone()[0] == 0
     finally:
         conn.close()
-    assert llamadas["n"] == 0, "sin diario no debe tomarse fotografía"
+    assert profundidades, "debe tomarse fotografía aunque no haya diario"
+    assert all(p is False for p in profundidades), "sin diario no se hashea"
+
+
+def test_ventana_sin_diario_inicial_con_diario_que_aparece(tmp_path, monkeypatch):
+    """Regresión de la revisión independiente sobre `3912d68` (hallazgo 5).
+
+    El arreglo anterior solo tomaba fotografía cuando ya había un `-wal`, para
+    no pagar el sha256 en el camino normal. Eso dejaba **sin verificar
+    justo el caso contrario**: no hay diario, `_pair_can_be_opened` acepta por
+    ausencia de diario, aparece un `-wal` ajeno antes de la apertura, y el
+    lector muestra su dato.
+
+    La regla correcta no es de coste sino de correspondencia: la verificación
+    posterior debe comprobar lo que asumió la anterior. Si no había diario, se
+    fotografía igual (identidad, tamaño y fecha) y la aparición de uno se
+    detecta.
+    """
+    import shutil
+
+    from core.sqlite import opening
+
+    monkeypatch.setattr(_sqlite_config, "_effective_sqlite_version", lambda: (3, 51, 3))
+    db_path = tmp_path / "sin_wal_inicial.db"
+    cerebro = SQLiteMemoryBioRAG(str(db_path))
+    try:
+        cerebro.cursor.execute("CREATE TABLE t (id INTEGER PRIMARY KEY, v TEXT)")
+        cerebro.cursor.execute("INSERT INTO t VALUES (1, 'original')")
+        cerebro.conn.commit()
+    finally:
+        cerebro.cerrar_sistema()
+
+    # Estado de partida: NO hay diario. Es el caso que quedaba sin verificar.
+    assert not Path(str(db_path) + "-wal").exists()
+
+    copia = tmp_path / "ajena.db"
+    shutil.copyfile(db_path, copia)
+    conn = sqlite3.connect(copia)
+    try:
+        conn.execute("PRAGMA journal_mode=WAL")
+        conn.execute("UPDATE t SET v='DATO_AJENO' WHERE id=1")
+        conn.commit()
+        wal_ajeno = Path(str(copia) + "-wal").read_bytes()
+    finally:
+        conn.close()
+
+    original = opening._pair_can_be_opened
+    estado = {"veces": 0}
+
+    def hook(database):
+        resultado = original(database)
+        estado["veces"] += 1
+        if estado["veces"] == 1 and resultado:
+            # Aceptó por ausencia de diario; el ajeno aparece antes de abrir.
+            Path(str(db_path) + "-wal").write_bytes(wal_ajeno)
+        return resultado
+
+    monkeypatch.setattr(opening, "_pair_can_be_opened", hook)
+
+    with pytest.raises(sqlite_runtime.SQLiteSidecarConflictError):
+        sqlite_runtime.open_reader(db_path)
+    assert estado["veces"] >= 1
+
+
+def test_ventana_sin_diario_inicial_escritura(tmp_path, monkeypatch):
+    """La misma carrera por la puerta de escritura, sin diario inicial.
+
+    Un escritor que abriera con el diario ajeno recién aparecido lo aplicaría y
+    podría consolidarlo en el principal. Es el caso más caro de los dos.
+    """
+    import shutil
+
+    from core.sqlite import opening
+
+    monkeypatch.setattr(_sqlite_config, "_effective_sqlite_version", lambda: (3, 51, 3))
+    db_path = tmp_path / "sin_wal_escritura.db"
+    cerebro = SQLiteMemoryBioRAG(str(db_path))
+    try:
+        cerebro.cursor.execute("CREATE TABLE t (id INTEGER PRIMARY KEY, v TEXT)")
+        cerebro.cursor.execute("INSERT INTO t VALUES (1, 'original')")
+        cerebro.conn.commit()
+    finally:
+        cerebro.cerrar_sistema()
+    assert not Path(str(db_path) + "-wal").exists()
+
+    copia = tmp_path / "ajena2.db"
+    shutil.copyfile(db_path, copia)
+    conn = sqlite3.connect(copia)
+    try:
+        conn.execute("PRAGMA journal_mode=WAL")
+        conn.execute("UPDATE t SET v='DATO_AJENO' WHERE id=1")
+        conn.commit()
+        wal_ajeno = Path(str(copia) + "-wal").read_bytes()
+    finally:
+        conn.close()
+
+    original = opening._pair_can_be_opened
+    estado = {"veces": 0}
+
+    def hook(database):
+        resultado = original(database)
+        estado["veces"] += 1
+        if estado["veces"] == 1 and resultado:
+            Path(str(db_path) + "-wal").write_bytes(wal_ajeno)
+        return resultado
+
+    monkeypatch.setattr(opening, "_pair_can_be_opened", hook)
+
+    with pytest.raises(sqlite_runtime.SQLiteSidecarConflictError):
+        sqlite_runtime.open_writer(db_path)

@@ -91,9 +91,18 @@ def open_writer(
     # volverá a tomar tras abrir: si los archivos detrás de los nombres no son
     # los mismos, la comprobación se hizo sobre unos archivos y la apertura usó
     # otros (carrera TOCTOU). Ver `_pair_identity_stable`.
+    # Se fotografía SIEMPRE que haya una decisión que verificar. `deep` depende
+    # de lo que asumió `_pair_can_be_opened`: con diario decide por contenido;
+    # sin diario solo asume "no había diario", y eso es lo que hay que revalidar.
+    #
+    # Saltarse la fotografía cuando no había `-wal` dejaba sin verificar justo el
+    # caso en que aparece uno antes de abrir (revisión independiente sobre
+    # `3912d68`): `_pair_can_be_opened` aceptaba por ausencia de diario, el
+    # diario aparecía, y `open_reader` mostraba su dato.
+    con_diario = _has_nonempty_wal(database) if guard_enabled() and database_existed else False
     antes = (
-        _pair_snapshot(database)
-        if guard_enabled() and database_existed and _has_nonempty_wal(database)
+        _pair_snapshot(database, deep=con_diario)
+        if guard_enabled() and database_existed
         else None
     )
     if guard_enabled() and database_existed and not _pair_can_be_opened(database):
@@ -123,7 +132,7 @@ def open_writer(
     )
     try:
         if antes is not None and not force_open_authorized():
-            if not _pair_snapshot_stable(antes, _pair_snapshot(database)):
+            if not _pair_snapshot_stable(antes, _pair_snapshot(database, deep=con_diario)):
                 # Los archivos cambiaron entre la comprobación y la apertura.
                 # Esta conexión pudo aplicar un diario que no es el verificado,
                 # así que no se entrega. Se cierra sin checkpoint para no
@@ -200,9 +209,10 @@ def open_reader(
     database_existed = _database_existed_before_open(canonical)
     # Fotografía del par junto a la comprobación, para verificar después de
     # abrir que se abrió EXACTAMENTE lo que se verificó.
+    con_diario = _has_nonempty_wal(canonical) if guard_enabled() and database_existed else False
     antes = (
-        _pair_snapshot(canonical)
-        if guard_enabled() and database_existed and _has_nonempty_wal(canonical)
+        _pair_snapshot(canonical, deep=con_diario)
+        if guard_enabled() and database_existed
         else None
     )
     if guard_enabled() and database_existed and not _pair_can_be_opened(canonical):
@@ -240,7 +250,7 @@ def open_reader(
         # En lectura no se ha leído nada todavía, así que cerrar es inocuo: la
         # conexión no ha aplicado nada ni consolidado nada.
         if antes is not None and not force_open_authorized():
-            if not _pair_snapshot_stable(antes, _pair_snapshot(canonical)):
+            if not _pair_snapshot_stable(antes, _pair_snapshot(canonical, deep=con_diario)):
                 conn.close()
                 forense = _save_conflict_forensics(canonical, motivo="par_cambio_en_apertura")
                 raise SQLiteSidecarConflictError(
