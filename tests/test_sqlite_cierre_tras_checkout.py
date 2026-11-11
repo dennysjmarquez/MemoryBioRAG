@@ -8,6 +8,7 @@ import hashlib
 from pathlib import Path
 import sqlite3
 import subprocess
+import threading
 
 import pytest
 
@@ -30,7 +31,7 @@ def leer_copia(db_path, principal, wal=None):
 
 
 @pytest.fixture
-def motor_tras_checkout_forzado(tmp_path, monkeypatch):
+def motor_tras_checkout_forzado(tmp_path, monkeypatch, request):
     """Construye dos ramas y confirma una fila en WAL antes del checkout."""
     monkeypatch.setenv("BIORAG_SQLITE_GUARD", "1")
     monkeypatch.setenv("BIORAG_SQLITE_FORCE_OPEN", "0")
@@ -75,6 +76,22 @@ def motor_tras_checkout_forzado(tmp_path, monkeypatch):
         assert motor.conn.execute("PRAGMA journal_mode").fetchone()[0] == "wal"
         motor.conn.execute("INSERT INTO recuerdos VALUES ('confirmado en A')")
         motor.conn.commit()
+        if getattr(request, "param", False):
+            errores = []
+
+            def escritor_auxiliar():
+                try:
+                    motor.conn.execute("INSERT INTO recuerdos VALUES ('commit de otro hilo')")
+                    motor.conn.commit()
+                except Exception as exc:
+                    errores.append(exc)
+
+            hilo = threading.Thread(target=escritor_auxiliar)
+            hilo.start()
+            hilo.join(timeout=20)
+            assert not hilo.is_alive(), "el escritor auxiliar no terminó"
+            assert not errores, errores
+            assert len(motor._connections) >= 2
         wal = Path(str(db) + "-wal")
         assert wal.exists() and wal.stat().st_size > 0
         assert motor.conn.execute("SELECT texto FROM recuerdos WHERE texto='confirmado en A'").fetchone() == ("confirmado en A",)
