@@ -10,7 +10,7 @@ import sqlite3
 import pytest
 
 import core.sqlite_runtime as sqlite_runtime
-from core.sqlite import config as _sqlite_config
+from core.sqlite import constants as _sqlite_config
 from core.sqlite import pair_guard as _sqlite_pair_guard
 from core.memory_store import SQLiteMemoryBioRAG
 from core.sqlite_runtime import SQLiteDatabaseIdentityChangedError
@@ -1001,7 +1001,7 @@ def test_caida_con_wal_vivo_recupera_los_datos(tmp_path, monkeypatch):
 import sys, time
 sys.path.insert(0, {str(repo)!r})
 import core.sqlite_runtime as rt
-from core.sqlite import config as _cfg
+from core.sqlite import constants as _cfg
 _cfg._effective_sqlite_version = lambda: (3, 51, 3)  # entorno de pruebas
 from core.memory_store import SQLiteMemoryBioRAG
 c = SQLiteMemoryBioRAG({str(db_path)!r})

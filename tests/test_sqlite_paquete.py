@@ -12,10 +12,10 @@ from pathlib import Path
 import pytest
 
 from core import sqlite_runtime
-from core.sqlite import config as _sqlite_config
+from core.sqlite import constants as _sqlite_config
 
 PAQUETE = Path(__file__).resolve().parents[1] / "core" / "sqlite"
-MODULOS = ["config", "epoch", "pair_guard", "tracking", "journal", "opening"]
+MODULOS = ["constants", "epoch", "pair_guard", "tracking", "journal", "opening"]
 
 
 def _usar_version(monkeypatch, version):

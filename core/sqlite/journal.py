@@ -21,8 +21,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-from core.sqlite import config as _cfg
-from core.sqlite.config import (
+from core.sqlite import constants as _cfg
+from core.sqlite.constants import (
     UnsafeSQLiteJournalModeError,
     _DEFAULT_BUSY_TIMEOUT_MS,
     _MAX_BUSY_TIMEOUT_MS,

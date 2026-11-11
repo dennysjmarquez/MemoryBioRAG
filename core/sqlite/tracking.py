@@ -20,7 +20,7 @@ import re
 import sqlite3
 from typing import Any
 
-from core.sqlite import config as _cfg
+from core.sqlite import constants as _cfg
 from core.sqlite import pair_guard as _pair_guard
 from core.sqlite.epoch import _exclusive_commit_window
 

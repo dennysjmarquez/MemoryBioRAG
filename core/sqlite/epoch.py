@@ -27,7 +27,7 @@ from pathlib import Path
 from typing import Any
 
 from core.paths import resolve_db_path
-from core.sqlite.config import (
+from core.sqlite.constants import (
     _is_memory_database,
     logger,
 )

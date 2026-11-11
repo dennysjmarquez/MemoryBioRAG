@@ -30,7 +30,7 @@ import time
 from pathlib import Path
 from typing import Any
 
-from core.sqlite.config import _is_memory_database, guard_enabled, logger
+from core.sqlite.constants import _is_memory_database, guard_enabled, logger
 
 _PAIR_STATE_SUFFIX = ".biorag-pair-state"
 

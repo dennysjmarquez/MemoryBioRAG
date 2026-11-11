@@ -124,6 +124,132 @@ The core engine is largely centralized in `core/memory_store.py` (~7,500 lines).
 
 ---
 
+## 4b. Reglas de arquitectura y organización en paquetes (obligatorias)
+
+> Estas reglas existen porque el sistema va a crecer mucho. Sin ellas, cada
+> agente o persona organiza a su manera y el proyecto termina siendo una sopa.
+> Aplican a **todo cambio nuevo**. Si encuentras código que no las cumple,
+> anótalo y corrígelo en un cambio propio y medido (Pilar 1 y 2).
+
+### 4b.1 Un archivo grande se convierte en paquete, no en excepciones
+
+Cuando un archivo pasa de **~600 líneas** o mezcla más de una responsabilidad:
+
+1. Se crea una carpeta con **el mismo nombre del archivo, sin `.py`**
+   (`core/sqlite_runtime.py` → `core/sqlite/`).
+2. El archivo original **se queda** como **fachada** que reexporta. Así ningún
+   consumidor cambia sus imports y el cambio es reversible.
+3. Los demás archivos van **dentro** de la carpeta, uno por responsabilidad.
+4. Si una de esas piezas crece demasiado, **se repite el proceso**: esa pieza
+   pasa a ser otra carpeta dentro. `core/things/core.py` → `core/things/core/`.
+
+**Máximo tres niveles de anidamiento** (`core/a/b/c.py`). Al cuarto se replantea
+la división: significa que las responsabilidades no están bien separadas.
+
+### 4b.2 Nombres de archivo: usar los que ya existen
+
+**No se inventa nomenclatura nueva si el repo ya tiene una convención.** Antes
+de crear un módulo, buscar si ese papel ya tiene nombre en `core/memory/` o
+`core/mcp_server/`.
+
+| Papel | Nombre obligatorio | Por qué |
+|---|---|---|
+| Constantes, flags y funciones puras | `constants.py` | Ya existe en `core/memory/constants.py` |
+| Esquema de tablas | `schema.py` | Ya existe |
+| Búsqueda | `search.py` | Ya existe |
+| Ordenación y puntuación | `scoring.py` | Ya existe |
+| Consolidación | `consolidation.py` | Ya existe |
+| Conexión y transporte | `server.py`, `comms.py`, `session.py` | Ya existen |
+| Punto de entrada de un paquete | `__init__.py` | Python |
+
+Si el papel es nuevo y no hay precedente, se elige un nombre **que diga qué
+hace** (`pair_guard.py`, `opening.py`), nunca `utils.py`, `helpers.py`,
+`misc.py` ni `common.py`: esos nombres son un cajón de sastre y esconden
+acoplamiento.
+
+### 4b.3 Dirección única de dependencias
+
+Un paquete declara su orden interno y **ningún módulo importa hacia arriba**:
+
+```
+opening → journal → tracking → pair_guard → epoch → constants
+```
+
+- El módulo de la izquierda puede importar del de la derecha. Al revés, nunca.
+- **Sin ciclos.** Un ciclo significa que dos piezas son en realidad una.
+- **Lo de dentro no se importa desde fuera.** Los consumidores externos usan la
+  fachada (`core.sqlite_runtime`), nunca `core.sqlite.algo`.
+- La dirección se comprueba con la herramienta del repo, no de memoria:
+  `python3 scripts/mapa_dependencias_core.py sqlite`.
+
+### 4b.4 Qué se documenta en cada pieza
+
+Esto no es burocracia: es lo que permite que alguien llegue sin contexto y no
+se pierda. **Toda pieza escrita por un agente debe responder estas preguntas:**
+
+**En el módulo (docstring de cabecera):**
+
+| Pregunta | Ejemplo |
+|---|---|
+| **Qué problema resuelve** | "SQLite aplica el `-wal` al abrir sin comprobar que sea suyo" |
+| **Por qué está aquí y no en otro sitio** | "Es la única pieza que toca archivos auxiliares" |
+| **Quién lo usa** | "`opening` antes de cada `connect`" |
+| **Con qué medida se aprobó** | "Las 50 pruebas de la capa y los 3 escenarios de la auditora" |
+
+**En cada función pública:** qué hace, en una frase, y **por qué existe** si no
+es obvio por el nombre. **En cada función que parece innecesaria o rara:** por
+qué se hizo así, para que nadie la "simplifique" y rompa algo.
+
+**En cada archivo del paquete:** una fila en el `README.md` de la carpeta, con
+qué es, por qué existe, con qué se conecta y su estado. Se actualiza **en el
+mismo cambio** que toca el archivo.
+
+### 4b.5 Reglas de código que no se negocian
+
+- **Cero funciones sin docstring** en un paquete nuevo. Se verifica con el AST,
+  no a ojo.
+- **Nada de estado global mutable** salvo lo imprescindible, y siempre
+  documentado y protegido por lock.
+- **Fallo cerrado**: ante duda, se rechaza y se deja constancia. Nunca se
+  "arregla" moviendo, renombrando o borrando archivos del usuario.
+- **Cada interruptor (`BIORAG_*`) se documenta en tres sitios**: `.env.example`,
+  tabla del `README.md` y el docs de su capa. Un interruptor indocumentado es un
+  interruptor que nadie se atreve a tocar.
+- **Una prueba por cada fallo corregido**, y la prueba **debe reproducir el
+  fallo** (con un proceso real si hace falta), no simularlo cerrando cosas a mano.
+
+### 4b.6 Cómo mover código sin romperlo (lecciones medidas)
+
+Mover código con un script es más seguro que a mano, **pero pierde cosas**. Al
+mover, comprobar siempre estas cuatro:
+
+1. **Decoradores.** `@contextmanager`, `@dataclass`, `@property`,
+   `@staticmethod` cuelgan del nodo, no del `def`. Un extractor ingenuo los
+   tira. Comparar el **AST** del original contra el nuevo, no el texto.
+2. **Asignaciones múltiples** (`A = B = valor`): el script suele capturar solo
+   la primera y la segunda desaparece.
+3. **Orden de importación**: un módulo puede necesitar importar a otro más
+   abajo; si eso ocurre, la división está mal planteada.
+4. **Parcheo en pruebas.** Si una prueba hace `monkeypatch` sobre un nombre que
+   ahora vive en otro módulo, la prueba **miente**: sigue verde sin comprobar
+   nada. Se parchea donde se **lee** el valor, no donde se reexporta.
+
+### 4b.7 Cómo se verifica que la división no cambió nada
+
+Antes de dar por buena una división:
+
+- Extraer cada bloque del original y del nuevo por AST y **compararlos**.
+  Resultado esperado: **0 diferencias**.
+- Verificar que la fachada reexporta todo lo que estaba en `__all__`.
+- Correr la suite completa **antes y después**: mismo número de verdes.
+- Escribir la prueba de arquitectura que vigila el grafo (sin ciclos, sin
+  importar lo de dentro desde fuera) para que no se degrade con el tiempo.
+
+Ver el ejemplo completo en `specs/009-sqlite-package/spec.md` y la tabla de
+piezas en `core/sqlite/README.md`.
+
+---
+
 ## 5. Database Schema Reference (SQLite)
 
 ### Table: `largo_plazo` (Primary Long-Term Memory)

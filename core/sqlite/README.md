@@ -18,7 +18,7 @@ memory_store.py ──► core/sqlite_runtime.py (fachada) ──► core/sqlite
 - **Dirección de dependencias, en un solo sentido:**
 
 ```
-opening → journal → tracking → pair_guard → epoch → config
+opening → journal → tracking → pair_guard → epoch → constants
 ```
 
 Ningún módulo importa hacia arriba. Eso es lo que permite quitar o sustituir una pieza sin tocar las demás (Pilar 9).
@@ -35,7 +35,7 @@ La división se hizo **después** de cerrar los tres huecos de la auditora: prim
 
 | Archivo | Qué es | Por qué existe / qué aporta | Se conecta con | Estado |
 |---|---|---|---|---|
-| `config.py` | Constantes, los dos interruptores (`BIORAG_SQLITE_GUARD`, `BIORAG_SQLITE_FORCE_OPEN`), la versión del motor y los tres errores propios | Es la base del paquete: lo que todos necesitan y nadie más produce. Aquí se lee la versión **efectiva** de SQLite | Todos los demás. Usa `core.paths` | Activo |
+| `constants.py` | Constantes, los dos interruptores (`BIORAG_SQLITE_GUARD`, `BIORAG_SQLITE_FORCE_OPEN`), la versión del motor y los tres errores propios | Es la base del paquete: lo que todos necesitan y nadie más produce. Aquí se lee la versión **efectiva** de SQLite | Todos los demás. Usa `core.paths` | Activo |
 | `epoch.py` | Época de commit compartida entre procesos, con sello en disco y lock entre procesos | Varios procesos escriben la misma base; necesitan saber si otro publicó sin abrir SQLite | `tracking` (ventana de commit), `opening` (identidad de ruta) | Activo |
 | `pair_guard.py` | **Decide si un `.db` y su `-wal` pueden abrirse juntos**, leyendo solo cabeceras | Es la protección contra aplicar un diario de otra versión de la base. Nunca mueve, renombra ni borra: ante duda, rechaza y deja constancia con sha256 | `opening` (antes de cada `connect`), `tracking` (reanota tras cada commit) | Activo. Se apaga con `BIORAG_SQLITE_GUARD=0` |
 | `tracking.py` | Conexión y cursor instrumentados: avisan cuándo una sentencia escribe | Para publicar la época en el momento justo sin que cada consumidor tenga que acordarse | `journal` lo instala como `factory` | Activo |
@@ -49,6 +49,23 @@ La división se hizo **después** de cerrar los tres huecos de la auditora: prim
 `core/ppmi_hybrid_search.py` y `dashboard-neuro-visor/backend/server.py`.
 
 Todos importan de `core.sqlite_runtime` (la fachada), **nunca** de los módulos internos.
+
+## Las reglas que sigue este paquete
+
+Está organizado según `AGENTS.md` §4b (arquitectura y paquetes). En resumen:
+
+- Nombre de carpeta = nombre del archivo original (`sqlite_runtime` → `sqlite/`).
+- El archivo original queda como fachada.
+- Nombres de módulo tomados de la convención existente (`constants.py`, no `config.py`).
+- Dirección única de dependencias, sin ciclos, máximo tres niveles.
+- Cero funciones sin docstring.
+
+Se comprueba automáticamente:
+
+```bash
+python3 scripts/auditar_arquitectura.py sqlite --strict   # este paquete
+python3 scripts/auditar_arquitectura.py                  # todo core/
+```
 
 ## Dos reglas al tocar esto
 

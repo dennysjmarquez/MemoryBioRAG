@@ -23,9 +23,9 @@ from pathlib import Path
 from typing import Any
 
 from core.paths import resolve_db_path
-from core.sqlite import config as _cfg
+from core.sqlite import constants as _cfg
 from core.sqlite import pair_guard as _pair_guard
-from core.sqlite.config import (
+from core.sqlite.constants import (
     SQLiteSidecarConflictError,
     _DEFAULT_BUSY_TIMEOUT_MS,
     _MAX_BUSY_TIMEOUT_MS,

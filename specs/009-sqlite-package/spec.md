@@ -27,7 +27,7 @@ Dividir en `core/sqlite/` (paquete) con seis módulos, dejando
 cambia sus imports.
 
 ```
-opening → journal → tracking → pair_guard → epoch → config
+opening → journal → tracking → pair_guard → epoch → constants
 ```
 
 Dirección única, sin ciclos. Verificado con la herramienta del propio repo

@@ -7,7 +7,7 @@ from pathlib import Path
 import pytest
 
 from core import sqlite_runtime
-from core.sqlite import config as _sqlite_config
+from core.sqlite import constants as _sqlite_config
 
 
 ROOT = Path(__file__).resolve().parents[1]

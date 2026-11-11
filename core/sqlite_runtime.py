@@ -26,7 +26,7 @@ la suite completa sin cambios (729 passed).
 from __future__ import annotations
 
 # --- config: constantes, interruptores, versión y errores -------------------
-from core.sqlite.config import (
+from core.sqlite.constants import (
     SQLiteDatabaseIdentityChangedError,
     SQLiteSidecarConflictError,
     UnsafeSQLiteJournalModeError,

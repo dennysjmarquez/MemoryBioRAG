@@ -1,4 +1,4 @@
-"""Configuración, versión y errores de la capa SQLite.
+"""Constantes, interruptores, versión y errores de la capa SQLite.
 
 Qué problema resuelve: había un solo archivo de 1.091 líneas que mezclaba
 cinco responsabilidades distintas (Constitución, Pilar 9: "nada monolítico").
@@ -88,7 +88,7 @@ def database_file_identity(database: str | os.PathLike[str]) -> tuple[int, int] 
 def _effective_sqlite_version() -> tuple[int, int, int]:
     """Versión efectiva del motor enlazado al módulo sqlite3 de este proceso.
 
-    Se consulta siempre en `core.sqlite.config` (no se importa por valor en los
+    Se consulta siempre en `core.sqlite.constants` (no se importa por valor en los
     demás módulos) para que una prueba pueda simular otra versión parcheando
     un solo nombre. Sin esto, cada módulo tendría su propia copia y la simulación
     surtiría efecto en unos sitios y no en otros.
