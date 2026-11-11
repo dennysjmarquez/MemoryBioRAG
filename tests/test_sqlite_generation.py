@@ -1421,3 +1421,161 @@ time.sleep(60)
         SQLiteMemoryBioRAG(str(db_path))
     with pytest.raises(sqlite_runtime.SQLiteSidecarConflictError):
         sqlite_runtime.open_reader(db_path)
+
+
+def _preparar_par_verificado(tmp_path, monkeypatch):
+    """Base con el par anotado y un `-wal` ajeno listo para la sustitución."""
+    import shutil
+
+    monkeypatch.setattr(_sqlite_config, "_effective_sqlite_version", lambda: (3, 51, 3))
+    db_path = tmp_path / "ventana.db"
+    cerebro = SQLiteMemoryBioRAG(str(db_path))
+    try:
+        cerebro.cursor.execute("CREATE TABLE t (id INTEGER PRIMARY KEY, v TEXT)")
+        cerebro.cursor.execute("INSERT INTO t VALUES (1, 'original')")
+        cerebro.conn.commit()
+    finally:
+        cerebro.cerrar_sistema()
+
+    # El par debe estar VERIFICADO y con un diario vivo: sin diario no hay nada
+    # que SQLite pueda aplicar y la ventana no existe. Se abre una conexión que
+    # se queda abierta (dueña legítima del diario) y se anota el par con ella.
+    from core.sqlite.pair_guard import record_pair_state
+
+    propietario = sqlite3.connect(db_path)
+    propietario.execute("PRAGMA journal_mode=WAL")
+    propietario.execute("INSERT INTO t VALUES (2, 'propio')")
+    propietario.commit()
+    record_pair_state(db_path)
+    assert Path(str(db_path) + "-wal").stat().st_size > 0
+
+    copia = tmp_path / "ajena.db"
+    shutil.copyfile(db_path, copia)
+    conn = sqlite3.connect(copia)
+    try:
+        conn.execute("UPDATE t SET v='DATO_AJENO' WHERE id=1")
+        conn.commit()
+        wal_ajeno = Path(str(copia) + "-wal").read_bytes()
+    finally:
+        conn.close()
+    return db_path, wal_ajeno, propietario
+
+
+def _atacar_en_la_ventana(monkeypatch, db_destino, wal_ajeno, *, por_renombrado):
+    """Sustituye el `-wal` justo entre la comprobación y la apertura.
+
+    Es la carrera que la revisión independiente reprodujo sobre `2b3b11c`: la
+    comprobación previa ve el par bueno y acepta; el archivo cambia después; la
+    comprobación posterior lo rechazaría, pero si no existiera, el lector ya
+    habría abierto con el diario ajeno.
+    """
+    import os
+
+    from core.sqlite import opening
+
+    original = opening._pair_snapshot
+    estado = {"llamadas": 0}
+
+    def hook(database):
+        estado["llamadas"] += 1
+        if estado["llamadas"] == 2:  # la comprobación POSTERIOR a abrir
+            destino = Path(str(db_destino) + "-wal")
+            if por_renombrado:
+                # os.replace produce un inodo NUEVO: es lo que hace `git checkout`.
+                temporal = Path(str(db_destino) + ".nuevo-wal")
+                temporal.write_bytes(wal_ajeno)
+                os.replace(temporal, destino)
+            else:
+                destino.write_bytes(wal_ajeno)  # in situ: conserva el inodo
+        return original(database)
+
+    monkeypatch.setattr(opening, "_pair_snapshot", hook)
+    return estado
+
+
+def test_ventana_entre_comprobacion_y_apertura_escritura_in_situ(tmp_path, monkeypatch):
+    """Regresión de la revisión independiente sobre `2b3b11c` (carrera TOCTOU).
+
+    Comprobar y abrir son dos operaciones sobre un NOMBRE. Entre ambas alguien
+    puede poner otro archivo detrás del nombre. Ninguna comprobación previa
+    cierra esa ventana, así que la apertura se verifica DESPUÉS.
+    """
+    db_path, wal_ajeno, propietario = _preparar_par_verificado(tmp_path, monkeypatch)
+    try:
+        estado = _atacar_en_la_ventana(monkeypatch, db_path, wal_ajeno, por_renombrado=False)
+
+        with pytest.raises(sqlite_runtime.SQLiteSidecarConflictError):
+            sqlite_runtime.open_writer(db_path)
+        assert estado["llamadas"] >= 2, "la ventana debe haberse ejercitado"
+    finally:
+        propietario.close(), "la ventana debe haberse ejercitado"
+
+
+def test_ventana_entre_comprobacion_y_apertura_renombrado(tmp_path, monkeypatch):
+    """La variante que hace `git checkout`: `os.replace` cambia el inodo.
+
+    Una reescritura in situ conserva `(st_dev, st_ino)`, así que la identidad
+    sola no la detecta; un renombrado cambia el inodo pero puede dejar el mismo
+    contenido. Hacen falta las dos cosas: identidad y contenido.
+    """
+    db_path, wal_ajeno, propietario = _preparar_par_verificado(tmp_path, monkeypatch)
+    try:
+        estado = _atacar_en_la_ventana(monkeypatch, db_path, wal_ajeno, por_renombrado=True)
+
+        with pytest.raises(sqlite_runtime.SQLiteSidecarConflictError):
+            sqlite_runtime.open_writer(db_path)
+        assert estado["llamadas"] >= 2, "la ventana debe haberse ejercitado"
+    finally:
+        propietario.close()
+
+
+def test_ventana_entre_comprobacion_y_apertura_lectura(tmp_path, monkeypatch):
+    """La misma carrera por la puerta de lectura.
+
+    El lector es el caso que la revisión reprodujo: abría y mostraba el dato
+    ajeno. En lectura cerrar es inocuo (no se ha leído nada).
+    """
+    db_path, wal_ajeno, propietario = _preparar_par_verificado(tmp_path, monkeypatch)
+    try:
+        estado = _atacar_en_la_ventana(monkeypatch, db_path, wal_ajeno, por_renombrado=False)
+
+        with pytest.raises(sqlite_runtime.SQLiteSidecarConflictError):
+            sqlite_runtime.open_reader(db_path)
+        assert estado["llamadas"] >= 2
+    finally:
+        propietario.close()
+
+
+def test_sin_diario_no_hay_ventana_ni_coste(tmp_path, monkeypatch):
+    """La verificación posterior solo se paga cuando hay un diario que aplicar.
+
+    Sin `-wal` no hay nada que SQLite pueda aplicar, así que no hay decisión que
+    dependa de los archivos ni ventana que cerrar. Es el camino normal (cierre
+    ordenado) y debe seguir igual de barato: no se toma fotografía.
+    """
+    from core.sqlite import opening
+
+    monkeypatch.setattr(_sqlite_config, "_effective_sqlite_version", lambda: (3, 51, 3))
+    db_path = tmp_path / "sin_diario.db"
+    cerebro = SQLiteMemoryBioRAG(str(db_path))
+    try:
+        cerebro.cursor.execute("CREATE TABLE t (v TEXT)")
+        cerebro.conn.commit()
+    finally:
+        cerebro.cerrar_sistema()
+    assert not Path(str(db_path) + "-wal").exists()
+
+    llamadas = {"n": 0}
+    original = opening._pair_snapshot
+
+    def contar(database):
+        llamadas["n"] += 1
+        return original(database)
+
+    monkeypatch.setattr(opening, "_pair_snapshot", contar)
+    conn = sqlite_runtime.open_reader(db_path)
+    try:
+        assert conn.execute("SELECT COUNT(*) FROM t").fetchone()[0] == 0
+    finally:
+        conn.close()
+    assert llamadas["n"] == 0, "sin diario no debe tomarse fotografía"

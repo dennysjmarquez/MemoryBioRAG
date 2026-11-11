@@ -187,6 +187,62 @@ aunque no haya nada malo. Es coherente con fallar cerrado, pero **es una
 restricción operativa real** que hay que conocer: dos procesos sobre la misma
 base en WAL necesitan autorización explícita del primero en anotar.
 
+### Hallazgo 4 — La ventana entre comprobar y abrir (TOCTOU)
+
+**Causa raíz, y es de diseño, no un descuido:** todas las comprobaciones
+anteriores miran el **nombre** del archivo. Comprobar y abrir son dos
+operaciones distintas sobre ese nombre, y entre ellas alguien puede poner otro
+archivo detrás. **Ninguna cantidad de comprobaciones previas cierra esa
+ventana.**
+
+Reproducido con un hook: la comprobación acepta, el `-wal` cambia, y el lector
+abre y muestra el dato ajeno.
+
+**Arreglo:** verificar **después** de abrir. Se toma una fotografía del par
+(identidad `(st_dev, st_ino)` + tamaño + fecha + sha256 del principal +
+contenido del diario) en el mismo momento que la comprobación, y se vuelve a
+tomar tras abrir. Si no coinciden, la conexión **no se entrega**.
+
+- **Inodo:** `os.replace()` produce un inodo nuevo. Es lo que hace un
+  `git checkout` al cambiar la base versionada. **Git no participa en los
+  bloqueos del motor, así que la comprobación no se apoya en ningún bloqueo:**
+  se apoya en la identidad del archivo, que el sistema mantiene.
+- **Contenido:** una reescritura in situ conserva el inodo. Por eso no basta la
+  identidad: se exige también el sha256. Ambas puertas usan la comprobación
+  fuerte.
+- **En lectura** cerrar es inocuo: no se ha leído nada.
+- **En escritura** la conexión se cierra con `wal_autocheckpoint=0` y
+  `query_only=ON` para no consolidar en el principal nada de lo aplicado.
+
+**Coste medido, no estimado.** En el camino normal (cierre ordenado, sin
+`-wal`) la fotografía **no se toma**, porque sin diario no hay nada que SQLite
+pueda aplicar: 100 aperturas sobre una base de 8,9 MB dan **0,857 ms** antes y
+**0,868 ms** después (**+11 µs, +1,3%**, y es el `os.stat()` del chequeo de
+diario, no hashing). Con `-wal` vivo sí se paga el sha256 del diario, y solo
+entonces.
+
+**Pruebas:** `test_ventana_entre_comprobacion_y_apertura_escritura_in_situ`,
+`..._renombrado`, `..._lectura` y `test_sin_diario_no_hay_ventana_ni_coste`.
+Las cuatro **fallan sin el arreglo, pasan con él**.
+
+### Escenarios explorados además del reportado
+
+Se probaron antes de que los reportara la revisión. Resultado:
+
+| Escenario | Resultado |
+|---|---|
+| `-shm` ajeno **sin** `-wal` | Abre y lee el dato correcto: SQLite ignora el `-shm` huérfano. **No es un fallo** (verificado, no supuesto). |
+| `-wal` **y** `-shm` ajenos | Rechazo. |
+| `-wal` truncado a mitad de cabecera | Rechazo. |
+| Principal sin permisos | `OperationalError`, no se toca nada. |
+| Principal vía enlace simbólico | Abre correctamente. |
+| Dos lectores con `-wal` vivo | Rechazo (ver la restricción operativa de §Hallazgo 3). |
+| Sustitución **después** de abrir | La conexión abierta sigue leyendo el inodo viejo: **inmune**. Una apertura nueva abre el principal nuevo, que es correcto. |
+| ¿El cierre tras rechazar consolida lo ajeno? | **No.** Comprobado: el principal no cambia durante la apertura rechazada. Cambia al cerrar el dueño legítimo, que es su checkpoint normal, y el resultado es íntegro y sin el dato ajeno. |
+
+Este último párrafo es importante: era mi mayor preocupación del arreglo y la
+verifiqué en vez de suponerla.
+
 ### Lo que esta revisión demuestra sobre el método
 
 Las 60 pruebas de SQLite pasaban y los dos fallos seguían ahí. La razón es que

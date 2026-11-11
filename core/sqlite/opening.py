@@ -37,6 +37,8 @@ from core.sqlite.journal import configure_writer, connection_diagnostics
 from core.sqlite.tracking import _TrackedSQLiteConnection
 from core.sqlite.pair_guard import (
     _has_nonempty_wal,
+    _pair_snapshot,
+    _pair_snapshot_stable,
     _save_conflict_forensics,
 )
 
@@ -85,6 +87,15 @@ def open_writer(
     # Comprobación del par ANTES de abrir: abrir con un `-wal` de otra
     # generación presente puede hacer que SQLite lo aplique sobre el archivo
     # bueno. Se decide con los archivos, sin abrirlos con SQLite.
+    # Fotografía del par tomada EN EL MISMO MOMENTO que la comprobación. Se
+    # volverá a tomar tras abrir: si los archivos detrás de los nombres no son
+    # los mismos, la comprobación se hizo sobre unos archivos y la apertura usó
+    # otros (carrera TOCTOU). Ver `_pair_identity_stable`.
+    antes = (
+        _pair_snapshot(database)
+        if guard_enabled() and database_existed and _has_nonempty_wal(database)
+        else None
+    )
     if guard_enabled() and database_existed and not _pair_can_be_opened(database):
         if force_open_authorized():
             forense = _save_conflict_forensics(database, motivo="apertura_forzada")
@@ -111,6 +122,29 @@ def open_writer(
         **connect_kwargs,
     )
     try:
+        if antes is not None and not force_open_authorized():
+            if not _pair_snapshot_stable(antes, _pair_snapshot(database)):
+                # Los archivos cambiaron entre la comprobación y la apertura.
+                # Esta conexión pudo aplicar un diario que no es el verificado,
+                # así que no se entrega. Se cierra sin checkpoint para no
+                # consolidar en el principal nada de lo aplicado.
+                try:
+                    conn.execute("PRAGMA wal_autocheckpoint=0")
+                    conn.execute("PRAGMA query_only=ON")
+                except sqlite3.Error:
+                    logger.debug("No se pudo desactivar el checkpoint previo al cierre")
+                conn.close()
+                forense = _save_conflict_forensics(database, motivo="par_cambio_en_apertura")
+                raise SQLiteSidecarConflictError(
+                    "BioRAG no abrió la base porque los archivos del par "
+                    "cambiaron entre la comprobación y la apertura. Algo "
+                    "sustituyó el archivo en esa ventana (un `git checkout`, un "
+                    "renombrado o un proceso ajeno). La conexión se cerró sin "
+                    "consolidar el diario en el principal. No se movió, renombró "
+                    f"ni borró ningún archivo; constancia en {forense}. Para "
+                    "revisar: docs/sqlite_par_no_verificado.md. Para continuar "
+                    "bajo tu responsabilidad: BIORAG_SQLITE_FORCE_OPEN=1."
+                )
         policy = configure_writer(
             conn,
             database,
@@ -164,6 +198,13 @@ def open_reader(
     # las lecturas veían datos de otra versión de la base. Es el mismo riesgo,
     # por la puerta de al lado.
     database_existed = _database_existed_before_open(canonical)
+    # Fotografía del par junto a la comprobación, para verificar después de
+    # abrir que se abrió EXACTAMENTE lo que se verificó.
+    antes = (
+        _pair_snapshot(canonical)
+        if guard_enabled() and database_existed and _has_nonempty_wal(canonical)
+        else None
+    )
     if guard_enabled() and database_existed and not _pair_can_be_opened(canonical):
         if force_open_authorized():
             forense = _save_conflict_forensics(canonical, motivo="lectura_forzada")
@@ -189,6 +230,29 @@ def open_reader(
     uri = Path(canonical).as_uri() + "?mode=ro"
     conn = sqlite3.connect(uri, uri=True, timeout=timeout, **connect_kwargs)
     try:
+        # Cierre de la ventana TOCTOU (revisión independiente sobre 2b3b11c).
+        # La comprobación previa mira NOMBRES; entre comprobar y abrir alguien
+        # puede poner otro archivo detrás del nombre. Aquí se comprueba que el
+        # par sigue siendo el mismo que se verificó: mismo `(dev, ino)` —un
+        # renombrado lo cambia, y es lo que hace `git checkout`— y mismo
+        # contenido (una reescritura in situ conserva el inodo).
+        #
+        # En lectura no se ha leído nada todavía, así que cerrar es inocuo: la
+        # conexión no ha aplicado nada ni consolidado nada.
+        if antes is not None and not force_open_authorized():
+            if not _pair_snapshot_stable(antes, _pair_snapshot(canonical)):
+                conn.close()
+                forense = _save_conflict_forensics(canonical, motivo="par_cambio_en_apertura")
+                raise SQLiteSidecarConflictError(
+                    "BioRAG no abrió la base para lectura porque los archivos "
+                    "del par cambiaron entre la comprobación y la apertura. "
+                    "Algo sustituyó el archivo en esa ventana (un `git "
+                    "checkout`, un renombrado o un proceso ajeno). No se leyó "
+                    "ningún dato de esa conexión y no se movió, renombró ni "
+                    f"borró ningún archivo; constancia en {forense}. Para "
+                    "revisar: docs/sqlite_par_no_verificado.md. Para continuar "
+                    "bajo tu responsabilidad: BIORAG_SQLITE_FORCE_OPEN=1."
+                )
         # PRAGMA no admite parametros (`?`), asi que el valor se interpola.
         # `timeout_ms` viene de `int(round(...))` sobre un float ya validado
         # contra `_MAX_BUSY_TIMEOUT_MS`: es un entero de este codigo, nunca un

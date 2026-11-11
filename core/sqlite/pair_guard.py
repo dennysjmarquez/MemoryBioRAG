@@ -67,6 +67,105 @@ def _file_forensics(path: str) -> dict[str, Any] | None:
         "sha256": digest.hexdigest(),
     }
 
+def _file_identity(path: str) -> dict[str, Any] | None:
+    """Identidad del archivo en el sistema: `(st_dev, st_ino)` + tamaño y fecha.
+
+    Qué problema resuelve: entre comprobar el par y abrirlo hay una ventana
+    (TOCTOU) en la que el archivo puede cambiar. Ninguna comprobación previa
+    puede cerrar esa ventana, porque comprobar y abrir son dos operaciones
+    distintas sobre un **nombre**.
+
+    Por qué el inodo: `os.replace()` sobre un nombre produce un inodo **nuevo**.
+    Comparar `(st_dev, st_ino)` antes y después de abrir detecta la sustitución
+    por renombrado, que es exactamente lo que hace un `git checkout` al cambiar
+    la base versionada. Git no participa en los bloqueos del motor, así que
+    esta comprobación **no se apoya en ningún bloqueo**: se apoya en la
+    identidad del archivo, que el sistema mantiene.
+
+    Por qué no basta: una escritura **in situ** conserva el inodo y cambia el
+    contenido. Ese caso lo cubre el sha256, que se compara en la misma
+    fotografía.
+    """
+    try:
+        st = os.stat(path)
+    except OSError:
+        return None
+    return {
+        "dev": int(st.st_dev),
+        "ino": int(st.st_ino),
+        "size": int(st.st_size),
+        "mtime_ns": int(getattr(st, "st_mtime_ns", int(st.st_mtime * 1e9))),
+    }
+
+
+def _pair_snapshot(database) -> dict[str, Any]:
+    """Fotografía verificable del par: identidad + contenido de principal y diario.
+
+    Es la referencia contra la que se comprueba que el par **no cambió** entre
+    la verificación y la apertura. Los campos `dev`/`ino` detectan sustitución
+    por renombrado; los `sha256` detectan reescritura in situ.
+    """
+    value = os.path.expanduser(os.fsdecode(os.fspath(database)))
+    wal = value + "-wal"
+    principal = _file_identity(value)
+    if principal is not None:
+        forense = _file_forensics(value)
+        if forense is not None:
+            principal = {**principal, "sha256": forense["sha256"]}
+    diario = _file_identity(wal)
+    if diario is not None:
+        try:
+            tamano = diario["size"]
+        except (KeyError, TypeError):
+            tamano = 0
+        if tamano > 0:
+            diario = {**diario, "content": _wal_content_digest(wal)}
+        else:
+            diario = None
+    return {"main": principal, "wal": diario}
+
+
+def _pair_identity_stable(before: dict[str, Any], after: dict[str, Any]) -> bool:
+    """¿Los mismos archivos siguen detrás de los mismos nombres?
+
+    Solo mira `dev`/`ino`: es lo que cambia un renombrado y lo que no cambia
+    una escritura legítima del motor sobre el archivo ya abierto.
+    """
+    principal_a, principal_b = before.get("main"), after.get("main")
+    if principal_a is None or principal_b is None:
+        return False
+    if (principal_a["dev"], principal_a["ino"]) != (principal_b["dev"], principal_b["ino"]):
+        return False
+    diario_a, diario_b = before.get("wal"), after.get("wal")
+    if (diario_a is None) != (diario_b is None):
+        # El diario apareció o desapareció dentro de la ventana.
+        return False
+    if diario_a is not None:
+        if (diario_a["dev"], diario_a["ino"]) != (diario_b["dev"], diario_b["ino"]):
+            return False
+    return True
+
+
+def _pair_snapshot_stable(before: dict[str, Any], after: dict[str, Any]) -> bool:
+    """¿El par está exactamente como se verificó? Identidad **y** contenido.
+
+    Es la comprobación fuerte: además del inodo exige el mismo sha256 del
+    principal y el mismo contenido del diario, así que también detecta la
+    reescritura in situ dentro de la ventana.
+    """
+    if not _pair_identity_stable(before, after):
+        return False
+    principal_a, principal_b = before["main"], after["main"]
+    if principal_a.get("sha256") != principal_b.get("sha256"):
+        return False
+    diario_a, diario_b = before.get("wal"), after.get("wal")
+    if diario_a is None:
+        return diario_b is None
+    if diario_b is None:
+        return False
+    return diario_a.get("content") == diario_b.get("content")
+
+
 def _wal_content_digest(path: str) -> str | None:
     """sha256 del CONTENIDO del diario (todo menos la cabecera de 32 bytes).
 
