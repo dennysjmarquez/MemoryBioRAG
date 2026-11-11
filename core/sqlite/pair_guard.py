@@ -67,6 +67,59 @@ def _file_forensics(path: str) -> dict[str, Any] | None:
         "sha256": digest.hexdigest(),
     }
 
+# Hash del principal recién calculado en ESTA misma operación, por ruta.
+# Se reutiliza únicamente si tamaño y fecha siguen siendo los mismos: no es una
+# caché entre operaciones (eso ya demostró ser inseguro), sino evitar repetir
+# el mismo trabajo dentro de la misma comprobación. Lleva la firma dentro, así
+# que un archivo que cambió no puede servirse de aquí.
+_ULTIMO_HASH_PRINCIPAL: dict[str, tuple[str, int, int]] = {}
+
+
+def _olvidar_hash_principal(database) -> None:
+    """Descarta el hash reutilizable de una ruta.
+
+    Se llama al empezar cada apertura: el ámbito de reutilización es **una
+    operación**, no la vida del proceso. Si se dejara, un hash viejo podría
+    sobrevivir a un cambio de archivo con el mismo tamaño y fecha (posible en
+    sistemas de archivos de resolución gruesa), y eso es exactamente el tipo de
+    suposición que ya nos costó un hallazgo. Preferible recalcular.
+    """
+    try:
+        clave = os.path.abspath(os.path.expanduser(os.fsdecode(os.fspath(database))))
+    except (TypeError, ValueError):
+        return
+    _ULTIMO_HASH_PRINCIPAL.pop(clave, None)
+
+
+def _forense_principal(value: str) -> dict[str, Any] | None:
+    """`_file_forensics` del principal, sin repetir el hash ya hecho en esta operación.
+
+    Coste medido antes de esto: una sola apertura hasheaba el principal cuatro
+    veces (~450 ms por vez con 302 MB, 5,6 s con 1 GB). Las cuatro miran el
+    mismo archivo en el mismo instante, así que tres de ellas eran trabajo puro
+    perdido.
+
+    No confundir con un caché de resultados: la firma `(size, mtime_ns)` va
+    dentro y se comprueba en cada consulta, así que si el archivo cambió se
+    recalcula. Y no interviene en ninguna decisión: la comprobación de apertura
+    sigue calculando el hash del principal siempre que hace falta decidir.
+    """
+    clave = os.path.abspath(value)
+    try:
+        st = os.stat(value)
+    except OSError:
+        _ULTIMO_HASH_PRINCIPAL.pop(clave, None)
+        return None
+    firma = (int(st.st_size), int(getattr(st, "st_mtime_ns", int(st.st_mtime * 1e9))))
+    previo = _ULTIMO_HASH_PRINCIPAL.get(clave)
+    if previo is not None and (previo[1], previo[2]) == firma:
+        return {"size": firma[0], "mtime_ns": firma[1], "sha256": previo[0]}
+    forense = _file_forensics(value)
+    if forense is not None:
+        _ULTIMO_HASH_PRINCIPAL[clave] = (forense["sha256"], firma[0], firma[1])
+    return forense
+
+
 def _file_identity(path: str) -> dict[str, Any] | None:
     """Identidad del archivo en el sistema: `(st_dev, st_ino)` + tamaño y fecha.
 
@@ -124,7 +177,7 @@ def _pair_snapshot(database, *, deep: bool) -> dict[str, Any]:
     wal = value + "-wal"
     principal = _file_identity(value)
     if principal is not None and deep:
-        forense = _file_forensics(value)
+        forense = _forense_principal(value)
         if forense is not None:
             principal = {**principal, "sha256": forense["sha256"]}
     diario = _file_identity(wal)
@@ -253,13 +306,41 @@ def record_pair_state(database: str | Path) -> None:
                 return
         except (OSError, KeyError, TypeError, ValueError):
             pass
-    main = _file_forensics(value)
+    # Una sola lectura de cada archivo por anotación. Antes el diario se hasheaba
+    # dos veces (una en el atajo de arriba, otra aquí): trabajo repetido sobre el
+    # mismo archivo en el mismo instante.
+    contenido = _wal_content_digest(value + "-wal")
+    sal = _wal_header_salt(value + "-wal")
+
+    # El principal se reutiliza SOLO si tamaño y fecha coinciden con lo ya
+    # anotado: entonces su sha256 no puede haber cambiado. Motivo (coste
+    # medido): un commit en WAL **no modifica el principal**, así que
+    # rehashearlo en cada commit costaba ~1,2 s por GB sin aportar nada.
+    #
+    # Dirección del fallo si la inferencia se equivoca: se anotaría el sha
+    # viejo, la apertura siguiente no coincidiría y **rechazaría**. Falla
+    # cerrado, nunca acepta un par ajeno. La decisión de abrir sigue
+    # recalculando el hash del principal siempre, en `_pair_can_be_opened`.
+    main = None
+    if recorded is not None:
+        try:
+            st = os.stat(value)
+            fila = recorded["main"]
+            if (
+                int(st.st_size) == int(fila["size"])
+                and int(st.st_mtime_ns) == int(fila["mtime_ns"])
+            ):
+                main = dict(fila)
+        except (OSError, KeyError, TypeError, ValueError):
+            main = None
     if main is None:
-        return
+        main = _forense_principal(value)
+        if main is None:
+            return
     payload = {
         "main": main,
-        "wal_salt": _wal_header_salt(value + "-wal"),
-        "wal_content": _wal_content_digest(value + "-wal"),
+        "wal_salt": sal,
+        "wal_content": contenido,
         "guard": True,
         "recorded_at": time.time(),
     }
@@ -339,6 +420,7 @@ def _pair_can_be_opened(database) -> bool:
     current = _file_forensics(value)
     if current is None:
         return False
+    _ULTIMO_HASH_PRINCIPAL[os.path.abspath(value)] = (current["sha256"], current["size"], current["mtime_ns"])
     if current["sha256"] != expected:
         # El principal cambió con un diario vivo: no se puede distinguir un
         # checkpoint legítimo de una sustitución. Se pide confirmación.
@@ -381,7 +463,10 @@ def _save_conflict_forensics(database, **extra) -> str | None:
     value = os.path.expanduser(os.fsdecode(os.fspath(database)))
     payload = {
         "motivo": extra.get("motivo"),
-        "principal": _file_forensics(value),
+        # Constancia, no decisión: se reutiliza el hash ya calculado en esta
+        # misma operación si el archivo no cambió. Rehashear aquí el principal
+        # costaba otros ~450 ms por GB en un camino que ya está fallando.
+        "principal": _forense_principal(value),
         "wal": _file_forensics(value + "-wal"),
         "shm": _file_forensics(value + "-shm"),
         "wal_salt": _wal_header_salt(value + "-wal"),

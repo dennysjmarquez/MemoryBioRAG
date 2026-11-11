@@ -39,6 +39,7 @@ from core.sqlite.journal import configure_writer, connection_diagnostics
 from core.sqlite.tracking import _TrackedSQLiteConnection
 from core.sqlite.pair_guard import (
     _has_nonempty_wal,
+    _olvidar_hash_principal,
     _pair_snapshot,
     _pair_snapshot_stable,
     _save_conflict_forensics,
@@ -104,6 +105,7 @@ def open_writer(
     requiere `allow_existing_journal_transition=True` explícito por el operador.
     """
     _reject_lfs_pointer(database, purpose="escritura")
+    _olvidar_hash_principal(database)
     database_existed = _database_existed_before_open(database)
     if "factory" in connect_kwargs:
         raise TypeError("open_writer administra la subclase de conexión")
@@ -234,6 +236,7 @@ def open_reader(
     # Fotografía del par junto a la comprobación, para verificar después de
     # abrir que se abrió EXACTAMENTE lo que se verificó.
     _reject_lfs_pointer(canonical, purpose="lectura")
+    _olvidar_hash_principal(canonical)
     con_diario = _has_nonempty_wal(canonical) if guard_enabled() and database_existed else False
     antes = (
         _pair_snapshot(canonical, deep=con_diario)

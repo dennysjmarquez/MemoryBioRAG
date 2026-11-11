@@ -1807,3 +1807,82 @@ def test_cambio_de_rama_forzado_con_el_motor_abierto_se_rechaza(tmp_path, monkey
             sqlite_runtime.open_reader(db_path)
     finally:
         motor.cerrar_sistema()
+
+
+def test_un_commit_no_rehashea_el_principal(tmp_path, monkeypatch):
+    """El commit anota el par sin releer el principal entero.
+
+    Coste medido antes de esto (2026-11-07): ~1,2 s por GB de principal en cada
+    commit, porque se rehasheaba el archivo completo aunque un commit en WAL no
+    lo toca. Con 1 GB eran ~1,1 s por commit; ahora ~19 ms.
+
+    Se fija aquí porque es una propiedad de rendimiento que se pierde sin darse
+    cuenta: basta volver a llamar a `_file_forensics` en el camino del commit.
+    """
+    from core.sqlite import pair_guard
+
+    monkeypatch.setattr(_sqlite_config, "_effective_sqlite_version", lambda: (3, 51, 3))
+    db_path = tmp_path / "commit_sin_rehash.db"
+    cerebro = SQLiteMemoryBioRAG(str(db_path))
+    try:
+        cerebro.cursor.execute("CREATE TABLE t (id INTEGER PRIMARY KEY, v TEXT)")
+        cerebro.conn.commit()
+
+        llamadas = {"n": 0}
+        original = pair_guard._file_forensics
+
+        def contar(database):
+            llamadas["n"] += 1
+            return original(database)
+
+        monkeypatch.setattr(pair_guard, "_file_forensics", contar)
+
+        for i in range(3):
+            cerebro.cursor.execute("INSERT INTO t (v) VALUES (?)", (str(i),))
+            cerebro.conn.commit()
+
+        assert llamadas["n"] == 0, (
+            f"un commit no debe rehashear el principal (se releyó {llamadas['n']} veces)"
+        )
+    finally:
+        cerebro.cerrar_sistema()
+
+
+def test_el_hash_reutilizado_no_sobrevive_a_cambios_del_archivo(tmp_path, monkeypatch):
+    """La reutilización del hash está atada a `(size, mtime_ns)`.
+
+    No es una caché entre operaciones: se descarta al empezar cada apertura y
+    lleva la firma dentro. Si el archivo cambia, se recalcula. Esto comprueba
+    que un cambio no puede servirse de un hash anterior.
+    """
+    from core.sqlite import pair_guard
+
+    monkeypatch.setattr(_sqlite_config, "_effective_sqlite_version", lambda: (3, 51, 3))
+    db_path = tmp_path / "firma.db"
+    cerebro = SQLiteMemoryBioRAG(str(db_path))
+    try:
+        cerebro.cursor.execute("CREATE TABLE t (v TEXT)")
+        cerebro.cursor.execute("INSERT INTO t VALUES ('uno')")
+        cerebro.conn.commit()
+    finally:
+        cerebro.cerrar_sistema()
+
+    primero = pair_guard._forense_principal(str(db_path))
+    assert primero is not None
+
+    # Cambia el contenido del principal por fuera del motor.
+    datos = db_path.read_bytes()
+    db_path.write_bytes(datos[:-4096] + b"\x00" * 4096)
+
+    segundo = pair_guard._forense_principal(str(db_path))
+    assert segundo is not None
+    assert segundo["sha256"] != primero["sha256"], (
+        "un archivo cambiado no puede servirse del hash anterior"
+    )
+
+    # El olvido al empezar una apertura deja el ámbito limpio.
+    import os as _os
+    clave = _os.path.abspath(str(db_path))
+    assert clave in pair_guard._ULTIMO_HASH_PRINCIPAL
+    pair_guard._olvidar_hash_principal(db_path)
+    assert clave not in pair_guard._ULTIMO_HASH_PRINCIPAL
