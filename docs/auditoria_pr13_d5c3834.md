@@ -150,6 +150,43 @@ escape autorizada.
 **Prueba:** `test_open_reader_rechaza_el_mismo_par_que_open_writer`. **Falla sin
 el arreglo, pasa con él.**
 
+### Hallazgo 3 — Un `-wal` copiado y modificado conservaba la sal
+
+**Causa:** el arreglo del hallazgo 1 comparaba la **sal de la cabecera**, y la
+sal **está en la cabecera**: una copia la conserva. Copiar el `-wal`, modificar
+sus datos y dejarlo junto al principal intacto producía **la misma sal**, así
+que la comprobación lo aceptaba y `open_reader` mostraba el dato de la copia.
+
+**Por qué el arreglo anterior era insuficiente:** la sal identifica *la
+identidad declarada* del diario, no su contenido. Sirve para descartar un
+diario generado de cero, pero no uno copiado y reescrito.
+
+**Arreglo:** se anota y se compara también el **sha256 del contenido del
+diario** (todo menos la cabecera de 32 bytes). La cabecera se puede copiar; los
+frames con datos de otra base no coinciden. Se exige **sal y contenido**.
+
+**Lo que conserva:** tras una caída legítima el diario no cambia, así que su
+contenido coincide y SQLite recupera. La prueba de caída sigue verde.
+
+**Coste:** hashear el diario en cada comprobación se evita con el mismo atajo
+que ya existía (`size` + `mtime_ns` + `sal` + `contenido` sin cambios → no se
+rehashea). La prueba de coste `test_lectura_sin_cambios_no_rehashea_el_wal`
+sigue verde.
+
+**Prueba:** `test_wal_copiado_y_modificado_con_la_misma_sal_se_rechaza`.
+Comprueba **explícitamente que el ataque conserva la sal** (si no, la prueba no
+estaría probando lo que dice) y verifica que tanto `open_writer` como
+`open_reader` rechazan. **Falla sin el arreglo, pasa con él.**
+
+### Consecuencia de política que este hallazgo dejó a la vista
+
+El par **no se anota mientras queda un diario vivo**: solo se anota tras el
+cierre ordenado (diario vacío) o tras un commit propio. Por eso un segundo
+proceso que abre con el diario de otro vivo se rechaza por "par no verificado",
+aunque no haya nada malo. Es coherente con fallar cerrado, pero **es una
+restricción operativa real** que hay que conocer: dos procesos sobre la misma
+base en WAL necesitan autorización explícita del primero en anotar.
+
 ### Lo que esta revisión demuestra sobre el método
 
 Las 60 pruebas de SQLite pasaban y los dos fallos seguían ahí. La razón es que

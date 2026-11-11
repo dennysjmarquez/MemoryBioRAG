@@ -477,6 +477,12 @@ def test_commit_coordinado_seguido_de_raw_en_wal_no_se_acepta(tmp_path, monkeypa
 
     def _explorar(con_previo_coordinado):
         db_path = tmp_path / ("wal_seq_compat.db" if con_previo_coordinado else "wal_seq_control.db")
+        if con_previo_coordinado:
+            # El par no se anota mientras queda un diario vivo, así que un
+            # segundo proceso no tendría con qué comparar y se le rechazaría
+            # antes de llegar a lo que esta prueba mide (la alerta de cambio
+            # in-place). Se autoriza la apertura del peer explícitamente.
+            monkeypatch.setenv("BIORAG_SQLITE_FORCE_OPEN", "1")
         cerebro = SQLiteMemoryBioRAG(str(db_path))
         try:
             cerebro.cursor.execute("CREATE TABLE wal_seq_probe (value INTEGER NOT NULL)")
@@ -489,6 +495,7 @@ def test_commit_coordinado_seguido_de_raw_en_wal_no_se_acepta(tmp_path, monkeypa
 
             if con_previo_coordinado:
                 peer = open_writer(db_path, consumer="wal_seq_peer")
+                monkeypatch.delenv("BIORAG_SQLITE_FORCE_OPEN", raising=False)
                 try:
                     peer.execute("INSERT INTO wal_seq_probe VALUES (1)")
                     peer.commit()
@@ -1342,3 +1349,75 @@ def test_open_reader_rechaza_el_mismo_par_que_open_writer(tmp_path, monkeypatch)
         conn.execute("SELECT COUNT(*) FROM t").fetchone()
     finally:
         conn.close()
+
+
+def test_wal_copiado_y_modificado_con_la_misma_sal_se_rechaza(tmp_path, monkeypatch):
+    """Regresión de la revisión independiente sobre `d98a946`, hallazgo 3.
+
+    La sal de la cabecera identifica al diario, pero **una copia la conserva**.
+    Copiar el `-wal`, modificar sus datos y dejar el principal intacto producía
+    la misma sal que la anotada, así que la comprobación lo aceptaba y las
+    lecturas veían el dato de la copia.
+
+    El arreglo compara además el sha256 del CONTENIDO del diario: la cabecera se
+    puede copiar, los frames con datos de otra base no coinciden.
+    """
+    import shutil
+    import subprocess
+    import sys
+
+    monkeypatch.setattr(_sqlite_config, "_effective_sqlite_version", lambda: (3, 51, 3))
+    db_path = tmp_path / "copia_modificada.db"
+    repo = Path(__file__).resolve().parent.parent
+
+    # Proceso real que hace commit y se cae: principal intacto, diario propio vivo.
+    guion = f"""
+import sys, time
+sys.path.insert(0, {str(repo)!r})
+from core.sqlite import constants as _cfg
+_cfg._effective_sqlite_version = lambda: (3, 51, 3)
+from core.memory_store import SQLiteMemoryBioRAG
+c = SQLiteMemoryBioRAG({str(db_path)!r})
+c.cursor.execute("CREATE TABLE t (id INTEGER PRIMARY KEY, v TEXT)")
+c.cursor.execute("INSERT INTO t VALUES (1, 'original')")
+c.conn.commit()
+print("LISTO", flush=True)
+time.sleep(60)
+"""
+    proceso = subprocess.Popen(
+        [sys.executable, "-c", guion],
+        stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True,
+    )
+    try:
+        salida = proceso.stdout.readline().strip()
+        if salida != "LISTO":
+            raise AssertionError("hijo falló: " + proceso.stderr.read()[:3000])
+    finally:
+        proceso.kill()
+        proceso.wait(timeout=30)
+
+    wal_original = Path(str(db_path) + "-wal")
+    from core.sqlite.pair_guard import _wal_header_salt as sal_fn
+
+    sal_antes = sal_fn(str(wal_original))
+
+    # EL ATAQUE: copiar el diario, modificarlo en otra base, devolverlo.
+    copia = tmp_path / "copia.db"
+    shutil.copyfile(db_path, copia)
+    Path(str(copia) + "-wal").write_bytes(wal_original.read_bytes())
+    conn = sqlite3.connect(copia)
+    try:
+        conn.execute("UPDATE t SET v='DATO_DE_LA_COPIA' WHERE id=1")
+        conn.commit()
+        wal_modificado = Path(str(copia) + "-wal").read_bytes()
+    finally:
+        conn.close()
+    wal_original.write_bytes(wal_modificado)
+
+    # La sal se conserva: es exactamente lo que hacía pasar la comprobación.
+    assert sal_fn(str(wal_original)) == sal_antes, "el ataque debe conservar la sal"
+
+    with pytest.raises(sqlite_runtime.SQLiteSidecarConflictError):
+        SQLiteMemoryBioRAG(str(db_path))
+    with pytest.raises(sqlite_runtime.SQLiteSidecarConflictError):
+        sqlite_runtime.open_reader(db_path)

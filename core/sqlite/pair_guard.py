@@ -67,6 +67,30 @@ def _file_forensics(path: str) -> dict[str, Any] | None:
         "sha256": digest.hexdigest(),
     }
 
+def _wal_content_digest(path: str) -> str | None:
+    """sha256 del CONTENIDO del diario (todo menos la cabecera de 32 bytes).
+
+    Por qué no basta la sal (revisión independiente sobre `d98a946`): la sal
+    está en la cabecera y **una copia la conserva**. Copiar el `-wal`, modificar
+    los datos y dejar el principal intacto producía la misma sal, así que la
+    comprobación lo aceptaba y las lecturas veían el dato de la copia.
+
+    La cabecera se puede copiar; los frames con datos de otra base no coinciden.
+    Si el diario no existe o está vacío se devuelve None.
+    """
+    try:
+        with open(path, "rb") as handle:
+            head = handle.read(32)
+            if len(head) < 32 or head[:3] != b"7\x7f\x06":
+                return None
+            digest = hashlib.sha256()
+            for chunk in iter(lambda: handle.read(1 << 20), b""):
+                digest.update(chunk)
+    except OSError:
+        return None
+    return digest.hexdigest()
+
+
 def _wal_header_salt(path: str) -> str | None:
     """Sal (8 bytes) de la cabecera del WAL. Identifica AL DIARIO, no su dueño.
 
@@ -103,6 +127,7 @@ def record_pair_state(database: str | Path) -> None:
                 int(st.st_size) == int(recorded["main"]["size"])
                 and int(st.st_mtime_ns) == int(recorded["main"]["mtime_ns"])
                 and _wal_header_salt(value + "-wal") == recorded.get("wal_salt")
+                and _wal_content_digest(value + "-wal") == recorded.get("wal_content")
             ):
                 return
         except (OSError, KeyError, TypeError, ValueError):
@@ -113,6 +138,7 @@ def record_pair_state(database: str | Path) -> None:
     payload = {
         "main": main,
         "wal_salt": _wal_header_salt(value + "-wal"),
+        "wal_content": _wal_content_digest(value + "-wal"),
         "guard": True,
         "recorded_at": time.time(),
     }
@@ -213,6 +239,16 @@ def _pair_can_be_opened(database) -> bool:
         # es nuevo y no está atestiguado.
         return False
     if _wal_header_salt(wal) != recorded_salt:
+        return False
+
+    # La sal se conserva al COPIAR el diario, así que sola no basta (revisión
+    # independiente sobre d98a946: un WAL copiado y modificado mantenía la sal).
+    # El sha256 del contenido sí cambia cuando los frames llevan datos de otra
+    # base, y es estable para el mismo diario tras una caída.
+    recorded_content = recorded.get("wal_content")
+    if not recorded_content:
+        return False
+    if _wal_content_digest(wal) != recorded_content:
         return False
     return True
 
