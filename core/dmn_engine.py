@@ -22,6 +22,8 @@ import json
 import random
 import sqlite3
 
+from core.sqlite_runtime import open_writer
+
 logger = logging.getLogger("BioRAG.DMN")
 
 DMN_SINTESIS_ACTIVA = os.environ.get("BIORAG_DMN_SINTESIS_ACTIVA", "1").lower() in ("1", "true", "yes")
@@ -187,10 +189,13 @@ class DMNEngine:
         logger.info("DMN detenido.")
 
     def _crear_conexion_hilo(self):
-        """Crea una conexión SQLite aislada Thread-Local con WAL mode y busy_timeout=5000."""
-        conn = sqlite3.connect(self.db_path, timeout=10.0)
-        conn.execute("PRAGMA journal_mode = WAL")
-        conn.execute("PRAGMA busy_timeout = 5000")
+        """Crea una conexión aislada con journal seguro y busy_timeout acotado."""
+        conn = open_writer(
+            self.db_path,
+            timeout=10.0,
+            busy_timeout_ms=5_000,
+            consumer="dmn_engine",
+        )
         conn.execute("PRAGMA foreign_keys = ON")
         return conn
 

@@ -9,6 +9,14 @@ from core.memory.evidence_convergence import (
 )
 
 
+def _normalizar_copia_snapshot_para_escritura(db_path):
+    """Normaliza solo la copia desechable del snapshot para runtime SQLite vulnerable."""
+    from core.sqlite_runtime import open_writer
+
+    conn = open_writer(db_path, allow_existing_journal_transition=True)
+    conn.close()
+
+
 def test_flags_publicos_006_007_controlan_esta_implementacion():
     """Los comandos A/B de las specs controlan de verdad el flag y el tope."""
     import os
@@ -214,6 +222,7 @@ def test_convergencia_no_cambia_membresia_topk_ni_semillas(tmp_path, monkeypatch
     for active in (False, True):
         db_path = tmp_path / f"convergence_{int(active)}.db"
         shutil.copyfile(source_db, db_path)
+        _normalizar_copia_snapshot_para_escritura(db_path)
         cerebro = SQLiteMemoryBioRAG(db_path=str(db_path))
         monkeypatch.setattr(constants, "CONVERGENCIA_EVIDENCIA_ACTIVA", active)
         if active and len(nombres_por_modo[0]) > 5:
@@ -283,6 +292,7 @@ def test_busqueda_directa_preserva_bonus_y_suma_delta_sinaptico(tmp_path, monkey
     source_db = Path(__file__).resolve().parents[1] / "snapshots" / "qa_escape_qcr_20260811.db"
     db_path = tmp_path / "direct_convergence.db"
     shutil.copyfile(source_db, db_path)
+    _normalizar_copia_snapshot_para_escritura(db_path)
     cerebro = SQLiteMemoryBioRAG(db_path=str(db_path))
     monkeypatch.setattr(
         cerebro,
@@ -322,6 +332,7 @@ def test_mcp_publica_score_base_y_bono_tras_delta_del_grafo(tmp_path, monkeypatc
     source_db = Path(__file__).resolve().parents[1] / "snapshots" / "qa_escape_qcr_20260811.db"
     db_path = tmp_path / "mcp_convergence.db"
     shutil.copyfile(source_db, db_path)
+    _normalizar_copia_snapshot_para_escritura(db_path)
     cerebro = SQLiteMemoryBioRAG(db_path=str(db_path))
     confianza_recibida = []
     monkeypatch.setattr(constants, "CONVERGENCIA_EVIDENCIA_ACTIVA", True)

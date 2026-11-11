@@ -55,6 +55,11 @@ import sqlite3
 import sys
 from typing import Dict, List, Optional, Tuple
 
+if BASE_DIR not in sys.path:
+    sys.path.insert(0, BASE_DIR)
+
+from core.sqlite_runtime import open_reader, open_writer
+
 # Ventanas temporales, en segundos.
 # Justificación: una reformulación humana/agente ocurre en decenas de segundos;
 # más allá de 2 minutos ya es probable que sea otra tarea distinta.
@@ -134,7 +139,7 @@ def inferir_feedback(db_path: str, limite: Optional[int] = None,
             "Este script NO simula datos: sin log real no hay inferencia."
         )
 
-    con = sqlite3.connect(f"file:{db_path}?mode=ro", uri=True)
+    con = open_reader(db_path, consumer="feedback_inference")
 
     tablas = {r[0] for r in con.execute(
         "SELECT name FROM sqlite_master WHERE type='table'")}
@@ -309,7 +314,7 @@ def aplicar(db_path: str, inferencias: List[dict], confianza_min: float = 0.7,
         print(f"Ninguna inferencia aplicable con confianza >= {confianza_min}.")
         return 0
 
-    con = sqlite3.connect(db_path)
+    con = open_writer(db_path, consumer="feedback_apply")
     n = 0
     try:
         for x in aplicables:

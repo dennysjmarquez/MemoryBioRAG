@@ -257,7 +257,8 @@ def _recordar_impl(
     if not isinstance(pagina, int):
         try:
             pagina = int(pagina)
-        except:
+        except (TypeError, ValueError):
+            # Una página no numérica cae a la primera; no es un error del motor.
             pagina = 1
     if pagina < 1:
         pagina = 1
@@ -267,7 +268,8 @@ def _recordar_impl(
     if not isinstance(limite, int):
         try:
             limite = int(limite)
-        except:
+        except (TypeError, ValueError):
+            # Un límite no numérico cae al valor por defecto del MCP.
             limite = LIMITE_MCP
     if limite <= 0:
         return json.dumps({
@@ -278,7 +280,8 @@ def _recordar_impl(
     if not isinstance(context_window, int):
         try:
             context_window = int(context_window)
-        except:
+        except (TypeError, ValueError):
+            # Una ventana no numérica se trata como 0 (sin contexto extra).
             context_window = 0
     if context_window < 0 or context_window > 5:
         return json.dumps({
@@ -290,7 +293,8 @@ def _recordar_impl(
         if not isinstance(dias, int):
             try:
                 dias = int(dias)
-            except:
+            except (TypeError, ValueError):
+                # Sin filtro de antigüedad si no se entiende el número.
                 dias = None
         if dias is not None and dias < 0:
             return json.dumps({

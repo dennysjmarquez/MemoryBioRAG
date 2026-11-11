@@ -87,6 +87,14 @@ BioRAG es la **memoria externa** del agente — no su cognición. El trabajo cog
 - Funciona con la base vacía, en tiempo constante, y solo **suma** encima del ranking; nunca lo reemplaza.
 - El modelo es la primera neurona del motor: cualquier neurona nueva se construye y calibra igual.
 
+### Pilar 12: Seguridad OWASP Top 10 (regla inviolable)
+> *"Se construye sobre algo ya verificado, no sobre algo que hay que arreglar despues."* — Dennys Marquez
+- **Todo cambio que anada una entrada nueva de datos, una salida, una conexion o un permiso pasa por la lista del OWASP Top 10** antes de implementarse. El detalle esta en `docs/SEGURIDAD_OWASP.md`.
+- La regla se aplica **antes** de construir, no despues: se comprueba si lo que se va a anadir abre una vulnerabilidad, y se cierra en el mismo cambio.
+- **Un cambio pequeno que no anade superficie** (docstring, refactor, extraer una funcion pura) solo declara que no la anade. La regla no es burocracia: es obligatoria cuando cambia la superficie.
+- **Si aparece una duda fundada de seguridad, el cambio se para** y se documenta el porque. Esa duda es informacion, no un obstaculo.
+- Un rechazo de seguridad **deja rastro** (registro y constancia), nunca un fallo silencioso.
+
 ## 4. Stack Técnico
 
 | Componente | Tecnología |
