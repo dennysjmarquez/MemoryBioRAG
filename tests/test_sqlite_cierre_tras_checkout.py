@@ -89,6 +89,8 @@ def motor_tras_checkout_forzado(tmp_path, monkeypatch):
         assert ("confirmado en A",) in filas_par and integridad == "ok"
         assert ("confirmado en A",) not in filas_principal and integridad_sola == "ok"
         git("checkout", "-q", "-f", "rama-b")
+        # Aislar el efecto de checkout del que pueda tener el cierre posterior.
+        assert wal.exists() and wal.read_bytes() == contenido
         principal_b = db.read_bytes()
         filas_b, integridad_b = leer_copia(tmp_path / "control-b.db", principal_b)
         assert filas_b == [("rama A",), ("rama B",)] and integridad_b == "ok"
@@ -127,3 +129,48 @@ def test_cierre_tras_checkout_preserva_wal_confirmado(motor_tras_checkout_forzad
         raise WalNoPreservado("no se recuperó el recuerdo confirmado con el principal de A")
     # Control forense de la política actual; no es el único contrato posible.
     assert wal_tras_cierre == contenido
+
+
+def test_cierre_sin_checkpoint_explicito_preserva_wal(motor_tras_checkout_forzado, monkeypatch):
+    """Ensaya close real, anulando solo el checkpoint explícito de BioRAG."""
+    motor, db, wal, principal_a, contenido, hash_b, tmp_path = motor_tras_checkout_forzado
+    monkeypatch.setattr(motor, "_consolidar_antes_de_cerrar", lambda connections: None)
+    motor.cerrar_sistema()
+    assert hashlib.sha256(db.read_bytes()).digest() == hash_b
+    if not wal.exists() or wal.stat().st_size == 0:
+        raise WalNoPreservado("close sin PRAGMA explícito eliminó o vació el WAL")
+    filas, integridad = leer_copia(tmp_path / "a-tras-close.db", principal_a, wal.read_bytes())
+    if ("confirmado en A",) not in filas or integridad != "ok":
+        raise WalNoPreservado("close sin PRAGMA explícito impidió recuperar A")
+
+
+def test_ultimo_close_sqlite_puede_consolidar_sin_checkpoint_explicito(tmp_path):
+    """Control SQLite: autocheckpoint desactivado no impide limpiar al cerrar."""
+    db = tmp_path / "dos-conexiones.db"
+    primera = sqlite3.connect(db)
+    segunda = None
+    try:
+        assert primera.execute("PRAGMA journal_mode=WAL").fetchone()[0] == "wal"
+        primera.execute("PRAGMA wal_autocheckpoint=0")
+        primera.execute("CREATE TABLE recuerdos (texto TEXT NOT NULL)")
+        primera.commit()
+        segunda = sqlite3.connect(db)
+        segunda.execute("PRAGMA wal_autocheckpoint=0")
+        assert segunda.execute("SELECT COUNT(*) FROM recuerdos").fetchone()[0] == 0
+        primera.execute("INSERT INTO recuerdos VALUES ('confirmado')")
+        primera.commit()
+        wal = Path(str(db) + "-wal")
+        assert wal.exists() and wal.stat().st_size > 0
+        primera.close()
+        primera = None
+        assert wal.exists() and wal.stat().st_size > 0
+        segunda.close()
+        segunda = None
+        assert not wal.exists() or wal.stat().st_size == 0
+        filas, integridad = leer_copia(tmp_path / "principal-consolidado.db", db.read_bytes())
+        assert filas == [("confirmado",)] and integridad == "ok"
+    finally:
+        if primera is not None:
+            primera.close()
+        if segunda is not None:
+            segunda.close()

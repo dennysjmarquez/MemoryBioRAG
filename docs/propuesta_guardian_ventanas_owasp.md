@@ -20,6 +20,14 @@ La prueba de checkout de esta rama usa una copia de control del principal de A y
 
 No se decide todavía si conviene extensión de `core/sqlite` o servicio independiente. Una cola persistente, IPC o daemon tiene costes, autenticación, idempotencia y crash recovery propios. Comparar con el camino más simple medido antes de elegir.
 
+### Resultados adicionales y modelo de fallo pendiente
+
+En una fixture de checkout con Python 3.11.2 y SQLite real 3.40.1 (la política de versión se simuló en la prueba), el WAL era idéntico justo antes y después de `git checkout -f`. Con el cierre actual que ejecuta checkpoint explícito quedó vacío. En una ejecución separada, al anular exclusivamente ese checkpoint explícito, el `cerrar_sistema()` real preservó en ese caso el WAL y la copia de A más ese WAL recuperó la fila. Esto no demuestra que omitir el PRAGMA sea seguro en general: en otro control local con dos conexiones SQLite sin autocheckpoint, la última conexión cerrada eliminó el WAL tras consolidar la fila al principal. Ambas pruebas son locales y no cubren todas las plataformas ni las carreras. Hay que probar el artefacto recuperable que realmente produzca BioRAG, no la copia tomada por la fixture.
+
+`core/memory_store.py` configura `synchronous=NORMAL`: distinguir caída de proceso de apagón, fallo del SO y hardware. No se ha elegido ni probado una garantía de durabilidad ante pérdida de energía; medir el coste y comportamiento de `FULL` frente a `NORMAL` en cada configuración soportada antes de prometerla.
+
+**Alternativas concretas a evaluar:** (1) base activa fuera del árbol versionado y exportaciones consistentes para Git, con migración segura y compatibilidad para usuarios existentes; (2) conservar base versionada y una barrera de preparación coordinada más un artefacto previo recuperable para cambios controlados. La opción 1 reduce la interacción con checkout pero no protege frente a intervención externa sobre la nueva ruta ni implica por sí sola backups; no se ha decidido trasladar la base del usuario. En ambas, definir cómo se obtiene el principal A si Git ya sustituyó la ruta, qué se conserva ante caída y quién decide cuál estado se usa. Priorizar una primera mejora pequeña verificable tras revisión; no esperar a diseñar un daemon completo.
+
 ## Tabla de ventanas de caída: obligaciones a probar
 
 | Ventana | Evidencia posible | Resultado de seguridad exigido; diseño pendiente |
