@@ -734,7 +734,7 @@ def _biorag_already_configured(info: dict) -> bool:
 
     'Correctly configured' means:
     - The nested key path exists in the config.
-    - For stdio entries: the script path matches the current INSTALL_DIR.
+    - For stdio entries: both interpreter and script match the selected installation.
     - For SSE entries: the serverUrl is present.
 
     This enables idempotent installs: if nothing changed, we skip the write
@@ -769,10 +769,10 @@ def _biorag_already_configured(info: dict) -> bool:
 
     if isinstance(command, list):
         # OpenCode format: command is a list [python, script]
-        return len(command) >= 2 and command[-1] == script
+        return len(command) == 2 and command[0] == _python() and command[1] == script
     else:
         # Standard format: command is python, args[0] is script
-        return bool(args) and args[0] == script
+        return command == _python() and bool(args) and args[0] == script
 
 
 
@@ -1674,54 +1674,63 @@ def _verify_final() -> None:
 
 # ── Systemd service (SSE daemon) ───────────────────────────────────────────
 
+def _systemd_argumento(valor: str) -> str:
+    """Escapa un argumento de ExecStart, sin usar el intérprete de comandos."""
+    if any(c in valor for c in "\r\n\x00"):
+        raise ValueError("Ruta inválida para systemd")
+    return '"' + valor.replace("%", "%%").replace("\\", "\\\\").replace('"', '\\"') + '"'
+
+
 def _install_systemd(port: int = SSE_PORT) -> bool:
-    """Create a systemd service for the SSE server (Linux only)."""
+    """Crea servicio SSE de usuario; no modifica ni detiene servicios existentes."""
     if sys.platform != "linux":
         _warn("systemd solo está disponible en Linux")
         return False
-
-    service_name = "biorag-mcp"
-    service_path = Path("/etc/systemd/system") / f"{service_name}.service"
-    user = os.environ.get("USER", "root")
-
-    unit = textwrap.dedent(f"""\
-        [Unit]
-        Description=BioRAG MCP Server (SSE mode)
-        After=network.target
-
-        [Service]
-        Type=simple
-        ExecStart={_python()} {_script_path()} --sse --port {port}
-        Restart=always
-        RestartSec=5
-        User={user}
-
-        [Install]
-        WantedBy=default.target
-    """)
-
-    try:
-        # Write via sudo
-        tmp = Path(tempfile.mktemp())
-        tmp.write_text(unit)
-        subprocess.run(
-            ["sudo", "cp", str(tmp), str(service_path)],
-            check=True, capture_output=True, text=True,
-        )
-        subprocess.run(
-            ["sudo", "systemctl", "daemon-reload"],
-            check=True, capture_output=True, text=True,
-        )
-        tmp.unlink()
-        _ok(f"Servicio systemd creado: {service_path}")
-        _info("Inicia con: sudo systemctl enable --now biorag-mcp")
-        _info(f"Servidor SSE en http://localhost:{port}/sse")
-        return True
-    except subprocess.CalledProcessError as exc:
-        _fail(f"Error creando servicio: {exc.stderr.strip()}")
+    if not 1 <= port <= 65535:
+        _fail("Puerto SSE inválido")
         return False
-    except Exception as exc:
-        _fail(f"Error: {exc}")
+    try:
+        directorio = Path.home() / ".config" / "systemd" / "user"
+        directorio.mkdir(parents=True, exist_ok=True)
+        if directorio.is_symlink():
+            raise RuntimeError("Directorio de servicio inválido")
+        service_path = directorio / "biorag-mcp.service"
+        unidad = textwrap.dedent(f"""\
+            [Unit]
+            Description=BioRAG MCP Server (SSE mode)
+            After=network.target
+
+            [Service]
+            Type=simple
+            ExecStart={_systemd_argumento(_python())} {_systemd_argumento(str(_script_path()))} --sse --port {port}
+            UnsetEnvironment=LD_PRELOAD LD_LIBRARY_PATH PYTHONPATH PYTHONHOME
+            Restart=always
+            RestartSec=5
+
+            [Install]
+            WantedBy=default.target
+        """)
+        temporal = None
+        try:
+            with tempfile.NamedTemporaryFile(mode="w", encoding="utf-8", dir=directorio,
+                                             prefix=".biorag-", suffix=".tmp", delete=False) as f:
+                temporal = Path(f.name)
+                f.write(unidad)
+                f.flush()
+                os.fsync(f.fileno())
+            os.replace(temporal, service_path)
+        finally:
+            if temporal is not None:
+                temporal.unlink(missing_ok=True)
+        subprocess.run(["systemctl", "--user", "daemon-reload"], check=True,
+                       capture_output=True, text=True, timeout=30)
+        _ok(f"Servicio de usuario creado: {service_path}")
+        _info("Activa el servicio: systemctl --user enable --now biorag-mcp")
+        _info("Si ya estaba activo, reinícialo: systemctl --user restart biorag-mcp")
+        _warn("Si había un servidor SSE anterior, ciérralo o reinícialo para usar el nuevo entorno")
+        return True
+    except (OSError, RuntimeError, ValueError, subprocess.SubprocessError) as exc:
+        _fail(f"No se pudo configurar el servicio de usuario: {exc}")
         return False
 
 

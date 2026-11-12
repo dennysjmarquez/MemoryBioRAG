@@ -248,3 +248,45 @@ def test_publicacion_atomica_fallida_conserva_anterior(tmp_path, monkeypatch):
         install._publicar_entorno_privado(raiz, tmp_path / 'req')
     assert marcador.read_text() == 'anterior'
     assert not list(raiz.glob('.runtime-*.tmp'))
+
+
+@pytest.mark.parametrize('formato', ['standard', 'opencode'])
+def test_config_existente_debe_coincidir_en_interprete_y_script(tmp_path, monkeypatch, formato):
+    python = str(tmp_path / 'python-privado')
+    anterior = str(tmp_path / 'python-viejo')
+    script = str(tmp_path / 'mcp_server.py')
+    monkeypatch.setattr(install, '_python', lambda: python)
+    monkeypatch.setattr(install, '_script_path', lambda: tmp_path / 'mcp_server.py')
+    config = tmp_path / 'config.json'
+    def guardar(comando):
+        entrada = {'command': [comando, script]} if formato == 'opencode' else {'command': comando, 'args': [script]}
+        config.write_text(json.dumps({'mcp': {'biorag': entrada}}))
+    info = {'path': config, 'key_path': ['mcp', 'biorag'], 'format': 'stdio'}
+    guardar(anterior)
+    assert not install._biorag_already_configured(info)
+    guardar(python)
+    assert install._biorag_already_configured(info)
+
+
+def test_escapado_systemd_no_interpreta_rutas():
+    assert install._systemd_argumento('/tmp/a %"\\x') == '"/tmp/a %%\\"\\\\x"'
+    with pytest.raises(ValueError):
+        install._systemd_argumento('/tmp/a\nExecStart=malicioso')
+
+
+@pytest.mark.skipif(sys.platform != 'linux', reason='servicio Linux')
+def test_servicio_usuario_usa_runtime_sin_sudo(tmp_path, monkeypatch):
+    monkeypatch.setattr(install.Path, 'home', lambda: tmp_path)
+    monkeypatch.setattr(install, '_python', lambda: str(tmp_path / 'Python privado' / 'python'))
+    monkeypatch.setattr(install, '_script_path', lambda: tmp_path / 'codigo' / 'mcp_server.py')
+    comandos = []
+    def ejecutar(args, **kwargs):
+        comandos.append(args)
+        return subprocess.CompletedProcess(args, 0, '', '')
+    monkeypatch.setattr(install.subprocess, 'run', ejecutar)
+    assert install._install_systemd(8080)
+    unidad = (tmp_path / '.config/systemd/user/biorag-mcp.service').read_text()
+    assert f'ExecStart="{tmp_path}/Python privado/python"' in unidad
+    assert 'UnsetEnvironment=LD_PRELOAD LD_LIBRARY_PATH PYTHONPATH PYTHONHOME' in unidad
+    assert comandos == [['systemctl', '--user', 'daemon-reload']]
+    assert not list((tmp_path / '.config/systemd/user').glob('.biorag-*.tmp'))
