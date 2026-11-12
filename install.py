@@ -434,6 +434,15 @@ def _leer_entorno_publicado(raiz: Path) -> str:
 
 # ── Terminal helpers ────────────────────────────────────────────────────────
 
+def _preparar_salida_consola() -> None:
+    """No fallar si la consola no puede representar un nombre de ruta Unicode."""
+    for flujo in (sys.stdout, sys.stderr):
+        try:
+            flujo.reconfigure(errors="backslashreplace")
+        except (AttributeError, OSError, ValueError):
+            pass
+
+
 def _green(m: str) -> str:
     return f"\033[92m{m}\033[0m" if sys.stdout.isatty() else m
 
@@ -1863,6 +1872,7 @@ def _print_config_blocks() -> None:
 
 def install() -> None:
     """Full installation flow."""
+    _preparar_salida_consola()
     print(f"\n  {_bold('BioRAG Installer')} {_dim('— Memoria compartida para agentes de IA')}")
     print(f"  {_dim('=' * 48)}")
 
@@ -2036,6 +2046,7 @@ def download_if_needed() -> bool:
 
 
 def main() -> None:
+    _preparar_salida_consola()
     parser = argparse.ArgumentParser(
         description="BioRAG Installer — Memoria compartida para agentes de IA",
         formatter_class=argparse.RawDescriptionHelpFormatter,

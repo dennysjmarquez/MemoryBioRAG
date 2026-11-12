@@ -423,3 +423,14 @@ def test_verificacion_final_no_ejecuta_cli_ni_mcp(monkeypatch):
     monkeypatch.setattr(install, '_comprobar_python_sqlite', lambda _: (3, 51, 3))
     monkeypatch.setattr(install, '_comprobar_dependencias', lambda _: None)
     assert install._verify_final() is True
+
+
+def test_consola_no_falla_con_rutas_fuera_de_su_codificacion(monkeypatch):
+    import io
+    buffer = io.BytesIO()
+    salida = io.TextIOWrapper(buffer, encoding='cp1252')
+    monkeypatch.setattr(sys, 'stdout', salida)
+    install._preparar_salida_consola()
+    install._info('Ruta: usuario-漢')
+    salida.flush()
+    assert b'usuario-\\u6f22' in buffer.getvalue()
