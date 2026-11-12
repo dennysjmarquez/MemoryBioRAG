@@ -63,16 +63,7 @@ def test_nuevo_handle_no_abre_conexion_durante_cierre(tmp_path, monkeypatch):
     soltar = threading.Event()
     peticion = threading.Event()
     resultados = []
-    esperando = threading.Event()
-    original_wait = motor._lifecycle_condition.wait
     original = motor._consolidar_antes_de_cerrar
-
-    def wait_observado(timeout=None):
-        if threading.current_thread() is hilo:
-            esperando.set()
-        return original_wait(timeout)
-
-    monkeypatch.setattr(motor._lifecycle_condition, "wait", wait_observado)
 
     def checkpoint(conns):
         entrado.set()
@@ -98,7 +89,8 @@ def test_nuevo_handle_no_abre_conexion_durante_cierre(tmp_path, monkeypatch):
         iniciales = tuple(motor._connections)
         hilo.start()
         assert peticion.wait(5)
-        assert esperando.wait(5), "la petición no llegó a la espera del cierre"
+        hilo.join(5)
+        assert not hilo.is_alive() and resultados == ["cerrado"]
         # La barrera no debe crear ni registrar un handle durante el cierre.
         with motor._lifecycle_condition:
             assert motor._closing
@@ -165,9 +157,7 @@ def test_setter_no_registra_handle_en_cierre(tmp_path, monkeypatch):
     externo = sqlite3.connect(":memory:", check_same_thread=False)
     checkpoint_iniciado = threading.Event()
     soltar = threading.Event()
-    esperando = threading.Event()
     resultados = []
-    original_wait = motor._lifecycle_condition.wait
     original = motor._consolidar_antes_de_cerrar
 
     def checkpoint(conns):
@@ -175,11 +165,6 @@ def test_setter_no_registra_handle_en_cierre(tmp_path, monkeypatch):
         if not soltar.wait(10):
             raise TimeoutError("no se liberó el cierre")
         return original(conns)
-
-    def wait_observado(timeout=None):
-        if threading.current_thread() is setter:
-            esperando.set()
-        return original_wait(timeout)
 
     def asignar():
         try:
@@ -189,7 +174,6 @@ def test_setter_no_registra_handle_en_cierre(tmp_path, monkeypatch):
             resultados.append("cerrado")
 
     monkeypatch.setattr(motor, "_consolidar_antes_de_cerrar", checkpoint)
-    monkeypatch.setattr(motor._lifecycle_condition, "wait", wait_observado)
     cierre = threading.Thread(target=motor.cerrar_sistema)
     setter = threading.Thread(target=asignar)
     cierre.start()
@@ -197,7 +181,8 @@ def test_setter_no_registra_handle_en_cierre(tmp_path, monkeypatch):
         assert checkpoint_iniciado.wait(5)
         originales = tuple(motor._connections)
         setter.start()
-        assert esperando.wait(5)
+        setter.join(5)
+        assert not setter.is_alive() and resultados == ["cerrado"]
         assert tuple(motor._connections) == originales
         soltar.set()
         cierre.join(10)
@@ -211,5 +196,160 @@ def test_setter_no_registra_handle_en_cierre(tmp_path, monkeypatch):
         if setter.ident is not None:
             setter.join(10)
         externo.close()
+        if not motor._closed:
+            motor.cerrar_sistema()
+
+
+def test_callback_y_auxiliar_no_se_bloquean_durante_cierre(tmp_path, monkeypatch):
+    """El auxiliar rechaza la llamada, así el callback termina y se drena."""
+    motor = SQLiteMemoryBioRAG(str(tmp_path / "ciclo.db"))
+    conn = motor.conn
+    callback_iniciado = threading.Event()
+    cierre_espera = threading.Event()
+    auxiliar_finalizado = threading.Event()
+    resultados = []
+    original_wait = motor._lifecycle_condition.wait
+
+    def wait_observado(timeout=None):
+        if threading.current_thread() is cierre and motor._active_operations:
+            cierre_espera.set()
+        return original_wait(timeout)
+
+    monkeypatch.setattr(motor._lifecycle_condition, "wait", wait_observado)
+
+    def auxiliar():
+        try:
+            conn.execute("SELECT 1")
+            resultados.append("ejecutado")
+        except RuntimeError:
+            resultados.append("rechazado")
+        finally:
+            auxiliar_finalizado.set()
+
+    def callback():
+        callback_iniciado.set()
+        if not cierre_espera.wait(5):
+            raise TimeoutError("el cierre no empezó a drenar")
+        threading.Thread(target=auxiliar, daemon=True).start()
+        if not auxiliar_finalizado.wait(5):
+            raise TimeoutError("el auxiliar quedó bloqueado")
+        return 1
+
+    conn.create_function("prueba_ciclo", 0, callback)
+    errores = []
+
+    def consulta():
+        try:
+            conn.execute("SELECT prueba_ciclo()").fetchone()
+        except (RuntimeError, sqlite3.Error) as exc:
+            errores.append(exc)
+
+    trabajador = threading.Thread(target=consulta)
+    cierre = threading.Thread(target=motor.cerrar_sistema)
+    trabajador.start()
+    try:
+        assert callback_iniciado.wait(5)
+        cierre.start()
+        assert auxiliar_finalizado.wait(5), "el auxiliar quedó bloqueado"
+        trabajador.join(10)
+        cierre.join(10)
+        assert not trabajador.is_alive() and not cierre.is_alive()
+        assert resultados == ["rechazado"]
+        assert motor._closed
+    finally:
+        trabajador.join(10)
+        if cierre.ident is not None:
+            cierre.join(10)
+        if not motor._closed:
+            motor.cerrar_sistema()
+
+
+def test_interrupt_llega_a_sqlite_durante_drenaje(tmp_path, monkeypatch):
+    motor = SQLiteMemoryBioRAG(str(tmp_path / "interrupt.db"))
+    conn = motor.conn
+    progreso_iniciado = threading.Event()
+    soltar = threading.Event()
+    drenando = threading.Event()
+    original_wait = motor._lifecycle_condition.wait
+    errores = []
+
+    def progreso():
+        progreso_iniciado.set()
+        if not soltar.wait(10):
+            raise TimeoutError("no se liberó la consulta")
+        return 0
+
+    def wait_observado(timeout=None):
+        if threading.current_thread() is cierre and motor._active_operations:
+            drenando.set()
+        return original_wait(timeout)
+
+    conn.set_progress_handler(progreso, 1)
+    monkeypatch.setattr(motor._lifecycle_condition, "wait", wait_observado)
+
+    def consulta():
+        try:
+            conn.execute("SELECT 1").fetchall()
+        except (sqlite3.Error, RuntimeError) as exc:
+            errores.append(exc)
+
+    trabajador = threading.Thread(target=consulta)
+    cierre = threading.Thread(target=motor.cerrar_sistema)
+    trabajador.start()
+    try:
+        assert progreso_iniciado.wait(5)
+        cierre.start()
+        assert drenando.wait(5)
+        conn.interrupt()
+        assert not soltar.is_set(), "interrupt retornó antes de liberar la consulta"
+        soltar.set()
+        trabajador.join(10)
+        cierre.join(10)
+        assert not trabajador.is_alive() and not cierre.is_alive()
+        assert len(errores) == 1
+        causa = errores[0].__cause__ or errores[0]
+        assert isinstance(causa, sqlite3.OperationalError) and "interrupt" in str(causa).lower()
+        assert motor._closed
+    finally:
+        soltar.set()
+        trabajador.join(10)
+        if cierre.ident is not None:
+            cierre.join(10)
+        if not motor._closed:
+            motor.cerrar_sistema()
+
+
+def test_drenaje_agotado_no_cierra_y_permite_reintento(tmp_path, monkeypatch):
+    import core.memory_store as memory_store
+
+    motor = SQLiteMemoryBioRAG(str(tmp_path / "timeout.db"))
+    entrado = threading.Event()
+    soltar = threading.Event()
+    conexiones = tuple(motor._connections)
+    monkeypatch.setattr(memory_store, "_CIERRE_DRENAJE_SEGUNDOS", 0.05)
+
+    def trabajar():
+        with motor._operation_lease():
+            entrado.set()
+            assert soltar.wait(5)
+
+    hilo = threading.Thread(target=trabajar)
+    hilo.start()
+    try:
+        assert entrado.wait(5)
+        with pytest.raises(TimeoutError, match="No terminó el drenaje"):
+            motor.cerrar_sistema()
+        assert not motor._closed and motor._close_failed and not motor._closing
+        assert all(isinstance(conn.in_transaction, bool) for conn in conexiones)
+        with pytest.raises(RuntimeError, match="cierre anterior falló"):
+            motor.conn
+        soltar.set()
+        hilo.join(5)
+        assert not hilo.is_alive()
+        motor.cerrar_sistema()
+        assert motor._closed
+    finally:
+        soltar.set()
+        hilo.join(5)
         if not motor._closed:
             motor.cerrar_sistema()

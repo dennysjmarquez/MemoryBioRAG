@@ -5,6 +5,7 @@ import logging
 import copy
 import functools
 import threading
+import time
 from contextlib import contextmanager
 from core.sqlite_runtime import (
     SQLiteDatabaseIdentityChangedError,
@@ -17,6 +18,10 @@ from core.sqlite_runtime import (
 from collections import deque
 
 logger = logging.getLogger("BioRAG.MemoryStore")
+
+# Límite para esperar operaciones propias antes de cerrar; no limita SQLite
+# checkpoint/close. La expiración preserva conexiones y permite reintentar.
+_CIERRE_DRENAJE_SEGUNDOS = 30.0
 
 # Auto-cargar .env.local al importar (antes de leer cualquier variable de entorno)
 from config import _load_env_local
@@ -229,6 +234,24 @@ class _GuardedSQLiteConnection:
             self._owner._check_connection_access(self._raw)
             setattr(self._raw, name, value)
 
+    def interrupt(self):
+        """Interrumpe SQLite durante el drenaje sin competir con la consulta.
+
+        Se registra como operación para impedir que el cierre libere la
+        conexión mientras interrupt está en vuelo. No cancela callbacks Python.
+        """
+        owner = self._owner
+        with owner._lifecycle_condition:
+            if owner._closed or (owner._closing and owner._active_operations == 0):
+                raise RuntimeError("La instancia SQLiteMemoryBioRAG ya se cerró o está cerrándose")
+            owner._active_operations += 1
+        try:
+            return self._raw.interrupt()
+        finally:
+            with owner._lifecycle_condition:
+                owner._active_operations -= 1
+                owner._lifecycle_condition.notify_all()
+
     def __enter__(self):
         with self._owner._dbapi_lease():
             self._owner._check_connection_access(self._raw)
@@ -379,8 +402,8 @@ class SQLiteMemoryBioRAG(metaclass=_OperationTrackedMeta):
             raise RuntimeError("No se puede iniciar una operación del motor desde una llamada DB-API activa")
         if depth == 0:
             with self._lifecycle_condition:
-                while self._closing and not self._closed:
-                    self._lifecycle_condition.wait()
+                if self._closing:
+                    raise RuntimeError("La instancia SQLiteMemoryBioRAG se está cerrando")
                 if self._closed:
                     raise RuntimeError("La instancia SQLiteMemoryBioRAG ya fue cerrada")
                 if self._close_failed:
@@ -448,8 +471,8 @@ class SQLiteMemoryBioRAG(metaclass=_OperationTrackedMeta):
                     del self._operation_local.dbapi_depth
             return
         with self._lifecycle_condition:
-            while self._closing:
-                self._lifecycle_condition.wait()
+            if self._closing:
+                raise RuntimeError("La instancia SQLiteMemoryBioRAG se está cerrando")
             if self._closed:
                 raise RuntimeError("La instancia SQLiteMemoryBioRAG ya fue cerrada")
             if self._close_failed:
@@ -1422,11 +1445,21 @@ class SQLiteMemoryBioRAG(metaclass=_OperationTrackedMeta):
             if self._closed:
                 return
             self._closing = True
-            while self._active_operations:
-                self._lifecycle_condition.wait()
-            with self._connection_registry_lock:
-                if self._close_pending is None:
-                    self._close_pending = list(self._connections)
+            try:
+                limite = time.monotonic() + _CIERRE_DRENAJE_SEGUNDOS
+                while self._active_operations:
+                    restante = limite - time.monotonic()
+                    if restante <= 0:
+                        raise TimeoutError("No terminó el drenaje de operaciones; no se cerraron conexiones")
+                    self._lifecycle_condition.wait(restante)
+                with self._connection_registry_lock:
+                    if self._close_pending is None:
+                        self._close_pending = list(self._connections)
+            except BaseException:
+                self._close_failed = True
+                self._closing = False
+                self._lifecycle_condition.notify_all()
+                raise
 
         try:
             # Si un cierre parcial falló, sus conexiones ya cerradas no deben
