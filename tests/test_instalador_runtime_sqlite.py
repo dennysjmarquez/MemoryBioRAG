@@ -117,6 +117,7 @@ def test_descarga_falla_sin_activar_python(tmp_path, monkeypatch):
     def fallo(args, **kwargs):
         raise subprocess.CalledProcessError(1, args, stderr='fallo de red')
     monkeypatch.setattr(install.subprocess, 'run', fallo)
+    monkeypatch.setattr(install, '_descargar_uv_sin_pip', lambda _: '/uv-simulado')
     with pytest.raises(RuntimeError, match='descargar'):
         install._descargar_python_privado(raiz)
     assert not list(raiz.iterdir())
@@ -146,3 +147,38 @@ def test_pip_ignora_configuracion_global_heredada(tmp_path, monkeypatch):
     result = subprocess.run([sys.executable, '-I', '-m', 'pip', '--isolated', 'config', 'list'],
                             env=env, text=True, capture_output=True, check=True)
     assert 'ejemplo.invalid' not in result.stdout
+
+
+def test_recurre_a_bootstrap_sin_pip(tmp_path, monkeypatch):
+    raiz = tmp_path / 'runtime'
+    raiz.mkdir(mode=0o700)
+    candidato = raiz / 'python'
+    candidato.write_text('solo simulación')
+    llamadas = []
+    def ejecutar(args, **kwargs):
+        llamadas.append(args)
+        if len(llamadas) == 1:
+            raise subprocess.CalledProcessError(1, args)
+        return subprocess.CompletedProcess(args, 0, str(candidato) if 'find' in args else '', '')
+    monkeypatch.setattr(install.subprocess, 'run', ejecutar)
+    monkeypatch.setattr(install, '_descargar_uv_sin_pip', lambda _: '/uv-simulado')
+    monkeypatch.setattr(install, '_comprobar_python_sqlite', lambda _: (3, 51, 3))
+    assert install._descargar_python_privado(raiz) == str(candidato)
+    assert llamadas[1][0] == '/uv-simulado'
+
+
+@pytest.mark.parametrize(('plataforma', 'fragmento'), [
+    ('win-amd64', 'win_amd64.whl'),
+    ('win-arm64', 'win_arm64.whl'),
+    ('macosx-11.0-arm64', 'macosx_11_0_arm64.whl'),
+    ('macosx-10.13-x86_64', 'macosx_10_12_x86_64.whl'),
+])
+def test_ruedas_para_sistemas_conocidos(monkeypatch, plataforma, fragmento):
+    monkeypatch.setattr(install.sysconfig, 'get_platform', lambda: plataforma)
+    assert install._rueda_uv_plataforma().endswith(fragmento)
+
+
+def test_rueda_rechaza_plataforma_desconocida(monkeypatch):
+    monkeypatch.setattr(install.sysconfig, 'get_platform', lambda: 'desconocida')
+    with pytest.raises(RuntimeError, match='Plataforma'):
+        install._rueda_uv_plataforma()

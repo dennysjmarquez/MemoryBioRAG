@@ -22,17 +22,21 @@ Design principles:
 from __future__ import annotations
 
 import argparse
+import hashlib
+import io
 import json
 import os
 import re
 import shutil
 import subprocess
 import sys
+import sysconfig
 import tempfile
 import textwrap
 import threading
 import time
 import urllib.request
+import urllib.parse
 import zipfile
 from pathlib import Path
 
@@ -127,6 +131,80 @@ _UV_WHEEL_SHA256 = (
 )
 
 
+def _rueda_uv_plataforma() -> str:
+    """Rueda binaria oficial para la arquitectura del intérprete inicial."""
+    plataforma = sysconfig.get_platform().lower().replace("-", "_").replace(".", "_")
+    if plataforma.startswith("win_") or plataforma == "win32":
+        sufijo = {"win_amd64": "win_amd64", "win_arm64": "win_arm64", "win32": "win32"}.get(plataforma)
+    elif plataforma.startswith("macosx_"):
+        sufijo = ("macosx_11_0_arm64" if plataforma.endswith("_arm64") else
+                  "macosx_10_12_x86_64" if plataforma.endswith("_x86_64") else None)
+    elif plataforma.startswith("linux_"):
+        arquitectura = plataforma.removeprefix("linux_")
+        try:
+            glibc = bool(os.confstr("CS_GNU_LIBC_VERSION"))
+        except (ValueError, OSError, AttributeError):
+            glibc = False
+        sufijo = {
+            ("x86_64", True): "manylinux_2_17_x86_64.manylinux2014_x86_64",
+            ("x86_64", False): "musllinux_1_1_x86_64",
+            ("aarch64", True): "manylinux_2_17_aarch64.manylinux2014_aarch64.musllinux_1_1_aarch64",
+            ("aarch64", False): "manylinux_2_17_aarch64.manylinux2014_aarch64.musllinux_1_1_aarch64",
+            ("i686", True): "manylinux_2_17_i686.manylinux2014_i686",
+            ("i686", False): "musllinux_1_1_i686",
+            ("armv7l", True): "manylinux_2_17_armv7l.manylinux2014_armv7l",
+            ("armv7l", False): "manylinux_2_17_armv7l.manylinux2014_armv7l.musllinux_1_1_armv7l",
+            ("ppc64le", True): "manylinux_2_17_ppc64le.manylinux2014_ppc64le",
+            ("s390x", True): "manylinux_2_17_s390x.manylinux2014_s390x",
+        }.get((arquitectura, glibc))
+    else:
+        sufijo = None
+    if not sufijo:
+        raise RuntimeError("Plataforma no compatible con el instalador privado de Python")
+    return f"uv-{_UV_VERSION}-py3-none-{sufijo}.whl"
+
+
+def _descargar_uv_sin_pip(destino: Path) -> str:
+    """Obtiene el ejecutable de uv por HTTPS y verifica la rueda antes de extraerlo."""
+    class SoloPyPI(urllib.request.HTTPRedirectHandler):
+        def redirect_request(self, req, fp, code, msg, headers, newurl):
+            parsed = urllib.parse.urlparse(newurl)
+            if parsed.scheme != "https" or parsed.hostname not in {"pypi.org", "files.pythonhosted.org"}:
+                raise RuntimeError("Redirección de descarga no permitida")
+            return super().redirect_request(req, fp, code, msg, headers, newurl)
+
+    opener = urllib.request.build_opener(SoloPyPI())
+    nombre = _rueda_uv_plataforma()
+    try:
+        with opener.open(f"https://pypi.org/pypi/uv/{_UV_VERSION}/json", timeout=30) as respuesta:
+            datos = respuesta.read(2_000_001)
+        if len(datos) > 2_000_000:
+            raise RuntimeError("Metadatos de uv demasiado grandes")
+        entradas = [x for x in json.loads(datos)["urls"] if x["filename"] == nombre]
+        if len(entradas) != 1:
+            raise RuntimeError("No se encontró una rueda compatible de uv")
+        entrada = entradas[0]
+        url = urllib.parse.urlparse(entrada["url"])
+        if url.scheme != "https" or url.hostname != "files.pythonhosted.org":
+            raise RuntimeError("Origen de rueda uv no permitido")
+        with opener.open(entrada["url"], timeout=120) as respuesta:
+            rueda = respuesta.read(40_000_001)
+        if len(rueda) > 40_000_000 or hashlib.sha256(rueda).hexdigest() not in _UV_WHEEL_SHA256:
+            raise RuntimeError("La rueda uv no coincide con los hashes fijados")
+        miembro = f"uv-{_UV_VERSION}.data/scripts/uv" + (".exe" if os.name == "nt" else "")
+        with zipfile.ZipFile(io.BytesIO(rueda)) as archivo:
+            info = archivo.getinfo(miembro)
+            if info.file_size > 100_000_000:
+                raise RuntimeError("El ejecutable uv supera el límite permitido")
+            binario = archivo.read(info)
+        ejecutable = destino / ("uv.exe" if os.name == "nt" else "uv")
+        ejecutable.write_bytes(binario)
+        ejecutable.chmod(0o700)
+        return str(ejecutable)
+    except (OSError, KeyError, ValueError, zipfile.BadZipFile) as exc:
+        raise RuntimeError("No se pudo preparar la herramienta de instalación privada") from exc
+
+
 def _descargar_python_privado(raiz: Path) -> str:
     """Instala CPython gestionado por uv sin modificar el Python de sistema.
 
@@ -158,7 +236,12 @@ def _descargar_python_privado(raiz: Path) -> str:
                   "import runpy,sys; sys.path.insert(0,sys.argv.pop(1)); runpy.run_module('uv',run_name='__main__')",
                   str(ubicacion)]
         try:
-            subprocess.run(instalar, env=env, check=True, capture_output=True, text=True, timeout=180)
+            try:
+                subprocess.run(instalar, env=env, check=True, capture_output=True, text=True, timeout=180)
+            except (OSError, subprocess.SubprocessError):
+                # Si el Python de arranque no tiene pip, no lo modificamos:
+                # descargamos y verificamos la rueda de uv con stdlib.
+                lanzar = [_descargar_uv_sin_pip(tempdir)]
             subprocess.run(lanzar + ["python", "install", "--no-bin", "--no-registry",
                                      "--install-dir", str(raiz), _CPYTHON_VERSION],
                            env=env, check=True, capture_output=True, text=True, timeout=600)

@@ -25,3 +25,11 @@ def test_descarga_python_y_crea_entorno_con_dependencias(tmp_path):
         env=install._entorno_runtime(), capture_output=True, text=True, timeout=60, check=True,
     )
     print(f'SQLite efectivo en entorno privado: {result.stdout.strip()}')
+
+
+@pytest.mark.skipif(os.environ.get('BIORAG_TEST_RUNTIME_REAL') != '1', reason='requiere red y descarga real')
+def test_descarga_uv_sin_pip_global(tmp_path):
+    binario = install._descargar_uv_sin_pip(tmp_path)
+    result = subprocess.run([binario, '--version'], env=install._entorno_runtime(),
+                            capture_output=True, text=True, timeout=30, check=True)
+    assert result.stdout.startswith('uv ' + install._UV_VERSION)
