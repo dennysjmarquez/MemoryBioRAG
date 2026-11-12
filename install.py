@@ -302,6 +302,115 @@ def _crear_entorno_privado(python: str, raiz: Path, requisitos: Path) -> str:
         raise
 
 
+_RUNTIME_PYTHON: str | None = None
+
+
+def _raiz_runtime_instalacion() -> Path:
+    """Separa los entornos de proyectos distintos sin usar el árbol de datos."""
+    identidad = hashlib.sha256(os.fsencode(str(INSTALL_DIR.resolve()))).hexdigest()[:24]
+    padre = Path.home() / ".biorag"
+    padre.mkdir(mode=0o700, exist_ok=True)
+    if padre.is_symlink() or not padre.is_dir():
+        raise RuntimeError("El directorio de BioRAG no es válido")
+    if os.name == "posix":
+        estado = padre.stat()
+        if estado.st_uid != os.getuid() or estado.st_mode & 0o022:
+            raise RuntimeError("El directorio de BioRAG puede ser modificado por otros usuarios")
+    contenedor = padre / "runtimes"
+    contenedor.mkdir(mode=0o700, exist_ok=True)
+    _validar_raiz_privada(contenedor)
+    raiz = contenedor / identidad
+    raiz.mkdir(mode=0o700, exist_ok=True)
+    _validar_raiz_privada(raiz)
+    return raiz
+
+
+def _preparar_runtime_instalacion() -> str:
+    """Prepara la nueva generación y selecciona el intérprete para este proceso."""
+    global _RUNTIME_PYTHON
+    _RUNTIME_PYTHON = None
+    seleccionado = _publicar_entorno_privado(_raiz_runtime_instalacion(), INSTALL_DIR / "requirements.txt")
+    _RUNTIME_PYTHON = seleccionado
+    return seleccionado
+
+
+def _cargar_runtime_instalacion() -> str:
+    """Para --show-config y --systemd, exige el entorno ya publicado."""
+    global _RUNTIME_PYTHON
+    _RUNTIME_PYTHON = None
+    seleccionado = _leer_entorno_publicado(_raiz_runtime_instalacion())
+    _RUNTIME_PYTHON = seleccionado
+    return seleccionado
+
+
+def _validar_raiz_privada(raiz: Path) -> None:
+    """Comprueba la raíz de los runtimes antes de leer o publicar un marcador."""
+    if raiz.is_symlink() or not raiz.is_dir():
+        raise RuntimeError("La raíz del entorno privado no es un directorio válido")
+    if os.name == "posix":
+        estado = raiz.stat()
+        if estado.st_uid != os.getuid() or estado.st_mode & 0o077:
+            raise RuntimeError("La raíz del entorno privado debe ser exclusiva del usuario")
+
+
+def _validar_interprete_publicable(raiz: Path, python: str) -> str:
+    """Rechaza runtimes ajenos a la raíz o con SQLite y FTS5 no seguros."""
+    candidato = Path(python)
+    if not candidato.is_absolute() or not candidato.is_file():
+        raise RuntimeError("El intérprete privado no existe")
+    try:
+        # En Linux el ejecutable del venv suele ser un symlink al Python base;
+        # tanto la ruta visible como el destino deben permanecer en la raíz.
+        candidato.relative_to(raiz)
+        candidato.resolve().relative_to(raiz.resolve())
+    except ValueError as exc:
+        raise RuntimeError("El intérprete privado está fuera de su raíz") from exc
+    if _comprobar_python_sqlite(str(candidato)) < (3, 51, 3):
+        raise RuntimeError("El intérprete privado no contiene SQLite corregido")
+    return str(candidato)
+
+
+def _publicar_entorno_privado(raiz: Path, requisitos: Path) -> str:
+    """Prepara y publica una generación. Fallar conserva el marcador anterior.
+
+    Aún no se llama desde el instalador principal. El llamador debe garantizar
+    que `raiz` sea exclusiva de la instalación y que `requisitos` pertenezca a
+    la distribución. No toca DB, configura agentes ni reinicia procesos.
+    """
+    _validar_raiz_privada(raiz)
+    python_base = _descargar_python_privado(raiz)
+    entorno = _crear_entorno_privado(python_base, raiz, requisitos)
+    entorno = _validar_interprete_publicable(raiz, entorno)
+    temporal = None
+    try:
+        with tempfile.NamedTemporaryFile(mode="w", encoding="utf-8", prefix=".runtime-",
+                                         suffix=".tmp", dir=raiz, delete=False) as f:
+            temporal = Path(f.name)
+            json.dump({"version": 1, "python": entorno}, f)
+            f.flush()
+            os.fsync(f.fileno())
+        os.replace(temporal, raiz / "actual.json")
+        return entorno
+    finally:
+        if temporal is not None:
+            temporal.unlink(missing_ok=True)
+
+
+def _leer_entorno_publicado(raiz: Path) -> str:
+    """Carga y vuelve a comprobar la generación publicada sin abrir la DB."""
+    _validar_raiz_privada(raiz)
+    marcador = raiz / "actual.json"
+    if marcador.is_symlink() or not marcador.is_file() or marcador.stat().st_size > 4096:
+        raise RuntimeError("No existe un entorno privado publicado válido")
+    try:
+        datos = json.loads(marcador.read_text(encoding="utf-8"))
+        if not isinstance(datos, dict) or datos.get("version") != 1 or not isinstance(datos.get("python"), str):
+            raise ValueError("marcador inválido")
+    except (OSError, ValueError) as exc:
+        raise RuntimeError("No se puede leer el entorno privado publicado") from exc
+    return _validar_interprete_publicable(raiz, datos["python"])
+
+
 # ── Terminal helpers ────────────────────────────────────────────────────────
 
 def _green(m: str) -> str:

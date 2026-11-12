@@ -182,3 +182,69 @@ def test_rueda_rechaza_plataforma_desconocida(monkeypatch):
     monkeypatch.setattr(install.sysconfig, 'get_platform', lambda: 'desconocida')
     with pytest.raises(RuntimeError, match='Plataforma'):
         install._rueda_uv_plataforma()
+
+
+def test_publica_solo_despues_de_preparar_y_validar(tmp_path, monkeypatch):
+    raiz = tmp_path / 'runtime'
+    raiz.mkdir(mode=0o700)
+    anterior = raiz / 'anterior'
+    anterior.write_text('conservado')
+    req = tmp_path / 'requirements.txt'
+    req.write_text('')
+    nueva = raiz / 'entorno-nuevo' / 'python'
+    nueva.parent.mkdir()
+    nueva.write_text('simulado')
+    marcador = raiz / 'actual.json'
+    marcador.write_text(json.dumps({'version': 1, 'python': str(anterior)}))
+    monkeypatch.setattr(install, '_descargar_python_privado', lambda _: 'base')
+    def crear(base, directorio, requisitos):
+        assert json.loads(marcador.read_text())['python'] == str(anterior)
+        return str(nueva)
+    monkeypatch.setattr(install, '_crear_entorno_privado', crear)
+    monkeypatch.setattr(install, '_comprobar_python_sqlite', lambda _: (3, 51, 3))
+    assert install._publicar_entorno_privado(raiz, req) == str(nueva)
+    assert install._leer_entorno_publicado(raiz) == str(nueva)
+    assert anterior.read_text() == 'conservado'
+    assert not list(raiz.glob('.runtime-*.tmp'))
+
+
+def test_publicacion_fallida_conserva_marcador_previo(tmp_path, monkeypatch):
+    raiz = tmp_path / 'runtime'
+    raiz.mkdir(mode=0o700)
+    marcador = raiz / 'actual.json'
+    marcador.write_text('marcador anterior')
+    monkeypatch.setattr(install, '_descargar_python_privado', lambda _: 'base')
+    def falla(*args):
+        raise RuntimeError('sin red')
+    monkeypatch.setattr(install, '_crear_entorno_privado', falla)
+    with pytest.raises(RuntimeError, match='sin red'):
+        install._publicar_entorno_privado(raiz, tmp_path / 'req')
+    assert marcador.read_text() == 'marcador anterior'
+
+
+def test_marcador_no_puede_apuntar_fuera_de_raiz(tmp_path, monkeypatch):
+    raiz = tmp_path / 'runtime'
+    raiz.mkdir(mode=0o700)
+    fuera = tmp_path / 'python'
+    fuera.write_text('no ejecutar')
+    (raiz / 'actual.json').write_text(json.dumps({'version': 1, 'python': str(fuera)}))
+    monkeypatch.setattr(install, '_comprobar_python_sqlite', lambda _: pytest.fail('no debe ejecutarse'))
+    with pytest.raises(RuntimeError, match='fuera'):
+        install._leer_entorno_publicado(raiz)
+
+
+def test_publicacion_atomica_fallida_conserva_anterior(tmp_path, monkeypatch):
+    raiz = tmp_path / 'runtime'
+    raiz.mkdir(mode=0o700)
+    marcador = raiz / 'actual.json'
+    marcador.write_text('anterior')
+    nuevo = raiz / 'nuevo'
+    nuevo.write_text('simulado')
+    monkeypatch.setattr(install, '_descargar_python_privado', lambda _: 'base')
+    monkeypatch.setattr(install, '_crear_entorno_privado', lambda *args: str(nuevo))
+    monkeypatch.setattr(install, '_comprobar_python_sqlite', lambda _: (3, 51, 3))
+    monkeypatch.setattr(install.os, 'replace', lambda *args: (_ for _ in ()).throw(OSError('disco lleno')))
+    with pytest.raises(OSError, match='disco lleno'):
+        install._publicar_entorno_privado(raiz, tmp_path / 'req')
+    assert marcador.read_text() == 'anterior'
+    assert not list(raiz.glob('.runtime-*.tmp'))

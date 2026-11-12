@@ -16,9 +16,8 @@ import install
 def test_descarga_python_y_crea_entorno_con_dependencias(tmp_path):
     raiz = tmp_path / 'runtime'
     raiz.mkdir(mode=0o700)
-    python = install._descargar_python_privado(raiz)
-    assert install._comprobar_python_sqlite(python) >= (3, 51, 3)
-    entorno = install._crear_entorno_privado(python, raiz, Path('requirements.txt'))
+    entorno = install._publicar_entorno_privado(raiz, Path('requirements.txt'))
+    assert install._leer_entorno_publicado(raiz) == entorno
     assert install._comprobar_python_sqlite(entorno) >= (3, 51, 3)
     result = subprocess.run(
         [entorno, '-I', '-c', 'import sqlite3,numpy,nltk,mcp,pydantic,fastapi; print(sqlite3.sqlite_version)'],
