@@ -351,3 +351,15 @@ def test_instalacion_existente_no_ejecuta_pull_ni_copia_db(tmp_path, monkeypatch
     monkeypatch.setattr(install.subprocess, 'run', lambda *args, **kwargs: pytest.fail('no debe ejecutar git pull'))
     install._download_repo()
     assert db.read_bytes() == b'base intacta'
+
+
+def test_mensajes_basicos_funcionan_en_consola_windows(monkeypatch):
+    import io
+    salida = io.TextIOWrapper(io.BytesIO(), encoding='cp1252')
+    monkeypatch.setattr(sys, 'stdout', salida)
+    install._step('Preparando entorno')
+    install._ok('Entorno listo')
+    install._warn('Aviso')
+    install._fail('Error')
+    install._info('Información')
+    salida.flush()

@@ -381,8 +381,8 @@ def _validar_interprete_publicable(raiz: Path, python: str) -> str:
 def _publicar_entorno_privado(raiz: Path, requisitos: Path) -> str:
     """Prepara y publica una generación. Fallar conserva el marcador anterior.
 
-    Aún no se llama desde el instalador principal. El llamador debe garantizar
-    que `raiz` sea exclusiva de la instalación y que `requisitos` pertenezca a
+    El llamador debe garantizar que `raiz` sea exclusiva de la instalación y
+    que `requisitos` pertenezca a
     la distribución. No toca DB, configura agentes ni reinicia procesos.
     """
     _validar_raiz_privada(raiz)
@@ -437,19 +437,19 @@ def _bold(m: str) -> str:
     return f"\033[1m{m}\033[0m" if sys.stdout.isatty() else m
 
 def _step(msg: str) -> None:
-    print(f"\n  {_bold('→')} {msg}")
+    print(f"\n  {_bold('->')} {msg}")
 
 def _ok(msg: str) -> None:
-    print(f"    {_green('✓')} {msg}")
+    print(f"    {_green('[OK]')} {msg}")
 
 def _warn(msg: str) -> None:
-    print(f"    {_yellow('⚠')} {msg}")
+    print(f"    {_yellow('[!]')} {msg}")
 
 def _fail(msg: str) -> None:
-    print(f"    {_red('✗')} {msg}")
+    print(f"    {_red('[X]')} {msg}")
 
 def _info(msg: str) -> None:
-    print(f"    {_dim('•')} {msg}")
+    print(f"    {_dim('-')} {msg}")
 
 
 # ── Spinner (progress for long operations) ──────────────────────────────────
@@ -481,12 +481,12 @@ class _Spinner:
                 mins = int(elapsed) // 60
                 secs = int(elapsed) % 60
                 ts = f"{mins}m{secs:02d}s" if mins else f"{secs}s"
-                print(f"    {_dim('⋯')} {self._label} ({ts})", flush=True)
+                print(f"    {_dim('...')} {self._label} ({ts})", flush=True)
 
     def __enter__(self) -> "_Spinner":
         import threading
         if sys.stdout.isatty():
-            print(f"    {_dim('⋯')} {self._label}", flush=True)
+            print(f"    {_dim('...')} {self._label}", flush=True)
         self._stop = False
         self._thread = threading.Thread(target=self._spin, daemon=True)
         self._thread.start()
@@ -1661,9 +1661,9 @@ def _verify_final() -> None:
         _warn("Servidor MCP no probado completamente")
 
     if cli_ok and mcp_ok:
-        print(f"\n  {_green(_bold('✓ Todo funcional'))}")
+        print(f"\n  {_green(_bold('Todo funcional'))}")
     elif cli_ok:
-        print(f"\n  {_yellow('⚠ CLI funcional, MCP con advertencias')}")
+        print(f"\n  {_yellow('CLI funcional, MCP con advertencias')}")
 
 
 # ── Systemd service (SSE daemon) ───────────────────────────────────────────
@@ -1949,7 +1949,7 @@ def install() -> None:
     print(f"\n    {_yellow('Reinicia todos los agentes BioRAG y servidores SSE que ya estaban abiertos.')}")
     print(f"    {_dim('Los procesos antiguos y escritores externos no cambian automáticamente de SQLite.')}")
     if "antigravity" in detected and not _interactive():
-        print(f"    {_yellow('⚠ Antigravity requiere servidor SSE corriendo.')}")
+        print(f"    {_yellow('Antigravity requiere servidor SSE corriendo.')}")
         print(f"    {_dim(f'Ejecuta despues: python3 {INSTALL_DIR}/install.py --systemd')}")
         print(f"    {_dim(f'O inicia manual: {_python()} {INSTALL_DIR}/mcp_server.py --sse --port 8080')}")
     print()
