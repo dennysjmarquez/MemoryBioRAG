@@ -238,7 +238,8 @@ class _GuardedSQLiteConnection:
         """Interrumpe SQLite durante el drenaje sin competir con la consulta.
 
         Se registra como operación para impedir que el cierre libere la
-        conexión mientras interrupt está en vuelo. No cancela callbacks Python.
+        conexión mientras interrupt está en vuelo. La admisión usa el contador
+        global; solo interrumpe esta conexión, no cancela callbacks Python.
         """
         owner = self._owner
         with owner._lifecycle_condition:
@@ -874,6 +875,7 @@ class SQLiteMemoryBioRAG(metaclass=_OperationTrackedMeta):
         self._memory_connection = None
         self._active_operations = 0
         self._closing = False
+        self._closing_owner = None
         self._closed = False
         self._close_failed = False
         self._close_checkpoint_complete = False
@@ -1441,10 +1443,13 @@ class SQLiteMemoryBioRAG(metaclass=_OperationTrackedMeta):
 
         with self._lifecycle_condition:
             while self._closing:
+                if self._closing_owner == threading.get_ident():
+                    raise RuntimeError("cerrar_sistema no puede reentrar en su propio cierre")
                 self._lifecycle_condition.wait()
             if self._closed:
                 return
             self._closing = True
+            self._closing_owner = threading.get_ident()
             try:
                 limite = time.monotonic() + _CIERRE_DRENAJE_SEGUNDOS
                 while self._active_operations:
@@ -1458,6 +1463,7 @@ class SQLiteMemoryBioRAG(metaclass=_OperationTrackedMeta):
             except BaseException:
                 self._close_failed = True
                 self._closing = False
+                self._closing_owner = None
                 self._lifecycle_condition.notify_all()
                 raise
 
@@ -1483,4 +1489,5 @@ class SQLiteMemoryBioRAG(metaclass=_OperationTrackedMeta):
         finally:
             with self._lifecycle_condition:
                 self._closing = False
+                self._closing_owner = None
                 self._lifecycle_condition.notify_all()
