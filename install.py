@@ -73,6 +73,9 @@ def _entorno_runtime() -> dict[str, str]:
     """Evita mirrors/configuración heredados al descargar ejecutables."""
     env = {k: v for k, v in os.environ.items()
            if not k.upper().startswith(("UV_", "PIP_", "PYTHON", "LD_", "DYLD_"))}
+    # --isolated omite variables pip, pero no su configuración global: pip
+    # reconoce esta excepción también en modo aislado y omite todos los archivos.
+    env["PIP_CONFIG_FILE"] = os.devnull
     env["UV_NO_CONFIG"] = "1"
     env["UV_SYSTEM_CERTS"] = "true"
     return env
@@ -204,7 +207,8 @@ def _crear_entorno_privado(python: str, raiz: Path, requisitos: Path) -> str:
         if _comprobar_python_sqlite(str(ejecutable)) < (3, 51, 3):
             raise RuntimeError("El entorno creado no contiene SQLite 3.51.3 o posterior")
         subprocess.run([str(ejecutable), "-I", "-m", "pip", "--isolated", "install",
-                        "--disable-pip-version-check", "-r", str(requisitos.resolve())],
+                        "--disable-pip-version-check", "--index-url", "https://pypi.org/simple",
+                        "-r", str(requisitos.resolve())],
                        env=env, check=True, capture_output=True, text=True, timeout=900)
         if _comprobar_python_sqlite(str(ejecutable)) < (3, 51, 3):
             raise RuntimeError("SQLite cambió durante la instalación de dependencias")

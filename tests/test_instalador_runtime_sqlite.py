@@ -133,3 +133,16 @@ def test_verifica_de_nuevo_tras_instalar_dependencias(tmp_path, monkeypatch):
     with pytest.raises(RuntimeError, match='cambió'):
         install._crear_entorno_privado(sys.executable, raiz, req)
     assert not list(raiz.iterdir())
+
+
+def test_pip_ignora_configuracion_global_heredada(tmp_path, monkeypatch):
+    import os
+    configuracion = tmp_path / 'xdg' / 'pip'
+    configuracion.mkdir(parents=True)
+    (configuracion / 'pip.conf').write_text('[global]\nindex-url = https://ejemplo.invalid/simple\n')
+    monkeypatch.setenv('XDG_CONFIG_DIRS', str(configuracion.parent))
+    env = install._entorno_runtime()
+    assert env['PIP_CONFIG_FILE'] == os.devnull
+    result = subprocess.run([sys.executable, '-I', '-m', 'pip', '--isolated', 'config', 'list'],
+                            env=env, text=True, capture_output=True, check=True)
+    assert 'ejemplo.invalid' not in result.stdout
