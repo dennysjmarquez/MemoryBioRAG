@@ -11,8 +11,8 @@ Installs BioRAG, connects it to your MCP-compatible agents (OpenCode,
 Claude, Antigravity, VS Code, Cursor, Cline), and verifies everything works.
 
 Design principles:
-  - Zero external dependencies (stdlib only + pip for mcp)
-  - sys.executable everywhere to guarantee same Python
+  - Bootstrap with Python standard library; dependencies live in a private environment
+  - Configure MCP and SSE with the selected private interpreter
   - pathlib for all paths (cross-platform)
   - Automatic backups before every write (JSON + database)
   - Git clone with ZIP fallback (for systems without git)
@@ -785,8 +785,8 @@ def _biorag_already_configured(info: dict) -> bool:
 
 
 def _python() -> str:
-    """The Python executable to use for everything."""
-    return sys.executable
+    """The private interpreter selected for BioRAG, otherwise the caller's Python."""
+    return _RUNTIME_PYTHON or sys.executable
 
 
 def _script_path() -> Path:
@@ -1053,28 +1053,14 @@ def _download_repo() -> None:
         return
 
     if INSTALL_DIR.exists():
-        # Already installed in target dir — check for .git to decide update vs verification
-        git_dir = INSTALL_DIR / ".git"
-        if git_dir.exists():
-            _step("Actualizando repositorio existente...")
-            _backup_database()
-            try:
-                with _Spinner("Actualizando via git pull..."):
-                    subprocess.run(
-                        ["git", "-C", str(INSTALL_DIR), "pull"],
-                        check=True, capture_output=True, text=True,
-                    )
-                _ok("Repositorio actualizado")
-            except subprocess.CalledProcessError as exc:
-                _warn(f"Git pull falló: {exc.stderr.strip()}")
-                _info("Continuando con la instalación local existente...")
-        else:
-            _step("Repositorio ya existe en destino. Verificando integridad...")
-            if not _script_path().exists():
-                _fail(f"Instalación corrupta: falta {_script_path().name}")
-                _info(f"Elimina {INSTALL_DIR} y vuelve a ejecutar el instalador.")
-                sys.exit(1)
-            _ok("Instalación existente verificada")
+        # Un git pull puede reemplazar una DB versionada mientras hay conexiones
+        # abiertas. Preparar el runtime no debe modificar ni copiar esa DB.
+        _step("Verificando instalación existente...")
+        if not _script_path().exists():
+            _fail(f"Instalación incompleta: falta {_script_path().name}")
+            _info("Se conservaron los archivos y los datos existentes.")
+            sys.exit(1)
+        _ok("Instalación existente conservada; no se cambió la base ni el código")
         return
 
     _step(f"Descargando código fuente de BioRAG en {INSTALL_DIR}...")
@@ -1885,8 +1871,17 @@ def install() -> None:
     # 2. Download
     _download_repo()
 
-    # 3. Install mcp + nltk packages
-    _install_mcp()
+    # 3. Preparar el entorno completo antes de configurar agentes. Nunca se
+    # instala pip ni dependencias en el Python global.
+    _step("Preparando entorno privado seguro...")
+    try:
+        _preparar_runtime_instalacion()
+    except (OSError, RuntimeError, subprocess.SubprocessError) as exc:
+        detalle = str(exc) if isinstance(exc, RuntimeError) else type(exc).__name__
+        _fail(f"No se pudo preparar el entorno privado: {detalle}")
+        _info("La configuración MCP anterior se conserva. Revisa conexión y espacio y vuelve a intentar.")
+        sys.exit(1)
+    _ok("Entorno privado con SQLite y FTS5 verificados")
 
     # 3b. Install WordNet data
     _install_wordnet()
@@ -1951,12 +1946,12 @@ def install() -> None:
     print(f"    {_dim('Reinicia tu agente y dile:')}")
     prompt_msg = '"recuerda que me gusta el cafe"'
     print(f"    {_bold(prompt_msg)}")
-    if detected:
-        print(f"\n    {_dim('Si no ves las herramientas MCP, reinicia el agente.')}")
+    print(f"\n    {_yellow('Reinicia todos los agentes BioRAG y servidores SSE que ya estaban abiertos.')}")
+    print(f"    {_dim('Los procesos antiguos y escritores externos no cambian automáticamente de SQLite.')}")
     if "antigravity" in detected and not _interactive():
         print(f"    {_yellow('⚠ Antigravity requiere servidor SSE corriendo.')}")
         print(f"    {_dim(f'Ejecuta despues: python3 {INSTALL_DIR}/install.py --systemd')}")
-        print(f"    {_dim(f'O inicia manual: python3 {INSTALL_DIR}/mcp_server.py --sse --port 8080')}")
+        print(f"    {_dim(f'O inicia manual: {_python()} {INSTALL_DIR}/mcp_server.py --sse --port 8080')}")
     print()
 
 
@@ -2026,7 +2021,6 @@ def download_if_needed() -> bool:
     """Ensure BioRAG is downloaded (for --show-config, --systemd)."""
     if not _script_path().exists():
         _download_repo()
-        _install_mcp()
         return True
     return False
 
@@ -2066,6 +2060,13 @@ def main() -> None:
     )
 
     args = parser.parse_args()
+
+    if args.show_config or args.systemd:
+        try:
+            _cargar_runtime_instalacion()
+        except (OSError, RuntimeError, subprocess.SubprocessError):
+            _fail("No hay un entorno privado válido. Ejecuta primero el instalador de BioRAG.")
+            sys.exit(1)
 
     if args.show_config:
         download_if_needed()

@@ -11,8 +11,8 @@
 # Comprobar con el MISMO intérprete que arranca el servidor:
 #     python -c "import sqlite3; print(sqlite3.sqlite_version)"
 #
-# Si sale una versión afectada: actualiza Python (3.13+ suele traerla). No hay
-# forma de arreglarlo desde requirements.
+# `python install.py` prepara un Python privado corregido y configura MCP.
+# Este archivo por sí solo no ejecuta ese instalador ni cambia el intérprete.
 # ─────────────────────────────────────────────────────────────────────────────
 # BioRAG deps PINNED (==) — lección 2026-09-12: un reinstall con rangos (>=)
 # movió el 921 de 97.37/90.74/0.9331/23/FP15% a 97.60/90.51/0.9323/21/FP0

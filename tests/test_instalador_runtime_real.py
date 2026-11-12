@@ -32,3 +32,36 @@ def test_descarga_uv_sin_pip_global(tmp_path):
     result = subprocess.run([binario, '--version'], env=install._entorno_runtime(),
                             capture_output=True, text=True, timeout=30, check=True)
     assert result.stdout.startswith('uv ' + install._UV_VERSION)
+
+
+@pytest.mark.skipif(os.environ.get('BIORAG_TEST_RUNTIME_REAL') != '1', reason='requiere red y descarga real')
+def test_instalacion_configura_mcp_con_runtime_real_sin_tocar_base(tmp_path, monkeypatch):
+    import json
+    import shutil
+    proyecto = tmp_path / 'proyecto'
+    proyecto.mkdir()
+    shutil.copy(Path('requirements.txt'), proyecto / 'requirements.txt')
+    (proyecto / 'mcp_server.py').write_text('# servidor de prueba\n')
+    db = proyecto / 'MemoryBioRAG_Data' / 'memory_biorag.db'
+    db.parent.mkdir()
+    db.write_bytes(b'datos originales que no deben abrirse')
+    raiz = tmp_path / 'runtime'
+    raiz.mkdir(mode=0o700)
+    config = tmp_path / 'mcp.json'
+    config.write_text(json.dumps({'mcpServers': {'biorag': {'command': 'python-antiguo', 'args': [str(proyecto / 'mcp_server.py')]}}}))
+    info = {'path': config, 'key_path': ['mcpServers', 'biorag'], 'format': 'stdio', 'label': 'Cliente de prueba'}
+    monkeypatch.setattr(install, 'INSTALL_DIR', proyecto)
+    monkeypatch.setattr(install, 'BACKUPS_DIR', tmp_path / 'backups')
+    monkeypatch.setattr(install, '_RUNTIME_PYTHON', None)
+    monkeypatch.setattr(install, '_raiz_runtime_instalacion', lambda: raiz)
+    monkeypatch.setattr(install, '_download_repo', lambda: None)
+    monkeypatch.setattr(install, '_install_wordnet', lambda: None)
+    monkeypatch.setattr(install, '_install_skill', lambda: None)
+    monkeypatch.setattr(install, '_verify_final', lambda: None)
+    monkeypatch.setattr(install, '_platform_configs', lambda: {'prueba': info})
+    monkeypatch.setattr(install, '_interactive', lambda: False)
+    install.install()
+    entrada = json.loads(config.read_text())['mcpServers']['biorag']
+    assert entrada['command'] == install._leer_entorno_publicado(raiz)
+    assert entrada['args'] == [str(proyecto / 'mcp_server.py')]
+    assert db.read_bytes() == b'datos originales que no deben abrirse'

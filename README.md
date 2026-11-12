@@ -9,32 +9,30 @@
 
 ---
 
-## ⚠️ Requisito del entorno: versión de SQLite
+## Entorno privado y protección de SQLite
 
-**Antes de nada, comprueba esto.** BioRAG usa WAL, y las versiones de SQLite
-anteriores a **3.51.3** (o al backport **3.50.7** / **3.44.6**) tienen un fallo
-conocido que puede **corromper la base** cuando dos procesos escriben a la vez.
+Al ejecutar `python install.py`, BioRAG prepara un **entorno privado** con Python,
+SQLite y las dependencias del proyecto. Antes de configurar los agentes comprueba
+el SQLite efectivo y FTS5, sin abrir la base. Si falla la descarga o la
+comprobación, conserva la configuración MCP anterior y avisa. La instalación
+necesita conexión y espacio en disco; no modifica el Python global.
 
-```bash
-python -c "import sqlite3; print(sqlite3.sqlite_version)"
-```
+**Después de instalar o actualizar, reinicia todos los agentes BioRAG y los
+servidores SSE que ya estuvieran abiertos.** Un proceso viejo o un escritor
+externo no cambia de SQLite automáticamente. El guardián sigue activo.
 
-| Resultado | Qué hacer |
-|---|---|
-| `3.51.3` o superior | Nada. |
-| `3.50.7` exacta, o `3.44.6` con el backport | Nada. |
-| Cualquier otra anterior | **Actualiza Python.** |
+BioRAG usa WAL y protege contra el fallo WAL-reset: SQLite **3.51.3 o posterior**
+está corregido; también existen backports en las ramas **3.50.7** y **3.44.6**.
+El instalador privado exige 3.51.3 o posterior. Si ejecutas BioRAG directamente
+con otro intérprete, su versión efectiva puede ser distinta y el guardián puede
+rechazar escrituras inseguras.
 
-**No se arregla con `pip`.** SQLite viene **compilado dentro de Python**; no es
-un paquete instalable. Actualizar el intérprete es la única vía.
+**Importante:** `pip install -r requirements.txt` y `pip install .` solo instalan
+paquetes; no ejecutan automáticamente `install.py` ni preparan el entorno
+privado. Si usas esas rutas, ejecuta también `python install.py` para preparar y
+configurar el entorno. La recuperación de WAL ajeno es un problema separado.
 
-Si arrancas con una versión afectada, BioRAG **lo avisa al arrancar** y funciona
-en modo de solo lectura: puedes consultar tu memoria, pero las operaciones que
-guardan serán rechazadas. Nunca escribe a ciegas sobre una base que podría
-corromperse.
-
-Detalle completo y procedimiento de migración de journal:
-`docs/sqlite_journal_migration_runbook.md`
+Detalle de protección y migración: `docs/sqlite_journal_migration_runbook.md`.
 
 ## 📊 Métricas de la suite oficial (v33.0 · 2026-10-14 · vigentes en v34.0)
 

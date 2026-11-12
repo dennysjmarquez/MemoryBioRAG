@@ -300,3 +300,54 @@ def test_macos_universal2_usa_arquitectura_activa(monkeypatch, arquitectura, rue
     monkeypatch.setattr(install.sysconfig, 'get_platform', lambda: 'macosx-10.13-universal2')
     monkeypatch.setattr(install.platform, 'machine', lambda: arquitectura)
     assert install._rueda_uv_plataforma().endswith(rueda)
+
+
+def test_instalador_usa_runtime_antes_de_configurar_mcp(tmp_path, monkeypatch):
+    monkeypatch.setattr(install, '_RUNTIME_PYTHON', None)
+    monkeypatch.setattr(install, 'INSTALL_DIR', tmp_path)
+    monkeypatch.setattr(install, '_download_repo', lambda: None)
+    for funcion in ('_install_wordnet', '_install_skill', '_checkpoint2', '_verify_final'):
+        monkeypatch.setattr(install, funcion, lambda: None)
+    seleccionado = str(tmp_path / 'entorno' / 'python')
+    def preparar():
+        monkeypatch.setattr(install, '_RUNTIME_PYTHON', seleccionado)
+        return seleccionado
+    monkeypatch.setattr(install, '_preparar_runtime_instalacion', preparar)
+    config = tmp_path / 'cliente.json'
+    config.write_text(json.dumps({'mcpServers': {'biorag': {'command': 'viejo', 'args': [str(tmp_path / 'mcp_server.py')]}}}))
+    info = {'path': config, 'key_path': ['mcpServers', 'biorag'], 'format': 'stdio', 'label': 'Cliente'}
+    monkeypatch.setattr(install, '_platform_configs', lambda: {'cliente': info})
+    monkeypatch.setattr(install, '_interactive', lambda: False)
+    escritos = []
+    monkeypatch.setattr(install, '_configure_platform', lambda nombre, info: escritos.append(install._python()) or True)
+    install.install()
+    assert escritos == [seleccionado]
+
+
+def test_instalador_no_configura_si_runtime_falla(tmp_path, monkeypatch):
+    monkeypatch.setattr(install, 'INSTALL_DIR', tmp_path)
+    monkeypatch.setattr(install, '_download_repo', lambda: None)
+    def fallo():
+        raise RuntimeError('descarga fallida')
+    monkeypatch.setattr(install, '_preparar_runtime_instalacion', fallo)
+    monkeypatch.setattr(install, '_platform_configs', lambda: pytest.fail('no debe configurar'))
+    monkeypatch.setattr(install, '_install_wordnet', lambda: pytest.fail('no debe instalar'))
+    with pytest.raises(SystemExit) as e:
+        install.install()
+    assert e.value.code == 1
+
+
+def test_instalacion_existente_no_ejecuta_pull_ni_copia_db(tmp_path, monkeypatch):
+    proyecto = tmp_path / 'proyecto'
+    proyecto.mkdir()
+    (proyecto / '.git').mkdir()
+    (proyecto / 'mcp_server.py').write_text('')
+    db = proyecto / 'MemoryBioRAG_Data' / 'memory_biorag.db'
+    db.parent.mkdir()
+    db.write_bytes(b'base intacta')
+    monkeypatch.setattr(install, 'INSTALL_DIR', proyecto)
+    monkeypatch.setattr(install, '_is_local_repo', lambda: False)
+    monkeypatch.setattr(install, '_backup_database', lambda: pytest.fail('no debe copiar base'))
+    monkeypatch.setattr(install.subprocess, 'run', lambda *args, **kwargs: pytest.fail('no debe ejecutar git pull'))
+    install._download_repo()
+    assert db.read_bytes() == b'base intacta'
