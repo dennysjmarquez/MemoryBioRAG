@@ -774,8 +774,11 @@ def _biorag_already_configured(info: dict) -> bool:
     if not path.exists():
         return False
     try:
-        config = _read_json(path)
-    except Exception:
+        if path.is_symlink():
+            return False
+        with path.open("r", encoding="utf-8", newline="") as archivo:
+            config, _, _ = _parsear_config_segura(archivo.read())
+    except (OSError, UnicodeError, ValueError, RecursionError):
         return False
 
     # Walk key_path to find the leaf
@@ -1470,56 +1473,196 @@ def _build_sse_entry(port: int = SSE_PORT) -> dict:
 
 # ── Platform configuration ──────────────────────────────────────────────────
 
+def _normalizar_jsonc_con_posiciones(texto: str) -> tuple[str, set[int]]:
+    """Enmascara comentarios y comas finales sin alterar posiciones ni cadenas."""
+    caracteres = list(texto)
+    i, n = 0, len(texto)
+    while i < n:
+        if texto[i] == '"':
+            _, i = json.JSONDecoder().raw_decode(texto, i)
+        elif texto.startswith("//", i):
+            final = texto.find("\n", i + 2)
+            final = n if final < 0 else final
+            for k in range(i, final):
+                caracteres[k] = " "
+            i = final
+        elif texto.startswith("/*", i):
+            final = texto.find("*/", i + 2)
+            if final < 0:
+                raise ValueError("Comentario JSONC sin cerrar")
+            final += 2
+            for k in range(i, final):
+                if caracteres[k] not in "\r\n":
+                    caracteres[k] = " "
+            i = final
+        else:
+            i += 1
+    sin_comentarios = "".join(caracteres)
+    finales = set()
+    i = 0
+    while i < n:
+        if sin_comentarios[i] == '"':
+            _, i = json.JSONDecoder().raw_decode(sin_comentarios, i)
+        elif sin_comentarios[i] == ',':
+            siguiente = i + 1
+            while siguiente < n and sin_comentarios[siguiente] in " \t\r\n":
+                siguiente += 1
+            if siguiente < n and sin_comentarios[siguiente] in "}]":
+                caracteres[i] = " "
+                finales.add(i)
+            i += 1
+        else:
+            i += 1
+    return "".join(caracteres), finales
+
+
+def _parsear_config_segura(texto: str) -> tuple[dict, str, set[int]]:
+    """Rechaza claves duplicadas y raíces inválidas, sin perder el original."""
+    limpio, finales = _normalizar_jsonc_con_posiciones(texto)
+    def objeto(pares):
+        resultado = {}
+        for clave, valor in pares:
+            if clave in resultado:
+                raise ValueError("La configuración contiene claves duplicadas")
+            resultado[clave] = valor
+        return resultado
+    datos = json.loads(limpio, object_pairs_hook=objeto)
+    if not isinstance(datos, dict):
+        raise ValueError("La configuración no es un objeto JSON")
+    return datos, limpio, finales
+
+
+def _modificar_jsonc(texto: str, key_path: list[str], entrada: dict) -> str:
+    """Cambia solo la entrada indicada y conserva comentarios y otros valores."""
+    datos, limpio, finales = _parsear_config_segura(texto)
+    if not key_path:
+        raise ValueError("Ruta MCP vacía")
+    actual = datos
+    for clave in key_path[:-1]:
+        if clave not in actual:
+            break
+        if not isinstance(actual[clave], dict):
+            raise ValueError("La ruta de configuración MCP contiene un valor incompatible")
+        actual = actual[clave]
+    else:
+        previo = actual.get(key_path[-1])
+        if previo is not None and not isinstance(previo, dict):
+            raise ValueError("La entrada BioRAG existente no es un objeto")
+        if isinstance(previo, dict):
+            entrada = {**previo, **entrada}
+            # Si la persona desactivó el servidor en OpenCode, no lo reactivamos
+            # durante una migración del intérprete sin su consentimiento.
+            if "enabled" in previo and "enabled" in entrada:
+                entrada["enabled"] = previo["enabled"]
+    esperado = json.loads(json.dumps(datos))
+    _nested_set(esperado, key_path, entrada)
+
+    decoder = json.JSONDecoder()
+    def blancos(pos):
+        while pos < len(limpio) and limpio[pos] in " \t\r\n":
+            pos += 1
+        return pos
+    posicion = blancos(0)
+    for indice, clave in enumerate(key_path):
+        if limpio[posicion] != '{':
+            raise ValueError("La ruta MCP no apunta a un objeto")
+        cursor = blancos(posicion + 1)
+        encontrados = {}
+        ultimo_fin = None
+        while limpio[cursor] != '}':
+            nombre, cursor = decoder.raw_decode(limpio, cursor)
+            cursor = blancos(cursor)
+            if limpio[cursor] != ':':
+                raise ValueError("Configuración JSONC inválida")
+            inicio_valor = blancos(cursor + 1)
+            _, fin_valor = decoder.raw_decode(limpio, inicio_valor)
+            encontrados[nombre] = (inicio_valor, fin_valor)
+            ultimo_fin = fin_valor
+            cursor = blancos(fin_valor)
+            if limpio[cursor] == ',':
+                cursor = blancos(cursor + 1)
+            elif limpio[cursor] != '}':
+                raise ValueError("Configuración JSONC inválida")
+        cierre = cursor
+        if clave not in encontrados:
+            resto = {}
+            _nested_set(resto, key_path[indice:], entrada)
+            par = json.dumps(clave, ensure_ascii=False) + ": " + json.dumps(resto[clave], ensure_ascii=False)
+            tiene_coma_final = ultimo_fin is not None and any(ultimo_fin <= x < cierre for x in finales)
+            separador = "," if ultimo_fin is not None and not tiene_coma_final else ""
+            salto = "\r\n" if "\r\n" in texto else "\n"
+            resultado = texto[:cierre] + separador + salto + "  " + par + salto + texto[cierre:]
+            break
+        inicio, fin = encontrados[clave]
+        if indice == len(key_path) - 1:
+            resultado = texto[:inicio] + json.dumps(entrada, ensure_ascii=False) + texto[fin:]
+            break
+        posicion = inicio
+    verificado, _, _ = _parsear_config_segura(resultado)
+    if verificado != esperado:
+        raise ValueError("No se pudo verificar la configuración MCP")
+    return resultado
+
+
+def _guardar_config_segura(path: Path, original: str, actualizado: str, existia: bool) -> None:
+    """Escribe en temporal exclusivo y no restaura sobre cambios externos."""
+    if path.is_symlink():
+        raise RuntimeError("La configuración MCP es un enlace simbólico")
+    path.parent.mkdir(parents=True, exist_ok=True)
+    temporal = None
+    try:
+        with tempfile.NamedTemporaryFile(mode="w", encoding="utf-8", newline="", dir=path.parent,
+                                         prefix=".biorag-config-", suffix=".tmp", delete=False) as archivo:
+            temporal = Path(archivo.name)
+            if existia:
+                os.chmod(temporal, path.stat().st_mode & 0o777)
+            archivo.write(actualizado)
+            archivo.flush()
+            os.fsync(archivo.fileno())
+        if path.is_symlink() or path.exists() != existia:
+            raise RuntimeError("La configuración MCP cambió durante la instalación")
+        if existia:
+            with path.open("r", encoding="utf-8", newline="") as archivo_original:
+                if archivo_original.read() != original:
+                    raise RuntimeError("La configuración MCP cambió durante la instalación")
+        os.replace(temporal, path)
+    finally:
+        if temporal is not None:
+            temporal.unlink(missing_ok=True)
+
+
 def _configure_platform(name: str, info: dict) -> bool:
-    """Add BioRAG MCP entry to one platform's config file.
-
-    Returns True on success, False on skip/error.
-    Uses JSONC-safe writing: if the existing config has JS comments (// or /* */),
-    we preserve them instead of stripping them via json.dump round-trip.
-    """
+    """Actualiza únicamente BioRAG y conserva configuración y comentarios ajenos."""
     path = info["path"]
-    backup = _backup_file(path)
-    if backup:
-        _info(f"Backup: {_dim(str(backup))}")
-
-    key_path = info["key_path"]
-
-    if info["format"] == "sse":
-        entry = _build_sse_entry()
-    elif name == "opencode":
-        entry = _build_opencode_entry()
-    else:
-        entry = _build_stdio_entry()
-
-    # Choose write strategy: if the file has JSONC comments, use the comment-preserving patcher.
-    # Otherwise use the standard JSON checkpoint writer.
-    has_jsonc_comments = False
-    if path.exists():
-        try:
-            raw = path.read_text(encoding="utf-8")
-            has_jsonc_comments = "//" in raw or "/*" in raw
-        except OSError:
-            pass
-
-    if has_jsonc_comments:
-        ok = _patch_jsonc_preserving_comments(path, key_path, entry)
-    else:
-        config = _read_json(path)
-        _nested_set(config, key_path, entry)
-        ok = _write_json_with_checkpoint(path, config)
-
-    if ok:
+    try:
+        if path.is_symlink():
+            raise RuntimeError("La configuración MCP es un enlace simbólico")
+        existia = path.exists()
+        if existia:
+            with path.open("r", encoding="utf-8", newline="") as archivo:
+                original = archivo.read()
+        else:
+            original = "{}"
+        if not original.strip():
+            raise ValueError("La configuración MCP está vacía")
+        if info["format"] == "sse":
+            entry = _build_sse_entry()
+        elif name == "opencode":
+            entry = _build_opencode_entry()
+        else:
+            entry = _build_stdio_entry()
+        actualizado = _modificar_jsonc(original, info["key_path"], entry)
+        backup = _backup_file(path)
+        if backup:
+            _info(f"Backup: {_dim(str(backup))}")
+        _guardar_config_segura(path, original, actualizado, existia)
         _ok(f"Configurado en {info['label']}")
-        # Install OpenCode plugin alongside MCP config
         if name == "opencode":
             _install_opencode_plugin()
-    else:
-        _fail(f"Error escribiendo config de {info['label']}")
-        if backup:
-            shutil.copy2(backup, path)
-            _info("Configuración anterior restaurada desde backup")
-
-    return ok
+        return True
+    except (OSError, UnicodeError, ValueError, RuntimeError, RecursionError) as exc:
+        _fail(f"No se modificó la configuración de {info['label']}: {exc}")
+        return False
 
 
 def _remove_from_platform(name: str, info: dict) -> bool:

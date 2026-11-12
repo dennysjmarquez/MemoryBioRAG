@@ -76,7 +76,7 @@ jobs:
         run: |
           set -o pipefail
           set +e
-          python -m pytest tests/test_instalador_runtime_sqlite.py tests/test_instalador_runtime_real.py -q -s 2>&1 | tee runtime-test.log
+          python -m pytest tests/test_instalador_configuracion_mcp.py tests/test_instalador_runtime_sqlite.py tests/test_instalador_runtime_real.py -q -s 2>&1 | tee runtime-test.log
           status=${PIPESTATUS[0]}
           set -e
           if [ "$status" -ne 0 ]; then
