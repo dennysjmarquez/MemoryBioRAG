@@ -72,8 +72,8 @@ SSE_PORT = 8080
 OPENCODE_PLUGIN_NAME = "opencode-biorag-remember-plugin"
 
 
-# Preparación aislada para el futuro instalador de runtime; aún no integrada.
-# No modifica la configuración de agentes ni abre la base de datos.
+# Preparación aislada del runtime: no modifica configuración MCP ni abre la DB.
+# La publicación y configuración se realizan en pasos posteriores.
 def _entorno_runtime() -> dict[str, str]:
     """Evita mirrors/configuración heredados al descargar ejecutables."""
     env = {k: v for k, v in os.environ.items()
@@ -1956,6 +1956,8 @@ def install() -> None:
     print(f"    {_bold(prompt_msg)}")
     print(f"\n    {_yellow('Reinicia todos los agentes BioRAG y servidores SSE que ya estaban abiertos.')}")
     print(f"    {_dim('Los procesos antiguos y escritores externos no cambian automáticamente de SQLite.')}")
+    if "antigravity" in detected:
+        _warn("Un servicio SSE antiguo debe actualizar su configuración; reiniciarlo solo no cambia su Python.")
     if "antigravity" in detected and not _interactive():
         print(f"    {_yellow('Antigravity requiere servidor SSE corriendo.')}")
         print(f"    {_dim(f'Ejecuta despues: python3 {INSTALL_DIR}/install.py --systemd')}")

@@ -15,9 +15,9 @@
 
 **Límites:** la instalación no cambia procesos ya vivos ni escritores externos; éstos deben usar un runtime corregido antes de escribir en WAL. No prueba Windows o macOS sin ejecución real. `pip install -r requirements.txt` no ejecuta el instalador y no queda cubierto automáticamente por este cambio. No resuelve WAL ajeno ni recuperación.
 
-## Estado y evidencia de la preparación (no activada)
+## Evidencia histórica de la preparación
 
-- `install.py` contiene un sondeo de SQLite/FTS5 en memoria y dos piezas **todavía no llamadas por el instalador**: descarga de CPython gestionado por `uv` y construcción de una generación aislada con `venv`. No son aún una solución de instalación terminada.
+- En la primera etapa, `install.py` contenía el sondeo de SQLite/FTS5 y dos piezas aún no conectadas: descarga de CPython con `uv` y construcción de una generación con `venv`. La integración posterior se documenta más abajo.
 - `uv` 0.13.7 se obtiene en directorio temporal con `pip --require-hashes`, hashes de ruedas publicados por PyPI y sin instalarlo globalmente. La versión de CPython solicitada es 3.13.18. La revisión del código fuente de `uv` 0.13.7 (`crates/uv-python-managed/src/downloads.rs`, `extract_reader`) confirmó que comprueba SHA-256 **cuando el catálogo lo contiene**; los registros ordinarios 3.13.18 del catálogo incluido traen hash. Sigue pendiente verificar plataforma y variante realmente seleccionadas en una instalación real.
 - En este sandbox se descargó e instaló `uv` en temporal y se intentó descargar CPython, pero el destino de la redirección de GitHub, `objects.githubusercontent.com`, no está entre los hosts permitidos: falla el handshake TLS. No se desactivó TLS. Tampoco se probó la entrega real de CPython en Windows o macOS.
 - En Linux se creó un entorno real con el `requirements.txt` completo: **175 MiB** según `du -sh`, sin base ni corpus WordNet, reutilizando Python del sistema. Para esa medición se simuló el resultado de la comprobación: el SQLite real era **3.40.1**, por lo que **no** es un entorno seguro ni demuestra el tamaño del CPython privado descargado. NumPy instalado: 2.4.6. Python privado, corpus y generaciones antiguas sumarían espacio; memoria RAM y disco son medidas distintas.
@@ -55,3 +55,9 @@ El flujo principal ahora prepara el entorno privado antes de configurar MCP, y `
 ### Verificación sin abrir la base del usuario
 
 La verificación anterior del instalador ejecutaba la CLI `estado` y lanzaba el servidor MCP; ambos pueden abrir la DB y causar actividad de SQLite. Se sustituye en este flujo por una comprobación de importaciones y del SQLite/FTS5 en memoria: A01/A08 evita acceso y cambios al par DB/WAL; A03 usa argumentos separados y código fijo, sin shell; A04/A05 aborta si faltan dependencias, antes de publicar/configurar; A09 comunica error; A02/A06/A07/A10 no introduce fuentes, credenciales ni descargas. La comprobación no equivale a probar la comunicación con un agente real ni a una revisión de los datos.
+
+### Comprobación de la integración
+
+En el commit `1c0b1ac`, los trabajos de portabilidad de GitHub Actions `43146010966` aprobaron en Linux, Windows y macOS, incluyendo descarga real, dependencias, publicación y actualización de una configuración MCP de prueba con una base centinela temporal intacta. Las suites completas aún estaban en ejecución al consultar. En el sandbox, la selección focal terminó con **105 passed, 3 skipped, 2 xfailed**; las tres omitidas son descargas reales bloqueadas aquí, cubiertas por aquellos trabajos de CI. Los dos xfail WAL siguen abiertos. Hay que mantener en cuenta la falla intermitente registrada arriba, aunque la repetición focal pasó.
+
+Límites vigentes: esta prueba no demuestra que se hayan actualizado servicios SSE ya existentes ni agentes que permanezcan abiertos. `pip install -r` o un paquete instalado sin repositorio no ejecutan la integración. La comprobación del sondeo se hace con variables del cargador saneadas; el entorno final de un cliente externo puede ser distinto, por lo que la política SQLite en el proceso real sigue siendo necesaria. La privacidad de ACL de Windows y la limpieza segura de generaciones antiguas no están verificadas. No se han cambiado ni copiado archivos de la DB real.

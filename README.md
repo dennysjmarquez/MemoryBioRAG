@@ -19,7 +19,9 @@ necesita conexión y espacio en disco; no modifica el Python global.
 
 **Después de instalar o actualizar, reinicia todos los agentes BioRAG y los
 servidores SSE que ya estuvieran abiertos.** Un proceso viejo o un escritor
-externo no cambia de SQLite automáticamente. El guardián sigue activo.
+externo no cambia de SQLite automáticamente. El guardián sigue activo. Los
+servicios SSE anteriores deben reconfigurarse con el intérprete nuevo; reiniciar
+un servicio viejo sin actualizar su configuración no lo cambia.
 
 BioRAG usa WAL y protege contra el fallo WAL-reset: SQLite **3.51.3 o posterior**
 está corregido; también existen backports en las ramas **3.50.7** y **3.44.6**.
@@ -29,8 +31,9 @@ rechazar escrituras inseguras.
 
 **Importante:** `pip install -r requirements.txt` y `pip install .` solo instalan
 paquetes; no ejecutan automáticamente `install.py` ni preparan el entorno
-privado. Si usas esas rutas, ejecuta también `python install.py` para preparar y
-configurar el entorno. La recuperación de WAL ajeno es un problema separado.
+privado. Si tienes el repositorio, ejecuta también `python install.py` desde él
+para preparar y configurar el entorno. Una instalación solo del paquete aún no
+prepara el entorno por sí sola. La recuperación de WAL ajeno es un problema separado.
 
 Detalle de protección y migración: `docs/sqlite_journal_migration_runbook.md`.
 
