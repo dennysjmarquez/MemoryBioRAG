@@ -192,6 +192,10 @@ class _GuardedSQLiteConnection:
         object.__setattr__(self, "_raw", raw)
 
     def __getattr__(self, name):
+        if name in {"blobopen", "iterdump"}:
+            raise NotImplementedError(
+                f"{name} no está soportado por la barrera de cierre DB-API"
+            )
         with self._owner._dbapi_lease():
             value = getattr(self._raw, name)
             if not callable(value):
@@ -338,15 +342,18 @@ class SQLiteMemoryBioRAG(metaclass=_OperationTrackedMeta):
             except AttributeError:
                 object.__setattr__(self, name, value)
                 return
-            setattr(local, "connection" if name == "conn" else "cursor", value)
-            if name == "conn" and value is not None:
-                try:
+            try:
+                object.__getattribute__(self, "_lifecycle_condition")
+            except AttributeError:
+                setattr(local, "connection" if name == "conn" else "cursor", value)
+                return
+            with self._dbapi_lease():
+                if name == "conn" and value is not None:
                     with object.__getattribute__(self, "_connection_registry_lock"):
                         connections = object.__getattribute__(self, "_connections")
                         if value not in connections:
                             connections.append(value)
-                except AttributeError:
-                    pass
+                setattr(local, "connection" if name == "conn" else "cursor", value)
             return
         if name.startswith("last_"):
             try:
@@ -368,7 +375,7 @@ class SQLiteMemoryBioRAG(metaclass=_OperationTrackedMeta):
     def _begin_operation(self):
         state = self._operation_local
         depth = getattr(state, "depth", 0)
-        if depth == 0 and getattr(state, "dbapi_depth", 0):
+        if getattr(state, "dbapi_depth", 0):
             raise RuntimeError("No se puede iniciar una operación del motor desde una llamada DB-API activa")
         if depth == 0:
             with self._lifecycle_condition:
@@ -430,7 +437,15 @@ class SQLiteMemoryBioRAG(metaclass=_OperationTrackedMeta):
         """
         if (getattr(self._operation_local, "depth", 0)
                 or getattr(self._operation_local, "dbapi_depth", 0)):
-            yield
+            previous = getattr(self._operation_local, "dbapi_depth", 0)
+            self._operation_local.dbapi_depth = previous + 1
+            try:
+                yield
+            finally:
+                if previous:
+                    self._operation_local.dbapi_depth = previous
+                else:
+                    del self._operation_local.dbapi_depth
             return
         with self._lifecycle_condition:
             while self._closing:
