@@ -103,6 +103,12 @@ def configure_writer(
 
     version = _effective_sqlite_version()
     vulnerable = is_wal_reset_vulnerable(version)
+    # El interruptor del guardián (BIORAG_SQLITE_GUARD=0) apaga TODA la capa,
+    # incluida esta política de journal: sin él, un runtime vulnerable sobre una
+    # base WAL abre y opera sin rechazar. Es opt-in explícito del operador y
+    # reversible; con el guardián activo (default) el comportamiento es idéntico
+    # al anterior.
+    guard = _cfg.guard_enabled()
     source_id = _sqlite_source_id(conn)
     _raw_execute(conn, f"PRAGMA busy_timeout={busy_timeout_ms}")
     current = _journal_mode(conn)
@@ -111,7 +117,7 @@ def configure_writer(
     if _is_memory_database(database) or current == "memory":
         return SQLiteWriterRuntime(version, source_id, current, vulnerable, False)
 
-    if vulnerable and current == "wal" and database_existed and not allow_existing_journal_transition:
+    if guard and vulnerable and current == "wal" and database_existed and not allow_existing_journal_transition:
         raise UnsafeSQLiteJournalModeError(
             "BioRAG rechazó la escritura sin modificar el journal: este proceso "
             f"usa SQLite {'.'.join(map(str, version))}, vulnerable al WAL-reset bug, "
@@ -139,7 +145,7 @@ def configure_writer(
             transition_error = exc
             actual = _journal_mode(conn)
 
-        if vulnerable and actual != "delete":
+        if guard and vulnerable and actual != "delete":
             _raw_execute(conn, f"PRAGMA busy_timeout={busy_timeout_ms}")
             reason = f"; error SQLite: {transition_error}" if transition_error else ""
             raise UnsafeSQLiteJournalModeError(
@@ -165,7 +171,7 @@ def configure_writer(
 
     _raw_execute(conn, f"PRAGMA busy_timeout={busy_timeout_ms}")
     actual = _journal_mode(conn)
-    if vulnerable and actual == "wal":
+    if guard and vulnerable and actual == "wal":
         raise UnsafeSQLiteJournalModeError(
             "BioRAG rechazó la escritura porque el runtime SQLite vulnerable "
             "no puede escribir sobre una base WAL existente sin migración autorizada."

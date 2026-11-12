@@ -12,6 +12,7 @@ from core.sqlite_runtime import (
     database_commit_state,
     database_read_window,
     database_file_identity,
+    guard_enabled,
     open_writer,
 )
 from collections import deque
@@ -499,6 +500,11 @@ class SQLiteMemoryBioRAG(metaclass=_OperationTrackedMeta):
         )
 
     def _remember_connection_snapshot(self, connection):
+        # BIORAG_SQLITE_GUARD=0 apaga el motor del guardián por completo: la
+        # validación de generación/identidad de este almacén también queda sin
+        # efecto (sin rechazos por sidecar sustituido ni firma atestiguada).
+        if not guard_enabled():
+            return
         if (
             not getattr(self, "_generation_guard_ready", False)
             or self._database_file_identity is None
@@ -667,6 +673,10 @@ class SQLiteMemoryBioRAG(metaclass=_OperationTrackedMeta):
             )
 
     def _assert_database_identity(self, connection=None):
+        # Mismo interruptor que arriba: con el guardián apagado no se rechaza
+        # ninguna operación por identidad de archivo ni de sidecars.
+        if not guard_enabled():
+            return
         expected = getattr(self, "_database_file_identity", None)
         if expected is not None:
             try:
