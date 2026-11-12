@@ -290,3 +290,13 @@ def test_servicio_usuario_usa_runtime_sin_sudo(tmp_path, monkeypatch):
     assert 'UnsetEnvironment=LD_PRELOAD LD_LIBRARY_PATH PYTHONPATH PYTHONHOME' in unidad
     assert comandos == [['systemctl', '--user', 'daemon-reload']]
     assert not list((tmp_path / '.config/systemd/user').glob('.biorag-*.tmp'))
+
+
+@pytest.mark.parametrize(('arquitectura', 'rueda'), [
+    ('arm64', 'macosx_11_0_arm64.whl'),
+    ('x86_64', 'macosx_10_12_x86_64.whl'),
+])
+def test_macos_universal2_usa_arquitectura_activa(monkeypatch, arquitectura, rueda):
+    monkeypatch.setattr(install.sysconfig, 'get_platform', lambda: 'macosx-10.13-universal2')
+    monkeypatch.setattr(install.platform, 'machine', lambda: arquitectura)
+    assert install._rueda_uv_plataforma().endswith(rueda)

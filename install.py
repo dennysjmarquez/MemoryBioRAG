@@ -26,6 +26,7 @@ import hashlib
 import io
 import json
 import os
+import platform
 import re
 import shutil
 import subprocess
@@ -137,8 +138,15 @@ def _rueda_uv_plataforma() -> str:
     if plataforma.startswith("win_") or plataforma == "win32":
         sufijo = {"win_amd64": "win_amd64", "win_arm64": "win_arm64", "win32": "win32"}.get(plataforma)
     elif plataforma.startswith("macosx_"):
-        sufijo = ("macosx_11_0_arm64" if plataforma.endswith("_arm64") else
-                  "macosx_10_12_x86_64" if plataforma.endswith("_x86_64") else None)
+        # Los Python universal2 anuncian ambas arquitecturas; la arquitectura
+        # efectiva del proceso decide qué ejecutable nativo de uv necesitamos.
+        arquitectura = plataforma.rsplit("_", 1)[-1]
+        if plataforma.endswith("_x86_64"):
+            arquitectura = "x86_64"
+        elif arquitectura == "universal2":
+            arquitectura = platform.machine().lower()
+        sufijo = ("macosx_11_0_arm64" if arquitectura in {"arm64", "aarch64"} else
+                  "macosx_10_12_x86_64" if arquitectura in {"x86_64", "amd64"} else None)
     elif plataforma.startswith("linux_"):
         arquitectura = plataforma.removeprefix("linux_")
         try:
