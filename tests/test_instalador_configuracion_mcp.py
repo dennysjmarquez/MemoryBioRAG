@@ -122,3 +122,25 @@ def test_opencode_preserva_environment_y_decision_de_desactivar(tmp_path, monkey
     assert entrada['command'] == ['/privado/python', str(tmp_path / 'mcp_server.py')]
     assert entrada['environment']['BIORAG_PATH'] == 'mi-db'
     assert entrada['enabled'] is False
+
+
+def test_instalacion_no_informa_exito_si_configuracion_falla(tmp_path, monkeypatch, capsys):
+    proyecto = tmp_path / 'proyecto'
+    proyecto.mkdir()
+    config = tmp_path / 'invalido.json'
+    config.write_text('{"mcpServers":')
+    info = {'path': config, 'key_path': ['mcpServers', 'biorag'], 'format': 'stdio', 'label': 'Cliente'}
+    monkeypatch.setattr(install, 'INSTALL_DIR', proyecto)
+    monkeypatch.setattr(install, '_download_repo', lambda: None)
+    monkeypatch.setattr(install, '_preparar_runtime_instalacion', lambda: 'runtime-simulado')
+    monkeypatch.setattr(install, '_install_wordnet', lambda: None)
+    monkeypatch.setattr(install, '_install_skill', lambda: None)
+    monkeypatch.setattr(install, '_checkpoint2', lambda: None)
+    monkeypatch.setattr(install, '_verify_final', lambda: pytest.fail('no debe declarar éxito'))
+    monkeypatch.setattr(install, '_platform_configs', lambda: {'cliente': info})
+    monkeypatch.setattr(install, '_interactive', lambda: False)
+    with pytest.raises(SystemExit) as error:
+        install.install()
+    assert error.value.code == 1
+    assert config.read_text() == '{"mcpServers":'
+    assert 'Instalación completada' not in capsys.readouterr().out

@@ -2065,6 +2065,7 @@ def install() -> None:
         _step(f"Configurando MCP ({len(detected)} agente(s) detectado(s))...")
         configured = 0
         already_ok = 0
+        failed = 0
         for name, info in detected.items():
             # Idempotency: si BioRAG ya está correctamente configurado aquí, saltar.
             if _biorag_already_configured(info):
@@ -2080,6 +2081,13 @@ def install() -> None:
             ok = _configure_platform(name, info)
             if ok:
                 configured += 1
+            else:
+                failed += 1
+
+        if failed:
+            _fail(f"No se pudieron configurar {failed} agente(s); la instalación quedó incompleta.")
+            _info("Otras configuraciones pueden haberse actualizado; revisa los errores anteriores.")
+            sys.exit(1)
 
         if configured == 0 and already_ok == 0:
             _warn("No se configuró ningún agente")
