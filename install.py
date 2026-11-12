@@ -270,6 +270,18 @@ def _descargar_python_privado(raiz: Path) -> str:
     return str(candidato)
 
 
+def _comprobar_dependencias(python: str) -> None:
+    """Verifica imports instalados sin importar BioRAG ni abrir su base."""
+    prueba = "import sqlite3,numpy,nltk,mcp,pydantic,dotenv,fastapi,uvicorn"
+    try:
+        resultado = subprocess.run([python, "-I", "-c", prueba], env=_entorno_runtime(),
+                                   capture_output=True, text=True, timeout=60)
+    except (OSError, subprocess.SubprocessError) as exc:
+        raise RuntimeError("No se pudieron verificar las dependencias del entorno privado") from exc
+    if resultado.returncode:
+        raise RuntimeError("Las dependencias del entorno privado no se pueden cargar")
+
+
 def _crear_entorno_privado(python: str, raiz: Path, requisitos: Path) -> str:
     """Prepara una generación aislada sin activar ni tocar generaciones anteriores.
 
@@ -301,6 +313,7 @@ def _crear_entorno_privado(python: str, raiz: Path, requisitos: Path) -> str:
                         "--disable-pip-version-check", "--index-url", "https://pypi.org/simple",
                         "-r", str(requisitos.resolve())],
                        env=env, check=True, capture_output=True, text=True, timeout=900)
+        _comprobar_dependencias(str(ejecutable))
         if _comprobar_python_sqlite(str(ejecutable)) < (3, 51, 3):
             raise RuntimeError("SQLite cambió durante la instalación de dependencias")
         return str(ejecutable)
@@ -1645,25 +1658,18 @@ def _test_mcp_server() -> bool:
         return False
 
 
-def _verify_final() -> None:
-    """Checkpoint 4: full verification."""
-    _step("Verificación final (Checkpoint 4)...")
-    cli_ok = _test_cli()
-    if not cli_ok:
-        _warn("CLI no responde — revisa que la base de datos exista")
-        _info("Solución: python3 biorag.py crear (si es primera vez)")
-
-    mcp_ok = _test_mcp_server()
-    if not mcp_ok and cli_ok:
-        _warn("Servidor MCP con problemas — verifica que mcp esté instalado")
-        _info("Solución: sys.executable -m pip install mcp")
-    elif not mcp_ok:
-        _warn("Servidor MCP no probado completamente")
-
-    if cli_ok and mcp_ok:
-        print(f"\n  {_green(_bold('Todo funcional'))}")
-    elif cli_ok:
-        print(f"\n  {_yellow('CLI funcional, MCP con advertencias')}")
+def _verify_final() -> bool:
+    """Verifica el entorno sin arrancar procesos que abran la base del usuario."""
+    _step("Verificación final (sin abrir la base de datos)...")
+    try:
+        if _comprobar_python_sqlite(_python()) < (3, 51, 3):
+            raise RuntimeError("SQLite del entorno no está corregido")
+        _comprobar_dependencias(_python())
+    except (OSError, RuntimeError, subprocess.SubprocessError) as exc:
+        _fail(f"No se pudo verificar el entorno: {type(exc).__name__}")
+        return False
+    _ok("Entorno privado verificado")
+    return True
 
 
 # ── Systemd service (SSE daemon) ───────────────────────────────────────────
@@ -1934,7 +1940,9 @@ def install() -> None:
 
     # Checkpoint 4
     _step("Verificación final...")
-    _verify_final()
+    if not _verify_final():
+        _fail("Instalación incompleta; no se ha verificado el entorno")
+        sys.exit(1)
 
     # Done
     print(f"\n  {_green(_bold('Instalación completada'))}")

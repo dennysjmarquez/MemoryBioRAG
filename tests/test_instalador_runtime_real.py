@@ -57,7 +57,6 @@ def test_instalacion_configura_mcp_con_runtime_real_sin_tocar_base(tmp_path, mon
     monkeypatch.setattr(install, '_download_repo', lambda: None)
     monkeypatch.setattr(install, '_install_wordnet', lambda: None)
     monkeypatch.setattr(install, '_install_skill', lambda: None)
-    monkeypatch.setattr(install, '_verify_final', lambda: None)
     monkeypatch.setattr(install, '_platform_configs', lambda: {'prueba': info})
     monkeypatch.setattr(install, '_interactive', lambda: False)
     install.install()

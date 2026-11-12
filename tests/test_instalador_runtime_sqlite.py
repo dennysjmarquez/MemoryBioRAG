@@ -40,6 +40,7 @@ def test_crea_generacion_privada_sin_publicar_y_conserva_la_anterior(tmp_path, m
     # El entorno es real; se simula la versión para ejercitar el flujo en el
     # Python del CI, que puede tener SQLite vulnerable. No prueba una descarga.
     monkeypatch.setattr(install, '_comprobar_python_sqlite', lambda _: (3, 51, 3))
+    monkeypatch.setattr(install, '_comprobar_dependencias', lambda _: None)
     raiz = tmp_path / 'runtime'
     raiz.mkdir(mode=0o700)
     anterior = raiz / 'entorno-anterior'
@@ -306,8 +307,9 @@ def test_instalador_usa_runtime_antes_de_configurar_mcp(tmp_path, monkeypatch):
     monkeypatch.setattr(install, '_RUNTIME_PYTHON', None)
     monkeypatch.setattr(install, 'INSTALL_DIR', tmp_path)
     monkeypatch.setattr(install, '_download_repo', lambda: None)
-    for funcion in ('_install_wordnet', '_install_skill', '_checkpoint2', '_verify_final'):
+    for funcion in ('_install_wordnet', '_install_skill', '_checkpoint2'):
         monkeypatch.setattr(install, funcion, lambda: None)
+    monkeypatch.setattr(install, '_verify_final', lambda: True)
     seleccionado = str(tmp_path / 'entorno' / 'python')
     def preparar():
         monkeypatch.setattr(install, '_RUNTIME_PYTHON', seleccionado)
@@ -363,3 +365,61 @@ def test_mensajes_basicos_funcionan_en_consola_windows(monkeypatch):
     install._fail('Error')
     install._info('Información')
     salida.flush()
+
+
+def test_bootstrap_rechaza_rueda_con_hash_distinto(tmp_path, monkeypatch):
+    class Respuesta:
+        def __init__(self, contenido): self.contenido = contenido
+        def __enter__(self): return self
+        def __exit__(self, *args): pass
+        def read(self, limite): return self.contenido[:limite]
+    class Red:
+        def open(self, url, timeout):
+            if 'pypi.org/pypi/' in url:
+                return Respuesta(json.dumps({'urls': [{'filename': 'rueda.whl', 'url': 'https://files.pythonhosted.org/rueda.whl'}]}).encode())
+            return Respuesta(b'rueda alterada')
+    monkeypatch.setattr(install, '_rueda_uv_plataforma', lambda: 'rueda.whl')
+    monkeypatch.setattr(install.urllib.request, 'build_opener', lambda *args: Red())
+    with pytest.raises(RuntimeError, match='hashes fijados'):
+        install._descargar_uv_sin_pip(tmp_path)
+    assert list(tmp_path.iterdir()) == []
+
+
+def test_bootstrap_rechaza_host_de_artefacto_no_oficial(tmp_path, monkeypatch):
+    class Respuesta:
+        def __enter__(self): return self
+        def __exit__(self, *args): pass
+        def read(self, limite):
+            return json.dumps({'urls': [{'filename': 'rueda.whl', 'url': 'https://otro.invalid/rueda.whl'}]}).encode()
+    class Red:
+        def open(self, url, timeout):
+            assert 'pypi.org/pypi/' in url
+            return Respuesta()
+    monkeypatch.setattr(install, '_rueda_uv_plataforma', lambda: 'rueda.whl')
+    monkeypatch.setattr(install.urllib.request, 'build_opener', lambda *args: Red())
+    with pytest.raises(RuntimeError, match='Origen'):
+        install._descargar_uv_sin_pip(tmp_path)
+    assert list(tmp_path.iterdir()) == []
+
+
+def test_dependencias_fallidas_no_publican_entorno(tmp_path, monkeypatch):
+    raiz = tmp_path / 'runtime'
+    raiz.mkdir(mode=0o700)
+    req = tmp_path / 'requirements.txt'
+    req.write_text('')
+    monkeypatch.setattr(install, '_comprobar_python_sqlite', lambda _: (3, 51, 3))
+    monkeypatch.setattr(install.subprocess, 'run', lambda args, **kwargs: subprocess.CompletedProcess(args, 0, '', ''))
+    def fallo(_):
+        raise RuntimeError('dependencias fallidas')
+    monkeypatch.setattr(install, '_comprobar_dependencias', fallo)
+    with pytest.raises(RuntimeError, match='dependencias fallidas'):
+        install._crear_entorno_privado(sys.executable, raiz, req)
+    assert not list(raiz.iterdir())
+
+
+def test_verificacion_final_no_ejecuta_cli_ni_mcp(monkeypatch):
+    monkeypatch.setattr(install, '_test_cli', lambda: pytest.fail('no debe abrir DB'))
+    monkeypatch.setattr(install, '_test_mcp_server', lambda: pytest.fail('no debe arrancar MCP'))
+    monkeypatch.setattr(install, '_comprobar_python_sqlite', lambda _: (3, 51, 3))
+    monkeypatch.setattr(install, '_comprobar_dependencias', lambda _: None)
+    assert install._verify_final() is True
