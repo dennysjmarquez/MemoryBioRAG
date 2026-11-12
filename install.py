@@ -67,6 +67,154 @@ SSE_PORT = 8080
 OPENCODE_PLUGIN_NAME = "opencode-biorag-remember-plugin"
 
 
+# Preparación aislada para el futuro instalador de runtime; aún no integrada.
+# No modifica la configuración de agentes ni abre la base de datos.
+def _entorno_runtime() -> dict[str, str]:
+    """Evita mirrors/configuración heredados al descargar ejecutables."""
+    env = {k: v for k, v in os.environ.items()
+           if not k.upper().startswith(("UV_", "PIP_", "PYTHON", "LD_", "DYLD_"))}
+    env["UV_NO_CONFIG"] = "1"
+    env["UV_SYSTEM_CERTS"] = "true"
+    return env
+
+
+def _comprobar_python_sqlite(python: str) -> tuple[int, int, int]:
+    """Comprueba el SQLite efectivo y FTS5 trigram sin abrir la DB del usuario."""
+    script = (
+        "import json,sqlite3; c=sqlite3.connect(':memory:'); "
+        "c.execute(\"CREATE VIRTUAL TABLE prueba USING fts5(t, tokenize='trigram')\"); "
+        "print(json.dumps(list(sqlite3.sqlite_version_info)))"
+    )
+    result = subprocess.run([python, "-I", "-c", script], capture_output=True,
+                            text=True, timeout=30, env=_entorno_runtime())
+    if result.returncode:
+        raise RuntimeError("El Python seleccionado no dispone de SQLite y FTS5 compatibles")
+    try:
+        version = json.loads(result.stdout)
+        if not isinstance(version, list) or len(version) != 3 or any(type(v) is not int for v in version):
+            raise ValueError("versión inválida")
+        return tuple(version)
+    except (ValueError, TypeError) as exc:
+        raise RuntimeError("No se pudo verificar la versión efectiva de SQLite") from exc
+
+
+# Archivo de referencia: PyPI uv 0.13.7, ruedas oficiales (noviembre 2026).
+# Se fija también el catálogo de Python incorporado en esta versión de uv.
+_UV_VERSION = "0.13.7"
+_CPYTHON_VERSION = "3.13.18"
+_UV_WHEEL_SHA256 = (
+    "89df450624dec8c48b8b5a7adb654928cc50e95753f869c70cd65ef8333f2197",
+    "fd04bf01ba5f2829f4f94ca8f0c24a743f21e73d75045613ed6fc2fd66fc7bda",
+    "f91a229093163eefca89ea1b220a221d64c3beade05d03519a6584d1797a5a5f",
+    "a90f5d95716ab83091f0f73a8e7ec64e557abf2a28537fcd719b2ac88e6f725a",
+    "952dcae9b1a7742f2fab28e82391fbfabe8807e4e9363f674b0f6be1053b8dd4",
+    "94f65a8ac5826dff76a93cb3cafbaad15def1788c63da2ce5ce09e0bd1303e7a",
+    "57ff66891d9a738ec087c23fdde842ac8e5eb63189ffed6ee95caee1b82ceb54",
+    "917733990ebc178318af0321d6873823ed5da707e1c4b1e5060ac2065a81f1f3",
+    "1bc8543d930464bbb22ac01bb1a660a448235e558014914de1e1cd5b993361b8",
+    "2c9bdc4a872b60a93c5f26c0791089ea11585a4f9d3b3c017d78eb8487505e25",
+    "08f16fd463926786b702b497473511deae4b3e17a2fa6d22180950d6059a120d",
+    "d30cafb7070901ba35353ec64cf228ae46caf79ac0f6fae329f95468b1482531",
+    "158953b8669bee6f4bc2babdd997e34ff9f0d57170093cfe907f64448292b7c3",
+    "8fc6019740794df995085f7b278d99dc11ccacffad9c63957278d3a6e272280b",
+    "8b8ac028ae4ebb2a3f9d04907c61794f2cf8d7a7002bfbb4019a3dee28351fb2",
+    "5f37cc4d4660e4aee8a24d0dc179a0b0ce99506259c6796d37fa69bca9543a03",
+    "2835e2ab397d0db86323b9975dce75ecd76aa9cfa0d6a2aea84734aae7f8c9b3",
+    "55e741a380a98008fc4985cf069855f36bc50242ef438e21a466786f5bc84da8",
+)
+
+
+def _descargar_python_privado(raiz: Path) -> str:
+    """Instala CPython gestionado por uv sin modificar el Python de sistema.
+
+    Pip instala uv en un directorio temporal, con hashes de ruedas fijados;
+    uv comprueba el digest incluido en su catálogo antes de publicar CPython.
+    No abre bases. El llamador debe crear una raíz privada antes de invocarlo.
+    """
+    if raiz.is_symlink() or not raiz.is_dir():
+        raise RuntimeError("La raíz del runtime privado no es un directorio válido")
+    if os.name == "posix":
+        info = raiz.stat()
+        if info.st_uid != os.getuid() or info.st_mode & 0o077:
+            raise RuntimeError("La raíz del runtime privado debe ser exclusiva del usuario")
+    env = _entorno_runtime()
+    env["UV_PYTHON_INSTALL_DIR"] = str(raiz)
+    # No debe reutilizar el entorno virtual desde el que se ejecutó el instalador.
+    env.pop("VIRTUAL_ENV", None)
+    with tempfile.TemporaryDirectory(prefix="biorag-uv-") as temp:
+        tempdir = Path(temp)
+        lista = tempdir / "uv.txt"
+        lista.write_text("uv==" + _UV_VERSION + " " + " ".join(
+            "--hash=sha256:" + valor for valor in _UV_WHEEL_SHA256) + "\n", encoding="ascii")
+        ubicacion = tempdir / "modulo"
+        instalar = [sys.executable, "-I", "-m", "pip", "--isolated", "install",
+                    "--disable-pip-version-check", "--no-deps", "--only-binary=:all:",
+                    "--require-hashes", "--index-url", "https://pypi.org/simple",
+                    "--target", str(ubicacion), "-r", str(lista)]
+        lanzar = [sys.executable, "-I", "-c",
+                  "import runpy,sys; sys.path.insert(0,sys.argv.pop(1)); runpy.run_module('uv',run_name='__main__')",
+                  str(ubicacion)]
+        try:
+            subprocess.run(instalar, env=env, check=True, capture_output=True, text=True, timeout=180)
+            subprocess.run(lanzar + ["python", "install", "--no-bin", "--no-registry",
+                                     "--install-dir", str(raiz), _CPYTHON_VERSION],
+                           env=env, check=True, capture_output=True, text=True, timeout=600)
+            encontrado = subprocess.run(lanzar + ["python", "find", "--managed-python",
+                                                  "--no-project", _CPYTHON_VERSION],
+                                        env=env, check=True, capture_output=True, text=True, timeout=30)
+        except (OSError, subprocess.SubprocessError) as exc:
+            raise RuntimeError("No se pudo descargar el Python privado seguro; comprueba la conexión y reintenta") from exc
+    candidato = Path(encontrado.stdout.strip())
+    if not candidato.is_absolute() or not candidato.is_file():
+        raise RuntimeError("No se encontró el intérprete privado descargado")
+    try:
+        candidato.resolve().relative_to(raiz.resolve())
+    except ValueError as exc:
+        raise RuntimeError("El intérprete descargado está fuera de la raíz privada") from exc
+    if _comprobar_python_sqlite(str(candidato)) < (3, 51, 3):
+        raise RuntimeError("El intérprete descargado no contiene SQLite 3.51.3 o posterior")
+    return str(candidato)
+
+
+def _crear_entorno_privado(python: str, raiz: Path, requisitos: Path) -> str:
+    """Prepara una generación aislada sin activar ni tocar generaciones anteriores.
+
+    El llamador selecciona un Python base y mantiene la raíz bajo su control.
+    Se verifica SQLite y FTS5 antes y después de instalar las dependencias; no
+    se abre la base de datos. Para actualizar, se crea una generación nueva y
+    se conservan las anteriores mientras puedan estar en uso.
+    """
+    if _comprobar_python_sqlite(python) < (3, 51, 3):
+        raise RuntimeError("El Python base no contiene SQLite 3.51.3 o posterior")
+    if raiz.is_symlink() or not raiz.is_dir():
+        raise RuntimeError("La raíz del entorno privado no es un directorio válido")
+    if os.name == "posix":
+        info = raiz.stat()
+        if info.st_uid != os.getuid() or info.st_mode & 0o077:
+            raise RuntimeError("La raíz del entorno privado debe ser exclusiva del usuario")
+    if not requisitos.is_file():
+        raise RuntimeError("No se encontraron las dependencias fijadas de BioRAG")
+
+    entorno = Path(tempfile.mkdtemp(prefix="entorno-", dir=raiz))
+    ejecutable = entorno / ("Scripts/python.exe" if os.name == "nt" else "bin/python")
+    env = _entorno_runtime()
+    try:
+        subprocess.run([python, "-I", "-m", "venv", str(entorno)], env=env,
+                       check=True, capture_output=True, text=True, timeout=180)
+        if _comprobar_python_sqlite(str(ejecutable)) < (3, 51, 3):
+            raise RuntimeError("El entorno creado no contiene SQLite 3.51.3 o posterior")
+        subprocess.run([str(ejecutable), "-I", "-m", "pip", "--isolated", "install",
+                        "--disable-pip-version-check", "-r", str(requisitos.resolve())],
+                       env=env, check=True, capture_output=True, text=True, timeout=900)
+        if _comprobar_python_sqlite(str(ejecutable)) < (3, 51, 3):
+            raise RuntimeError("SQLite cambió durante la instalación de dependencias")
+        return str(ejecutable)
+    except BaseException:
+        # Solo se elimina la generación recién creada, nunca una anterior.
+        shutil.rmtree(entorno, ignore_errors=True)
+        raise
+
+
 # ── Terminal helpers ────────────────────────────────────────────────────────
 
 def _green(m: str) -> str:

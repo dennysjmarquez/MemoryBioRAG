@@ -1,0 +1,26 @@
+# Seguridad previa: runtime SQLite del instalador
+
+**Superficie nueva:** sí: descargas de herramientas e intérprete, ejecución de binarios y archivos bajo el directorio del usuario. Se evalúa antes de implementar; la revisión independiente y las pruebas por plataforma siguen pendientes.
+
+- A01: directorio privado por usuario; no escritura en rutas de otros usuarios. Verificar permisos y no aceptar rutas escapadas. La protección ACL nativa de Windows requiere verificación en Windows.
+- A02: `uv` de versión y hashes fijados; Python gestionado con catálogo de distribución del propio `uv` y TLS. Las huellas no protegen frente a un artefacto legítimo malicioso; documentar procedencia.
+- A03: `subprocess` con argumentos separados, sin shell; rutas calculadas internamente y salida de intérprete validada.
+- A04: descargas y comprobaciones con timeout; errores detienen la instalación y no configuran MCP con un runtime no verificado. No tocar base ni sidecars como parte de la preparación del runtime.
+- A05: comprobar versión SQLite y FTS5 con el intérprete efectivo; no desactivar guardián. Mantener entornos de datos y configuraciones previos si preparación falla.
+- A06: herramienta `uv` fijada por versión y hashes; CPython gestionado fijado por versión, distribuido por python-build-standalone. Actualizar explícitamente versiones y hashes.
+- A07: no hay IPC ni autenticación nueva.
+- A08: instalación bajo ruta de usuario, publicación y comprobación antes de configurar agentes; no sustituir el Python global, base ni WAL. Verificar entorno heredado para no permitir mirrors de descarga arbitrarios.
+- A09: informar fallos sin incluir datos de recuerdos ni secretos; nunca mostrar éxito cuando el runtime falla.
+- A10: fuentes de descarga controladas por `pip` aislado y catálogo de `uv`, sin URL de usuario ni mirrors heredados. No deshabilitar TLS.
+
+**Límites:** la instalación no cambia procesos ya vivos ni escritores externos; éstos deben usar un runtime corregido antes de escribir en WAL. No prueba Windows o macOS sin ejecución real. `pip install -r requirements.txt` no ejecuta el instalador y no queda cubierto automáticamente por este cambio. No resuelve WAL ajeno ni recuperación.
+
+## Estado y evidencia de la preparación (no activada)
+
+- `install.py` contiene un sondeo de SQLite/FTS5 en memoria y dos piezas **todavía no llamadas por el instalador**: descarga de CPython gestionado por `uv` y construcción de una generación aislada con `venv`. No son aún una solución de instalación terminada.
+- `uv` 0.13.7 se obtiene en directorio temporal con `pip --require-hashes`, hashes de ruedas publicados por PyPI y sin instalarlo globalmente. La versión de CPython solicitada es 3.13.18. La revisión del código fuente de `uv` 0.13.7 (`crates/uv-python-managed/src/downloads.rs`, `extract_reader`) confirmó que comprueba SHA-256 **cuando el catálogo lo contiene**; los registros ordinarios 3.13.18 del catálogo incluido traen hash. Sigue pendiente verificar plataforma y variante realmente seleccionadas en una instalación real.
+- En este sandbox se descargó e instaló `uv` en temporal y se intentó descargar CPython, pero el destino de la redirección de GitHub, `objects.githubusercontent.com`, no está entre los hosts permitidos: falla el handshake TLS. No se desactivó TLS. Tampoco se probó la entrega real de CPython en Windows o macOS.
+- En Linux se creó un entorno real con el `requirements.txt` completo: **175 MiB** según `du -sh`, sin base ni corpus WordNet, reutilizando Python del sistema. Para esa medición se simuló el resultado de la comprobación: el SQLite real era **3.40.1**, por lo que **no** es un entorno seguro ni demuestra el tamaño del CPython privado descargado. NumPy instalado: 2.4.6. Python privado, corpus y generaciones antiguas sumarían espacio; memoria RAM y disco son medidas distintas.
+- En ausencia de pip en el Python inicial, la descarga de `uv` actual falla de manera cerrada; falta un bootstrap aislado verificado que no modifique el Python global. El `venv` requiere soporte de `venv`/`ensurepip` en el Python base.
+- Falta integrar preparación y publicación en el flujo principal, enrutar MCP y sistema/SSE, comprobar instalaciones existentes, acordar actualización concurrente sin borrar entornos en uso y cubrir puntos de entrada pip. `pip install -r` por sí solo no ejecuta un bootstrap. Antes de activar, verificar también que el proceso real use el mismo SQLite que el sondeo: variables como `LD_LIBRARY_PATH` pueden alterar bibliotecas al arrancar, y el sondeo las elimina. En Windows falta revisar ACL y políticas de rutas de DLL. No presentar la preparación como completa mientras falten estas comprobaciones.
+- Se añadió a CI una prueba opt-in de descarga y entorno reales en Linux, Windows y macOS; no toca la base de usuario. Está pendiente de ejecución y sus resultados, no se asume éxito.
