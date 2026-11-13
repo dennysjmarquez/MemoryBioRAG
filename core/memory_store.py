@@ -5,6 +5,7 @@ import logging
 import copy
 import functools
 import threading
+import time
 from contextlib import contextmanager
 from core.sqlite_runtime import (
     SQLiteDatabaseIdentityChangedError,
@@ -18,6 +19,10 @@ from core.sqlite_runtime import (
 from collections import deque
 
 logger = logging.getLogger("BioRAG.MemoryStore")
+
+# Límite para esperar operaciones propias antes de cerrar; no limita SQLite
+# checkpoint/close. La expiración preserva conexiones y permite reintentar.
+_CIERRE_DRENAJE_SEGUNDOS = 30.0
 
 # Auto-cargar .env.local al importar (antes de leer cualquier variable de entorno)
 from config import _load_env_local
@@ -130,7 +135,7 @@ def _sql_palabra_inicio_ancho(token, texto):
 
 
 class _GuardedSQLiteCursor:
-    """DB-API cursor that revalidates file generation for retained handles."""
+    """Cursor DB-API que valida generación y participa en la barrera de cierre."""
 
     __slots__ = ("_owner", "_raw", "_connection")
 
@@ -142,12 +147,14 @@ class _GuardedSQLiteCursor:
     def __getattr__(self, name):
         if name == "connection":
             return self._connection
-        value = getattr(self._raw, name)
-        if callable(value):
-            if name == "close":
+        with self._owner._dbapi_lease():
+            value = getattr(self._raw, name)
+            if not callable(value):
+                self._owner._check_connection_access(self._connection._raw)
                 return value
 
-            def guarded(*args, **kwargs):
+        def guarded(*args, **kwargs):
+            with self._owner._dbapi_lease():
                 self._owner._check_connection_access(self._connection._raw)
                 result = value(*args, **kwargs)
                 if (
@@ -163,25 +170,26 @@ class _GuardedSQLiteCursor:
                     return self._owner._guard_cursor(result, self._connection)
                 return result
 
-            return guarded
-        self._owner._check_connection_access(self._connection._raw)
-        return value
+        return guarded
 
     def __setattr__(self, name, value):
-        self._owner._check_connection_access(self._connection._raw)
-        setattr(self._raw, name, value)
+        with self._owner._dbapi_lease():
+            self._owner._check_connection_access(self._connection._raw)
+            setattr(self._raw, name, value)
 
     def __iter__(self):
-        self._owner._check_connection_access(self._connection._raw)
-        return self
+        with self._owner._dbapi_lease():
+            self._owner._check_connection_access(self._connection._raw)
+            return self
 
     def __next__(self):
-        self._owner._check_connection_access(self._connection._raw)
-        return next(self._raw)
+        with self._owner._dbapi_lease():
+            self._owner._check_connection_access(self._connection._raw)
+            return next(self._raw)
 
 
 class _GuardedSQLiteConnection:
-    """Connection facade so held `conn.execute()` cannot bypass generation checks."""
+    """Conexión DB-API que valida generación y participa en la barrera de cierre."""
 
     __slots__ = ("_owner", "_raw")
 
@@ -190,12 +198,18 @@ class _GuardedSQLiteConnection:
         object.__setattr__(self, "_raw", raw)
 
     def __getattr__(self, name):
-        value = getattr(self._raw, name)
-        if callable(value):
-            if name == "close":
+        if name in {"blobopen", "iterdump"}:
+            raise NotImplementedError(
+                f"{name} no está soportado por la barrera de cierre DB-API"
+            )
+        with self._owner._dbapi_lease():
+            value = getattr(self._raw, name)
+            if not callable(value):
+                self._owner._check_connection_access(self._raw)
                 return value
 
-            def guarded(*args, **kwargs):
+        def guarded(*args, **kwargs):
+            with self._owner._dbapi_lease():
                 self._owner._check_connection_access(self._raw)
                 was_in_transaction = self._raw.in_transaction
                 result = value(*args, **kwargs)
@@ -214,24 +228,44 @@ class _GuardedSQLiteConnection:
                     return self._owner._guard_cursor(result, self)
                 return result
 
-            return guarded
-        self._owner._check_connection_access(self._raw)
-        return value
+        return guarded
 
     def __setattr__(self, name, value):
-        self._owner._check_connection_access(self._raw)
-        setattr(self._raw, name, value)
+        with self._owner._dbapi_lease():
+            self._owner._check_connection_access(self._raw)
+            setattr(self._raw, name, value)
+
+    def interrupt(self):
+        """Interrumpe SQLite durante el drenaje sin competir con la consulta.
+
+        Se registra como operación para impedir que el cierre libere la
+        conexión mientras interrupt está en vuelo. La admisión usa el contador
+        global; solo interrumpe esta conexión, no cancela callbacks Python.
+        """
+        owner = self._owner
+        with owner._lifecycle_condition:
+            if owner._closed or (owner._closing and owner._active_operations == 0):
+                raise RuntimeError("La instancia SQLiteMemoryBioRAG ya se cerró o está cerrándose")
+            owner._active_operations += 1
+        try:
+            return self._raw.interrupt()
+        finally:
+            with owner._lifecycle_condition:
+                owner._active_operations -= 1
+                owner._lifecycle_condition.notify_all()
 
     def __enter__(self):
-        self._owner._check_connection_access(self._raw)
-        self._raw.__enter__()
-        return self
+        with self._owner._dbapi_lease():
+            self._owner._check_connection_access(self._raw)
+            self._raw.__enter__()
+            return self
 
     def __exit__(self, exc_type, exc, tb):
-        self._owner._check_connection_access(self._raw)
-        result = self._raw.__exit__(exc_type, exc, tb)
-        self._owner._remember_connection_snapshot(self._raw)
-        return result
+        with self._owner._dbapi_lease():
+            self._owner._check_connection_access(self._raw)
+            result = self._raw.__exit__(exc_type, exc, tb)
+            self._owner._remember_connection_snapshot(self._raw)
+            return result
 
 
 def _tracked_operation(method):
@@ -299,13 +333,12 @@ class SQLiteMemoryBioRAG(metaclass=_OperationTrackedMeta):
 
     @property
     def conn(self):
-        self._ensure_database_identity_for_db_access()
-        conn = getattr(self._connection_local, "connection", None)
-        if conn is None:
-            conn = self._get_thread_state()[0]
-        if self._closed:
-            raise RuntimeError("La instancia SQLiteMemoryBioRAG ya fue cerrada")
-        return self._guard_connection(conn)
+        with self._dbapi_lease():
+            self._ensure_database_identity_for_db_access()
+            conn = getattr(self._connection_local, "connection", None)
+            if conn is None:
+                conn = self._get_thread_state()[0]
+            return self._guard_connection(conn)
 
     @conn.setter
     def conn(self, value):
@@ -313,16 +346,15 @@ class SQLiteMemoryBioRAG(metaclass=_OperationTrackedMeta):
 
     @property
     def cursor(self):
-        self._ensure_database_identity_for_db_access()
-        cursor = getattr(self._connection_local, "cursor", None)
-        if cursor is None:
-            cursor = self._get_thread_state()[1]
-        if self._closed:
-            raise RuntimeError("La instancia SQLiteMemoryBioRAG ya fue cerrada")
-        raw_conn = getattr(self._connection_local, "connection", None)
-        if raw_conn is None:
-            raw_conn = self._get_thread_state()[0]
-        return self._guard_cursor(cursor, self._guard_connection(raw_conn))
+        with self._dbapi_lease():
+            self._ensure_database_identity_for_db_access()
+            cursor = getattr(self._connection_local, "cursor", None)
+            if cursor is None:
+                cursor = self._get_thread_state()[1]
+            raw_conn = getattr(self._connection_local, "connection", None)
+            if raw_conn is None:
+                raw_conn = self._get_thread_state()[0]
+            return self._guard_cursor(cursor, self._guard_connection(raw_conn))
 
     @cursor.setter
     def cursor(self, value):
@@ -335,15 +367,18 @@ class SQLiteMemoryBioRAG(metaclass=_OperationTrackedMeta):
             except AttributeError:
                 object.__setattr__(self, name, value)
                 return
-            setattr(local, "connection" if name == "conn" else "cursor", value)
-            if name == "conn" and value is not None:
-                try:
+            try:
+                object.__getattribute__(self, "_lifecycle_condition")
+            except AttributeError:
+                setattr(local, "connection" if name == "conn" else "cursor", value)
+                return
+            with self._dbapi_lease():
+                if name == "conn" and value is not None:
                     with object.__getattribute__(self, "_connection_registry_lock"):
                         connections = object.__getattribute__(self, "_connections")
                         if value not in connections:
                             connections.append(value)
-                except AttributeError:
-                    pass
+                setattr(local, "connection" if name == "conn" else "cursor", value)
             return
         if name.startswith("last_"):
             try:
@@ -365,12 +400,16 @@ class SQLiteMemoryBioRAG(metaclass=_OperationTrackedMeta):
     def _begin_operation(self):
         state = self._operation_local
         depth = getattr(state, "depth", 0)
+        if getattr(state, "dbapi_depth", 0):
+            raise RuntimeError("No se puede iniciar una operación del motor desde una llamada DB-API activa")
         if depth == 0:
             with self._lifecycle_condition:
-                while self._closing and not self._closed:
-                    self._lifecycle_condition.wait()
+                if self._closing:
+                    raise RuntimeError("La instancia SQLiteMemoryBioRAG se está cerrando")
                 if self._closed:
                     raise RuntimeError("La instancia SQLiteMemoryBioRAG ya fue cerrada")
+                if self._close_failed:
+                    raise RuntimeError("El cierre anterior falló; solo se puede reintentar el cierre")
                 self._active_operations += 1
             try:
                 if self._is_memory_database:
@@ -415,6 +454,42 @@ class SQLiteMemoryBioRAG(metaclass=_OperationTrackedMeta):
             self._lifecycle_condition.notify_all()
 
     @contextmanager
+    def _dbapi_lease(self):
+        """Drena llamadas DB-API directas sin duplicar un lease ya activo.
+
+        El cierre bloquea nuevos leases antes de fotografiar conexiones. Los
+        handles privados y procesos externos no participan en esta barrera.
+        """
+        if (getattr(self._operation_local, "depth", 0)
+                or getattr(self._operation_local, "dbapi_depth", 0)):
+            previous = getattr(self._operation_local, "dbapi_depth", 0)
+            self._operation_local.dbapi_depth = previous + 1
+            try:
+                yield
+            finally:
+                if previous:
+                    self._operation_local.dbapi_depth = previous
+                else:
+                    del self._operation_local.dbapi_depth
+            return
+        with self._lifecycle_condition:
+            if self._closing:
+                raise RuntimeError("La instancia SQLiteMemoryBioRAG se está cerrando")
+            if self._closed:
+                raise RuntimeError("La instancia SQLiteMemoryBioRAG ya fue cerrada")
+            if self._close_failed:
+                raise RuntimeError("El cierre anterior falló; solo se puede reintentar el cierre")
+            self._active_operations += 1
+        self._operation_local.dbapi_depth = 1
+        try:
+            yield
+        finally:
+            del self._operation_local.dbapi_depth
+            with self._lifecycle_condition:
+                self._active_operations -= 1
+                self._lifecycle_condition.notify_all()
+
+    @contextmanager
     def _operation_lease(self):
         """Delimita operaciones externas/delegadas para que el cierre espere."""
         self._begin_operation()
@@ -424,6 +499,8 @@ class SQLiteMemoryBioRAG(metaclass=_OperationTrackedMeta):
             self._end_operation()
 
     def _ensure_database_identity_for_db_access(self, connection=None):
+        if getattr(self, "_close_failed", False):
+            raise RuntimeError("El cierre anterior falló; solo se puede reintentar el cierre")
         operation_state = self._operation_local
         if getattr(operation_state, "depth", 0):
             if getattr(operation_state, "identity_checked", False):
@@ -714,6 +791,8 @@ class SQLiteMemoryBioRAG(metaclass=_OperationTrackedMeta):
         self._check_in_place_change(connection)
 
     def _check_connection_access(self, connection):
+        if getattr(self, "_close_failed", False):
+            raise RuntimeError("El cierre anterior falló; solo se puede reintentar el cierre")
         if getattr(self._operation_local, "depth", 0):
             self._ensure_database_identity_for_db_access(connection=connection)
         else:
@@ -806,7 +885,11 @@ class SQLiteMemoryBioRAG(metaclass=_OperationTrackedMeta):
         self._memory_connection = None
         self._active_operations = 0
         self._closing = False
+        self._closing_owner = None
         self._closed = False
+        self._close_failed = False
+        self._close_checkpoint_complete = False
+        self._close_pending = None
         self._last_defaults = {}
         self._persistente = False
 
@@ -1364,31 +1447,57 @@ class SQLiteMemoryBioRAG(metaclass=_OperationTrackedMeta):
         """Espera operaciones activas y cierra todas las conexiones de la instancia."""
         if getattr(self, "_persistente", False):
             return
-        if getattr(self._operation_local, "depth", 0):
+        if (getattr(self._operation_local, "depth", 0)
+                or getattr(self._operation_local, "dbapi_depth", 0)):
             raise RuntimeError("cerrar_sistema no puede ejecutarse desde una operación activa")
 
         with self._lifecycle_condition:
+            while self._closing:
+                if self._closing_owner == threading.get_ident():
+                    raise RuntimeError("cerrar_sistema no puede reentrar en su propio cierre")
+                self._lifecycle_condition.wait()
             if self._closed:
                 return
-            if self._closing:
-                while self._closing and not self._closed:
-                    self._lifecycle_condition.wait()
-                return
             self._closing = True
-            while self._active_operations:
-                self._lifecycle_condition.wait()
-            with self._connection_registry_lock:
-                connections = tuple(self._connections)
-                self._closed = True
+            self._closing_owner = threading.get_ident()
+            try:
+                limite = time.monotonic() + _CIERRE_DRENAJE_SEGUNDOS
+                while self._active_operations:
+                    restante = limite - time.monotonic()
+                    if restante <= 0:
+                        raise TimeoutError("No terminó el drenaje de operaciones; no se cerraron conexiones")
+                    self._lifecycle_condition.wait(restante)
+                with self._connection_registry_lock:
+                    if self._close_pending is None:
+                        self._close_pending = list(self._connections)
+            except BaseException:
+                self._close_failed = True
+                self._closing = False
+                self._closing_owner = None
+                self._lifecycle_condition.notify_all()
+                raise
 
         try:
-            self._consolidar_antes_de_cerrar(connections)
-            for conn in connections:
-                try:
-                    conn.close()
-                except sqlite3.Error:
-                    logger.exception("No se pudo cerrar una conexión SQLite del motor")
+            # Si un cierre parcial falló, sus conexiones ya cerradas no deben
+            # volver a usarse para el checkpoint durante el reintento.
+            if not self._close_checkpoint_complete:
+                self._consolidar_antes_de_cerrar(tuple(self._close_pending))
+                self._close_checkpoint_complete = True
+            while self._close_pending:
+                conn = self._close_pending[0]
+                conn.close()
+                self._close_pending.pop(0)
+            with self._lifecycle_condition:
+                self._closed = True
+                self._close_failed = False
+        except BaseException:
+            # Bloquear operaciones también después de liberar _closing: una
+            # conexión puede haberse cerrado antes de que otra fallara.
+            with self._lifecycle_condition:
+                self._close_failed = True
+            raise
         finally:
             with self._lifecycle_condition:
                 self._closing = False
+                self._closing_owner = None
                 self._lifecycle_condition.notify_all()

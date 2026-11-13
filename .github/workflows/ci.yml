@@ -68,6 +68,22 @@ jobs:
           pip install -r requirements.txt
           pip install -e .
 
+      # Descarga real: este test no abre la DB del repositorio ni simula SQLite.
+      - name: Verify private runtime download and dependencies
+        env:
+          BIORAG_TEST_RUNTIME_REAL: "1"
+        shell: bash
+        run: |
+          set -o pipefail
+          set +e
+          python -m pytest tests/test_dependencias_pip.py tests/test_instalador_repositorio.py tests/test_instalador_configuracion_mcp.py tests/test_instalador_runtime_sqlite.py tests/test_instalador_runtime_real.py -q -s 2>&1 | tee runtime-test.log
+          status=${PIPESTATUS[0]}
+          set -e
+          if [ "$status" -ne 0 ]; then
+            { grep -E '^(FAILED|E   |E  |E>|>  )' runtime-test.log | head -20 | while IFS= read -r line; do echo "::error::$line"; done; } || true
+          fi
+          exit "$status"
+
       - name: Verify SQLite canonical paths
         shell: bash
         run: |

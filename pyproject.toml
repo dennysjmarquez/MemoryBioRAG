@@ -33,18 +33,18 @@ classifiers = [
     "Topic :: Scientific/Engineering :: Artificial Intelligence"
 ]
 dependencies = [
-    "numpy>=1.24.0",
-    "pydantic>=2.0.0",
-    "nltk>=3.8,<3.10",
-    "mcp>=1.0.0,<2",
-    "python-dotenv>=1.0.0",
-    "fastapi>=0.104.0",
-    "uvicorn>=0.24.0"
+    "numpy==2.4.6",
+    "pydantic==2.13.5",
+    "nltk==3.9.4",
+    "mcp==1.30.0",
+    "python-dotenv==1.2.3",
+    "fastapi==0.141.1",
+    "uvicorn==0.52.4"
 ]
 
 [project.optional-dependencies]
 dev = [
-    "pytest>=7.0.0"
+    "pytest==9.1.1"
 ]
 
 [project.scripts]

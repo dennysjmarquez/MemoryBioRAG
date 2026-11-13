@@ -9,6 +9,34 @@
 
 ---
 
+## Entorno privado y protección de SQLite
+
+Al ejecutar `python install.py`, BioRAG prepara un **entorno privado** con Python,
+SQLite y las dependencias del proyecto. Antes de configurar los agentes comprueba
+el SQLite efectivo y FTS5, sin abrir la base. Si falla la descarga o la
+comprobación, conserva la configuración MCP anterior y avisa. La instalación
+necesita conexión y espacio en disco; no modifica el Python global.
+
+**Después de instalar o actualizar, reinicia todos los agentes BioRAG y los
+servidores SSE que ya estuvieran abiertos.** Un proceso viejo o un escritor
+externo no cambia de SQLite automáticamente. El guardián sigue activo. Los
+servicios SSE anteriores deben reconfigurarse con el intérprete nuevo; reiniciar
+un servicio viejo sin actualizar su configuración no lo cambia.
+
+BioRAG usa WAL y protege contra el fallo WAL-reset: SQLite **3.51.3 o posterior**
+está corregido; también existen backports en las ramas **3.50.7** y **3.44.6**.
+El instalador privado exige 3.51.3 o posterior. Si ejecutas BioRAG directamente
+con otro intérprete, su versión efectiva puede ser distinta y el guardián puede
+rechazar escrituras inseguras.
+
+**Importante:** `pip install -r requirements.txt` y `pip install .` solo instalan
+paquetes; no ejecutan automáticamente `install.py` ni preparan el entorno
+privado. Si tienes el repositorio, ejecuta también `python install.py` desde él
+para preparar y configurar el entorno. Una instalación solo del paquete aún no
+prepara el entorno por sí sola. La recuperación de WAL ajeno es un problema separado.
+
+Detalle de protección y migración: `docs/sqlite_journal_migration_runbook.md`.
+
 ## 📊 Métricas de la suite oficial (v33.0 · 2026-10-14 · vigentes en v34.0)
 
 > **v34.0:** con una DB nueva, o sin campeón, la neurona no actúa y estos números se mantienen **idénticos** (son el piso). Con el campeón ya aprendido sobre la copia del snapshot (`despertar_neurona.sh`, 500 ciclos), la misma suite da **Recall@5 100.00 % · Recall@1 94.06 % (823/875) · MRR 0.964 · FP 0/40**, sin ninguna categoría por debajo del piso. Detalle en [La Neurona de BioRAG](#-novedades-de-la-versión-v340--la-neurona-de-biorag).

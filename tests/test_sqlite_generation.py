@@ -1872,7 +1872,9 @@ def test_el_hash_reutilizado_no_sobrevive_a_cambios_del_archivo(tmp_path, monkey
 
     # Cambia el contenido del principal por fuera del motor.
     datos = db_path.read_bytes()
-    db_path.write_bytes(datos[:-4096] + b"\x00" * 4096)
+    # La última página puede estar ya llena de ceros. Cambiar un bit garantiza
+    # que realmente hubo una mutación sin depender de cómo SQLite distribuyó páginas.
+    db_path.write_bytes(datos[:-1] + bytes([datos[-1] ^ 1]))
 
     segundo = pair_guard._forense_principal(str(db_path))
     assert segundo is not None

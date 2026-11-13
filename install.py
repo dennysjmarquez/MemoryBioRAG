@@ -11,8 +11,8 @@ Installs BioRAG, connects it to your MCP-compatible agents (OpenCode,
 Claude, Antigravity, VS Code, Cursor, Cline), and verifies everything works.
 
 Design principles:
-  - Zero external dependencies (stdlib only + pip for mcp)
-  - sys.executable everywhere to guarantee same Python
+  - Bootstrap with Python standard library; dependencies live in a private environment
+  - Configure MCP and SSE with the selected private interpreter
   - pathlib for all paths (cross-platform)
   - Automatic backups before every write (JSON + database)
   - Git clone with ZIP fallback (for systems without git)
@@ -22,17 +22,22 @@ Design principles:
 from __future__ import annotations
 
 import argparse
+import hashlib
+import io
 import json
 import os
+import platform
 import re
 import shutil
 import subprocess
 import sys
+import sysconfig
 import tempfile
 import textwrap
 import threading
 import time
 import urllib.request
+import urllib.parse
 import zipfile
 from pathlib import Path
 
@@ -67,7 +72,376 @@ SSE_PORT = 8080
 OPENCODE_PLUGIN_NAME = "opencode-biorag-remember-plugin"
 
 
+# Preparación aislada del runtime: no modifica configuración MCP ni abre la DB.
+# La publicación y configuración se realizan en pasos posteriores.
+def _entorno_runtime() -> dict[str, str]:
+    """Evita mirrors/configuración heredados al descargar ejecutables."""
+    env = {k: v for k, v in os.environ.items()
+           if not k.upper().startswith(("UV_", "PIP_", "PYTHON", "LD_", "DYLD_"))}
+    # --isolated omite variables pip, pero no su configuración global: pip
+    # reconoce esta excepción también en modo aislado y omite todos los archivos.
+    env["PIP_CONFIG_FILE"] = os.devnull
+    env["UV_NO_CONFIG"] = "1"
+    env["UV_SYSTEM_CERTS"] = "true"
+    return env
+
+
+def _comprobar_python_sqlite(python: str) -> tuple[int, int, int]:
+    """Comprueba el SQLite efectivo y FTS5 trigram sin abrir la DB del usuario."""
+    script = (
+        "import json,sqlite3; c=sqlite3.connect(':memory:'); "
+        "c.execute(\"CREATE VIRTUAL TABLE prueba USING fts5(t, tokenize='trigram')\"); "
+        "print(json.dumps(list(sqlite3.sqlite_version_info)))"
+    )
+    result = subprocess.run([python, "-I", "-c", script], capture_output=True,
+                            text=True, timeout=30, env=_entorno_runtime())
+    if result.returncode:
+        raise RuntimeError("El Python seleccionado no dispone de SQLite y FTS5 compatibles")
+    try:
+        version = json.loads(result.stdout)
+        if not isinstance(version, list) or len(version) != 3 or any(type(v) is not int for v in version):
+            raise ValueError("versión inválida")
+        return tuple(version)
+    except (ValueError, TypeError) as exc:
+        raise RuntimeError("No se pudo verificar la versión efectiva de SQLite") from exc
+
+
+# Archivo de referencia: PyPI uv 0.13.7, ruedas oficiales (noviembre 2026).
+# Se fija también el catálogo de Python incorporado en esta versión de uv.
+_UV_VERSION = "0.13.7"
+_CPYTHON_VERSION = "3.13.18"
+_UV_WHEEL_SHA256 = (
+    "89df450624dec8c48b8b5a7adb654928cc50e95753f869c70cd65ef8333f2197",
+    "fd04bf01ba5f2829f4f94ca8f0c24a743f21e73d75045613ed6fc2fd66fc7bda",
+    "f91a229093163eefca89ea1b220a221d64c3beade05d03519a6584d1797a5a5f",
+    "a90f5d95716ab83091f0f73a8e7ec64e557abf2a28537fcd719b2ac88e6f725a",
+    "952dcae9b1a7742f2fab28e82391fbfabe8807e4e9363f674b0f6be1053b8dd4",
+    "94f65a8ac5826dff76a93cb3cafbaad15def1788c63da2ce5ce09e0bd1303e7a",
+    "57ff66891d9a738ec087c23fdde842ac8e5eb63189ffed6ee95caee1b82ceb54",
+    "917733990ebc178318af0321d6873823ed5da707e1c4b1e5060ac2065a81f1f3",
+    "1bc8543d930464bbb22ac01bb1a660a448235e558014914de1e1cd5b993361b8",
+    "2c9bdc4a872b60a93c5f26c0791089ea11585a4f9d3b3c017d78eb8487505e25",
+    "08f16fd463926786b702b497473511deae4b3e17a2fa6d22180950d6059a120d",
+    "d30cafb7070901ba35353ec64cf228ae46caf79ac0f6fae329f95468b1482531",
+    "158953b8669bee6f4bc2babdd997e34ff9f0d57170093cfe907f64448292b7c3",
+    "8fc6019740794df995085f7b278d99dc11ccacffad9c63957278d3a6e272280b",
+    "8b8ac028ae4ebb2a3f9d04907c61794f2cf8d7a7002bfbb4019a3dee28351fb2",
+    "5f37cc4d4660e4aee8a24d0dc179a0b0ce99506259c6796d37fa69bca9543a03",
+    "2835e2ab397d0db86323b9975dce75ecd76aa9cfa0d6a2aea84734aae7f8c9b3",
+    "55e741a380a98008fc4985cf069855f36bc50242ef438e21a466786f5bc84da8",
+)
+
+
+def _rueda_uv_plataforma() -> str:
+    """Rueda binaria oficial para la arquitectura del intérprete inicial."""
+    plataforma = sysconfig.get_platform().lower().replace("-", "_").replace(".", "_")
+    if plataforma.startswith("win_") or plataforma == "win32":
+        sufijo = {"win_amd64": "win_amd64", "win_arm64": "win_arm64", "win32": "win32"}.get(plataforma)
+    elif plataforma.startswith("macosx_"):
+        # Los Python universal2 anuncian ambas arquitecturas; la arquitectura
+        # efectiva del proceso decide qué ejecutable nativo de uv necesitamos.
+        arquitectura = plataforma.rsplit("_", 1)[-1]
+        if plataforma.endswith("_x86_64"):
+            arquitectura = "x86_64"
+        elif arquitectura == "universal2":
+            arquitectura = platform.machine().lower()
+        sufijo = ("macosx_11_0_arm64" if arquitectura in {"arm64", "aarch64"} else
+                  "macosx_10_12_x86_64" if arquitectura in {"x86_64", "amd64"} else None)
+    elif plataforma.startswith("linux_"):
+        arquitectura = plataforma.removeprefix("linux_")
+        try:
+            glibc = bool(os.confstr("CS_GNU_LIBC_VERSION"))
+        except (ValueError, OSError, AttributeError):
+            glibc = False
+        sufijo = {
+            ("x86_64", True): "manylinux_2_17_x86_64.manylinux2014_x86_64",
+            ("x86_64", False): "musllinux_1_1_x86_64",
+            ("aarch64", True): "manylinux_2_17_aarch64.manylinux2014_aarch64.musllinux_1_1_aarch64",
+            ("aarch64", False): "manylinux_2_17_aarch64.manylinux2014_aarch64.musllinux_1_1_aarch64",
+            ("i686", True): "manylinux_2_17_i686.manylinux2014_i686",
+            ("i686", False): "musllinux_1_1_i686",
+            ("armv7l", True): "manylinux_2_17_armv7l.manylinux2014_armv7l",
+            ("armv7l", False): "manylinux_2_17_armv7l.manylinux2014_armv7l.musllinux_1_1_armv7l",
+            ("ppc64le", True): "manylinux_2_17_ppc64le.manylinux2014_ppc64le",
+            ("s390x", True): "manylinux_2_17_s390x.manylinux2014_s390x",
+        }.get((arquitectura, glibc))
+    else:
+        sufijo = None
+    if not sufijo:
+        raise RuntimeError("Plataforma no compatible con el instalador privado de Python")
+    return f"uv-{_UV_VERSION}-py3-none-{sufijo}.whl"
+
+
+def _descargar_uv_sin_pip(destino: Path) -> str:
+    """Obtiene el ejecutable de uv por HTTPS y verifica la rueda antes de extraerlo."""
+    class SoloPyPI(urllib.request.HTTPRedirectHandler):
+        def redirect_request(self, req, fp, code, msg, headers, newurl):
+            parsed = urllib.parse.urlparse(newurl)
+            if parsed.scheme != "https" or parsed.hostname not in {"pypi.org", "files.pythonhosted.org"}:
+                raise RuntimeError("Redirección de descarga no permitida")
+            return super().redirect_request(req, fp, code, msg, headers, newurl)
+
+    opener = urllib.request.build_opener(SoloPyPI())
+    nombre = _rueda_uv_plataforma()
+    try:
+        with opener.open(f"https://pypi.org/pypi/uv/{_UV_VERSION}/json", timeout=30) as respuesta:
+            datos = respuesta.read(2_000_001)
+        if len(datos) > 2_000_000:
+            raise RuntimeError("Metadatos de uv demasiado grandes")
+        entradas = [x for x in json.loads(datos)["urls"] if x["filename"] == nombre]
+        if len(entradas) != 1:
+            raise RuntimeError("No se encontró una rueda compatible de uv")
+        entrada = entradas[0]
+        url = urllib.parse.urlparse(entrada["url"])
+        if url.scheme != "https" or url.hostname != "files.pythonhosted.org":
+            raise RuntimeError("Origen de rueda uv no permitido")
+        with opener.open(entrada["url"], timeout=120) as respuesta:
+            rueda = respuesta.read(40_000_001)
+        if len(rueda) > 40_000_000 or hashlib.sha256(rueda).hexdigest() not in _UV_WHEEL_SHA256:
+            raise RuntimeError("La rueda uv no coincide con los hashes fijados")
+        miembro = f"uv-{_UV_VERSION}.data/scripts/uv" + (".exe" if os.name == "nt" else "")
+        with zipfile.ZipFile(io.BytesIO(rueda)) as archivo:
+            info = archivo.getinfo(miembro)
+            if info.file_size > 100_000_000:
+                raise RuntimeError("El ejecutable uv supera el límite permitido")
+            binario = archivo.read(info)
+        ejecutable = destino / ("uv.exe" if os.name == "nt" else "uv")
+        ejecutable.write_bytes(binario)
+        ejecutable.chmod(0o700)
+        return str(ejecutable)
+    except (OSError, KeyError, ValueError, zipfile.BadZipFile) as exc:
+        raise RuntimeError("No se pudo preparar la herramienta de instalación privada") from exc
+
+
+def _descargar_python_privado(raiz: Path) -> str:
+    """Instala CPython gestionado por uv sin modificar el Python de sistema.
+
+    Pip instala uv en un directorio temporal, con hashes de ruedas fijados;
+    uv comprueba el digest incluido en su catálogo antes de publicar CPython.
+    No abre bases. El llamador debe crear una raíz privada antes de invocarlo.
+    """
+    if raiz.is_symlink() or not raiz.is_dir():
+        raise RuntimeError("La raíz del runtime privado no es un directorio válido")
+    if os.name == "posix":
+        info = raiz.stat()
+        if info.st_uid != os.getuid() or info.st_mode & 0o077:
+            raise RuntimeError("La raíz del runtime privado debe ser exclusiva del usuario")
+    env = _entorno_runtime()
+    env["UV_PYTHON_INSTALL_DIR"] = str(raiz)
+    # No debe reutilizar el entorno virtual desde el que se ejecutó el instalador.
+    env.pop("VIRTUAL_ENV", None)
+    with tempfile.TemporaryDirectory(prefix="biorag-uv-") as temp:
+        tempdir = Path(temp)
+        lista = tempdir / "uv.txt"
+        lista.write_text("uv==" + _UV_VERSION + " " + " ".join(
+            "--hash=sha256:" + valor for valor in _UV_WHEEL_SHA256) + "\n", encoding="ascii")
+        ubicacion = tempdir / "modulo"
+        instalar = [sys.executable, "-I", "-m", "pip", "--isolated", "install",
+                    "--disable-pip-version-check", "--no-deps", "--only-binary=:all:",
+                    "--require-hashes", "--index-url", "https://pypi.org/simple",
+                    "--target", str(ubicacion), "-r", str(lista)]
+        lanzar = [sys.executable, "-I", "-c",
+                  "import runpy,sys; sys.path.insert(0,sys.argv.pop(1)); runpy.run_module('uv',run_name='__main__')",
+                  str(ubicacion)]
+        try:
+            try:
+                subprocess.run(instalar, env=env, check=True, capture_output=True, text=True, timeout=180)
+            except (OSError, subprocess.SubprocessError):
+                # Si el Python de arranque no tiene pip, no lo modificamos:
+                # descargamos y verificamos la rueda de uv con stdlib.
+                lanzar = [_descargar_uv_sin_pip(tempdir)]
+            subprocess.run(lanzar + ["python", "install", "--no-bin", "--no-registry",
+                                     "--install-dir", str(raiz), _CPYTHON_VERSION],
+                           env=env, check=True, capture_output=True, text=True, timeout=600)
+            encontrado = subprocess.run(lanzar + ["python", "find", "--managed-python",
+                                                  "--no-project", _CPYTHON_VERSION],
+                                        env=env, check=True, capture_output=True, text=True, timeout=30)
+        except (OSError, subprocess.SubprocessError) as exc:
+            raise RuntimeError("No se pudo descargar el Python privado seguro; comprueba la conexión y reintenta") from exc
+    candidato = Path(encontrado.stdout.strip())
+    if not candidato.is_absolute() or not candidato.is_file():
+        raise RuntimeError("No se encontró el intérprete privado descargado")
+    try:
+        candidato.resolve().relative_to(raiz.resolve())
+    except ValueError as exc:
+        raise RuntimeError("El intérprete descargado está fuera de la raíz privada") from exc
+    if _comprobar_python_sqlite(str(candidato)) < (3, 51, 3):
+        raise RuntimeError("El intérprete descargado no contiene SQLite 3.51.3 o posterior")
+    return str(candidato)
+
+
+def _comprobar_dependencias(python: str) -> None:
+    """Verifica imports instalados sin importar BioRAG ni abrir su base."""
+    prueba = "import sqlite3,numpy,nltk,mcp,pydantic,dotenv,fastapi,uvicorn"
+    try:
+        resultado = subprocess.run([python, "-I", "-c", prueba], env=_entorno_runtime(),
+                                   capture_output=True, text=True, timeout=60)
+    except (OSError, subprocess.SubprocessError) as exc:
+        raise RuntimeError("No se pudieron verificar las dependencias del entorno privado") from exc
+    if resultado.returncode:
+        raise RuntimeError("Las dependencias del entorno privado no se pueden cargar")
+
+
+def _crear_entorno_privado(python: str, raiz: Path, requisitos: Path) -> str:
+    """Prepara una generación aislada sin activar ni tocar generaciones anteriores.
+
+    El llamador selecciona un Python base y mantiene la raíz bajo su control.
+    Se verifica SQLite y FTS5 antes y después de instalar las dependencias; no
+    se abre la base de datos. Para actualizar, se crea una generación nueva y
+    se conservan las anteriores mientras puedan estar en uso.
+    """
+    if _comprobar_python_sqlite(python) < (3, 51, 3):
+        raise RuntimeError("El Python base no contiene SQLite 3.51.3 o posterior")
+    if raiz.is_symlink() or not raiz.is_dir():
+        raise RuntimeError("La raíz del entorno privado no es un directorio válido")
+    if os.name == "posix":
+        info = raiz.stat()
+        if info.st_uid != os.getuid() or info.st_mode & 0o077:
+            raise RuntimeError("La raíz del entorno privado debe ser exclusiva del usuario")
+    if not requisitos.is_file():
+        raise RuntimeError("No se encontraron las dependencias fijadas de BioRAG")
+
+    entorno = Path(tempfile.mkdtemp(prefix="entorno-", dir=raiz))
+    ejecutable = entorno / ("Scripts/python.exe" if os.name == "nt" else "bin/python")
+    env = _entorno_runtime()
+    try:
+        subprocess.run([python, "-I", "-m", "venv", str(entorno)], env=env,
+                       check=True, capture_output=True, text=True, timeout=180)
+        if _comprobar_python_sqlite(str(ejecutable)) < (3, 51, 3):
+            raise RuntimeError("El entorno creado no contiene SQLite 3.51.3 o posterior")
+        subprocess.run([str(ejecutable), "-I", "-m", "pip", "--isolated", "install",
+                        "--disable-pip-version-check", "--index-url", "https://pypi.org/simple",
+                        "-r", str(requisitos.resolve())],
+                       env=env, check=True, capture_output=True, text=True, timeout=900)
+        _comprobar_dependencias(str(ejecutable))
+        if _comprobar_python_sqlite(str(ejecutable)) < (3, 51, 3):
+            raise RuntimeError("SQLite cambió durante la instalación de dependencias")
+        return str(ejecutable)
+    except BaseException:
+        # Solo se elimina la generación recién creada, nunca una anterior.
+        shutil.rmtree(entorno, ignore_errors=True)
+        raise
+
+
+_RUNTIME_PYTHON: str | None = None
+
+
+def _raiz_runtime_instalacion() -> Path:
+    """Separa los entornos de proyectos distintos sin usar el árbol de datos."""
+    identidad = hashlib.sha256(os.fsencode(str(INSTALL_DIR.resolve()))).hexdigest()[:24]
+    padre = Path.home() / ".biorag"
+    padre.mkdir(mode=0o700, exist_ok=True)
+    if padre.is_symlink() or not padre.is_dir():
+        raise RuntimeError("El directorio de BioRAG no es válido")
+    if os.name == "posix":
+        estado = padre.stat()
+        if estado.st_uid != os.getuid() or estado.st_mode & 0o022:
+            raise RuntimeError("El directorio de BioRAG puede ser modificado por otros usuarios")
+    contenedor = padre / "runtimes"
+    contenedor.mkdir(mode=0o700, exist_ok=True)
+    _validar_raiz_privada(contenedor)
+    raiz = contenedor / identidad
+    raiz.mkdir(mode=0o700, exist_ok=True)
+    _validar_raiz_privada(raiz)
+    return raiz
+
+
+def _preparar_runtime_instalacion() -> str:
+    """Prepara la nueva generación y selecciona el intérprete para este proceso."""
+    global _RUNTIME_PYTHON
+    _RUNTIME_PYTHON = None
+    seleccionado = _publicar_entorno_privado(_raiz_runtime_instalacion(), INSTALL_DIR / "requirements.txt")
+    _RUNTIME_PYTHON = seleccionado
+    return seleccionado
+
+
+def _cargar_runtime_instalacion() -> str:
+    """Para --show-config y --systemd, exige el entorno ya publicado."""
+    global _RUNTIME_PYTHON
+    _RUNTIME_PYTHON = None
+    seleccionado = _leer_entorno_publicado(_raiz_runtime_instalacion())
+    _RUNTIME_PYTHON = seleccionado
+    return seleccionado
+
+
+def _validar_raiz_privada(raiz: Path) -> None:
+    """Comprueba la raíz de los runtimes antes de leer o publicar un marcador."""
+    if raiz.is_symlink() or not raiz.is_dir():
+        raise RuntimeError("La raíz del entorno privado no es un directorio válido")
+    if os.name == "posix":
+        estado = raiz.stat()
+        if estado.st_uid != os.getuid() or estado.st_mode & 0o077:
+            raise RuntimeError("La raíz del entorno privado debe ser exclusiva del usuario")
+
+
+def _validar_interprete_publicable(raiz: Path, python: str) -> str:
+    """Rechaza runtimes ajenos a la raíz o con SQLite y FTS5 no seguros."""
+    candidato = Path(python)
+    if not candidato.is_absolute() or not candidato.is_file():
+        raise RuntimeError("El intérprete privado no existe")
+    try:
+        # En Linux el ejecutable del venv suele ser un symlink al Python base;
+        # tanto la ruta visible como el destino deben permanecer en la raíz.
+        candidato.relative_to(raiz)
+        candidato.resolve().relative_to(raiz.resolve())
+    except ValueError as exc:
+        raise RuntimeError("El intérprete privado está fuera de su raíz") from exc
+    if _comprobar_python_sqlite(str(candidato)) < (3, 51, 3):
+        raise RuntimeError("El intérprete privado no contiene SQLite corregido")
+    return str(candidato)
+
+
+def _publicar_entorno_privado(raiz: Path, requisitos: Path) -> str:
+    """Prepara y publica una generación. Fallar conserva el marcador anterior.
+
+    El llamador debe garantizar que `raiz` sea exclusiva de la instalación y
+    que `requisitos` pertenezca a
+    la distribución. No toca DB, configura agentes ni reinicia procesos.
+    """
+    _validar_raiz_privada(raiz)
+    python_base = _descargar_python_privado(raiz)
+    entorno = _crear_entorno_privado(python_base, raiz, requisitos)
+    entorno = _validar_interprete_publicable(raiz, entorno)
+    temporal = None
+    try:
+        with tempfile.NamedTemporaryFile(mode="w", encoding="utf-8", prefix=".runtime-",
+                                         suffix=".tmp", dir=raiz, delete=False) as f:
+            temporal = Path(f.name)
+            json.dump({"version": 1, "python": entorno}, f)
+            f.flush()
+            os.fsync(f.fileno())
+        os.replace(temporal, raiz / "actual.json")
+        return entorno
+    finally:
+        if temporal is not None:
+            temporal.unlink(missing_ok=True)
+
+
+def _leer_entorno_publicado(raiz: Path) -> str:
+    """Carga y vuelve a comprobar la generación publicada sin abrir la DB."""
+    _validar_raiz_privada(raiz)
+    marcador = raiz / "actual.json"
+    if marcador.is_symlink() or not marcador.is_file() or marcador.stat().st_size > 4096:
+        raise RuntimeError("No existe un entorno privado publicado válido")
+    try:
+        datos = json.loads(marcador.read_text(encoding="utf-8"))
+        if not isinstance(datos, dict) or datos.get("version") != 1 or not isinstance(datos.get("python"), str):
+            raise ValueError("marcador inválido")
+    except (OSError, ValueError) as exc:
+        raise RuntimeError("No se puede leer el entorno privado publicado") from exc
+    return _validar_interprete_publicable(raiz, datos["python"])
+
+
 # ── Terminal helpers ────────────────────────────────────────────────────────
+
+def _preparar_salida_consola() -> None:
+    """No fallar si la consola no puede representar un nombre de ruta Unicode."""
+    for flujo in (sys.stdout, sys.stderr):
+        try:
+            flujo.reconfigure(errors="backslashreplace")
+        except (AttributeError, OSError, ValueError):
+            pass
+
 
 def _green(m: str) -> str:
     return f"\033[92m{m}\033[0m" if sys.stdout.isatty() else m
@@ -85,19 +459,19 @@ def _bold(m: str) -> str:
     return f"\033[1m{m}\033[0m" if sys.stdout.isatty() else m
 
 def _step(msg: str) -> None:
-    print(f"\n  {_bold('→')} {msg}")
+    print(f"\n  {_bold('->')} {msg}")
 
 def _ok(msg: str) -> None:
-    print(f"    {_green('✓')} {msg}")
+    print(f"    {_green('[OK]')} {msg}")
 
 def _warn(msg: str) -> None:
-    print(f"    {_yellow('⚠')} {msg}")
+    print(f"    {_yellow('[!]')} {msg}")
 
 def _fail(msg: str) -> None:
-    print(f"    {_red('✗')} {msg}")
+    print(f"    {_red('[X]')} {msg}")
 
 def _info(msg: str) -> None:
-    print(f"    {_dim('•')} {msg}")
+    print(f"    {_dim('-')} {msg}")
 
 
 # ── Spinner (progress for long operations) ──────────────────────────────────
@@ -129,12 +503,12 @@ class _Spinner:
                 mins = int(elapsed) // 60
                 secs = int(elapsed) % 60
                 ts = f"{mins}m{secs:02d}s" if mins else f"{secs}s"
-                print(f"    {_dim('⋯')} {self._label} ({ts})", flush=True)
+                print(f"    {_dim('...')} {self._label} ({ts})", flush=True)
 
     def __enter__(self) -> "_Spinner":
         import threading
         if sys.stdout.isatty():
-            print(f"    {_dim('⋯')} {self._label}", flush=True)
+            print(f"    {_dim('...')} {self._label}", flush=True)
         self._stop = False
         self._thread = threading.Thread(target=self._spin, daemon=True)
         self._thread.start()
@@ -390,7 +764,7 @@ def _biorag_already_configured(info: dict) -> bool:
 
     'Correctly configured' means:
     - The nested key path exists in the config.
-    - For stdio entries: the script path matches the current INSTALL_DIR.
+    - For stdio entries: both interpreter and script match the selected installation.
     - For SSE entries: the serverUrl is present.
 
     This enables idempotent installs: if nothing changed, we skip the write
@@ -400,8 +774,11 @@ def _biorag_already_configured(info: dict) -> bool:
     if not path.exists():
         return False
     try:
-        config = _read_json(path)
-    except Exception:
+        if path.is_symlink():
+            return False
+        with path.open("r", encoding="utf-8", newline="") as archivo:
+            config, _, _ = _parsear_config_segura(archivo.read())
+    except (OSError, UnicodeError, ValueError, RecursionError):
         return False
 
     # Walk key_path to find the leaf
@@ -425,16 +802,16 @@ def _biorag_already_configured(info: dict) -> bool:
 
     if isinstance(command, list):
         # OpenCode format: command is a list [python, script]
-        return len(command) >= 2 and command[-1] == script
+        return len(command) == 2 and command[0] == _python() and command[1] == script
     else:
         # Standard format: command is python, args[0] is script
-        return bool(args) and args[0] == script
+        return command == _python() and bool(args) and args[0] == script
 
 
 
 def _python() -> str:
-    """The Python executable to use for everything."""
-    return sys.executable
+    """The private interpreter selected for BioRAG, otherwise the caller's Python."""
+    return _RUNTIME_PYTHON or sys.executable
 
 
 def _script_path() -> Path:
@@ -701,28 +1078,14 @@ def _download_repo() -> None:
         return
 
     if INSTALL_DIR.exists():
-        # Already installed in target dir — check for .git to decide update vs verification
-        git_dir = INSTALL_DIR / ".git"
-        if git_dir.exists():
-            _step("Actualizando repositorio existente...")
-            _backup_database()
-            try:
-                with _Spinner("Actualizando via git pull..."):
-                    subprocess.run(
-                        ["git", "-C", str(INSTALL_DIR), "pull"],
-                        check=True, capture_output=True, text=True,
-                    )
-                _ok("Repositorio actualizado")
-            except subprocess.CalledProcessError as exc:
-                _warn(f"Git pull falló: {exc.stderr.strip()}")
-                _info("Continuando con la instalación local existente...")
-        else:
-            _step("Repositorio ya existe en destino. Verificando integridad...")
-            if not _script_path().exists():
-                _fail(f"Instalación corrupta: falta {_script_path().name}")
-                _info(f"Elimina {INSTALL_DIR} y vuelve a ejecutar el instalador.")
-                sys.exit(1)
-            _ok("Instalación existente verificada")
+        # Un git pull puede reemplazar una DB versionada mientras hay conexiones
+        # abiertas. Preparar el runtime no debe modificar ni copiar esa DB.
+        _step("Verificando instalación existente...")
+        if not _script_path().exists():
+            _fail(f"Instalación incompleta: falta {_script_path().name}")
+            _info("Se conservaron los archivos y los datos existentes.")
+            sys.exit(1)
+        _ok("Instalación existente conservada; no se cambió la base ni el código")
         return
 
     _step(f"Descargando código fuente de BioRAG en {INSTALL_DIR}...")
@@ -1110,56 +1473,196 @@ def _build_sse_entry(port: int = SSE_PORT) -> dict:
 
 # ── Platform configuration ──────────────────────────────────────────────────
 
+def _normalizar_jsonc_con_posiciones(texto: str) -> tuple[str, set[int]]:
+    """Enmascara comentarios y comas finales sin alterar posiciones ni cadenas."""
+    caracteres = list(texto)
+    i, n = 0, len(texto)
+    while i < n:
+        if texto[i] == '"':
+            _, i = json.JSONDecoder().raw_decode(texto, i)
+        elif texto.startswith("//", i):
+            final = texto.find("\n", i + 2)
+            final = n if final < 0 else final
+            for k in range(i, final):
+                caracteres[k] = " "
+            i = final
+        elif texto.startswith("/*", i):
+            final = texto.find("*/", i + 2)
+            if final < 0:
+                raise ValueError("Comentario JSONC sin cerrar")
+            final += 2
+            for k in range(i, final):
+                if caracteres[k] not in "\r\n":
+                    caracteres[k] = " "
+            i = final
+        else:
+            i += 1
+    sin_comentarios = "".join(caracteres)
+    finales = set()
+    i = 0
+    while i < n:
+        if sin_comentarios[i] == '"':
+            _, i = json.JSONDecoder().raw_decode(sin_comentarios, i)
+        elif sin_comentarios[i] == ',':
+            siguiente = i + 1
+            while siguiente < n and sin_comentarios[siguiente] in " \t\r\n":
+                siguiente += 1
+            if siguiente < n and sin_comentarios[siguiente] in "}]":
+                caracteres[i] = " "
+                finales.add(i)
+            i += 1
+        else:
+            i += 1
+    return "".join(caracteres), finales
+
+
+def _parsear_config_segura(texto: str) -> tuple[dict, str, set[int]]:
+    """Rechaza claves duplicadas y raíces inválidas, sin perder el original."""
+    limpio, finales = _normalizar_jsonc_con_posiciones(texto)
+    def objeto(pares):
+        resultado = {}
+        for clave, valor in pares:
+            if clave in resultado:
+                raise ValueError("La configuración contiene claves duplicadas")
+            resultado[clave] = valor
+        return resultado
+    datos = json.loads(limpio, object_pairs_hook=objeto)
+    if not isinstance(datos, dict):
+        raise ValueError("La configuración no es un objeto JSON")
+    return datos, limpio, finales
+
+
+def _modificar_jsonc(texto: str, key_path: list[str], entrada: dict) -> str:
+    """Cambia solo la entrada indicada y conserva comentarios y otros valores."""
+    datos, limpio, finales = _parsear_config_segura(texto)
+    if not key_path:
+        raise ValueError("Ruta MCP vacía")
+    actual = datos
+    for clave in key_path[:-1]:
+        if clave not in actual:
+            break
+        if not isinstance(actual[clave], dict):
+            raise ValueError("La ruta de configuración MCP contiene un valor incompatible")
+        actual = actual[clave]
+    else:
+        previo = actual.get(key_path[-1])
+        if previo is not None and not isinstance(previo, dict):
+            raise ValueError("La entrada BioRAG existente no es un objeto")
+        if isinstance(previo, dict):
+            entrada = {**previo, **entrada}
+            # Si la persona desactivó el servidor en OpenCode, no lo reactivamos
+            # durante una migración del intérprete sin su consentimiento.
+            if "enabled" in previo and "enabled" in entrada:
+                entrada["enabled"] = previo["enabled"]
+    esperado = json.loads(json.dumps(datos))
+    _nested_set(esperado, key_path, entrada)
+
+    decoder = json.JSONDecoder()
+    def blancos(pos):
+        while pos < len(limpio) and limpio[pos] in " \t\r\n":
+            pos += 1
+        return pos
+    posicion = blancos(0)
+    for indice, clave in enumerate(key_path):
+        if limpio[posicion] != '{':
+            raise ValueError("La ruta MCP no apunta a un objeto")
+        cursor = blancos(posicion + 1)
+        encontrados = {}
+        ultimo_fin = None
+        while limpio[cursor] != '}':
+            nombre, cursor = decoder.raw_decode(limpio, cursor)
+            cursor = blancos(cursor)
+            if limpio[cursor] != ':':
+                raise ValueError("Configuración JSONC inválida")
+            inicio_valor = blancos(cursor + 1)
+            _, fin_valor = decoder.raw_decode(limpio, inicio_valor)
+            encontrados[nombre] = (inicio_valor, fin_valor)
+            ultimo_fin = fin_valor
+            cursor = blancos(fin_valor)
+            if limpio[cursor] == ',':
+                cursor = blancos(cursor + 1)
+            elif limpio[cursor] != '}':
+                raise ValueError("Configuración JSONC inválida")
+        cierre = cursor
+        if clave not in encontrados:
+            resto = {}
+            _nested_set(resto, key_path[indice:], entrada)
+            par = json.dumps(clave, ensure_ascii=False) + ": " + json.dumps(resto[clave], ensure_ascii=False)
+            tiene_coma_final = ultimo_fin is not None and any(ultimo_fin <= x < cierre for x in finales)
+            separador = "," if ultimo_fin is not None and not tiene_coma_final else ""
+            salto = "\r\n" if "\r\n" in texto else "\n"
+            resultado = texto[:cierre] + separador + salto + "  " + par + salto + texto[cierre:]
+            break
+        inicio, fin = encontrados[clave]
+        if indice == len(key_path) - 1:
+            resultado = texto[:inicio] + json.dumps(entrada, ensure_ascii=False) + texto[fin:]
+            break
+        posicion = inicio
+    verificado, _, _ = _parsear_config_segura(resultado)
+    if verificado != esperado:
+        raise ValueError("No se pudo verificar la configuración MCP")
+    return resultado
+
+
+def _guardar_config_segura(path: Path, original: str, actualizado: str, existia: bool) -> None:
+    """Escribe en temporal exclusivo y no restaura sobre cambios externos."""
+    if path.is_symlink():
+        raise RuntimeError("La configuración MCP es un enlace simbólico")
+    path.parent.mkdir(parents=True, exist_ok=True)
+    temporal = None
+    try:
+        with tempfile.NamedTemporaryFile(mode="w", encoding="utf-8", newline="", dir=path.parent,
+                                         prefix=".biorag-config-", suffix=".tmp", delete=False) as archivo:
+            temporal = Path(archivo.name)
+            if existia:
+                os.chmod(temporal, path.stat().st_mode & 0o777)
+            archivo.write(actualizado)
+            archivo.flush()
+            os.fsync(archivo.fileno())
+        if path.is_symlink() or path.exists() != existia:
+            raise RuntimeError("La configuración MCP cambió durante la instalación")
+        if existia:
+            with path.open("r", encoding="utf-8", newline="") as archivo_original:
+                if archivo_original.read() != original:
+                    raise RuntimeError("La configuración MCP cambió durante la instalación")
+        os.replace(temporal, path)
+    finally:
+        if temporal is not None:
+            temporal.unlink(missing_ok=True)
+
+
 def _configure_platform(name: str, info: dict) -> bool:
-    """Add BioRAG MCP entry to one platform's config file.
-
-    Returns True on success, False on skip/error.
-    Uses JSONC-safe writing: if the existing config has JS comments (// or /* */),
-    we preserve them instead of stripping them via json.dump round-trip.
-    """
+    """Actualiza únicamente BioRAG y conserva configuración y comentarios ajenos."""
     path = info["path"]
-    backup = _backup_file(path)
-    if backup:
-        _info(f"Backup: {_dim(str(backup))}")
-
-    key_path = info["key_path"]
-
-    if info["format"] == "sse":
-        entry = _build_sse_entry()
-    elif name == "opencode":
-        entry = _build_opencode_entry()
-    else:
-        entry = _build_stdio_entry()
-
-    # Choose write strategy: if the file has JSONC comments, use the comment-preserving patcher.
-    # Otherwise use the standard JSON checkpoint writer.
-    has_jsonc_comments = False
-    if path.exists():
-        try:
-            raw = path.read_text(encoding="utf-8")
-            has_jsonc_comments = "//" in raw or "/*" in raw
-        except OSError:
-            pass
-
-    if has_jsonc_comments:
-        ok = _patch_jsonc_preserving_comments(path, key_path, entry)
-    else:
-        config = _read_json(path)
-        _nested_set(config, key_path, entry)
-        ok = _write_json_with_checkpoint(path, config)
-
-    if ok:
+    try:
+        if path.is_symlink():
+            raise RuntimeError("La configuración MCP es un enlace simbólico")
+        existia = path.exists()
+        if existia:
+            with path.open("r", encoding="utf-8", newline="") as archivo:
+                original = archivo.read()
+        else:
+            original = "{}"
+        if not original.strip():
+            raise ValueError("La configuración MCP está vacía")
+        if info["format"] == "sse":
+            entry = _build_sse_entry()
+        elif name == "opencode":
+            entry = _build_opencode_entry()
+        else:
+            entry = _build_stdio_entry()
+        actualizado = _modificar_jsonc(original, info["key_path"], entry)
+        backup = _backup_file(path)
+        if backup:
+            _info(f"Backup: {_dim(str(backup))}")
+        _guardar_config_segura(path, original, actualizado, existia)
         _ok(f"Configurado en {info['label']}")
-        # Install OpenCode plugin alongside MCP config
         if name == "opencode":
             _install_opencode_plugin()
-    else:
-        _fail(f"Error escribiendo config de {info['label']}")
-        if backup:
-            shutil.copy2(backup, path)
-            _info("Configuración anterior restaurada desde backup")
-
-    return ok
+        return True
+    except (OSError, UnicodeError, ValueError, RuntimeError, RecursionError) as exc:
+        _fail(f"No se modificó la configuración de {info['label']}: {exc}")
+        return False
 
 
 def _remove_from_platform(name: str, info: dict) -> bool:
@@ -1307,77 +1810,79 @@ def _test_mcp_server() -> bool:
         return False
 
 
-def _verify_final() -> None:
-    """Checkpoint 4: full verification."""
-    _step("Verificación final (Checkpoint 4)...")
-    cli_ok = _test_cli()
-    if not cli_ok:
-        _warn("CLI no responde — revisa que la base de datos exista")
-        _info("Solución: python3 biorag.py crear (si es primera vez)")
-
-    mcp_ok = _test_mcp_server()
-    if not mcp_ok and cli_ok:
-        _warn("Servidor MCP con problemas — verifica que mcp esté instalado")
-        _info("Solución: sys.executable -m pip install mcp")
-    elif not mcp_ok:
-        _warn("Servidor MCP no probado completamente")
-
-    if cli_ok and mcp_ok:
-        print(f"\n  {_green(_bold('✓ Todo funcional'))}")
-    elif cli_ok:
-        print(f"\n  {_yellow('⚠ CLI funcional, MCP con advertencias')}")
+def _verify_final() -> bool:
+    """Verifica el entorno sin arrancar procesos que abran la base del usuario."""
+    _step("Verificación final (sin abrir la base de datos)...")
+    try:
+        if _comprobar_python_sqlite(_python()) < (3, 51, 3):
+            raise RuntimeError("SQLite del entorno no está corregido")
+        _comprobar_dependencias(_python())
+    except (OSError, RuntimeError, subprocess.SubprocessError) as exc:
+        _fail(f"No se pudo verificar el entorno: {type(exc).__name__}")
+        return False
+    _ok("Entorno privado verificado")
+    return True
 
 
 # ── Systemd service (SSE daemon) ───────────────────────────────────────────
 
+def _systemd_argumento(valor: str) -> str:
+    """Escapa un argumento de ExecStart, sin usar el intérprete de comandos."""
+    if any(c in valor for c in "\r\n\x00"):
+        raise ValueError("Ruta inválida para systemd")
+    return '"' + valor.replace("%", "%%").replace("\\", "\\\\").replace('"', '\\"') + '"'
+
+
 def _install_systemd(port: int = SSE_PORT) -> bool:
-    """Create a systemd service for the SSE server (Linux only)."""
+    """Crea servicio SSE de usuario; no modifica ni detiene servicios existentes."""
     if sys.platform != "linux":
         _warn("systemd solo está disponible en Linux")
         return False
-
-    service_name = "biorag-mcp"
-    service_path = Path("/etc/systemd/system") / f"{service_name}.service"
-    user = os.environ.get("USER", "root")
-
-    unit = textwrap.dedent(f"""\
-        [Unit]
-        Description=BioRAG MCP Server (SSE mode)
-        After=network.target
-
-        [Service]
-        Type=simple
-        ExecStart={_python()} {_script_path()} --sse --port {port}
-        Restart=always
-        RestartSec=5
-        User={user}
-
-        [Install]
-        WantedBy=default.target
-    """)
-
-    try:
-        # Write via sudo
-        tmp = Path(tempfile.mktemp())
-        tmp.write_text(unit)
-        subprocess.run(
-            ["sudo", "cp", str(tmp), str(service_path)],
-            check=True, capture_output=True, text=True,
-        )
-        subprocess.run(
-            ["sudo", "systemctl", "daemon-reload"],
-            check=True, capture_output=True, text=True,
-        )
-        tmp.unlink()
-        _ok(f"Servicio systemd creado: {service_path}")
-        _info("Inicia con: sudo systemctl enable --now biorag-mcp")
-        _info(f"Servidor SSE en http://localhost:{port}/sse")
-        return True
-    except subprocess.CalledProcessError as exc:
-        _fail(f"Error creando servicio: {exc.stderr.strip()}")
+    if not 1 <= port <= 65535:
+        _fail("Puerto SSE inválido")
         return False
-    except Exception as exc:
-        _fail(f"Error: {exc}")
+    try:
+        directorio = Path.home() / ".config" / "systemd" / "user"
+        directorio.mkdir(parents=True, exist_ok=True)
+        if directorio.is_symlink():
+            raise RuntimeError("Directorio de servicio inválido")
+        service_path = directorio / "biorag-mcp.service"
+        unidad = textwrap.dedent(f"""\
+            [Unit]
+            Description=BioRAG MCP Server (SSE mode)
+            After=network.target
+
+            [Service]
+            Type=simple
+            ExecStart={_systemd_argumento(_python())} {_systemd_argumento(str(_script_path()))} --sse --port {port}
+            UnsetEnvironment=LD_PRELOAD LD_LIBRARY_PATH PYTHONPATH PYTHONHOME
+            Restart=always
+            RestartSec=5
+
+            [Install]
+            WantedBy=default.target
+        """)
+        temporal = None
+        try:
+            with tempfile.NamedTemporaryFile(mode="w", encoding="utf-8", dir=directorio,
+                                             prefix=".biorag-", suffix=".tmp", delete=False) as f:
+                temporal = Path(f.name)
+                f.write(unidad)
+                f.flush()
+                os.fsync(f.fileno())
+            os.replace(temporal, service_path)
+        finally:
+            if temporal is not None:
+                temporal.unlink(missing_ok=True)
+        subprocess.run(["systemctl", "--user", "daemon-reload"], check=True,
+                       capture_output=True, text=True, timeout=30)
+        _ok(f"Servicio de usuario creado: {service_path}")
+        _info("Activa el servicio: systemctl --user enable --now biorag-mcp")
+        _info("Si ya estaba activo, reinícialo: systemctl --user restart biorag-mcp")
+        _warn("Si había un servidor SSE anterior, ciérralo o reinícialo para usar el nuevo entorno")
+        return True
+    except (OSError, RuntimeError, ValueError, subprocess.SubprocessError) as exc:
+        _fail(f"No se pudo configurar el servicio de usuario: {exc}")
         return False
 
 
@@ -1510,6 +2015,7 @@ def _print_config_blocks() -> None:
 
 def install() -> None:
     """Full installation flow."""
+    _preparar_salida_consola()
     print(f"\n  {_bold('BioRAG Installer')} {_dim('— Memoria compartida para agentes de IA')}")
     print(f"  {_dim('=' * 48)}")
 
@@ -1524,8 +2030,17 @@ def install() -> None:
     # 2. Download
     _download_repo()
 
-    # 3. Install mcp + nltk packages
-    _install_mcp()
+    # 3. Preparar el entorno completo antes de configurar agentes. Nunca se
+    # instala pip ni dependencias en el Python global.
+    _step("Preparando entorno privado seguro...")
+    try:
+        _preparar_runtime_instalacion()
+    except (OSError, RuntimeError, subprocess.SubprocessError) as exc:
+        detalle = str(exc) if isinstance(exc, RuntimeError) else type(exc).__name__
+        _fail(f"No se pudo preparar el entorno privado: {detalle}")
+        _info("La configuración MCP anterior se conserva. Revisa conexión y espacio y vuelve a intentar.")
+        sys.exit(1)
+    _ok("Entorno privado con SQLite y FTS5 verificados")
 
     # 3b. Install WordNet data
     _install_wordnet()
@@ -1550,6 +2065,7 @@ def install() -> None:
         _step(f"Configurando MCP ({len(detected)} agente(s) detectado(s))...")
         configured = 0
         already_ok = 0
+        failed = 0
         for name, info in detected.items():
             # Idempotency: si BioRAG ya está correctamente configurado aquí, saltar.
             if _biorag_already_configured(info):
@@ -1565,6 +2081,13 @@ def install() -> None:
             ok = _configure_platform(name, info)
             if ok:
                 configured += 1
+            else:
+                failed += 1
+
+        if failed:
+            _fail(f"No se pudieron configurar {failed} agente(s); la instalación quedó incompleta.")
+            _info("Otras configuraciones pueden haberse actualizado; revisa los errores anteriores.")
+            sys.exit(1)
 
         if configured == 0 and already_ok == 0:
             _warn("No se configuró ningún agente")
@@ -1578,7 +2101,9 @@ def install() -> None:
 
     # Checkpoint 4
     _step("Verificación final...")
-    _verify_final()
+    if not _verify_final():
+        _fail("Instalación incompleta; no se ha verificado el entorno")
+        sys.exit(1)
 
     # Done
     print(f"\n  {_green(_bold('Instalación completada'))}")
@@ -1590,12 +2115,14 @@ def install() -> None:
     print(f"    {_dim('Reinicia tu agente y dile:')}")
     prompt_msg = '"recuerda que me gusta el cafe"'
     print(f"    {_bold(prompt_msg)}")
-    if detected:
-        print(f"\n    {_dim('Si no ves las herramientas MCP, reinicia el agente.')}")
+    print(f"\n    {_yellow('Reinicia todos los agentes BioRAG y servidores SSE que ya estaban abiertos.')}")
+    print(f"    {_dim('Los procesos antiguos y escritores externos no cambian automáticamente de SQLite.')}")
+    if "antigravity" in detected:
+        _warn("Un servicio SSE antiguo debe actualizar su configuración; reiniciarlo solo no cambia su Python.")
     if "antigravity" in detected and not _interactive():
-        print(f"    {_yellow('⚠ Antigravity requiere servidor SSE corriendo.')}")
+        print(f"    {_yellow('Antigravity requiere servidor SSE corriendo.')}")
         print(f"    {_dim(f'Ejecuta despues: python3 {INSTALL_DIR}/install.py --systemd')}")
-        print(f"    {_dim(f'O inicia manual: python3 {INSTALL_DIR}/mcp_server.py --sse --port 8080')}")
+        print(f"    {_dim(f'O inicia manual: {_python()} {INSTALL_DIR}/mcp_server.py --sse --port 8080')}")
     print()
 
 
@@ -1665,12 +2192,12 @@ def download_if_needed() -> bool:
     """Ensure BioRAG is downloaded (for --show-config, --systemd)."""
     if not _script_path().exists():
         _download_repo()
-        _install_mcp()
         return True
     return False
 
 
 def main() -> None:
+    _preparar_salida_consola()
     parser = argparse.ArgumentParser(
         description="BioRAG Installer — Memoria compartida para agentes de IA",
         formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -1705,6 +2232,13 @@ def main() -> None:
     )
 
     args = parser.parse_args()
+
+    if args.show_config or args.systemd:
+        try:
+            _cargar_runtime_instalacion()
+        except (OSError, RuntimeError, subprocess.SubprocessError):
+            _fail("No hay un entorno privado válido. Ejecuta primero el instalador de BioRAG.")
+            sys.exit(1)
 
     if args.show_config:
         download_if_needed()

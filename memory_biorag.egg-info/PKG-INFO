@@ -10,22 +10,21 @@ Classifier: Intended Audience :: Developers
 Classifier: Intended Audience :: Science/Research
 Classifier: License :: OSI Approved :: Apache Software License
 Classifier: Programming Language :: Python :: 3
-Classifier: Programming Language :: Python :: 3.10
 Classifier: Programming Language :: Python :: 3.11
 Classifier: Programming Language :: Python :: 3.12
 Classifier: Topic :: Scientific/Engineering :: Artificial Intelligence
-Requires-Python: >=3.10
+Requires-Python: >=3.11
 Description-Content-Type: text/markdown
 License-File: LICENSE
-Requires-Dist: numpy>=1.24.0
-Requires-Dist: pydantic>=2.0.0
-Requires-Dist: nltk<3.10,>=3.8
-Requires-Dist: mcp<2,>=1.0.0
-Requires-Dist: python-dotenv>=1.0.0
-Requires-Dist: fastapi>=0.104.0
-Requires-Dist: uvicorn>=0.24.0
+Requires-Dist: numpy==2.4.6
+Requires-Dist: pydantic==2.13.5
+Requires-Dist: nltk==3.9.4
+Requires-Dist: mcp==1.30.0
+Requires-Dist: python-dotenv==1.2.3
+Requires-Dist: fastapi==0.141.1
+Requires-Dist: uvicorn==0.52.4
 Provides-Extra: dev
-Requires-Dist: pytest>=7.0.0; extra == "dev"
+Requires-Dist: pytest==9.1.1; extra == "dev"
 Dynamic: license-file
 
 # BioRAG — Memoria Cognitiva Biomimética y Simbólica para Agentes de IA
