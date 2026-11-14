@@ -2,19 +2,6 @@ import os
 import sqlite3
 import re
 import logging
-import copy
-import functools
-import threading
-from contextlib import contextmanager
-from core.sqlite_runtime import (
-    SQLiteDatabaseIdentityChangedError,
-    _wal_content_signature,
-    database_commit_state,
-    database_read_window,
-    database_file_identity,
-    guard_enabled,
-    open_writer,
-)
 from collections import deque
 
 logger = logging.getLogger("BioRAG.MemoryStore")
@@ -84,180 +71,7 @@ from core.memory import search
 
 # =============================================================================
 
-def _sql_may_write(statement):
-    sql = str(statement or "").lstrip()
-    if re.match(r"PRAGMA\b", sql, re.IGNORECASE):
-        return "=" in sql
-    return bool(re.match(
-        r"(?:INSERT|UPDATE|DELETE|REPLACE|CREATE|DROP|ALTER|VACUUM|REINDEX|ANALYZE|ATTACH|DETACH|WITH)\b",
-        sql,
-        re.IGNORECASE,
-    ))
-
-
-def _sql_palabra_completa(token, texto):
-    if not token or not texto:
-        return 0
-    token_norm = token.lower().replace('_', ' ').replace('-', ' ')
-    texto_norm = texto.lower().replace('_', ' ').replace('-', ' ')
-    return 1 if re.search(r'\b' + re.escape(token_norm) + r'\b', texto_norm) else 0
-
-
-def _sql_palabra_prefijo(token, texto):
-    if not token or not texto:
-        return 0
-    token_norm = token.lower().replace('_', ' ').replace('-', ' ')
-    texto_norm = texto.lower().replace('_', ' ').replace('-', ' ')
-    return 1 if re.search(r'\b' + re.escape(token_norm), texto_norm) else 0
-
-
-def _sql_palabra_inicio_ancho(token, texto):
-    """Prefijo en límite habitual o después de un carácter W/F."""
-    import unicodedata
-    if not token or not texto:
-        return 0
-    token_norm = token.lower().replace('_', ' ').replace('-', ' ')
-    texto_norm = texto.lower().replace('_', ' ').replace('-', ' ')
-    patron = re.compile(r'\b' + re.escape(token_norm))
-    pos = texto_norm.find(token_norm)
-    while pos >= 0:
-        if patron.match(texto_norm, pos) or (
-            pos > 0 and unicodedata.east_asian_width(texto_norm[pos - 1]) in ('W', 'F')
-        ):
-            return 1
-        pos = texto_norm.find(token_norm, pos + 1)
-    return 0
-
-
-class _GuardedSQLiteCursor:
-    """DB-API cursor that revalidates file generation for retained handles."""
-
-    __slots__ = ("_owner", "_raw", "_connection")
-
-    def __init__(self, owner, raw, connection):
-        object.__setattr__(self, "_owner", owner)
-        object.__setattr__(self, "_raw", raw)
-        object.__setattr__(self, "_connection", connection)
-
-    def __getattr__(self, name):
-        if name == "connection":
-            return self._connection
-        value = getattr(self._raw, name)
-        if callable(value):
-            if name == "close":
-                return value
-
-            def guarded(*args, **kwargs):
-                self._owner._check_connection_access(self._connection._raw)
-                result = value(*args, **kwargs)
-                if (
-                    name in {"execute", "executemany", "executescript"}
-                    and args
-                    and _sql_may_write(args[0])
-                    and not self._connection._raw.in_transaction
-                ):
-                    self._owner._note_cooperative_commit(self._connection._raw)
-                if result is self._raw:
-                    return self
-                if isinstance(result, sqlite3.Cursor):
-                    return self._owner._guard_cursor(result, self._connection)
-                return result
-
-            return guarded
-        self._owner._check_connection_access(self._connection._raw)
-        return value
-
-    def __setattr__(self, name, value):
-        self._owner._check_connection_access(self._connection._raw)
-        setattr(self._raw, name, value)
-
-    def __iter__(self):
-        self._owner._check_connection_access(self._connection._raw)
-        return self
-
-    def __next__(self):
-        self._owner._check_connection_access(self._connection._raw)
-        return next(self._raw)
-
-
-class _GuardedSQLiteConnection:
-    """Connection facade so held `conn.execute()` cannot bypass generation checks."""
-
-    __slots__ = ("_owner", "_raw")
-
-    def __init__(self, owner, raw):
-        object.__setattr__(self, "_owner", owner)
-        object.__setattr__(self, "_raw", raw)
-
-    def __getattr__(self, name):
-        value = getattr(self._raw, name)
-        if callable(value):
-            if name == "close":
-                return value
-
-            def guarded(*args, **kwargs):
-                self._owner._check_connection_access(self._raw)
-                was_in_transaction = self._raw.in_transaction
-                result = value(*args, **kwargs)
-                if name == "commit" and was_in_transaction:
-                    self._owner._remember_connection_snapshot(self._raw)
-                elif name == "rollback":
-                    self._owner._remember_connection_snapshot(self._raw)
-                elif (
-                    name in {"execute", "executemany", "executescript"}
-                    and args
-                    and _sql_may_write(args[0])
-                    and not self._raw.in_transaction
-                ):
-                    self._owner._note_cooperative_commit(self._raw)
-                if isinstance(result, sqlite3.Cursor):
-                    return self._owner._guard_cursor(result, self)
-                return result
-
-            return guarded
-        self._owner._check_connection_access(self._raw)
-        return value
-
-    def __setattr__(self, name, value):
-        self._owner._check_connection_access(self._raw)
-        setattr(self._raw, name, value)
-
-    def __enter__(self):
-        self._owner._check_connection_access(self._raw)
-        self._raw.__enter__()
-        return self
-
-    def __exit__(self, exc_type, exc, tb):
-        self._owner._check_connection_access(self._raw)
-        result = self._raw.__exit__(exc_type, exc, tb)
-        self._owner._remember_connection_snapshot(self._raw)
-        return result
-
-
-def _tracked_operation(method):
-    @functools.wraps(method)
-    def tracked(self, *args, **kwargs):
-        self._begin_operation()
-        try:
-            return method(self, *args, **kwargs)
-        finally:
-            self._end_operation()
-    return tracked
-
-
-class _OperationTrackedMeta(type):
-    """Envelopa una sola vez los métodos públicos, sin instrumentar cada atributo."""
-
-    def __new__(mcls, name, bases, namespace):
-        for method_name, value in tuple(namespace.items()):
-            if method_name.startswith("_") or method_name == "cerrar_sistema":
-                continue
-            if callable(value):
-                namespace[method_name] = _tracked_operation(value)
-        return super().__new__(mcls, name, bases, namespace)
-
-
-class SQLiteMemoryBioRAG(metaclass=_OperationTrackedMeta):
+class SQLiteMemoryBioRAG:
     """
     Motor de Almacenamiento Cognitivo BioRAG basado en SQLite (Fachada delgada).
     Implementa almacenamiento biomimético con persistencia de doble capa (Corto/Largo plazo),
@@ -267,566 +81,68 @@ class SQLiteMemoryBioRAG(metaclass=_OperationTrackedMeta):
     Excepción de límite de líneas por deuda técnica documentada: la fachada supera 500 porque los delegadores conservan la firma completa.
     """
 
-    def __getattr__(self, name):
-        # `last_*` es estado de respuesta del request, no global del singleton.
-        if name.startswith("last_"):
-            try:
-                local = object.__getattribute__(self, "_request_local")
-                try:
-                    return getattr(local, name)
-                except AttributeError:
-                    defaults = object.__getattribute__(self, "_last_defaults")
-                    if name in defaults:
-                        value = copy.deepcopy(defaults[name])
-                        setattr(local, name, value)
-                        return value
-            except AttributeError:
-                pass
-        raise AttributeError(f"{type(self).__name__!s} has no attribute {name!r}")
-
-    def _guard_connection(self, raw):
-        key = id(raw)
-        with self._connection_registry_lock:
-            pair = self._connection_guards.get(key)
-            if pair is None or pair[0] is not raw:
-                pair = (raw, _GuardedSQLiteConnection(self, raw))
-                self._connection_guards[key] = pair
-            return pair[1]
-
-    def _guard_cursor(self, raw, connection):
-        # No cache: retaining every temporary cursor would retain read locks.
-        return _GuardedSQLiteCursor(self, raw, connection)
-
-    @property
-    def conn(self):
-        self._ensure_database_identity_for_db_access()
-        conn = getattr(self._connection_local, "connection", None)
-        if conn is None:
-            conn = self._get_thread_state()[0]
-        if self._closed:
-            raise RuntimeError("La instancia SQLiteMemoryBioRAG ya fue cerrada")
-        return self._guard_connection(conn)
-
-    @conn.setter
-    def conn(self, value):
-        object.__getattribute__(self, "_connection_local").connection = value
-
-    @property
-    def cursor(self):
-        self._ensure_database_identity_for_db_access()
-        cursor = getattr(self._connection_local, "cursor", None)
-        if cursor is None:
-            cursor = self._get_thread_state()[1]
-        if self._closed:
-            raise RuntimeError("La instancia SQLiteMemoryBioRAG ya fue cerrada")
-        raw_conn = getattr(self._connection_local, "connection", None)
-        if raw_conn is None:
-            raw_conn = self._get_thread_state()[0]
-        return self._guard_cursor(cursor, self._guard_connection(raw_conn))
-
-    @cursor.setter
-    def cursor(self, value):
-        object.__getattribute__(self, "_connection_local").cursor = value
-
-    def __setattr__(self, name, value):
-        if name in {"conn", "cursor"}:
-            try:
-                local = object.__getattribute__(self, "_connection_local")
-            except AttributeError:
-                object.__setattr__(self, name, value)
-                return
-            setattr(local, "connection" if name == "conn" else "cursor", value)
-            if name == "conn" and value is not None:
-                try:
-                    with object.__getattribute__(self, "_connection_registry_lock"):
-                        connections = object.__getattribute__(self, "_connections")
-                        if value not in connections:
-                            connections.append(value)
-                except AttributeError:
-                    pass
-            return
-        if name.startswith("last_"):
-            try:
-                local = object.__getattribute__(self, "_request_local")
-                defaults = object.__getattribute__(self, "_last_defaults")
-            except AttributeError:
-                object.__setattr__(self, name, value)
-                return
-            try:
-                primary_thread_id = object.__getattribute__(self, "_primary_thread_id")
-            except AttributeError:
-                primary_thread_id = threading.get_ident()
-            if threading.get_ident() == primary_thread_id:
-                defaults.setdefault(name, copy.deepcopy(value))
-            setattr(local, name, value)
-            return
-        object.__setattr__(self, name, value)
-
-    def _begin_operation(self):
-        state = self._operation_local
-        depth = getattr(state, "depth", 0)
-        if depth == 0:
-            with self._lifecycle_condition:
-                while self._closing and not self._closed:
-                    self._lifecycle_condition.wait()
-                if self._closed:
-                    raise RuntimeError("La instancia SQLiteMemoryBioRAG ya fue cerrada")
-                self._active_operations += 1
-            try:
-                if self._is_memory_database:
-                    self._memory_operation_lock.acquire()
-            except BaseException:
-                with self._lifecycle_condition:
-                    self._active_operations -= 1
-                    self._lifecycle_condition.notify_all()
-                raise
-            state.identity_checked = False
-            state.identity_error = False
-        state.depth = depth + 1
-
-    def _end_operation(self):
-        state = self._operation_local
-        depth = getattr(state, "depth", 0)
-        if depth <= 0:
-            return
-        if depth > 1:
-            state.depth = depth - 1
-            return
-        identity_error = getattr(state, "identity_error", False)
-        del state.depth
-        if hasattr(state, "identity_checked"):
-            del state.identity_checked
-        if hasattr(state, "identity_error"):
-            del state.identity_error
-        if not identity_error:
-            connection = getattr(self._connection_local, "connection", None)
-            if connection is not None:
-                try:
-                    self._remember_connection_snapshot(connection)
-                except SQLiteDatabaseIdentityChangedError as exc:
-                    # El teardown del lease nunca debe dejar `_active_operations`
-                    # ni el lock `:memory:` retenidos; el próximo acceso vuelve a
-                    # validar y falla cerrado.
-                    logger.warning("No se pudo actualizar snapshot de DB al cerrar operación: %s", exc)
-        if self._is_memory_database:
-            self._memory_operation_lock.release()
-        with self._lifecycle_condition:
-            self._active_operations -= 1
-            self._lifecycle_condition.notify_all()
-
-    @contextmanager
-    def _operation_lease(self):
-        """Delimita operaciones externas/delegadas para que el cierre espere."""
-        self._begin_operation()
-        try:
-            yield
-        finally:
-            self._end_operation()
-
-    def _ensure_database_identity_for_db_access(self, connection=None):
-        operation_state = self._operation_local
-        if getattr(operation_state, "depth", 0):
-            if getattr(operation_state, "identity_checked", False):
-                return
-            self._assert_database_identity(connection=connection)
-            operation_state.identity_checked = True
-            return
-        self._assert_database_identity(connection=connection)
-
-    def _sidecar_file_identity(self, suffix):
-        try:
-            st = os.stat(self.db_path + suffix)
-        except FileNotFoundError:
-            return None
-        except OSError as exc:
-            raise SQLiteDatabaseIdentityChangedError(
-                "No se pudo verificar la identidad de un sidecar SQLite; "
-                "se rechazó el acceso por seguridad."
-            ) from exc
-        return int(st.st_dev), int(st.st_ino)
-
-    def _capture_sidecar_identities(self):
-        if self._journal_mode != "wal":
-            return
-        for suffix in ("-wal", "-shm"):
-            identity = self._sidecar_file_identity(suffix)
-            if identity is not None:
-                self._sidecar_identities[suffix] = identity
-
-    def _mark_identity_error(self):
-        state = getattr(self, "_operation_local", None)
-        if state is not None and getattr(state, "depth", 0):
-            state.identity_error = True
-
-    def _file_change_signature(self):
-        st = os.stat(self.db_path)
-        with open(self.db_path, "rb") as database_file:
-            header = database_file.read(100)
-        if len(header) != 100 or not header.startswith(b"SQLite format 3\x00"):
-            raise SQLiteDatabaseIdentityChangedError(
-                "El archivo en la ruta configurada ya no tiene un encabezado SQLite válido."
-            )
-        return (
-            int(st.st_size),
-            int(getattr(st, "st_mtime_ns", int(st.st_mtime * 1_000_000_000))),
-            int(getattr(st, "st_ctime_ns", int(st.st_ctime * 1_000_000_000))),
-            int.from_bytes(header[24:28], "big"),
-            int.from_bytes(header[40:44], "big"),
-            header,
-            _wal_content_signature(self.db_path),
-        )
-
-    def _consistent_snapshot_state(self):
-        """Sample the stat probe and the full signature as one consistent pair.
-
-        Both must describe the same instant. Computing the signature and only
-        later stat-ing allowed a direct WAL edit to land in between: the probe
-        then recorded the post-edit metadata while the stored signature came from
-        the pre-edit content, so the next read matched and never alerted
-        (auditoría 41a98a3). Here the probe is taken first and re-taken after the
-        signature; if it moved, the whole sample is repeated a few times before
-        failing closed.
-        """
-        last_error = None
-        for _ in range(3):
-            probe = self._cheap_file_probe()
-            signature = self._file_change_signature()
-            if self._cheap_file_probe() == probe:
-                return probe, signature
-            last_error = "la instantánea cambió mientras se calculaba"
-        raise SQLiteDatabaseIdentityChangedError(
-            "No se pudo obtener una instantánea consistente del archivo SQLite "
-            f"({last_error}); se rechazó el acceso por seguridad."
-        )
-
-    def _remember_connection_snapshot(self, connection):
-        # BIORAG_SQLITE_GUARD=0 apaga el motor del guardián por completo: la
-        # validación de generación/identidad de este almacén también queda sin
-        # efecto (sin rechazos por sidecar sustituido ni firma atestiguada).
-        if not guard_enabled():
-            return
-        if (
-            not getattr(self, "_generation_guard_ready", False)
-            or self._database_file_identity is None
-            or getattr(connection, "in_transaction", False)
-        ):
-            return
-        try:
-            # Sample the file state and the published attestation under the same
-            # coordination lock: a cooperative commit cannot be observed half
-            # published, which used to reject perfectly valid generations.
-            cached = self._connection_snapshots.get(id(connection))
-            probe = self._cheap_file_probe()
-            with database_read_window(self.db_path):
-                row = connection.execute("PRAGMA data_version").fetchone()
-                data_version = int(row[0]) if row else -1
-                commit_epoch, committed_signature = database_commit_state(self.db_path)
-                if (
-                    cached is not None and cached[0] is connection
-                    and cached[2] == data_version and cached[3] == commit_epoch
-                    and probe is not None
-                    and len(cached) > 5 and cached[5] == probe
-                ):
-                    # data_version and epoch unchanged and neither the main file
-                    # nor the WAL moved in size, mtime or ctime.
-                    return
-                probe, signature = self._consistent_snapshot_state()
-                if cached is not None and cached[0] is connection:
-                    cached_epoch = cached[3]
-                else:
-                    cached_epoch = None
-                if (
-                    committed_signature is not None
-                    and commit_epoch > (cached_epoch or 0)
-                    and committed_signature != signature
-                ):
-                    # The writer attested one file state and this reader sees a
-                    # different one at the same epoch: something changed the file
-                    # outside the protocol while the snapshot was being taken.
-                    # Storing the observed signature here would bless exactly
-                    # that change, so fail closed instead (auditoría 41a98a3).
-                    raise SQLiteDatabaseIdentityChangedError(
-                        "La instantánea observada no coincide con la generación "
-                        "atestiguada por el escritor; se rechazó el acceso por "
-                        "seguridad."
-                    )
-        except SQLiteDatabaseIdentityChangedError:
-            raise
-        except (OSError, sqlite3.Error) as exc:
-            raise SQLiteDatabaseIdentityChangedError(
-                "No se pudo comprobar la generación SQLite del archivo; "
-                "se rechazó el acceso por seguridad."
-            ) from exc
-        with self._connection_registry_lock:
-            self._connection_snapshots[id(connection)] = (
-                connection, signature, data_version,
-                commit_epoch, committed_signature, probe,
-            )
-
-    def _note_cooperative_commit(self, connection):
-        # The tracked SQLite cursor publishes autocommitted DDL before this
-        # snapshot; do not publish a second, unlocked attestation here.
-        self._remember_connection_snapshot(connection)
-
-    def _cheap_file_probe(self):
-        """Stat-only probe over the main file *and* the WAL sidecar.
-
-        Skips reading file contents, so it is cheap, but it must cover both
-        files: a direct change inside the WAL leaves every main-file field
-        intact (auditoría 4747ca8), so a main-file-only probe reported "nothing
-        changed" while the WAL had been altered.
-
-        The comparison is a *necessary* condition used to skip the expensive
-        digest. It never decides on its own: any mismatch runs the full
-        signature, which is what actually accepts or rejects.
-        """
-        probe = []
-        for path in (self.db_path, self.db_path + "-wal"):
-            try:
-                st = os.stat(path)
-            except OSError:
-                probe.append(None)
-                continue
-            probe.append(
-                (
-                    int(st.st_size),
-                    int(getattr(st, "st_mtime_ns", int(st.st_mtime * 1_000_000_000))),
-                    int(getattr(st, "st_ctime_ns", int(st.st_ctime * 1_000_000_000))),
-                )
-            )
-        return tuple(probe)
-
-    def _check_in_place_change(self, connection):
-        if (
-            connection is None
-            or not getattr(self, "_generation_guard_ready", False)
-            or self._database_file_identity is None
-            or getattr(connection, "in_transaction", False)
-        ):
-            return
-        try:
-            # Always build the full signature here. A fast path gated on
-            # data_version/epoch/main-file-size was tried and reverted: it made
-            # two real changes invisible (auditoría d5c3834).
-            #   * an in-place edit with identical size and inode moves neither
-            #     data_version nor the file size, only mtime/ctime/header;
-            #   * a raw wal_checkpoint(PASSIVE) can move WAL pages into the main
-            #     file without changing its size.
-            # Only the complete signature (main file + full WAL digest) covers
-            # both. Because that costs time, callers reach this check once per
-            # operation, not once per statement.
-            cached = self._connection_snapshots.get(id(connection))
-            probe = self._cheap_file_probe()
-            with database_read_window(self.db_path):
-                row = connection.execute("PRAGMA data_version").fetchone()
-                data_version = int(row[0]) if row else -1
-                commit_epoch, committed_signature = database_commit_state(self.db_path)
-                if (
-                    cached is not None and cached[0] is connection
-                    and cached[2] == data_version and cached[3] == commit_epoch
-                    and probe is not None
-                    and len(cached) > 5 and cached[5] == probe
-                ):
-                    # data_version and epoch unchanged and neither the main file
-                    # nor the WAL moved in size, mtime or ctime.
-                    return
-                probe, signature = self._consistent_snapshot_state()
-        except (OSError, sqlite3.Error) as exc:
-            self._mark_identity_error()
-            raise SQLiteDatabaseIdentityChangedError(
-                "No se pudo comprobar la generación SQLite del archivo; "
-                "se rechazó el acceso por seguridad."
-            ) from exc
-
-        with self._connection_registry_lock:
-            snapshot = self._connection_snapshots.get(id(connection))
-            if snapshot is None or snapshot[0] is not connection:
-                self._connection_snapshots[id(connection)] = (
-                    connection, signature, data_version,
-                    commit_epoch, committed_signature, probe,
-                )
-                return
-            (
-                _same_connection, old_signature, old_data_version,
-                old_epoch, _old_committed_signature, *_rest,
-            ) = snapshot
-            current_epoch = commit_epoch
-            changed = signature != old_signature or data_version != old_data_version
-            # The sidecar signature is recorded while the cooperative writer
-            # holds SQLite's write reservation. It must exactly match the file
-            # observed now; this prevents a later legacy write or in-place copy
-            # from piggybacking on an unrelated epoch increment.
-            attested_commit = (
-                current_epoch > old_epoch
-                and committed_signature == signature
-            )
-            if changed and not attested_commit:
-                self._mark_identity_error()
-                raise SQLiteDatabaseIdentityChangedError(
-                    "La generación del archivo cambió sin una transición de commit "
-                    "SQLite verificable; se rechazó el acceso para evitar leer o "
-                    "escribir sobre una sustitución in-place."
-                )
-            self._connection_snapshots[id(connection)] = (
-                connection, signature, data_version,
-                current_epoch, committed_signature, probe,
-            )
-
-    def _assert_database_identity(self, connection=None):
-        # Mismo interruptor que arriba: con el guardián apagado no se rechaza
-        # ninguna operación por identidad de archivo ni de sidecars.
-        if not guard_enabled():
-            return
-        expected = getattr(self, "_database_file_identity", None)
-        if expected is not None:
-            try:
-                current = database_file_identity(self.db_path)
-            except OSError:
-                current = None
-            if current != expected:
-                self._mark_identity_error()
-                raise SQLiteDatabaseIdentityChangedError(
-                    "La identidad del archivo SQLite cambió desde que se abrió esta "
-                    "instancia; se rechazó la operación para evitar escribir en una "
-                    "generación antigua. Cierre ordenadamente el motor y vuelva a "
-                    "abrirlo desde la ruta configurada. No se modificó ni reparó ningún archivo."
-                )
-
-        if getattr(self, "_journal_mode", None) == "wal":
-            sidecars = getattr(self, "_sidecar_identities", None)
-            if sidecars is not None:
-                for suffix in ("-wal", "-shm"):
-                    current = self._sidecar_file_identity(suffix)
-                    expected_sidecar = sidecars.get(suffix)
-                    if expected_sidecar is None:
-                        # WAL/SHM pueden aparecer al primer acceso que realmente los usa.
-                        # Desde ese momento se fija su identidad hasta el cierre del motor.
-                        if current is not None:
-                            sidecars[suffix] = current
-                    elif current != expected_sidecar:
-                        self._mark_identity_error()
-                        raise SQLiteDatabaseIdentityChangedError(
-                            "La identidad de un sidecar WAL/SHM cambió desde que fue "
-                            "observado; se rechazó el acceso. No se borró ni reparó ningún archivo."
-                        )
-        if connection is None:
-            connection = getattr(self._connection_local, "connection", None)
-        self._check_in_place_change(connection)
-
-    def _check_connection_access(self, connection):
-        if getattr(self._operation_local, "depth", 0):
-            self._ensure_database_identity_for_db_access(connection=connection)
-        else:
-            self._assert_database_identity(connection=connection)
-
-    def _open_connection(self):
-        conn = open_writer(
-            self.db_path,
-            timeout=60,
-            busy_timeout_ms=30_000,
-            consumer="memory_store",
-            check_same_thread=False,
-        )
-        try:
-            conn.execute("PRAGMA synchronous=NORMAL")
-            is_primary_thread = threading.get_ident() == self._primary_thread_id
-            # Mantener el presupuesto histórico del hilo principal; limitar las
-            # conexiones auxiliares para que el caché máximo no se multiplique
-            # por cada worker MCP.
-            conn.execute(f"PRAGMA cache_size={-64000 if is_primary_thread else -8000}")
-            conn.execute(f"PRAGMA mmap_size={268435456 if is_primary_thread else 33554432}")
-            conn.execute("PRAGMA foreign_keys=ON")
-            conn.create_function("PALABRA_COMPLETA", 2, _sql_palabra_completa)
-            conn.create_function("PALABRA_PREFIJO", 2, _sql_palabra_prefijo)
-            conn.create_function("PALABRA_INICIO_ANCHO", 2, _sql_palabra_inicio_ancho)
-            return conn
-        except BaseException:
-            conn.close()
-            raise
-
-    def _get_thread_state(self):
-        local = self._connection_local
-        conn = getattr(local, "connection", None)
-        cursor = getattr(local, "cursor", None)
-        if conn is not None and cursor is not None:
-            if self._closed:
-                raise RuntimeError("La instancia SQLiteMemoryBioRAG ya fue cerrada")
-            return conn, cursor
-
-        with self._connection_registry_lock:
-            if self._closed:
-                raise RuntimeError("La instancia SQLiteMemoryBioRAG ya fue cerrada")
-            expected_identity = getattr(self, "_database_file_identity", None)
-            if expected_identity is not None:
-                validation_connection = getattr(local, "connection", None)
-                if validation_connection is None and self._connections:
-                    validation_connection = self._connections[0]
-                self._assert_database_identity(connection=validation_connection)
-            if self._is_memory_database:
-                conn = self._memory_connection
-                if conn is None:
-                    conn = self._open_connection()
-                    self._memory_connection = conn
-                    self._connections.append(conn)
-            else:
-                conn = self._open_connection()
-                try:
-                    if expected_identity is not None:
-                        self._assert_database_identity()
-                except BaseException:
-                    conn.close()
-                    raise
-                self._connections.append(conn)
-            cursor = conn.cursor()
-            local.connection = conn
-            local.cursor = cursor
-            return conn, cursor
-
     def __init__(self, db_path=None):
-        from core.paths import resolve_db_path
-        self.db_path = resolve_db_path(db_path)
+        if db_path:
+            self.db_path = db_path
+        else:
+            from core.paths import resolve_db_path
+            self.db_path = resolve_db_path()
         if self.db_path != ":memory:":
             os.makedirs(os.path.dirname(self.db_path), exist_ok=True)
-
-        # Conexión/cursor por hilo para la DB persistente. En :memory: se conserva
-        # una conexión compartida, protegida por el lock de operación.
-        self._is_memory_database = self.db_path == ":memory:"
-        self._primary_thread_id = threading.get_ident()
-        self._connection_local = threading.local()
-        self._request_local = threading.local()
-        self._operation_local = threading.local()
-        self._method_wrapper_cache = {}
-        self._connection_registry_lock = threading.RLock()
-        self._connection_guards = {}
-        self._connection_snapshots = {}
-        self._generation_guard_ready = False
-        self._lifecycle_condition = threading.Condition(threading.RLock())
-        self._memory_operation_lock = threading.RLock()
-        self._connections = []
-        self._memory_connection = None
-        self._active_operations = 0
-        self._closing = False
-        self._closed = False
-        self._last_defaults = {}
+        # Conectar a SQLite
+        # check_same_thread=False: MCP/WAL reutiliza la instancia entre tools.
+        self.conn = sqlite3.connect(self.db_path, timeout=60, check_same_thread=False)
         self._persistente = False
-
-        # Toda conexión escritora pasa por la política version-aware y registra
-        # las funciones SQL propias; también se aplica a conexiones de otros hilos.
-        self._get_thread_state()
         try:
-            self._database_file_identity = database_file_identity(self.db_path)
-        except OSError:
-            self.cerrar_sistema()
-            raise
-        row = self.conn.execute("PRAGMA journal_mode").fetchone()
-        self._journal_mode = str(row[0]).lower() if row and row[0] else "unknown"
-        self._sidecar_identities = {}
-        self._capture_sidecar_identities()
+            self.conn.execute("PRAGMA journal_mode=WAL")
+            self.conn.execute("PRAGMA synchronous=NORMAL")
+            self.conn.execute("PRAGMA busy_timeout=30000")
+            self.conn.execute("PRAGMA cache_size=-64000")
+            self.conn.execute("PRAGMA mmap_size=268435456")
+        except sqlite3.OperationalError:
+            pass
+        self.cursor = self.conn.cursor()
+        # Función personalizada: word boundary check del lado de la DB
+        def palabra_completa(token, texto):
+            if not token or not texto:
+                return 0
+            token_norm = token.lower().replace('_', ' ').replace('-', ' ')
+            texto_norm = texto.lower().replace('_', ' ').replace('-', ' ')
+            return 1 if re.search(r'\b' + re.escape(token_norm) + r'\b', texto_norm) else 0
+        self.conn.create_function("PALABRA_COMPLETA", 2, palabra_completa)
+
+        # Función personalizada: prefix word boundary check del lado de la DB
+        def palabra_prefijo(token, texto):
+            if not token or not texto:
+                return 0
+            token_norm = token.lower().replace('_', ' ').replace('-', ' ')
+            texto_norm = texto.lower().replace('_', ' ').replace('-', ' ')
+            return 1 if re.search(r'\b' + re.escape(token_norm), texto_norm) else 0
+        self.conn.create_function("PALABRA_PREFIJO", 2, palabra_prefijo)
+
+        def palabra_inicio_ancho(token, texto):
+            """Prefijo en límite habitual o después de un carácter W/F."""
+            import unicodedata
+            if not token or not texto:
+                return 0
+            token_norm = token.lower().replace('_', ' ').replace('-', ' ')
+            texto_norm = texto.lower().replace('_', ' ').replace('-', ' ')
+            patron = re.compile(r'\b' + re.escape(token_norm))
+            pos = texto_norm.find(token_norm)
+            while pos >= 0:
+                if patron.match(texto_norm, pos) or (
+                    pos > 0 and unicodedata.east_asian_width(texto_norm[pos - 1]) in ('W', 'F')
+                ):
+                    return 1
+                pos = texto_norm.find(token_norm, pos + 1)
+            return 0
+        self.conn.create_function("PALABRA_INICIO_ANCHO", 2, palabra_inicio_ancho)
         self._cat_cache = {}
         self.cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='largo_plazo'")
         if not self.cursor.fetchone():
             self._crear_estructura_cerebral()
         self._crear_tablas_nuevas_si_faltan()
+        self.conn.execute("PRAGMA foreign_keys = ON")
         # Trazaabilidad: datos de la última búsqueda para mcp_server.py
         self.last_todos = []
         self.last_origen_scores = {}
@@ -899,11 +215,6 @@ class SQLiteMemoryBioRAG(metaclass=_OperationTrackedMeta):
                 self._cargar_calibracion_persistida()
         except Exception as _e_cal:
             logger.debug(f"Calibración persistida no cargada: {_e_cal}")
-        # Captura WAL/SHM y firma de archivo tras el bootstrap, cuando SQLite ya pudo crearlos.
-        self._capture_sidecar_identities()
-        self._generation_guard_ready = True
-        for connection in tuple(self._connections):
-            self._remember_connection_snapshot(connection)
 
     def notificar_actividad_usuario(self):
         return dmn.notificar_actividad_usuario(self)
@@ -1337,58 +648,11 @@ class SQLiteMemoryBioRAG(metaclass=_OperationTrackedMeta):
     def buscar_en_cuarentena(self, frase: str, limite: int = 3):
         return quarantine.buscar_en_cuarentena(self, frase=frase, limite=limite)
 
-    def _consolidar_antes_de_cerrar(self, connections):
-        """Deja el diario vacío para que el `.db` sea autosuficiente al cerrar.
-
-        Motivo: si el motor termina con un `-wal` con datos y ese archivo se
-        copia, se versiona o se sincroniza aparte del `.db`, el diario puede
-        acabar junto a otra versión del archivo principal. Al reabrir, SQLite
-        aplica ese diario ajeno y la base termina con datos que no le
-        corresponden. Consolidar al cerrar hace que ese estado no llegue a
-        existir.
-
-        Es best-effort y nunca impide cerrar: si falla (base en solo lectura,
-        otro proceso trabajando, plataforma sin soporte) se registra y se sigue.
-        """
-        if getattr(self, "_is_memory_database", False):
-            return
-        for conn in connections:
-            try:
-                if getattr(conn, "in_transaction", False):
-                    continue
-                conn.execute("PRAGMA wal_checkpoint(TRUNCATE)").fetchall()
-            except sqlite3.Error as exc:
-                logger.debug("No se pudo consolidar el WAL al cerrar: %s", exc)
-
     def cerrar_sistema(self):
-        """Espera operaciones activas y cierra todas las conexiones de la instancia."""
+        """Cierra SQLite. No-op si la instancia es el singleton MCP (_persistente)."""
         if getattr(self, "_persistente", False):
             return
-        if getattr(self._operation_local, "depth", 0):
-            raise RuntimeError("cerrar_sistema no puede ejecutarse desde una operación activa")
-
-        with self._lifecycle_condition:
-            if self._closed:
-                return
-            if self._closing:
-                while self._closing and not self._closed:
-                    self._lifecycle_condition.wait()
-                return
-            self._closing = True
-            while self._active_operations:
-                self._lifecycle_condition.wait()
-            with self._connection_registry_lock:
-                connections = tuple(self._connections)
-                self._closed = True
-
         try:
-            self._consolidar_antes_de_cerrar(connections)
-            for conn in connections:
-                try:
-                    conn.close()
-                except sqlite3.Error:
-                    logger.exception("No se pudo cerrar una conexión SQLite del motor")
-        finally:
-            with self._lifecycle_condition:
-                self._closing = False
-                self._lifecycle_condition.notify_all()
+            self.conn.close()
+        except Exception:
+            pass

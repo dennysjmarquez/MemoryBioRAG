@@ -576,7 +576,7 @@ def _permutar_mapas(self, antes, despues):
     `last_score_base_map` / `last_score_bonus_map` por concepto. Se permutan igual que los
     scores: cada POSICIÓN conserva exactamente sus números; solo cambia qué recuerdo la ocupa."""
     for nombre in ("last_score_base_map", "last_score_bonus_map"):
-        mapa = getattr(self, nombre, None)
+        mapa = self.__dict__.get(nombre)
         if not isinstance(mapa, dict):
             continue
         valores = [mapa.get(c, _FALTA) for c in antes]
@@ -586,7 +586,7 @@ def _permutar_mapas(self, antes, despues):
                 nuevo.pop(c, None)
             else:
                 nuevo[c] = v
-        setattr(self, nombre, nuevo)
+        self.__dict__[nombre] = nuevo
 
 
 _FALTA = object()
@@ -602,21 +602,20 @@ def _en_silencio(self):
     práctica cambió, pero SOLO si siguen teniendo el valor que dejó la práctica
     (si otro hilo los escribió mientras tanto, se respeta lo del otro hilo).
     """
-    estado_request = self._request_local.__dict__
-    antes = {k: v for k, v in estado_request.items() if k.startswith("last_")}
+    antes = {k: v for k, v in self.__dict__.items() if k.startswith("last_")}
     _hilo.silencio_de, _hilo.rasgos, _hilo.vista = self, None, None
     try:
         yield
     finally:
         _hilo.silencio_de = None
-        for k, v in list(estado_request.items()):
+        for k, v in list(self.__dict__.items()):
             if not k.startswith("last_") or antes.get(k, _FALTA) is v:
                 continue
             viejo = antes.get(k, _FALTA)
             if viejo is _FALTA:
-                estado_request.pop(k, None)
+                self.__dict__.pop(k, None)
             else:
-                setattr(self, k, viejo)
+                self.__dict__[k] = viejo
 
 
 def _preguntar(self, concepto, consulta, cat, modo="crudo", limite_agente=10):

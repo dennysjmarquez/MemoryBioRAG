@@ -1432,47 +1432,6 @@ El repositorio incluye un snapshot congelado listo para usar sin necesidad de la
 # Para apuntar cualquier script de evaluación al snapshot:
 BIORAG_PATH=scripts/snapshot_prf_real.db python3 scripts/evaluar_qa.py
 
-#### Protección contra el `-wal` que no es de esta base
-
-**Viene activada por defecto y no hay que configurar nada.**
-
-SQLite guarda los cambios recientes en un archivo aparte (`-wal`) y los aplica
-al abrir. Si ese diario viene de **otra versión** de la base —por ejemplo, tras
-cambiar de rama con la base versionada en git— SQLite lo aplica igual y la base
-termina con datos que no le corresponden, sin avisar y con `integrity_check`
-diciendo `ok`.
-
-Por eso el motor, **antes de abrir**, comprueba si puede probar que el `-wal`
-pertenece al `.db` que tiene al lado. Si no puede probarlo, no abre: lanza un
-error que dice dónde quedó la constancia con los sha256 y **no mueve, renombra
-ni borra ningún archivo**.
-
-Tras una caída del proceso no hay problema: el `-wal` es de esa misma base y
-SQLite lo aplica normalmente; los datos se recuperan. Al cerrar de forma
-ordenada el motor consolida (`wal_checkpoint(TRUNCATE)`) y deja el diario vacío.
-
-| Variable | Default | Qué controla |
-|---|---|---|
-| `BIORAG_SQLITE_GUARD` | `1` | **`0` apaga la protección entera.** No comprueba el par ni consolida al cerrar. La base se abre siempre, como un cliente SQLite normal. Acepta `0`, `false`, `no`, `off` |
-| `BIORAG_SQLITE_FORCE_OPEN` | `0` | `1` autoriza **una apertura concreta** de un par no verificado. Avisa en el log y deja constancia. Acepta `1`, `true`, `yes`, `on` |
-
-Apagar la protección (no recomendado, deja la base expuesta al problema de
-origen):
-
-```bash
-BIORAG_SQLITE_GUARD=0 python tu_script.py
-```
-
-Abrir una vez aunque el par no se pueda verificar (por ejemplo, después de
-revisar la constancia y decidir que el `-wal` sí corresponde):
-
-```bash
-BIORAG_SQLITE_FORCE_OPEN=1 python tu_script.py
-```
-
-Guía completa, con qué hacer cuando aparece el aviso:
-[`docs/sqlite_par_no_verificado.md`](docs/sqlite_par_no_verificado.md).
-
 # Para crear tu propio snapshot desde tu DB activa:
 #   IMPORTANTE: NO uses `cp`. La DB viva corre en WAL mode y `cp` copia solo el
 #   archivo .db ignorando el -wal no checkpointeado -> copia corrupta

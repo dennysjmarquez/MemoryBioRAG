@@ -72,8 +72,10 @@ class TestCalibracionPersistente(unittest.TestCase):
     def setUp(self):
         self.temp_dir = tempfile.mkdtemp()
         self.db_file = os.path.join(self.temp_dir, "test_calibracion.db")
-        # DB nueva: el motor selecciona el journal según el runtime efectivo.
-        # Este test no fuerza WAL porque no es una prueba de migración de journal.
+        # Insertar algunos nodos para que la búsqueda tenga dónde ocurrir
+        conn = sqlite3.connect(self.db_file)
+        conn.execute("PRAGMA journal_mode=WAL")
+        conn.close()
         self.ms = SQLiteMemoryBioRAG(db_path=self.db_file)
         for i in range(5):
             self.ms.cursor.execute(

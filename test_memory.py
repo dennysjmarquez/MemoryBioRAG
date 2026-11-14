@@ -124,10 +124,9 @@ def test_sistema():
     
     # 8. Comunicación entre agentes
     print("\n--- 9. Probando Comunicación entre Agentes ---")
-    # Cerrar ordenadamente la conexión antes de sustituir la DB temporal de prueba.
-    # Acceder a `conn` después de borrar el path ahora se rechaza por generación obsoleta.
-    cerebro.cerrar_sistema()
+    # Crear nueva DB limpia para la prueba de comunicacion
     os.remove(db_test_path)
+    cerebro.conn.close()
     cerebro = SQLiteMemoryBioRAG(db_path=db_test_path)
 
     cerebro.enviar_comunicado("athena", "hermes", "Mensaje de prueba de Athena a Hermes")
@@ -166,8 +165,8 @@ def test_sistema():
 
     # 9. Busqueda multi-token (Soft AND)
     print("\n--- 10. Probando Busqueda Multi-Token (Soft AND) ---")
-    cerebro.cerrar_sistema()
     os.remove(db_test_path)
+    cerebro.conn.close()
     cerebro = SQLiteMemoryBioRAG(db_path=db_test_path)
     cerebro.percibir_corto_plazo("puerta_madera", "Puerta de madera marron con manija dorada")
     cerebro.percibir_corto_plazo("color_marron", "El color marron oscuro se usa en muebles")
@@ -286,8 +285,8 @@ def test_sistema():
     # v2.0: FTS5 trigram + busqueda hibrida + sinonimos + merge
     # ─────────────────────────────────────────────────────────────
 
-    cerebro.cerrar_sistema()
     os.remove(db_test_path)
+    cerebro.conn.close()
     cerebro = SQLiteMemoryBioRAG(db_path=db_test_path)
 
     # 16. Sinonimos en percibir_corto_plazo
@@ -439,8 +438,8 @@ def test_sistema():
 
     # 27. init_sinapsis_table
     print("\n--- 27. Probando init_sinapsis_table (tabla de aristas) ---")
-    cerebro.cerrar_sistema()
     os.remove(db_test_path)
+    cerebro.conn.close()
     cerebro = SQLiteMemoryBioRAG(db_path=db_test_path)
     init_sinapsis_table(cerebro.cursor)
     cerebro.cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='sinapsis'")
@@ -553,8 +552,8 @@ def test_sistema():
 
     # 36. Backup trigger (BEFORE DELETE)
     print("\n--- 36. Probando Backup Trigger (BEFORE DELETE) ---")
-    cerebro.cerrar_sistema()
     os.remove(db_test_path)
+    cerebro.conn.close()
     cerebro = SQLiteMemoryBioRAG(db_path=db_test_path)
 
     # Verificar que la tabla backup existe

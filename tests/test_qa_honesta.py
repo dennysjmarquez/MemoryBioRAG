@@ -102,9 +102,9 @@ def test_si_nunca_lo_declaro_no_es_obsoleta(tmp_path):
 def test_midiendo_el_snapshot_salen_cero_obsoletas(tmp_path):
     """Regla de comprobación del auditor: referencia == base medida -> 0.
 
-    OJO: se trabaja sobre una COPIA. Si el runtime es vulnerable, el snapshot
-    WAL de solo referencia se normaliza explícitamente a DELETE en esa copia antes
-    de abrir el motor; el original nunca se modifica.
+    OJO: se trabaja sobre una COPIA. Abrir el snapshot directo con el motor lo
+    pasa a modo WAL y le cambia el sha256 — regla 7 de la guía: ninguna DB real se
+    toca, siempre copias. Está comprobado: fue un fallo de esta misma prueba.
     """
     if not os.path.exists(SNAPSHOT):
         pytest.skip("snapshot no disponible")
@@ -114,9 +114,6 @@ def test_midiendo_el_snapshot_salen_cero_obsoletas(tmp_path):
 
     copia = str(tmp_path / "snapshot_copia.db")
     shutil.copyfile(SNAPSHOT, copia)
-    from core.sqlite_runtime import open_writer
-    normalizer = open_writer(copia, allow_existing_journal_transition=True)
-    normalizer.close()
     antes = hashlib.sha256(open(SNAPSHOT, "rb").read()).hexdigest()
 
     casos = [json.loads(l) for l in open(os.path.join(RAIZ, "scripts", "casos_qa_baseline_v1.jsonl"),

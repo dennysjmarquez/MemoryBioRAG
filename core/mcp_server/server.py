@@ -190,7 +190,7 @@ def main(argv: Optional[list[str]] = None) -> int:
                 logger.warning("No se pudo verificar/spawnear el daemon: %s", exc)
 
         # ensure_daemon_alive() puede bloquear hasta ~5s (spawn_daemon_detached
-        # espera el run-lock del daemon en loop de 0.5s x10). Eso retrasaba
+        # espera el PID file del daemon en loop de 0.5s x10). Eso retrasaba
         # el handshake MCP (initialize) del transport stdio, causando
         # "context deadline exceeded" en el cliente. Se corre en background
         # para que server.run(transport="stdio") arranque a responder de

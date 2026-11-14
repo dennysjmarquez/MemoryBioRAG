@@ -17,7 +17,6 @@ from typing import Any, Dict, List, Optional
 
 import numpy as np
 
-from core.sqlite_runtime import open_reader, open_writer
 from core.auto_clustering import detectar_comunidades
 from core.ppmi_hybrid_search import IndicesBioRAG, _coseno, _tokenizar
 
@@ -47,7 +46,7 @@ class _CerebroSoloLectura:
     """Adaptador mínimo para reutilizar el clustering LPA existente."""
 
     def __init__(self, db_path: Path):
-        self.conn = open_reader(db_path, consumer="adn_clustering_read")
+        self.conn = sqlite3.connect(f"file:{db_path}?mode=ro", uri=True)
         self.cursor = self.conn.cursor()
 
     def close(self) -> None:
@@ -76,7 +75,7 @@ class ADNConceptualEngine:
         return list(self.cromosoma_centroides.keys())
 
     def _conexion_lectura(self) -> sqlite3.Connection:
-        return open_reader(self.db_path, consumer="adn_index_read")
+        return sqlite3.connect(f"file:{self.db_path}?mode=ro", uri=True)
 
     @staticmethod
     def asegurar_esquema(conn: sqlite3.Connection) -> None:
@@ -244,7 +243,7 @@ class ADNConceptualEngine:
         afinidades = firmas_norm @ firmas_norm.T
 
         ahora = time.time()
-        con = open_writer(ruta, consumer="adn_reindex")
+        con = sqlite3.connect(ruta)
         try:
             cls.asegurar_esquema(con)
             for tabla in (

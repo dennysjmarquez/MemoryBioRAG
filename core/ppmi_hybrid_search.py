@@ -17,7 +17,6 @@ from collections import defaultdict
 from core.pmi_semantico import _TOKEN_PATTERN, _TOKENS_CORTOS
 from core.stopwords import STOPWORDS
 from core.stemmer_es import stem as _stem
-from core.sqlite_runtime import open_reader
 
 EXCEPCIONES_STOPWORD = {'memoria', 'buscar', 'memory'}
 STOPWORDS_SUAVE = STOPWORDS - EXCEPCIONES_STOPWORD
@@ -50,7 +49,7 @@ class IndicesBioRAG:
 
     def __init__(self, con_or_db):
         if isinstance(con_or_db, (str, Path)):
-            con = open_reader(con_or_db, consumer="ppmi_hybrid_search")
+            con = sqlite3.connect(f"file:{con_or_db}?mode=ro", uri=True)
             auto_close = True
         else:
             con = con_or_db

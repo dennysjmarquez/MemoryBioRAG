@@ -2,7 +2,7 @@ name: BioRAG CI
 
 on:
   push:
-    branches: [ master, main, "arena/**" ]
+    branches: [ master, main ]
   pull_request:
     branches: [ master, main ]
 
@@ -42,96 +42,3 @@ jobs:
       - name: Verify Concept Hub 5-Angles
         run: |
           python scripts/test_concept_hub.py
-
-  sqlite-portability:
-    name: SQLite and daemon locking (${{ matrix.os }})
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
-        python-version: ["3.11"]
-
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python-version }}
-          cache: 'pip'
-
-      - name: Install Dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-          pip install -e .
-
-      - name: Verify SQLite canonical paths
-        shell: bash
-        run: |
-          set -o pipefail
-          python -m pytest tests/test_sqlite_paths.py -q 2>&1 | tee canonical.log
-          status=${PIPESTATUS[0]}
-          if [ "$status" -ne 0 ]; then
-            {
-              echo "::error title=Verify SQLite canonical paths failed on ${{ runner.os }}::"
-              # Solo se publican aserciones y excepciones: los logs de GitHub
-              # viven en almacenamiento externo que la revisión no siempre puede leer.
-              grep -E "^(FAILED|E  |>  )" canonical.log | head -20
-            } || true
-          fi
-          exit "$status"
-
-      - name: Verify SQLite consumer classifications
-        run: python -m pytest tests/test_sqlite_runtime.py::test_consumidores_de_produccion_usan_aperturas_clasificadas -q
-
-      - name: Verify SQLite read-only diagnostics
-        run: python -m pytest tests/test_sqlite_runtime.py::test_open_reader_es_readonly_y_emite_diagnostico_sin_ruta_cruda -q
-
-      - name: Verify SQLite commit epoch tracking
-        run: python -m pytest tests/test_sqlite_runtime.py::test_open_writer_registra_commit_cooperativo_por_ruta -q
-
-      - name: Verify SQLite writer diagnostics
-        run: python -m pytest tests/test_sqlite_runtime.py::test_open_writer_registra_consumidor_runtime_y_timeout -q
-
-      - name: Verify SQLite WAL safety policy
-        run: >-
-          python -m pytest
-          tests/test_sqlite_runtime.py::test_clasifica_runtime_afectado_por_wal_reset
-          tests/test_sqlite_runtime.py::test_runtime_vulnerable_usa_delete_en_base_nueva
-          tests/test_sqlite_runtime.py::test_runtime_vulnerable_transicion_wal_a_delete_conserva_filas
-          tests/test_sqlite_runtime.py::test_runtime_vulnerable_no_degrada_wal_si_otra_conexion_sigue_abierta
-          tests/test_sqlite_runtime.py::test_base_wal_existente_no_se_cambia_sin_opt_in
-          tests/test_sqlite_runtime.py::test_almacen_principal_y_dmn_aplican_la_misma_politica
-          tests/test_sqlite_runtime.py::test_runtime_corregido_conserva_wal_y_memoria_no_se_fuerza_a_wal -q
-
-      - name: Verify SQLite database replacement detection
-        run: python -m pytest tests/test_sqlite_generation.py::test_motor_antiguo_rechaza_escritura_tras_reemplazo_de_db -q
-
-      # Windows file-sharing semantics do not support this external overwrite
-      # probe reliably. The same fixtures run on Ubuntu and macOS, plus the full suite.
-      - name: Verify SQLite in-place replacement and retained connection
-        if: matrix.os != 'windows-latest'
-        run: python -m pytest tests/test_sqlite_generation.py::test_motor_rechaza_cambio_in_place_y_dbapi_handles_retenidos -q
-
-      - name: Verify SQLite in-place replacement and retained cursor
-        if: matrix.os != 'windows-latest'
-        run: python -m pytest tests/test_sqlite_generation.py::test_cursor_retenido_no_devuelve_filas_stale_tras_copia_mismo_esquema -q
-
-      - name: Verify SQLite sidecar replacement detection
-        run: python -m pytest tests/test_sqlite_generation.py::test_motor_rechaza_reemplazo_del_sidecar_sin_modificarlo -q
-
-      - name: Verify daemon artifact identity and lifecycle
-        run: >-
-          python -m pytest
-          tests/test_daemon_lifecycle.py::test_artifacts_del_daemon_varian_por_db_y_comparten_aliases
-          tests/test_daemon_lifecycle.py::test_pid_reutilizado_sin_lock_del_daemon_no_es_alive
-          tests/test_daemon_lifecycle.py::test_run_lock_route_specifico_confirma_daemon_aunque_pid_aun_no_exista
-          tests/test_daemon_lifecycle.py::test_legacy_daemon_ambiguo_impide_spawn_de_una_segunda_ruta
-          tests/test_daemon_lifecycle.py::test_spawn_pasa_ruta_y_artifacts_canonicos_al_hijo -q
-
-      - name: Verify daemon cross-process locks
-        if: matrix.os != 'windows-latest'
-        run: python -m pytest tests/test_daemon_lifecycle.py::test_lock_de_proceso_distinto_es_detectable -q

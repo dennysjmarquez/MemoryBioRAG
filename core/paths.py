@@ -18,26 +18,15 @@ def project_root() -> str:
     return _PROJECT_ROOT
 
 
-def _canonicalize_db_path(path: str | os.PathLike[str]) -> str:
-    """Normaliza un path de archivo sin crear directorios ni abrir la DB."""
-    value = os.fsdecode(os.fspath(path))
-    if value == ":memory:" or value.startswith("file:"):
-        # SQLite URI tiene semántica propia (query params, mode=ro/memory):
-        # no se reescribe como ruta del filesystem.
-        return value
-    expanded = os.path.expanduser(value)
-    return os.path.normcase(os.path.realpath(os.path.abspath(expanded)))
-
-
-def resolve_db_path(explicit: str | os.PathLike[str] | None = None) -> str:
-    """Devuelve el path SQLite efectivo como ruta canónica.
+def resolve_db_path(explicit: str | None = None) -> str:
+    """Devuelve el path SQLite efectivo.
 
     Orden: argumento explícito → BIORAG_PATH → MemoryBioRAG_Data/memory_biorag.db.
-    Una ruta relativa se interpreta desde el cwd del consumidor. No crea el
-    archivo ni directorios; `:memory:` y SQLite file-URI se conservan intactos.
+    No crea el archivo; solo resuelve la ruta. `:memory:` se respeta tal cual.
     """
     if explicit:
-        selected = explicit
-    else:
-        selected = os.environ.get("BIORAG_PATH") or DEFAULT_DB
-    return _canonicalize_db_path(selected)
+        return explicit
+    env = os.environ.get("BIORAG_PATH")
+    if env:
+        return env
+    return DEFAULT_DB

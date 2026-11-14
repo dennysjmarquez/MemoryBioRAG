@@ -687,15 +687,13 @@ def _crear_tablas_nuevas_si_faltan(self):
     # Migración: agregar params_json si falta
     try:
         self.cursor.execute("ALTER TABLE log_busquedas ADD COLUMN params_json TEXT")
-    except sqlite3.OperationalError:
-        # La columna ya existe: la migración es idempotente.
-        pass
+    except:
+        pass  # ya existe
     # Migración: agregar conceptos_top si falta
     try:
         self.cursor.execute("ALTER TABLE log_busquedas ADD COLUMN conceptos_top TEXT")
-    except sqlite3.OperationalError:
-        # La columna ya existe: la migración es idempotente.
-        pass
+    except:
+        pass  # ya existe
 
     # Índice para purga eficiente de log_busquedas (O(log n) en DELETE del trigger)
     self.cursor.execute("CREATE INDEX IF NOT EXISTS idx_lb_creado_en ON log_busquedas(creado_en)")
@@ -750,9 +748,8 @@ def _crear_tablas_nuevas_si_faltan(self):
         sc_cols = [row[1] for row in self.cursor.fetchall()]
         if 'origen_llamada' not in sc_cols:
             self.cursor.execute("ALTER TABLE sinapsis_cuarentena ADD COLUMN origen_llamada TEXT DEFAULT 'ciclo_daemon'")
-    except sqlite3.OperationalError:
-        # La tabla aún no existe: la crea _crear_estructura_cerebral más adelante.
-        pass
+    except:
+        pass  # La tabla no existe aún — CREATE TABLE en _crear_estructura_cerebral la creará
 
     # Migración v19.0 SLS para sinapsis_latentes
     sl_info = [r[1] for r in self.conn.execute("PRAGMA table_info(sinapsis_latentes)").fetchall()]

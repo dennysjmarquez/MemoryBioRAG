@@ -36,11 +36,6 @@ def memoria_crecida(tmp_path_factory):
     previo = {k: os.environ.get(k) for k in ("BIORAG_PATH", "BIORAG_NO_LOG", "BIORAG_NEURONA", "BIORAG_ESCALA")}
     db_path = str(tmp_path_factory.mktemp("escala") / "memoria.db")
     shutil.copyfile(_SNAPSHOT, db_path)
-    # El snapshot es WAL. Esta es una copia temporal de test, así que la
-    # transición explícita a DELETE no afecta el artefacto de referencia.
-    from core.sqlite_runtime import open_writer
-    normalizer = open_writer(db_path, allow_existing_journal_transition=True)
-    normalizer.close()
     os.environ.update(BIORAG_PATH=db_path, BIORAG_NO_LOG="1", BIORAG_NEURONA="0")
     from core.memory_store import SQLiteMemoryBioRAG
     from core import memory_service as MS

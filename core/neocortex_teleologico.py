@@ -27,7 +27,6 @@ from core.pmi_semantico import _TOKEN_PATTERN, _TOKENS_CORTOS
 from core.stopwords import STOPWORDS
 from core.stemmer_es import stem as _stem
 from core.ppmi_hybrid_search import IndicesBioRAG, _coseno
-from core.sqlite_runtime import open_reader
 
 logger = logging.getLogger("BioRAG.NeocortexTeleologico")
 
@@ -70,7 +69,7 @@ class NeocortexTeleologico:
         # La consulta ya no debe comparar contra todos los vectores de ``self.indices.vecs``.
         self.token_candidatos = {}
         try:
-            con = open_reader(self.db_path, consumer="neocortex_token_index")
+            con = sqlite3.connect(f"file:{self.db_path}?mode=ro", uri=True)
             tabla = con.execute(
                 "SELECT 1 FROM sqlite_master WHERE type='table' AND name='neocortex_token_candidatos_v29'"
             ).fetchone()
@@ -240,7 +239,7 @@ class NeocortexTeleologico:
         resultados = []
         
         # Conectar a DB para extraer contenido legible
-        con = open_reader(self.db_path, consumer="neocortex_results")
+        con = sqlite3.connect(f"file:{self.db_path}?mode=ro", uri=True)
         try:
             for concepto, score, sim_cos, score_sin in scores_finales[:top_k]:
                 cursor = con.execute("SELECT contenido, sinonimos FROM largo_plazo WHERE concepto = ?", (concepto,))
