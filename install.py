@@ -65,6 +65,8 @@ INSTALL_DIR = _resolve_install_dir()
 BACKUPS_DIR = Path.home() / ".biorag" / "backups"
 SSE_PORT = 8080
 OPENCODE_PLUGIN_NAME = "opencode-biorag-remember-plugin"
+# Nombre del plugin para OpenCode V2 (API @opencode/plugin ≥ 2.x)
+OPENCODE_PLUGIN_NAME_V2 = "opencode-2-biorag-remember-plugin"
 
 
 # ── Terminal helpers ────────────────────────────────────────────────────────
@@ -1293,26 +1295,80 @@ def _opencode_plugins_dir() -> Path:
     return Path.home() / ".config" / "opencode" / "plugins"
 
 
-def _install_opencode_plugin() -> bool:
-    """Copy opencode-biorag-remember-plugin.ts to OpenCode plugins dir.
+def _detect_opencode_plugin_api() -> str:
+    """Detecta qué versión de API de plugin tiene OpenCode instalada.
 
+    Retorna '2' o '1'. Nunca lanza excepción — tiene 3 guardias en cascada.
+
+    Guardia 1 (más confiable): verifica directamente el package.json del
+      módulo de API instalado en node_modules de OpenCode. El paquete ES
+      el contrato real — si existe, esa API existe.
+      - @opencode/plugin      → V2 (nombre corto, sin -ai)
+      - @opencode-ai/plugin   → V1 (nombre legacy con -ai)
+
+    Guardia 2 (fallback): lee el $schema de cli.json.
+      OpenCode lo versionea explícitamente en la URL:
+      "https://opencode.ai/v2/cli.json" → major 2.
+      Esto es estable porque romperlo invalidaría todos los editores.
+
+    Guardia 3 (último recurso): asume V2 (la más reciente) para no
+      romper instalaciones nuevas o entornos no estándar.
+    """
+    opencode_config = Path.home() / ".config" / "opencode"
+
+    # — Guardia 1: node_modules del plugin API —
+    v2_pkg = opencode_config / "node_modules" / "@opencode" / "plugin" / "package.json"
+    v1_pkg = opencode_config / "node_modules" / "@opencode-ai" / "plugin" / "package.json"
+    if v2_pkg.exists():
+        return "2"
+    if v1_pkg.exists():
+        return "1"
+
+    # — Guardia 2: $schema URL de cli.json —
+    cli_json = opencode_config / "cli.json"
+    if cli_json.exists():
+        try:
+            import re as _re
+            schema_text = cli_json.read_text(encoding="utf-8")
+            m = _re.search(r'opencode\.ai/v(\d+)/', schema_text)
+            if m:
+                return m.group(1)
+        except Exception:
+            pass
+
+    # — Guardia 3: asumir V2 —
+    return "2"
+
+
+def _pick_opencode_plugin_source() -> tuple[Path, str]:
+    """Retorna (ruta_fuente, versión_api) del plugin correcto para esta instalación."""
+    api = _detect_opencode_plugin_api()
+    name = OPENCODE_PLUGIN_NAME_V2 if api == "2" else OPENCODE_PLUGIN_NAME
+    source = INSTALL_DIR / "plugin" / f"{name}.ts"
+    return source, api
+
+
+def _install_opencode_plugin() -> bool:
+    """Copia el plugin correcto (V1 o V2) al directorio de plugins de OpenCode.
+
+    Detecta automáticamente la versión de API instalada sin depender del
+    formato de salida de `opencode --version`.
     Returns True on success or if already installed.
     """
-    source = INSTALL_DIR / "plugin" / f"{OPENCODE_PLUGIN_NAME}.ts"
+    source, api = _pick_opencode_plugin_source()
+
     if not source.exists():
         _warn(f"Plugin no encontrado: {source}")
         return False
 
     plugins_dir = _opencode_plugins_dir()
+    # Siempre instala con el nombre canónico para que OpenCode lo encuentre
     dest = plugins_dir / f"{OPENCODE_PLUGIN_NAME}.ts"
-
-    # Create plugins dir if it doesn't exist
     plugins_dir.mkdir(parents=True, exist_ok=True)
 
-    # Copy plugin file
     try:
         shutil.copy2(source, dest)
-        _ok(f"Plugin copiado: {dest}")
+        _ok(f"Plugin instalado (API v{api}): {dest}")
     except Exception as exc:
         _fail(f"Error copiando plugin: {exc}")
         return False
@@ -1325,7 +1381,6 @@ def _remove_opencode_plugin() -> bool:
     plugins_dir = _opencode_plugins_dir()
     plugin_file = plugins_dir / f"{OPENCODE_PLUGIN_NAME}.ts"
 
-    # Remove file
     if plugin_file.exists():
         plugin_file.unlink()
         _ok(f"Plugin eliminado: {plugin_file}")
