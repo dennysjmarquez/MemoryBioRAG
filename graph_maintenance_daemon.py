@@ -189,6 +189,8 @@ class GraphMaintenanceDaemon:
         self.max_nodos = max_nodos
         self.intervalo_horas = intervalo_horas
         self.running = True
+        self.en_ciclo = False
+        self.solicitud_parada = False
         self._db_path = None
         
         # Configurar signal handlers para graceful shutdown
@@ -196,10 +198,21 @@ class GraphMaintenanceDaemon:
         signal.signal(signal.SIGTERM, self._signal_handler)
     
     def _signal_handler(self, signum, frame):
-        """Maneja señales de shutdown."""
-        self.logger.info(f"[Daemon] Señal {signum} recibida, shutting down gracefully...")
+        """Maneja señales de shutdown prudente.
+
+        Si está ejecutando un ciclo con transacciones activas en SQLite,
+        espera a que el ciclo termine limpiamente antes de salir para
+        evitar corromper la base de datos o dejar estados inconsistentes.
+        """
+        self.solicitud_parada = True
         self.running = False
-        _borrar_pid()
+        if self.en_ciclo:
+            self.logger.info(
+                f"[Daemon] Señal {signum} recibida durante ciclo activo. "
+                "Esperando a que la transacción en curso termine limpiamente..."
+            )
+        else:
+            self.logger.info(f"[Daemon] Señal {signum} recibida, deteniendo daemon limpiamente...")
     
     def _get_db_path(self):
         """Obtiene la ruta de la base de datos."""
@@ -217,6 +230,7 @@ class GraphMaintenanceDaemon:
             self.logger.error(f"[Daemon] Base de datos no encontrada: {db_path}")
             return {"resultado": "error", "motivo": "db_no_encontrada"}
         
+        self.en_ciclo = True
         cerebro = SQLiteMemoryBioRAG(db_path=db_path)
         
         try:
@@ -261,7 +275,11 @@ class GraphMaintenanceDaemon:
             self.logger.error(f"[Daemon] Error en ciclo: {e}", exc_info=True)
             return {"resultado": "error", "motivo": str(e)}
         finally:
-            cerebro.cerrar_sistema()
+            try:
+                cerebro.cerrar_sistema()
+            except Exception:
+                pass
+            self.en_ciclo = False
     
     def ejecutar_once(self):
         """Ejecuta un solo ciclo y retorna."""

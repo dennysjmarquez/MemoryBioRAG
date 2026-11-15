@@ -219,29 +219,52 @@ def ensure_daemon_alive(
         )
 
 
-def stop_daemon(timeout: float = 5.0) -> bool:
-    """Detiene cualquier instancia activa del daemon de mantenimiento.
+def stop_daemon(timeout: float = 30.0, verbose: bool = True) -> bool:
+    """Detiene cualquier instancia activa del daemon de mantenimiento de forma prudente.
 
-    1. Intenta por PID file con SIGTERM (graceful).
-    2. Espera hasta `timeout` segundos.
-    3. Si no responde, aplica SIGKILL.
-    4. Fallback: busca por nombre de proceso si el PID file no existía.
+    Protocolo de Parada Prudente:
+    1. Envía SIGTERM al proceso para solicitar un cierre ordenado.
+    2. Si el daemon está en mitad de una transacción o escritura en SQLite,
+       se le da un tiempo prudencial (`timeout`, default 30s) para que termine
+       el ciclo, guarde su estado y cierre la base de datos limpiamente.
+    3. Solo si tras agotarse el tiempo no responde (deadlock o colgado),
+       se aplica SIGKILL como último recurso de seguridad.
     """
     pid = _leer_pid()
     detenido = False
 
     if pid is not None:
         try:
+            # Comprobar si realmente está vivo
+            os.kill(pid, 0)
+        except (OSError, ProcessLookupError):
+            _borrar_pid()
+            return False
+
+        if verbose:
+            print(f"⏳ Solicitando parada prudente del daemon (PID: {pid})...")
+            print("   Esperando a que cualquier ciclo de escritura activo termine limpiamente...")
+
+        try:
             os.kill(pid, signal.SIGTERM)
             inicio = time.time()
+            ultimo_aviso = inicio
             while time.time() - inicio < timeout:
-                time.sleep(0.1)
+                time.sleep(0.5)
                 try:
                     os.kill(pid, 0)
+                    # Sigue vivo, avisar periódicamente si tarda
+                    if verbose and (time.time() - ultimo_aviso) >= 5.0:
+                        transcurrido = int(time.time() - inicio)
+                        print(f"   ... esperando finalización ordenada ({transcurrido}s transcurridos)")
+                        ultimo_aviso = time.time()
                 except (OSError, ProcessLookupError):
                     detenido = True
                     break
+
             if not detenido:
+                if verbose:
+                    print("⚠ El daemon no respondió en el tiempo prudencial. Forzando detención inmediata (SIGKILL)...")
                 try:
                     os.kill(pid, signal.SIGKILL)
                     detenido = True
@@ -249,9 +272,10 @@ def stop_daemon(timeout: float = 5.0) -> bool:
                     detenido = True
         except (OSError, ProcessLookupError):
             detenido = True
+
         _borrar_pid()
 
-    # Fallback cross-process
+    # Fallback cross-process si no había PID o quedó algún proceso hijo huérfano
     if sys.platform != "win32":
         try:
             res = subprocess.run(
