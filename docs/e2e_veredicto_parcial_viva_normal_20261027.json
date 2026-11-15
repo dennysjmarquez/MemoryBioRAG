@@ -1,0 +1,125 @@
+{
+  "comparacion_completa": false,
+  "metricas_cumplen": false,
+  "motivos": [
+    "viva normal: baja R@5 honesta por_tema (64→63/65)",
+    "viva normal: baja R@5 honesta typo (65→64/65)",
+    "viva normal: baja R@5 honesta variante_gramatical (65→64/65)"
+  ],
+  "escenarios": {
+    "viva normal": {
+      "r5_antes": {
+        "queries": 861,
+        "recall_at_5": 99.88,
+        "fallos": 1
+      },
+      "r5_candidato": {
+        "queries": 861,
+        "recall_at_5": 99.54,
+        "fallos": 4
+      },
+      "r1_antes": {
+        "queries": 850,
+        "recall_at_1": 93.53,
+        "mrr": 0.9622,
+        "no_top1": 55
+      },
+      "r1_candidato": {
+        "queries": 850,
+        "recall_at_1": 94.24,
+        "mrr": 0.9654,
+        "no_top1": 49
+      },
+      "fp_antes": [
+        0,
+        40
+      ],
+      "fp_candidato": [
+        0,
+        40
+      ],
+      "categorias_r5": {
+        "cruce_idioma": {
+          "total": 8,
+          "aciertos_antes": 8,
+          "aciertos_candidato": 8,
+          "r5_antes": 100.0,
+          "r5_candidato": 100.0
+        },
+        "dormido": {
+          "total": 65,
+          "aciertos_antes": 65,
+          "aciertos_candidato": 65,
+          "r5_antes": 100.0,
+          "r5_candidato": 100.0
+        },
+        "literal": {
+          "total": 487,
+          "aciertos_antes": 487,
+          "aciertos_candidato": 487,
+          "r5_antes": 100.0,
+          "r5_candidato": 100.0
+        },
+        "por_tema": {
+          "total": 65,
+          "aciertos_antes": 64,
+          "aciertos_candidato": 63,
+          "r5_antes": 98.46,
+          "r5_candidato": 96.92
+        },
+        "pregunta_natural": {
+          "total": 65,
+          "aciertos_antes": 65,
+          "aciertos_candidato": 65,
+          "r5_antes": 100.0,
+          "r5_candidato": 100.0
+        },
+        "sinonimo": {
+          "total": 41,
+          "aciertos_antes": 41,
+          "aciertos_candidato": 41,
+          "r5_antes": 100.0,
+          "r5_candidato": 100.0
+        },
+        "typo": {
+          "total": 65,
+          "aciertos_antes": 65,
+          "aciertos_candidato": 64,
+          "r5_antes": 100.0,
+          "r5_candidato": 98.46
+        },
+        "variante_gramatical": {
+          "total": 65,
+          "aciertos_antes": 65,
+          "aciertos_candidato": 64,
+          "r5_antes": 100.0,
+          "r5_candidato": 98.46
+        }
+      },
+      "fallos_nuevos": [
+        [
+          "0513",
+          "typo"
+        ],
+        [
+          "0516",
+          "por_tema"
+        ],
+        [
+          "0518",
+          "variante_gramatical"
+        ],
+        [
+          "0634",
+          "por_tema"
+        ]
+      ],
+      "fallos_recuperados": [
+        [
+          "0848",
+          "por_tema"
+        ]
+      ]
+    }
+  }
+}

@@ -1,0 +1,5 @@
+Snapshot: top-5 y puntuaciones idénticos con y sin observador: True
+{"consulta": "semánticas embedding", "puesto": 1, "ratio": 0.95, "tematico": 0.0, "compuerta": "compuerta_cerrada", "media_previa": null, "pares": 0}
+{"consulta": "semánticas 849 embedding", "puesto": 4, "ratio": 0.6333, "tematico": 0.0, "compuerta": "compuerta_cerrada", "media_previa": null, "pares": 0}
+{"consulta": "semánticas zzqx embedding", "puesto": null, "ratio": 0.6333, "tematico": 0.0, "compuerta": "compuerta_cerrada", "media_previa": null, "pares": 0}
+{"consulta": "semánticas 849 embedding zzqx", "puesto": 1, "ratio": 0.475, "tematico": 1.0, "compuerta": "media_valida", "media_previa": 0.59397206328018, "pares": 15}

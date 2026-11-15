@@ -1,0 +1,12 @@
+{
+  "schema": "published_synthetic_gold_binding_v1",
+  "published_gold_version": "synthetic_gold_v2",
+  "published_gold_sha256": "5d83616a63be7c73bbea8bb90452091316d7e238835013440a6fd939c13d16d8",
+  "published_gold_version_manifest_sha256": "ed433826d89229f75e8af1c57b48c9c4fe3e808e4e14eaa1103ea8cac8d64b1f",
+  "copied_gold_path_in_run": "/tmp/biorag_v2_fixture_pair_jyhifZ/build_a/synthetic_gold_v2.jsonl",
+  "copied_gold_sha256": "5d83616a63be7c73bbea8bb90452091316d7e238835013440a6fd939c13d16d8",
+  "operational_manifest_path_in_evidence": "build_a/operational_manifest.json",
+  "operational_manifest_sha256": "a9bc3d3fdc6ece5c52cff15c4f1300f0a39c38bcad6cab84065ff6a5d4f0a7dc",
+  "construction_id": "62c741169df44600b768cf3b71d17d96",
+  "scope": "Autorización de preparación MCP únicamente; no es aprobación para medición."
+}

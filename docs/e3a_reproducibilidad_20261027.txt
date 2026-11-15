@@ -1,0 +1,9 @@
+E3 A — Repetición y aislamiento
+Misma base: d5ff38e332f7dd66c178bb03f09f8c47d0bb7d8676f6121dd3ce1faaaa914dec
+Casos comparados sobre la misma base en orden opuesto: 132
+Casos con salida o puntuación diferente: 0
+Repetición independiente: casos idénticos: True
+Repetición independiente: métricas idénticas: True
+SHA SQLite referencia: d5ff38e332f7dd66c178bb03f09f8c47d0bb7d8676f6121dd3ce1faaaa914dec
+SHA SQLite repetición independiente: 08ccbe5cc0ebb06d4e04a2aee0a4adef3599858e21918cd567c397b11debe47d
+Los SHA de los archivos SQLite no se usan como prueba de igualdad de resultados entre recreaciones.

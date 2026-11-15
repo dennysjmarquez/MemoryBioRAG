@@ -24,6 +24,18 @@ El costo computacional es un requisito separado: cada algoritmo debe declarar y 
 
 ---
 
+## 0. The Inventor's Attitude (guiding principle)
+
+> **"Nada es 'imposible', solo 'todavía no medido'. Y si algo falla, busco otro camino, no me rindo."**
+> *Nothing is "impossible", only "not yet measured". If something fails, find another way; never give up.*
+
+This is the attitude every agent must bring to this project, above any technique (see `CONSTITUTION.md` §0):
+- **Never close an idea with "impossible" or "it can't be done".** State what is missing instead: data, a measurement, or a signal ("needle") that does not exist yet.
+- **A failed attempt is reverted, the goal is not.** Zero regressions still rules: a change that lowers any metric is reverted. That closes *that path*, not the objective. Record why it failed and look for another way.
+- **Ambition stands on evidence.** Do not argue the goal; prove every step with verifiable output.
+
+---
+
 ## 1. System Thesis & Architectural Philosophy
 
 MemoryBioRAG is **not** a wrapper around OpenAI, LangChain, or SentenceTransformers. It models biological neocortical and hippocampal memory dynamics:
@@ -60,7 +72,27 @@ Verifying a fix against the frozen snapshot is **NOT** enough.
 2. **Live DB Copy** (via `sqlite3.backup()`): Verifies real-world resolution against the active, mutating production corpus.
 *If a fix passes on the snapshot but fails on the live copy, it is NOT resolved.*
 
+### Invariant 6: Modular, Decoupled, Hexagonal (golden rule — `CONSTITUTION.md` Pilar 9)
+Nothing monolithic. Every piece (engine layer, neuron, validator, language adapter) lives in its own module with one clear responsibility and talks to others through a small explicit interface. Coupling is harmful: if one piece breaks, everything coupled to it breaks. Keep the brain's domain logic at the center; DB, MCP, dictionaries, languages and neurons are pluggable **ports and adapters**. Decoupling existing code is its own measured change.
+
+### Invariant 7: Document Why (golden rule — `CONSTITUTION.md` Pilar 10)
+Every piece records **what problem it solves, why at that point, and which measurement approved it**. Every removed or disabled piece records **why it was removed**, with evidence. Write so that a non-technical human and any future AI can understand it. If it is not in the repo, it is lost.
+
+### Invariant 8: Every Neuron Has a Floor, a Ceiling and Guardians (`CONSTITUTION.md` Pilar 11)
+No neuron enters the engine without a **floor** (the hand formula stays the guaranteed minimum), a **ceiling** (maximum it can move), **guardians** (checks that switch it off when something does not match) and its own **exam**. Empty-DB safe, constant time, it only **adds** on top of the ranking. The engine's first neuron is the model.
+
 ---
+
+### Invariant 9: Useful Noise Is Never Killed (golden rule — `CONSTITUTION.md` Pilar 12)
+- **Neurons (re-ranking, reasoning) only ORDER.** They never remove, filter or empty the result list.
+- No engine or MCP change may strip the related / similar memories that come with the best one, even if a single-query metric goes up. A change that shortens the list must prove, by measurement, that the cue memories are kept.
+- A "don't know" never empties the list: the brain says how close it is (`nivel_certeza`, knowledge-gap warning) and still shows the similar memories.
+- **Why:** BioRAG is a brain, not a search engine. Agent + brain are one mind: the agent tries to recall, the brain returns similar memories, and those bring cue words for the next search (pattern completion). That "noise" is the thread that leads to the memory. Kill it and the system becomes blind — an ordinary search engine.
+
+### Invariant 10: A Living System: Foster What Emerges (guiding focus — `CONSTITUTION.md` Pilar 13)
+- BioRAG is built as an **organism**, not a rule machine: place a piece and let usage, the agent, sleep and time shape the rest. It has already shown behavior nobody dictated: memory **islands** that formed on their own and faded when the graph saturated, memories that fall asleep and wake up when recalled, synapses born from use.
+- **Every change must foster such behavior emerging naturally (adaptive, evolutionary) instead of imposing it by hand.** Prefer simple local rules over global hand-written orders. Keep catalogs open but legible. Give every emergent mechanism homeostasis so it survives 10× growth. It must emerge from each DB's own data, starting from an empty DB. Observe and measure before using it, and never delete it just because it isn't understood yet. Emergent signals go to association/cues first; they reach ranking only with measurement and Dennys's OK.
+- Mandatory question: *does this let the behavior emerge, or impose it by hand? Does it stay alive when memory grows 10×?* All other invariants still apply.
 
 ## 3. The Search Pipeline Anatomy (`core/memory_store.py`)
 

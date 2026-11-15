@@ -1,0 +1,120 @@
+{
+  "censo": [
+    {
+      "id": "0514",
+      "query": "perfil",
+      "palabra": "perfil",
+      "nodos": 1357,
+      "en_nombre": 19,
+      "en_alias": 25,
+      "en_ambos": 8,
+      "multiplicidad": 25,
+      "veredicto": "AMBIGUO (no forzable)"
+    },
+    {
+      "id": "0674",
+      "query": "filtro-arquitecto-prolijo",
+      "palabra": "filtro-arquitecto-prolijo",
+      "nodos": 1357,
+      "en_nombre": 0,
+      "en_alias": 0,
+      "en_ambos": 0,
+      "multiplicidad": 0,
+      "veredicto": "ALIAS ESPECÍFICO"
+    },
+    {
+      "id": "0692",
+      "query": "metodologia",
+      "palabra": "metodologia",
+      "nodos": 1357,
+      "en_nombre": 7,
+      "en_alias": 14,
+      "en_ambos": 2,
+      "multiplicidad": 14,
+      "veredicto": "AMBIGUO (no forzable)"
+    },
+    {
+      "id": "0710",
+      "query": "agente",
+      "palabra": "agente",
+      "nodos": 1357,
+      "en_nombre": 33,
+      "en_alias": 110,
+      "en_ambos": 24,
+      "multiplicidad": 110,
+      "veredicto": "AMBIGUO (no forzable)"
+    },
+    {
+      "id": "0734",
+      "query": "regla",
+      "palabra": "regla",
+      "nodos": 1357,
+      "en_nombre": 30,
+      "en_alias": 73,
+      "en_ambos": 17,
+      "multiplicidad": 73,
+      "veredicto": "AMBIGUO (no forzable)"
+    },
+    {
+      "id": "0805",
+      "query": "cv",
+      "palabra": "cv",
+      "nodos": 1357,
+      "en_nombre": 20,
+      "en_alias": 34,
+      "en_ambos": 19,
+      "multiplicidad": 34,
+      "veredicto": "AMBIGUO (no forzable)"
+    }
+  ],
+  "puestos": [
+    {
+      "id": "0514",
+      "query": "perfil",
+      "esperado": "dennys-identidad-profunda",
+      "estado_qa": "activo",
+      "estado_real": "activo",
+      "puesto": 9
+    },
+    {
+      "id": "0674",
+      "query": "filtro-arquitecto-prolijo",
+      "esperado": "compuerta-pre-validacion",
+      "estado_qa": "activo",
+      "estado_real": "activo",
+      "puesto": 18
+    },
+    {
+      "id": "0692",
+      "query": "metodologia",
+      "esperado": "dennys-working-style",
+      "estado_qa": "activo",
+      "estado_real": "activo",
+      "puesto": 6
+    },
+    {
+      "id": "0710",
+      "query": "agente",
+      "esperado": "aforismo_criterio_agente",
+      "estado_qa": "activo",
+      "estado_real": "activo",
+      "puesto": 6
+    },
+    {
+      "id": "0734",
+      "query": "regla",
+      "esperado": "plan_mode_biorag",
+      "estado_qa": "activo",
+      "estado_real": "dormido",
+      "puesto": 21
+    },
+    {
+      "id": "0805",
+      "query": "cv",
+      "esperado": "cv_seccion_d_test_vinculacion",
+      "estado_qa": "activo",
+      "estado_real": "activo",
+      "puesto": 13
+    }
+  ]
+}

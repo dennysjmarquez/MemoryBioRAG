@@ -1,0 +1,49 @@
+E3B3 — reproducción de búsquedas MCP posteriores
+
+Requiere el commit B2, el árbol B3 de esta entrega y dependencias del proyecto.
+Las bases son sintéticas, temporales y no se abre la viva ni el snapshot. Cada
+consulta copia la misma semilla de su brazo y usa su propio estado auxiliar.
+
+D=$(mktemp -d)
+git show 88f71bbbee9e340511d777b1b56d5d7ee8139802:core/concept_hub.py > "$D/hub_b2.py"
+B2=0c76c787346746a669f68a3609b01cdac36322ff4350bff15a7d8cd86eecdf4c
+B3=50cdced5342eb255abcd1ea9ab0781ab677ec518b173bc3855a32c0be9b618cf
+export PYTHONHASHSEED=0 BIORAG_NEURONA=0
+
+# Semilla obtenida con el validador B2; reproduce los 80 guardados de B2.
+python scripts/evaluar_qa_guardado_y_busqueda_b3.py \
+  --hub-source "$D/hub_b2.py" --hub-sha256 "$B2" --crear-semilla \
+  --semilla "$D/semilla_b2.db" --guardados "$D/guardados_b2.json" \
+  --control-guardados docs/e3b2_guardado_nativo_20261027.json \
+  --salida "$D/busquedas_hub_b2_base_b2.json"
+
+# Misma semilla B2, ahora cargando el hub B3.
+python scripts/evaluar_qa_guardado_y_busqueda_b3.py \
+  --hub-source core/concept_hub.py --hub-sha256 "$B3" \
+  --semilla "$D/semilla_b2.db" --guardados "$D/guardados_b2.json" \
+  --salida "$D/busquedas_hub_b3_base_b2.json"
+
+# Semilla obtenida con el validador B3; reproduce los 80 guardados de B3.
+python scripts/evaluar_qa_guardado_y_busqueda_b3.py \
+  --hub-source core/concept_hub.py --hub-sha256 "$B3" --crear-semilla \
+  --semilla "$D/semilla_b3.db" --guardados "$D/guardados_b3.json" \
+  --control-guardados docs/e3b3_guardado_nativo_20261028.json \
+  --salida "$D/busquedas_hub_b3_base_b3.json"
+
+# Misma semilla B3, pero cargando el hub B2 sin modificar el árbol.
+python scripts/evaluar_qa_guardado_y_busqueda_b3.py \
+  --hub-source "$D/hub_b2.py" --hub-sha256 "$B2" \
+  --semilla "$D/semilla_b3.db" --guardados "$D/guardados_b3.json" \
+  --salida "$D/busquedas_hub_b2_base_b3.json"
+
+# Conserva la semilla B3 de esta repetición para inspección de los prefijos.
+# El diagnóstico de la entrega usa las trazas ya registradas en docs/ y exige
+# la huella exacta de su semilla, que puede ser distinta en otra construcción
+# SQLite aunque los contenidos y los resultados sean equivalentes.
+
+Notas:
+- FastMCP en proceso; sin transporte ni agente real.
+- El puente completo contiene el nombre; los fragmentos son genéricos.
+- Los JSON capturan las respuestas, last_hub_expansion y origen en cada modo.
+- El comparador scripts/comparar_qa_busquedas_b3.py lee los resultados de docs/;
+  no reemplaza los JSON reproducidos en el directorio temporal.

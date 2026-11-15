@@ -1,0 +1,12 @@
+snapshot_normal IGUAL
+viva_normal IGUAL
+snapshot_ruido IGUAL
+viva_ruido IGUAL
+Pendientes: []
+Igualdad de las cuatro: True
+
+Comparación directa E3 Cambio 2 v2 vs B3 (helper del mismo comparador):
+viva_normal IGUAL
+viva_ruido IGUAL
+snapshot_normal IGUAL (corrida v2 anterior; comparación de métricas exacta registrada).
+snapshot_ruido IGUAL (corrida v2 anterior; comparación de métricas exacta registrada).

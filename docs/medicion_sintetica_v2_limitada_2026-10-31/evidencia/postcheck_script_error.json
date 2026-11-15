@@ -1,0 +1,23 @@
+{
+  "phase": "post-measurement read-only verification/evidence packaging",
+  "mcp_started": false,
+  "database_writes": false,
+  "attempts": [
+    {
+      "attempt": 1,
+      "exception_type": "IndentationError",
+      "message": "unexpected indent in the local verification snippet",
+      "database_reads_started": false,
+      "resolution": "Corrected the snippet; complete read-only postcheck passed."
+    },
+    {
+      "attempt": 2,
+      "exception_type": "RuntimeError",
+      "message": "BIORAG_QA_TEMP_ROOT debe configurarse explícitamente",
+      "phase_detail": "Evidence packaging called the existing read-only fixture inspector without passing the required temp-root environment variable.",
+      "database_reads_started": false,
+      "resolution": "Reran the evidence packaging/postcheck with BIORAG_QA_TEMP_ROOT set; all read-only hashes and integrity checks passed."
+    }
+  ],
+  "final_status": "resolved; no impact on measurement calls, fixture data, or run evidence"
+}

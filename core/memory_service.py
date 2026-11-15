@@ -17,6 +17,7 @@ from __future__ import annotations
 import threading
 from typing import Optional
 
+from core.identidad_unicode import normalizar_identidad
 from core.paths import resolve_db_path
 
 _lock = threading.RLock()
@@ -79,12 +80,18 @@ def aprender(
     POR QUÉ consolidar por defecto: una interfaz que «aprende» debe dejar el
     nodo recuperable por FTS/SDM/PPMI, no solo en RAM de trabajo.
     """
+    from core.memory.ingest import _comprobar_clave_legacy
+
+    clave_original = concepto.lower().strip()
+    clave_normalizada = normalizar_identidad(concepto).lower().strip()
+    # El ingreso ve la forma original; luego se consolida esa misma clave elegida.
     cerebro.percibir_corto_plazo(
         concepto, contenido, sinonimos or "", categoria, dimensiones, predicados
     )
+    clave = _comprobar_clave_legacy(cerebro, clave_original, clave_normalizada)
     if consolidar:
-        cerebro.consolidar_concepto(concepto)
-    return {"ok": True, "concepto": concepto.lower().strip(), "consolidado": consolidar}
+        cerebro.consolidar_concepto(clave)
+    return {"ok": True, "concepto": clave, "consolidado": consolidar}
 
 
 def ensenar_lexico(cerebro, expression_surface: str, canonical_concept: str, **kwargs):

@@ -16,8 +16,10 @@ from pathlib import Path
 from contextlib import redirect_stdout
 import sqlite3
 
+from core.paths import resolve_db_path
+
 ROOT = Path(__file__).resolve().parent
-LIVE_DB = ROOT / "MemoryBioRAG_Data" / "memory_biorag.db"
+LIVE_DB = Path(resolve_db_path())
 CHALLENGE = ROOT / "docs" / "concept_hub_eval_results.json"
 OUT = ROOT / "benchmark_abismo_lexico_results.json"
 OUT_MD = ROOT / "benchmark_abismo_lexico_report.md"

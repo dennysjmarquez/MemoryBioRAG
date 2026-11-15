@@ -1,0 +1,20 @@
+E3B3 — inicio de las cuatro QA oficiales
+fecha: 2026-10-28T11:42:41.281727+00:00
+referencia Git B2: 88f71bbbee9e340511d777b1b56d5d7ee8139802
+python: 3.11.2 sqlite: 3.40.1
+Todas las fuentes se verifican antes de correr:
+50cdced5342eb255abcd1ea9ab0781ab677ec518b173bc3855a32c0be9b618cf  core/concept_hub.py
+9b4d70a224b974d28441628b0e3acb37951dd1920140542bfb962157bfae0c88  tests/test_validacion_bridges_unicode_b3.py
+d6261cfcf34aeac8b6477fb4416b2f2894c5c5edcd3d07605dec5777ae62be74  scripts/evaluar_qa.py
+c76a71465f7a9be647094d79f00ffcebd742b00a6c12fa4ae90cf2c3d0654f4c  scripts/casos_qa_baseline_v1.jsonl
+fed44d525fe037a4ffd596a5b5bda24129ca22727474518b5425dd805954c35c  scripts/casos_qa_guardado_nativo_e3b2.jsonl
+104dd2902aaf24c3ce93624492ea95a719acbdcca50f4f6bc123ac8317749796  snapshots/qa_escape_qcr_20260811.db
+a61913ce074cd02323c13589040b7ab1e5e4f36b18bbe62c12f9c1d363324e9a  /tmp/viva_e3a.db
+3bbc51676ada7346d01dfac3c4f623d537843c009b089eb7186ab94d1f75b593  VERSION
+9d08efea39f592fb04f64408e1ace88bae3f0278ccf79bbfaea2f438920539ea  README.md
+cac90c3769b00bda0eead251fcbb53b1b4674c98c2728b5165ebfcc73eae78da  CHANGELOG.md
+0bb8e01252ea64517e024be1873472711a1fb48b5671d9c5c200aa7aedc4cd19  docs/e3b3_diff_candidato_20261028.patch
+PYTHONHASHSEED=0 BIORAG_NEURONA=0; rutas BIORAG_DMN_ESTADO_PATH exclusivas.
+BIORAG_QA_RUIDO=zzqx BIORAG_QA_TEMATICO_CENSO=1 solo en las dos corridas con ruido.
+BIORAG_PATH snapshot o /tmp/viva_e3a.db: fuente inmutable; evaluador trabaja en copias temporales.
+Códigos 1 en ruido son esperables por el gate clásico previo; se compara cada categoría contra B2.

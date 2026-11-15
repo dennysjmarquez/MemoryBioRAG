@@ -7,9 +7,10 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from core.memory_store import SQLiteMemoryBioRAG
 
+from core.paths import resolve_db_path
+
 def ejecutar_sueño():
-    _default = os.path.join(os.path.dirname(os.path.abspath(__file__)), "MemoryBioRAG_Data", "memory_biorag.db")
-    db_path = os.environ.get('BIORAG_PATH') or _default
+    db_path = resolve_db_path()
     
     print("====================================================")
     print("🌙 BIORAG: INICIANDO CICLO DE CONSOLIDACIÓN Y SUEÑO")

@@ -53,10 +53,8 @@ CASOS_PARAFRASIS = [
 @pytest.fixture(scope="module")
 def cerebro_eval():
     """Instancia de SQLiteMemoryBioRAG configurada con HUBS_INICIALES cargados."""
-    db_path = os.environ.get("BIORAG_PATH") or os.path.join(
-        os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-        "MemoryBioRAG_Data", "memory_biorag.db"
-    )
+    from core.paths import resolve_db_path
+    db_path = resolve_db_path()
     cerebro = SQLiteMemoryBioRAG(db_path)
     crear_tablas(cerebro.conn)
     cargar_hubs_iniciales(cerebro.conn)
