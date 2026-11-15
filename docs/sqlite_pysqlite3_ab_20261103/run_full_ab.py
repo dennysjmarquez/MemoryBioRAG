@@ -24,6 +24,7 @@ ROOT = Path(__file__).resolve().parents[2]
 EVIDENCE: Path
 PYTHON: Path
 PYSQ_TARGET: Path
+PYTEST_TARGETS: list[str]
 SNAP_REL = Path('snapshots/qa_escape_qcr_20260811.db')
 LIVE_REL = Path('MemoryBioRAG_Data/memory_biorag.db')
 DB_SUFFIXES = {'.db', '.sqlite', '.sqlite3', '.db-wal', '.db-shm', '.sqlite-wal', '.sqlite-shm'}
@@ -131,7 +132,7 @@ def run_suite(label: str, repo: Path, out: Path, candidate: bool) -> dict:
     env['PYTHONHASHSEED'] = '0'
     if candidate:
         env['PYTHONPATH'] = str(PYSQ_TARGET)
-    cmd = [str(PYTHON), '-m', 'pytest', '-q', '--tb=short', f'--junitxml={junit}', 'tests']
+    cmd = [str(PYTHON), '-m', 'pytest', '-q', '--tb=short', f'--junitxml={junit}', *PYTEST_TARGETS]
     start = time.time()
     proc = subprocess.run(cmd, cwd=repo, env=env, capture_output=True, text=True, timeout=2400)
     duration = time.time() - start
@@ -146,7 +147,7 @@ def run_suite(label: str, repo: Path, out: Path, candidate: bool) -> dict:
 
 
 def main() -> None:
-    global ROOT, EVIDENCE, PYTHON, PYSQ_TARGET
+    global ROOT, EVIDENCE, PYTHON, PYSQ_TARGET, PYTEST_TARGETS
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--source-root', type=Path, default=ROOT,
                         help='Git checkout of the exact BioRAG source revision under test')
@@ -154,16 +155,39 @@ def main() -> None:
                         help='Python environment containing pytest and the project test dependencies')
     parser.add_argument('--pysqlite3-path', type=Path, required=True,
                         help='Isolated --target directory containing pysqlite3 0.6.1')
+    parser.add_argument('--pytest-target', action='append', default=None,
+                        help='Pytest path/nodeid to run; repeat as needed (default: tests)')
     parser.add_argument('--output', type=Path, default=None,
                         help='Private output directory for logs/JUnit; default is a fresh directory in the system temp area')
     args = parser.parse_args()
+    # Do not resolve the venv's python symlink: its path is what lets CPython
+    # discover pyvenv.cfg and load that environment's site-packages.
+    selected_python = args.python.absolute()
+    if not selected_python.is_file():
+        raise SystemExit(f'--python does not exist: {selected_python}')
+    # Fixture creation imports the project too, so merely using --python for
+    # pytest would mix interpreters. Re-exec this runner in the selected venv
+    # before importing project modules or creating either test copy.
+    current_python = Path(sys.executable).absolute()
+    if selected_python != current_python:
+        command = [str(selected_python), str(Path(__file__).resolve()),
+                   '--source-root', str(args.source_root.resolve()),
+                   '--python', str(selected_python),
+                   '--pysqlite3-path', str(args.pysqlite3_path.resolve())]
+        if args.pytest_target:
+            for target in args.pytest_target:
+                command.extend(['--pytest-target', target])
+        if args.output is not None:
+            command.extend(['--output', str(args.output.resolve())])
+        os.execv(str(selected_python), command)
     ROOT = args.source_root.resolve()
-    PYTHON = args.python.resolve()
+    PYTHON = Path(sys.executable).absolute()
     PYSQ_TARGET = args.pysqlite3_path.resolve()
+    PYTEST_TARGETS = args.pytest_target or ['tests']
     if not (ROOT / '.git').exists() and not (ROOT / '.git').is_file():
         raise SystemExit(f'--source-root must be a Git checkout: {ROOT}')
-    if not PYTHON.exists() or not PYSQ_TARGET.exists():
-        raise SystemExit('Missing test interpreter or isolated pysqlite3 target')
+    if not PYSQ_TARGET.exists():
+        raise SystemExit('Missing isolated pysqlite3 target')
     if args.output is None:
         EVIDENCE = Path(tempfile.mkdtemp(prefix='biorag_sqlite_ab_run_'))
     else:

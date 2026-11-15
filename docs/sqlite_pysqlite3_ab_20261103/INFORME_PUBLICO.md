@@ -46,7 +46,7 @@ Los scripts junto a este informe son públicos; los resultados completos, logs y
      --pysqlite3-path /tmp/pysqlite3-target
    ```
 
-   El runner escribe stdout/stderr, JUnit, manifests y comparación en un directorio temporal nuevo, o en `--output DIR` si se desea elegirlo. Mantenga esos productos fuera del repositorio.
+   El runner reejecuta su propio proceso con el intérprete indicado por `--python` antes de importar el proyecto, de modo que generación de fixture y pytest usan el mismo venv. También puede invocarse directamente con el Python del venv. Escribe stdout/stderr, JUnit, manifests y comparación en un directorio temporal nuevo, o en `--output DIR` si se desea elegirlo. Mantenga esos productos fuera del repositorio. Para un resumen causal posterior sobre otra revisión, véase `COMPARACION_ADICIONAL_RUN04.md`.
 
 3. Ejecute el probe independiente:
 
