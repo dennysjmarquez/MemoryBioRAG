@@ -203,11 +203,8 @@ class GraphMaintenanceDaemon:
         """Obtiene la ruta de la base de datos."""
         if self._db_path:
             return self._db_path
-        default = os.path.join(
-            os.path.dirname(os.path.abspath(__file__)),
-            "MemoryBioRAG_Data", "memory_biorag.db"
-        )
-        self._db_path = os.environ.get("BIORAG_PATH") or default
+        from core.paths import resolve_db_path
+        self._db_path = resolve_db_path()
         return self._db_path
     
     def ejecutar_ciclo(self):

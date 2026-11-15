@@ -234,8 +234,9 @@ from core.memory_store import SQLiteMemoryBioRAG, normalizar_sustantivos_clave
 from core.sinapsis import auto_vincular, vincular_por_sinonimos, _tokenizar, _peso_similitud
 from core.categorizador import inferir_categoria
 
-_DEFAULT_DB = os.path.join(os.path.dirname(os.path.abspath(__file__)), "MemoryBioRAG_Data", "memory_biorag.db")
-DB_PATH = os.environ.get('BIORAG_PATH') or _DEFAULT_DB
+from core.paths import resolve_db_path
+
+DB_PATH = resolve_db_path()
 
 
 def _sanitizar_entrada_cli(texto: str, max_len: int = 100000, nombre_campo: str = "entrada") -> str:

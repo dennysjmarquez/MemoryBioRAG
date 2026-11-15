@@ -296,6 +296,12 @@ def _platform_configs() -> dict[str, dict]:
         _appdata("Windsurf", "User", "mcp.json"),
     ]
 
+    hermes_candidates: list[Path | None] = [
+        # Linux / macOS / Windows (~/.hermes/config.yaml)
+        Path.home() / ".hermes" / "config.yaml",
+        _appdata("Hermes", "config.yaml"),
+    ]
+
     def _pick_path(candidates: list[Path | None], default: Path) -> Path:
         """Return the first *existing* candidate, else default (create path)."""
         for p in candidates:
@@ -377,6 +383,12 @@ def _platform_configs() -> dict[str, dict]:
             "key_path": ["mcpServers", "biorag"],
             "format": "stdio",
         },
+        "hermes": {
+            "label": "Hermes AI Agent",
+            "path": _pick_path(hermes_candidates, Path.home() / ".hermes" / "config.yaml"),
+            "key_path": ["mcp_servers", "biorag"],
+            "format": "hermes_yaml",
+        },
     }
 
 
@@ -399,6 +411,16 @@ def _biorag_already_configured(info: dict) -> bool:
     path = info["path"]
     if not path.exists():
         return False
+
+    if info.get("format") == "hermes_yaml":
+        try:
+            raw = path.read_text(encoding="utf-8")
+            db_target = str(_db_path())
+            script_target = str(_script_path())
+            return "biorag:" in raw and db_target in raw and script_target in raw
+        except Exception:
+            return False
+
     try:
         config = _read_json(path)
     except Exception:
@@ -448,7 +470,12 @@ def _biorag_cli() -> Path:
 
 
 def _db_path() -> Path:
-    """Path to the SQLite database."""
+    """Path to the external SQLite database in user directory (~/.biorag)."""
+    return Path.home() / ".biorag" / "memory_biorag.db"
+
+
+def _legacy_db_path() -> Path:
+    """Path to the legacy in-tree database if present."""
     return INSTALL_DIR / "MemoryBioRAG_Data" / "memory_biorag.db"
 
 
@@ -1108,6 +1135,57 @@ def _build_sse_entry(port: int = SSE_PORT) -> dict:
     }
 
 
+def _build_hermes_entry() -> dict:
+    """Build the MCP entry for Hermes (YAML in ~/.hermes/config.yaml)."""
+    return {
+        "command": _python(),
+        "args": [str(_script_path())],
+        "env": {
+            "BIORAG_PATH": str(_db_path()),
+        },
+        "tools": {
+            "prompts": False,
+            "resources": False,
+        },
+    }
+
+
+def _patch_hermes_yaml(path: Path, entry: dict) -> bool:
+    """Safely patch mcp_servers.biorag in ~/.hermes/config.yaml preserving all comments."""
+    biorag_yaml_block = (
+        "  biorag:\n"
+        f"    command: {entry['command']}\n"
+        "    args:\n"
+        f"      - {entry['args'][0]}\n"
+        "    env:\n"
+        f"      BIORAG_PATH: {entry['env']['BIORAG_PATH']}\n"
+        "    tools:\n"
+        "      prompts: false\n"
+        "      resources: false\n"
+    )
+
+    if not path.exists():
+        path.parent.mkdir(parents=True, exist_ok=True)
+        content = "mcp_servers:\n" + biorag_yaml_block
+        path.write_text(content, encoding="utf-8")
+        return True
+
+    text = path.read_text(encoding="utf-8")
+    pat = r"(?m)^  biorag\s*:\s*\n(?:(?!^  [a-zA-Z0-9_-]+\s*:|^\S).*\n)*"
+    if re.search(r"(?m)^\s*biorag\s*:", text):
+        new_text, count = re.subn(pat, biorag_yaml_block, text, count=1)
+        if count == 0:
+            pat_fallback = r"(?ms)biorag:\s*\n.*?(?=\n\s*[a-zA-Z0-9_-]+:|\n\S|\Z)"
+            new_text = re.sub(pat_fallback, biorag_yaml_block.strip() + "\n", text, count=1)
+    elif "mcp_servers:" in text:
+        new_text = re.sub(r"(?m)^(mcp_servers:\s*\n)", r"\1" + biorag_yaml_block, text, count=1)
+    else:
+        new_text = text.rstrip() + "\n\nmcp_servers:\n" + biorag_yaml_block
+
+    path.write_text(new_text, encoding="utf-8")
+    return True
+
+
 # ── Platform configuration ──────────────────────────────────────────────────
 
 def _configure_platform(name: str, info: dict) -> bool:
@@ -1126,27 +1204,32 @@ def _configure_platform(name: str, info: dict) -> bool:
 
     if info["format"] == "sse":
         entry = _build_sse_entry()
+    elif info["format"] == "hermes_yaml":
+        entry = _build_hermes_entry()
     elif name == "opencode":
         entry = _build_opencode_entry()
     else:
         entry = _build_stdio_entry()
 
-    # Choose write strategy: if the file has JSONC comments, use the comment-preserving patcher.
-    # Otherwise use the standard JSON checkpoint writer.
-    has_jsonc_comments = False
-    if path.exists():
-        try:
-            raw = path.read_text(encoding="utf-8")
-            has_jsonc_comments = "//" in raw or "/*" in raw
-        except OSError:
-            pass
-
-    if has_jsonc_comments:
-        ok = _patch_jsonc_preserving_comments(path, key_path, entry)
+    if info["format"] == "hermes_yaml":
+        ok = _patch_hermes_yaml(path, entry)
     else:
-        config = _read_json(path)
-        _nested_set(config, key_path, entry)
-        ok = _write_json_with_checkpoint(path, config)
+        # Choose write strategy: if the file has JSONC comments, use the comment-preserving patcher.
+        # Otherwise use the standard JSON checkpoint writer.
+        has_jsonc_comments = False
+        if path.exists():
+            try:
+                raw = path.read_text(encoding="utf-8")
+                has_jsonc_comments = "//" in raw or "/*" in raw
+            except OSError:
+                pass
+
+        if has_jsonc_comments:
+            ok = _patch_jsonc_preserving_comments(path, key_path, entry)
+        else:
+            config = _read_json(path)
+            _nested_set(config, key_path, entry)
+            ok = _write_json_with_checkpoint(path, config)
 
     if ok:
         _ok(f"Configurado en {info['label']}")
@@ -1171,6 +1254,18 @@ def _remove_from_platform(name: str, info: dict) -> bool:
     backup = _backup_file(path)
     if backup:
         _info(f"Backup: {_dim(str(backup))}")
+
+    if info.get("format") == "hermes_yaml":
+        raw = path.read_text(encoding="utf-8")
+        pat = r'(?m)^  biorag\s*:\s*\n(?:(?!^  [a-zA-Z0-9_-]+\s*:|^\S).*\n)*'
+        new_text = re.sub(pat, '', raw)
+        changed = (new_text != raw)
+        if changed:
+            path.write_text(new_text, encoding="utf-8")
+            _ok(f"BioRAG eliminado de {info['label']}")
+        else:
+            _info(f"{info['label']}: no contenía entrada de BioRAG")
+        return changed
 
     config = _read_json(path)
     removed = _nested_delete(config, info["key_path"])
@@ -1296,7 +1391,11 @@ def _test_mcp_server() -> bool:
             _ok("Servidor MCP inició correctamente")
             return True
 
-        # Process exited before timeout — unexpected for a stdio server
+        if proc.returncode == 0 and ("result" in stdout_data or "capabilities" in stdout_data):
+            _ok("Servidor MCP inició y respondió handshake correctamente")
+            return True
+
+        # Process exited before timeout or with error
         _fail(f"Servidor MCP terminó inesperadamente (código {proc.returncode})")
         err = stderr_data.strip()[:300] if stderr_data else ""
         if err:
@@ -1331,53 +1430,74 @@ def _verify_final() -> None:
 # ── Systemd service (SSE daemon) ───────────────────────────────────────────
 
 def _install_systemd(port: int = SSE_PORT) -> bool:
-    """Create a systemd service for the SSE server (Linux only)."""
+    """Create a systemd --user service for the SSE server (Linux only).
+
+    Uses systemd user mode (no sudo required). Includes anti-crash-loop
+    limits per GEMINI.md: StartLimitBurst=5, StartLimitIntervalSec=60.
+    """
     if sys.platform != "linux":
-        _warn("systemd solo está disponible en Linux")
+        _warn("El servicio en segundo plano solo está disponible en Linux")
         return False
 
     service_name = "biorag-mcp"
-    service_path = Path("/etc/systemd/system") / f"{service_name}.service"
-    user = os.environ.get("USER", "root")
+    # systemd --user: ~/.config/systemd/user/
+    user_systemd_dir = Path.home() / ".config" / "systemd" / "user"
+    user_systemd_dir.mkdir(parents=True, exist_ok=True)
+    service_path = user_systemd_dir / f"{service_name}.service"
 
     unit = textwrap.dedent(f"""\
         [Unit]
-        Description=BioRAG MCP Server (SSE mode)
-        After=network.target
+        Description=BioRAG - Memoria persistente (servicio en segundo plano)
+        After=default.target
 
         [Service]
         Type=simple
         ExecStart={_python()} {_script_path()} --sse --port {port}
         Restart=always
         RestartSec=5
-        User={user}
+        # Anti crash-loop: si falla 5 veces en 60s, se detiene solo
+        StartLimitBurst=5
+        StartLimitIntervalSec=60
+        Environment=BIORAG_PATH={_db_path()}
 
         [Install]
         WantedBy=default.target
     """)
 
     try:
-        # Write via sudo
-        tmp = Path(tempfile.mktemp())
-        tmp.write_text(unit)
+        service_path.write_text(unit)
+
+        # Habilitar lingering para que el servicio arranque sin sesión activa
         subprocess.run(
-            ["sudo", "cp", str(tmp), str(service_path)],
+            ["loginctl", "enable-linger"],
+            capture_output=True, text=True,  # fallo silencioso si no disponible
+        )
+
+        subprocess.run(
+            ["systemctl", "--user", "daemon-reload"],
             check=True, capture_output=True, text=True,
         )
-        subprocess.run(
-            ["sudo", "systemctl", "daemon-reload"],
-            check=True, capture_output=True, text=True,
+        result = subprocess.run(
+            ["systemctl", "--user", "enable", "--now", service_name],
+            capture_output=True, text=True,
         )
-        tmp.unlink()
-        _ok(f"Servicio systemd creado: {service_path}")
-        _info("Inicia con: sudo systemctl enable --now biorag-mcp")
-        _info(f"Servidor SSE en http://localhost:{port}/sse")
+        if result.returncode == 0:
+            _ok(f"Servicio en segundo plano activado ({service_name})")
+            _info(f"BioRAG corre en http://localhost:{port}/sse")
+        else:
+            # El unit está instalado aunque el start falle (ej: sesión nueva)
+            _ok(f"Servicio registrado: {service_path}")
+            _info("Se activará automáticamente al iniciar sesión.")
+            _info(f"Para iniciar ahora: systemctl --user start {service_name}")
         return True
     except subprocess.CalledProcessError as exc:
-        _fail(f"Error creando servicio: {exc.stderr.strip()}")
+        _warn(f"No se pudo activar el servicio automáticamente: {exc.stderr.strip()}")
+        _info(f"Puedes iniciarlo manualmente con:")
+        _info(f"  python3 {_script_path()} --sse --port {port}")
         return False
     except Exception as exc:
-        _fail(f"Error: {exc}")
+        _warn(f"No se pudo crear el servicio: {exc}")
+        _info(f"Inicio manual: python3 {_script_path()} --sse --port {port}")
         return False
 
 
@@ -1492,6 +1612,21 @@ def _print_config_blocks() -> None:
                 }
             },
         },
+        "Hermes AI Agent": {
+            "path": "~/.hermes/config.yaml",
+            "yaml": (
+                "mcp_servers:\n"
+                "  biorag:\n"
+                f"    command: {python_path}\n"
+                f"    args:\n"
+                f"      - {script_path}\n"
+                "    env:\n"
+                f"      BIORAG_PATH: {_db_path()}\n"
+                "    tools:\n"
+                "      prompts: false\n"
+                "      resources: false"
+            ),
+        },
     }
 
     for label, info in blocks.items():
@@ -1499,11 +1634,128 @@ def _print_config_blocks() -> None:
         _info(f"Archivo: {info['path']}")
         if sys.platform == "win32" and "note_win" in info:
             _info(f"Windows: {info['note_win']}")
-        block = json.dumps(info["json"], indent=2, ensure_ascii=False)
-        print(f"\n{block}")
+        if "yaml" in info:
+            print(f"\n{info['yaml']}")
+        else:
+            block = json.dumps(info["json"], indent=2, ensure_ascii=False)
+            print(f"\n{block}")
         if "note" in info:
             _warn(info["note"])
         print()
+
+
+# ── Legacy database migration & process lifecycle ──────────────────────────
+
+def _stop_running_biorag_processes() -> None:
+    """Cierra y tranca cualquier MCP abierto, hormiguita o proceso que bloquee la base de datos."""
+    _step("Verificando y deteniendo procesos BioRAG en ejecución...")
+
+    # 1. systemd service si existe (Linux)
+    if sys.platform.startswith("linux"):
+        for svc in ["biorag-mcp", "biorag"]:
+            try:
+                subprocess.run(["systemctl", "--user", "stop", svc], capture_output=True, text=True)
+            except Exception:
+                pass
+
+    # 2. Procesos Python en ejecución
+    if sys.platform == "win32":
+        try:
+            ps_cmd = (
+                "Get-CimInstance Win32_Process | "
+                "Where-Object { $_.CommandLine -match 'mcp_server\\.py|graph_maintenance_daemon\\.py' } | "
+                "ForEach-Object { Stop-Process -Id $_.ProcessId -Force }"
+            )
+            subprocess.run(["powershell", "-NoProfile", "-Command", ps_cmd], capture_output=True, text=True)
+        except Exception:
+            pass
+    else:
+        # Linux / macOS
+        for target in ["graph_maintenance_daemon.py", "mcp_server.py"]:
+            try:
+                subprocess.run(["pkill", "-TERM", "-f", target], capture_output=True, text=True)
+            except Exception:
+                pass
+
+        legacy_db = _legacy_db_path()
+        if legacy_db.exists() and shutil.which("fuser"):
+            try:
+                subprocess.run(["fuser", "-k", "-TERM", str(legacy_db)], capture_output=True, text=True)
+            except Exception:
+                pass
+
+    time.sleep(0.8)
+    _ok("Procesos previos detenidos y bloqueos liberados")
+
+
+def _migrate_legacy_database() -> bool:
+    """Detecta si hay una base de datos legacy dentro del repo y la mueve a ~/.biorag/."""
+    legacy = _legacy_db_path()
+    target = _db_path()
+
+    if not legacy.exists():
+        if target.exists():
+            _ok(f"Base de datos viva detectada en: {_dim(str(target))}")
+        return False
+
+    _step("Base de datos legacy detectada en el repositorio. Iniciando migración...")
+    _info(f"Origen legacy: {_dim(str(legacy))}")
+    _info(f"Destino nuevo: {_dim(str(target))}")
+
+    # Asegurar directorio de destino y backups
+    target.parent.mkdir(parents=True, exist_ok=True)
+    BACKUPS_DIR.mkdir(parents=True, exist_ok=True)
+    ts = time.strftime("%Y%m%d_%H%M%S")
+
+    # Flush WAL en la base legacy antes de mover
+    try:
+        import sqlite3
+        conn = sqlite3.connect(str(legacy))
+        conn.execute("PRAGMA wal_checkpoint(TRUNCATE)")
+        conn.close()
+    except Exception as exc:
+        _warn(f"Checkpoint WAL previo: {exc}")
+
+    # Si el archivo de destino ya existe
+    if target.exists():
+        backup_target = BACKUPS_DIR / f"memory_biorag_dest_prev_{ts}.db"
+        shutil.copy2(target, backup_target)
+        _info(f"Backup de base existente en destino: {_dim(str(backup_target))}")
+        backup_legacy = BACKUPS_DIR / f"legacy_memory_biorag_{ts}.db"
+        shutil.copy2(legacy, backup_legacy)
+        _info(f"Backup de base legacy: {_dim(str(backup_legacy))}")
+
+        # Si el target está vacío o es un placeholder menor que legacy
+        if target.stat().st_size < legacy.stat().st_size or target.stat().st_size == 0:
+            target.unlink()
+            shutil.move(str(legacy), str(target))
+            _ok(f"Base de datos viva legacy movida a {target}")
+        else:
+            _warn(f"El destino {target} ya contenía datos ({target.stat().st_size / 1024:.1f} KB).")
+            _info(f"Se conserva la base del usuario en {target}. La legacy fue respaldada en {backup_legacy}.")
+            try:
+                legacy.unlink()
+            except Exception:
+                pass
+    else:
+        # Destino no existe: mover directamente
+        shutil.move(str(legacy), str(target))
+        _ok(f"Base de datos viva movida exitosamente a: {_bold(str(target))}")
+
+    # Mover archivos asociados WAL / SHM si existen
+    for ext in ["-wal", "-shm"]:
+        legacy_aux = legacy.parent / f"{legacy.name}{ext}"
+        if legacy_aux.exists():
+            target_aux = target.parent / f"{target.name}{ext}"
+            try:
+                shutil.move(str(legacy_aux), str(target_aux))
+            except Exception:
+                try:
+                    legacy_aux.unlink()
+                except Exception:
+                    pass
+
+    return True
 
 
 # ── Main flow ───────────────────────────────────────────────────────────────
@@ -1520,6 +1772,12 @@ def install() -> None:
         _info("Descarga: https://python.org/downloads/")
         sys.exit(1)
     _ok(f"Python {sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}")
+
+    # 1b. Detener procesos en ejecución que bloqueen la base de datos o el puerto
+    _stop_running_biorag_processes()
+
+    # 1c. Migración de base de datos legacy a ~/.biorag/
+    _migrate_legacy_database()
 
     # 2. Download
     _download_repo()
@@ -1557,11 +1815,8 @@ def install() -> None:
                 already_ok += 1
                 continue
 
-            if _interactive():
-                ok = _confirm(f"¿Configurar BioRAG en {info['label']}?", default=True)
-                if not ok:
-                    _info(f"Saltando {info['label']}")
-                    continue
+            # Auto-configurar sin preguntar (zero-touch para usuario normal).
+            # Solo se pregunta si se pasa --interactive explícitamente.
             ok = _configure_platform(name, info)
             if ok:
                 configured += 1
@@ -1572,8 +1827,12 @@ def install() -> None:
         elif configured > 0:
             _ok(f"{configured} agente(s) configurado(s) correctamente")
 
-        # Offer systemd if Antigravity was detected
-        if "antigravity" in detected and _confirm("¿Crear servicio systemd para SSE?", default=False):
+        # Antigravity necesita un servidor en segundo plano para conectarse.
+        # Se instala automáticamente sin preguntar (es un detalle técnico
+        # que el usuario final no necesita entender).
+        if "antigravity" in detected:
+            _step("Activando BioRAG como servicio en segundo plano para Antigravity...")
+            _info("Antigravity necesita que BioRAG corra en segundo plano para conectarse.")
             _install_systemd()
 
     # Checkpoint 4
@@ -1592,10 +1851,6 @@ def install() -> None:
     print(f"    {_bold(prompt_msg)}")
     if detected:
         print(f"\n    {_dim('Si no ves las herramientas MCP, reinicia el agente.')}")
-    if "antigravity" in detected and not _interactive():
-        print(f"    {_yellow('⚠ Antigravity requiere servidor SSE corriendo.')}")
-        print(f"    {_dim(f'Ejecuta despues: python3 {INSTALL_DIR}/install.py --systemd')}")
-        print(f"    {_dim(f'O inicia manual: python3 {INSTALL_DIR}/mcp_server.py --sse --port 8080')}")
     print()
 
 
@@ -1619,7 +1874,19 @@ def uninstall() -> None:
     _remove_skill()
 
     _step("Datos locales")
-    if INSTALL_DIR.exists() and _confirm(f"¿Eliminar {INSTALL_DIR} (incluye base de datos)?", default=False):
+    if _db_path().exists() and _confirm(f"¿Eliminar base de datos viva ({_db_path()})?", default=False):
+        _backup_database()
+        try:
+            _db_path().unlink()
+            for ext in ["-wal", "-shm"]:
+                aux = _db_path().parent / f"{_db_path().name}{ext}"
+                if aux.exists():
+                    aux.unlink()
+            _ok(f"Base de datos viva {_db_path()} eliminada")
+        except Exception as exc:
+            _warn(f"No se pudo eliminar {_db_path()}: {exc}")
+
+    if INSTALL_DIR.exists() and _confirm(f"¿Eliminar {INSTALL_DIR}?", default=False):
         _backup_database()
         shutil.rmtree(INSTALL_DIR)
         _ok(f"{INSTALL_DIR} eliminado")
@@ -1643,7 +1910,10 @@ def show_summary() -> None:
         _ok(f"Instalado en: {INSTALL_DIR}")
         if _db_path().exists():
             size = _db_path().stat().st_size / 1024
-            _ok(f"Base de datos: {size:.0f} KB")
+            _ok(f"Base de datos viva: {_db_path()} ({size:.0f} KB)")
+        elif _legacy_db_path().exists():
+            size = _legacy_db_path().stat().st_size / 1024
+            _warn(f"Base de datos en ubicación legacy ({_legacy_db_path()}) — ejecuta install.py para migrar ({size:.0f} KB)")
         else:
             _warn("Base de datos no encontrada")
     else:
