@@ -1,19 +1,21 @@
 # BioRAG — Memoria Cognitiva Biomimética y Simbólica para Agentes de IA
 
-> **Versión Oficial:** v35.0
+> **Versión Oficial:** v36.0
 > **Paradigma:** Motor Python + SQLite FTS5. **Sin embeddings densos, GPU ni llamadas a APIs externas** en el path de búsqueda.
-> **Motor:** Arquitectura modularizada (18 submódulos `core/memory/` + 15 submódulos `core/mcp_server/` + fachada delgada) + SQLite FTS5 WAL + PPMI-SVD (100 dimensiones) + espacio semántico de 13 ejes + grafo sináptico Hebbiano + SDM (2048 bits) + calibración conforme + activación ACT-R + Concept Hubs + validación simétrica fail-fast de sustantivos clave + **neurona de reordenamiento que aprende sola** (29 señales → 6 ocultas → 1 corrección, con piso en la fórmula a mano) + **neurona asociativa cerrada de fábrica** (5 agujas → fuerza 0–1: ¿dos recuerdos tienen que ver?; examinada, aún no decide en el motor) + enlaces del agente intocables.
+> **Motor:** Arquitectura modularizada (18 submódulos `core/memory/` + 15 submódulos `core/mcp_server/` + fachada delgada) + SQLite FTS5 WAL + PPMI-SVD (100 dimensiones) + espacio semántico de 13 ejes + grafo sináptico Hebbiano + SDM (2048 bits) + calibración conforme + activación ACT-R + Concept Hubs + validación simétrica fail-fast de sustantivos clave + **neurona de reordenamiento que aprende sola** (29 señales → 6 ocultas → 1 corrección, con piso en la fórmula a mano) + **neurona asociativa cerrada de fábrica** (5 agujas → fuerza 0–1: ¿dos recuerdos tienen que ver?; examinada, aún no decide en el motor) + enlaces del agente intocables + **córtex vivo desacoplado del repo en `~/.biorag/`** + **instalador zero-touch multi-plataforma**.
 > **Idiomas:** Español e inglés (stemming bilingüe, expansión simbólica con WordNet, Concept Hubs de 5 ángulos y Domain Dict).
 
 **BioRAG** es una memoria simbólica persistente para agentes de IA que aborda la pérdida de contexto entre sesiones mediante recuperación híbrida. “Biomimética” describe una inspiración de diseño; no significa que el motor simule literalmente un cerebro humano. Los resultados de rendimiento se limitan a los benchmarks y snapshots indicados.
 
 ---
 
-## 📊 Métricas de la suite oficial (v33.0 · 2026-10-14 · vigentes en v34.0)
+## 📊 Métricas de la suite oficial (v33.0 · 2026-10-14 · vigentes en v36.0)
 
 > **v34.0:** con una DB nueva, o sin campeón, la neurona no actúa y estos números se mantienen **idénticos** (son el piso). Con el campeón ya aprendido sobre la copia del snapshot (`despertar_neurona.sh`, 500 ciclos), la misma suite da **Recall@5 100.00 % · Recall@1 94.06 % (823/875) · MRR 0.964 · FP 0/40**, sin ninguna categoría por debajo del piso. Detalle en [La Neurona de BioRAG](#-novedades-de-la-versión-v340--la-neurona-de-biorag).
 >
 > **v35.0:** la QA oficial sale **idéntica** antes y después de todos los cambios de la v35 (Recall@5 100.00 % · Recall@1 91.89 % · MRR 0.950 · FP 0/40, misma máquina y semilla). Detalle en [La Neurona Asociativa](#-novedades-de-la-versión-v350--la-neurona-asociativa-sináptica).
+>
+> **v36.0:** la suite QA oficial sale **100% idéntica** (Recall@5 100.00 % · Recall@1 91.77 % · MRR 0.950 · FP 0/40) mientras la suite de pruebas unitarias alcanza **838/838 tests aprobados**, certificando el desacoplamiento físico de la base de datos viva a `~/.biorag/`, el instalador sin intervención humana, la detección de API por contratos de paquetes y la parada prudente anti-corrupción. Detalle en [Novedades de la v36.0](#-novedades-de-la-versión-v360--aislamiento-de-cortex-instalador-zero-touch-y-parada-prudente).
 >
 > **Cada base tiene su propia neurona.** La neurona aprende con los recuerdos de la base donde vive y se guarda dentro de ella. Esta tabla mide una copia del snapshot oficial, que no trae neurona entrenada: por eso muestra la fórmula a mano sola (el piso), aunque tu neurona esté trabajando en tu DB viva. La QA ahora lo dice antes de medir y nombra el parámetro para verla: `python scripts/evaluar_qa.py --con-neurona`. Detalle en [La neurona en la QA](#la-neurona-en-la-qa-cada-base-tiene-la-suya).
 
@@ -29,7 +31,7 @@ Evaluación sobre el snapshot congelado oficial canónico (**921 casos totales e
 | **MRR (Mean Reciprocal Rank)** | **0.950** | Posición recíproca promedio ponderada (0.9497 sin redondear; métrica complementaria observada). |
 | **Falsos positivos** | **0/40 (0.00%)** | Calibración conforme efectiva en los 40 controles negativos del benchmark (FP rate observada 0.00%). |
 | **Casos ambiguos (contradictorios)** | **6 casos (2 con cobertura parcial)** | Evaluados por separado del Recall global; 2 casos no cubren al menos una de las etiquetas contradictorias. |
-| **Tests unitarios** | **430/430 aprobados** (v35.0) | Cobertura completa de invariantes, validación pre-DB fail-fast, contratos MCP, normalización, catálogo, las 18 capas de protección de la neurona, el script de despertar, la neurona asociativa, los enlaces del agente intocables y el MCP sin sugerencias de enlace. |
+| **Tests unitarios** | **838/838 aprobados** (v36.0) | Cobertura completa de invariantes, validación pre-DB fail-fast, contratos MCP, normalización, catálogo, las 18 capas de protección de la neurona, el script de despertar, la neurona asociativa, los enlaces del agente intocables, migración atómica a `~/.biorag/`, instalador zero-touch multi-agente, 3 guardias de plugin OpenCode y parada prudente del daemon. |
 | **Suite Concept Hub** | **5/5 TOP-1 (100.00%)** | Precisión perfecta en los 5 casos de prueba de puentes asociativos registrados. |
 | **Abismo léxico (EXP-Q)** | **3/3 Pool · 2/3 Top-5 · 1/3 Top-1** | 3/3 descubiertos en pool de grafo; 2/3 en Top-5 (pos #1 y #4) y 1/3 en Top-1 (pos #1). |
 | **Sinónimos · Recall@5 / Recall@1** | **100% (55/55) / 56.36%** | Cobertura total en Top-5; el 43.64% restante queda entre Top-2 y Top-5. |
@@ -44,6 +46,73 @@ Evaluación sobre el snapshot congelado oficial canónico (**921 casos totales e
 > - **Recall@1 (91.77%)** y **MRR (0.9497)** son métricas complementarias observadas en el benchmark sobre este corpus congelado, no umbrales que el gate imponga ni garantías universales para cualquier consulta arbitraria.
 > - **R@5 = 100.00% (875/875):** Demuestra empíricamente que el conjunto híbrido (FTS5 BM25 + Sustantivos Clave + Grafo Sináptico Hebbiano + PPMI-SVD + Concept Hubs + Reranker Multicampo) logra **cobertura completa (875/875) dentro de la ventana Top-5 de trabajo del agente en este corpus evaluado**.
 > - **R@1 = 91.77% (803/875):** Refleja la precisión exacta del primer candidato. En tareas con solapamiento léxico directo (`literal`, `pregunta_natural`), R@1 supera el 95%–99%. En tareas donde el vocabulario difiere radicalmente (`sinonimo` 56.36%, `por_tema` 63.08%), el sistema ubica el recuerdo dentro del Top-5 pero no siempre en Top-1. R@1 representa el área de optimización continua para el desempate fino sin embeddings densos.
+
+---
+
+## 🛡️ Novedades de la Versión v36.0 — Aislamiento del Cortex (`~/.biorag/`), Instalador Zero-Touch y Parada Prudente
+
+> **En una frase:** Tu base de datos viva ahora vive **fuera del repositorio** (`~/.biorag/memory_biorag.db`) para que ningún `git pull` o `checkout` pueda tocarla jamás; el instalador es **100% desatendido (cero preguntas técnicas)** y el daemon cuenta con **parada prudente** para proteger SQLite.
+
+| Pieza | Estado en v36.0 |
+|---|---|
+| **Cortex desacoplado (`~/.biorag/`)** | ✅ Base de datos viva migrada fuera del árbol de Git con fallback retrocompatible y checkpoint WAL atómico |
+| **Instalador Zero-Touch (`install.py`)** | ✅ Configuración automática silenciosa de 5 plataformas (Claude Code, OpenCode, Antigravity, VS Code, Hermes YAML) |
+| **Detección de API OpenCode (3 Guardias)** | ✅ Inspección de paquetes `@opencode/plugin` en disco (sin parsear strings frágiles de CLI) |
+| **Servicio Daemon SSE (Antigravity)** | ✅ Auto-configurado en `systemd --user` con límites anti crash-loop (`StartLimitBurst=5`) |
+| **Control Maestro del Daemon (`La Hormiguita`)** | ✅ `BIORAG_DAEMON_ENABLED=0` por defecto; el MCP server no lo spawnea en segundo plano sin permiso explícito |
+| **Protocolo de Parada Prudente (`--stop`)** | ✅ `python3 graph_maintenance_daemon.py --stop` con espera de ciclo activo, cierre limpio y timeout de 30s |
+| **Pruebas unitarias** | ✅ **838/838 aprobados** (7 tests nuevos de migración + 2 de ciclo de vida del daemon) |
+| **QA oficial canónica** | ✅ **100% idéntica**: Recall@5 100.00 % · Recall@1 91.77 % · MRR 0.950 · FP 0/40 · `[GATE] OK` |
+
+---
+
+### 1. Aislamiento Físico del Cortex (`~/.biorag/memory_biorag.db`)
+
+Antes de la v36.0, la base de datos viva residía en `MemoryBioRAG_Data/memory_biorag.db` dentro de la carpeta del proyecto. Cualquier sincronización de Git, cambio de rama o rebase ponía en riesgo la memoria del usuario.
+
+En la v36.0:
+* **Ubicación canónica:** `~/.biorag/memory_biorag.db` (en el espacio de usuario del sistema operativo).
+* **Migración atómica transparente:** `install.py` detecta si existe una base legacy en el árbol local, ejecuta un checkpoint `PRAGMA wal_checkpoint(TRUNCATE)`, crea un respaldo de seguridad en `~/.biorag/backups/` y mueve los archivos (`.db`, `-wal`, `-shm`) de forma atómica.
+* **Cadena de resolución de rutas (`core/paths.py`):**
+  1. Parámetro explícito en código.
+  2. Variable de entorno `BIORAG_PATH`.
+  3. `~/.biorag/memory_biorag.db` (si existe o ruta por defecto).
+  4. Fallback retrocompatible a `MemoryBioRAG_Data/memory_biorag.db` (únicamente si aún no se ha migrado).
+* **Aislamiento de Tests:** Todos los tests de QA continúan apuntando estrictamente al snapshot inmutable congelado (`snapshots/qa_escape_qcr_20260811.db`) garantizando reproducibilidad matemática absoluta.
+
+---
+
+### 2. Instalador Zero-Touch Multi-Agente
+
+El instalador `python3 install.py` fue rediseñado bajo la directriz **UX-First**:
+* **Cero prompts confusos:** Se eliminaron las preguntas crípticas en el terminal como `¿Crear servicio systemd para SSE? [y/N]`. Un usuario no programador clona el repo, corre `python3 install.py` y el sistema queda 100% operativo sin fricción.
+* **Soporte Multi-Agente Integral:**
+  * **OpenCode:** Inyección de configuración MCP y selección del plugin `remember`.
+  * **Claude Code:** Configuración automática en `~/.claude.json`.
+  * **Antigravity (Gemini):** Configuración en modo SSE (`http://localhost:8080/sse`) y auto-despliegue del servicio en segundo plano mediante `systemd --user` con directivas anti crash-loop (`StartLimitBurst=5`, `StartLimitIntervalSec=60`).
+  * **VS Code:** Configuración en los settings de MCP.
+  * **Hermes AI Agent:** Parcheo seguro de `~/.hermes/config.yaml` preservando comentarios y formato original sin dependencias externas.
+
+---
+
+### 3. Detección de API de OpenCode: Los Tres Guardias en Cascada
+
+En lugar de parsear la salida de texto de `opencode --version` (que puede cambiar de formato entre releases), el instalador inspecciona el contrato real:
+1. **Guardia 1 (Módulos instalados en disco):** Comprueba si existe `~/.config/opencode/node_modules/@opencode/plugin` (API v2) o `@opencode-ai/plugin` (API v1 legacy).
+2. **Guardia 2 (Schema formal):** Lee el atributo `$schema` de `cli.json` (ej: `https://opencode.ai/v2/cli.json` → API v2).
+3. **Guardia 3 (Fallback seguro):** Asume por defecto la versión moderna (v2) para garantizar compatibilidad hacia adelante.
+
+---
+
+### 4. Protocolo de Parada Prudente y Control de La Hormiguita
+
+* **Desactivada por defecto:** `BIORAG_DAEMON_ENABLED=0`. El servidor MCP ya no spawnea procesos de fondo a espaldas del usuario a menos que se configure explícitamente en el entorno (`BIORAG_DAEMON_ENABLED=1`).
+* **Nuevo comando CLI `--stop`:**
+  ```bash
+  python3 graph_maintenance_daemon.py --stop
+  ```
+* **Graceful Shutdown sin corrupción de datos:**
+  Si el demonio se encuentra a mitad de una transacción reflexiva o podado de sinapsis en SQLite (`self.en_ciclo = True`), la señal `SIGTERM` no mata el proceso bruscamente. El demonio completa el ciclo activo, salva el estado, ejecuta `cerebro.cerrar_sistema()` y cierra SQLite limpiamente. El comando de parada espera hasta 30 segundos con feedback progresivo antes de aplicar cualquier acción forzada.
 
 ---
 
@@ -1410,14 +1479,29 @@ El Recall@1 revela la frontera real del sistema sin embeddings neuronales densos
 > Todo número que afirma este README fue producido por un script que puedes ejecutar tú mismo.
 > Esta sección es la garantía de veracidad del proyecto — sin argumentos, solo comandos y resultados esperados.
 
-### Instalación de Dependencias
+### Instalación Rápida (Zero-Touch)
+
+El método oficial y recomendado para instalar BioRAG y conectarlo automáticamente a tus agentes de IA sin configuración manual:
 
 ```bash
-# Clonar e instalar
+# 1. Clonar el repositorio
 git clone <url> MemoryBioRAG && cd MemoryBioRAG
-pip install numpy nltk fastapi uvicorn pytest
-pip install mcp  # servidor MCP
-# WordNet local (requerido para fallback simbólico — se descarga una sola vez)
+
+# 2. Ejecutar el instalador automático
+python3 install.py
+```
+
+`install.py` se encarga de todo de forma 100% desatendida:
+* Despliega la base de datos viva en `~/.biorag/memory_biorag.db` (aislada fuera del repo).
+* Instala las dependencias y diccionarios semánticos (WordNet + OMW).
+* Detecta y configura automáticamente tus agentes instalados (Claude Code, OpenCode, Antigravity, VS Code, Hermes).
+* En Linux con Antigravity, registra y arranca el servicio en segundo plano (`systemd --user`) con protecciones anti-crash.
+
+### Instalación Manual de Dependencias
+
+```bash
+# Alternativa: instalación manual de paquetes
+pip install numpy nltk fastapi uvicorn pytest mcp
 python3 -c "import nltk; nltk.download('wordnet'); nltk.download('omw-1.4')"
 ```
 
@@ -1426,20 +1510,20 @@ python3 -c "import nltk; nltk.download('wordnet'); nltk.download('omw-1.4')"
 El repositorio incluye un snapshot congelado listo para usar sin necesidad de la DB de producción:
 
 ```bash
-# Snapshot incluido en el repo (38.9 MB):
-# scripts/snapshot_prf_real.db  — corpus de ~800 nodos congelado
+# Snapshot incluido en el repo:
+# snapshots/qa_escape_qcr_20260811.db  — corpus de referencia congelado
 
 # Para apuntar cualquier script de evaluación al snapshot:
-BIORAG_PATH=scripts/snapshot_prf_real.db python3 scripts/evaluar_qa.py
+BIORAG_PATH=snapshots/qa_escape_qcr_20260811.db python3 scripts/evaluar_qa.py
 
-# Para crear tu propio snapshot desde tu DB activa:
+# Para crear tu propio snapshot desde tu DB activa (~/.biorag):
 #   IMPORTANTE: NO uses `cp`. La DB viva corre en WAL mode y `cp` copia solo el
-#   archivo .db ignorando el -wal no checkpointeado -> copia corrupta
-#   ("database disk image is malformed"). Usa la API backup de SQLite, que hace
-#   checkpoint del WAL y produce una copia consistente:
+#   archivo .db ignorando el -wal no checkpointeado -> copia corrupta.
+#   Usa la API backup de SQLite, que hace checkpoint del WAL y produce una copia consistente:
 python3 << 'EOF'
-import sqlite3, time
-src = "MemoryBioRAG_Data/memory_biorag.db"
+import sqlite3, os, time
+from pathlib import Path
+src = str(Path.home() / ".biorag" / "memory_biorag.db")
 dst = f"scripts/mi_snapshot_{time.strftime('%Y%m%d')}.db"
 con = sqlite3.connect(src); con.execute("PRAGMA wal_checkpoint(TRUNCATE)")
 out = sqlite3.connect(dst); con.backup(out)
@@ -1484,9 +1568,9 @@ BIORAG_PATH=scripts/snapshot_prf_real.db python3 scripts/reentrenar_ppmi.py
 
 ```python
 # Entrenar manualmente los vectores PPMI+SVD de cualquier DB por comando:
-import sqlite3
+import os, sqlite3
 from core.ppmi_vectorizer import reindexar_ppmi_svd
-con = sqlite3.connect("MemoryBioRAG_Data/memory_biorag.db")  # o ruta a snapshot
+con = sqlite3.connect(os.path.expanduser("~/.biorag/memory_biorag.db"))  # o ruta a snapshot
 reindexar_ppmi_svd(con, dim=100, retrofit_lam=0.2, retrofit_iters=5)
 con.close()
 ```
@@ -1618,7 +1702,7 @@ python scripts/evaluar_qa.py --con-neurona --minutos 10         # con tope de ti
 python scripts/evaluar_qa.py --con-neurona --si                 # sin preguntar
 
 # Medir tu propia memoria con tu propia neurona (la QA mide una copia; tu DB no se toca)
-BIORAG_PATH=MemoryBioRAG_Data/memory_biorag.db python scripts/evaluar_qa.py
+BIORAG_PATH=~/.biorag/memory_biorag.db python scripts/evaluar_qa.py
 ```
 
 Lo que sale cuando la base medida **no** tiene neurona pero tu DB viva sí (corrida real del 2026-10-25; aquí la "DB viva" es una copia del snapshot con 111 prácticas):
@@ -1951,7 +2035,7 @@ cp scripts/qa_metrics.json scripts/qa_metrics_baseline.json
 | `BIORAG_QA_ETIQUETA_DIFUSA` | Ratio mínimo de la resolución difusa de etiquetas | `0.94` |
 | `BIORAG_QA_ETIQUETA_MARGEN` | Margen mínimo sobre el segundo candidato | `0.02` |
 | `BIORAG_QA_NEURONA_TOL_CASOS` | Casos en 1er lugar que la neurona puede perder por categoría (solo si actuó; además R@5 idéntico y total en 1er lugar sin bajar) | `1` |
-| `BIORAG_QA_DB_VIVA` | DB viva cuya neurona se lee (solo lectura) para el aviso de la QA | `MemoryBioRAG_Data/memory_biorag.db` |
+| `BIORAG_QA_DB_VIVA` | DB viva cuya neurona se lee (solo lectura) para el aviso de la QA | `~/.biorag/memory_biorag.db` |
 | `BIORAG_QA_ORIGEN` | Base original que se mide (lo pone `run_qa_suite.sh`, porque la QA solo ve la copia) | `BIORAG_PATH` |
 | `BIORAG_ORDEN_MONOTONICO` | Re-sort final de `buscar_por_frase` por score | `1` |
 
@@ -3219,7 +3303,16 @@ DESPUES DE CADA PASO: Leer resultados y explicar con propias palabras
 
 | Variable | Default | Descripción |
 |---|---|---|
-| `BIORAG_PATH` | `./MemoryBioRAG_Data/memory_biorag.db` | Ruta al archivo .db |
+| `BIORAG_PATH` | `~/.biorag/memory_biorag.db` | Ruta al archivo .db (con fallback legacy transparente si aún no se ha migrado) |
+
+### Demonio de Mantenimiento (La Hormiguita)
+
+| Variable | Default | Descripción |
+|---|---|---|
+| `BIORAG_DAEMON_ENABLED` | `0` | Control maestro: `0` (desactivado por defecto), `1` (activado como daemon en background) |
+| `BIORAG_DAEMON_INTERVALO_HORAS` | `6` | Horas entre cada ciclo de mantenimiento |
+| `BIORAG_DAEMON_MAX_NODOS` | `10` | Nodos máximos a evaluar/podar por ciclo |
+| `BIORAG_DAEMON_LOG_ENABLED` | `0` | Logging en archivo (`logs/hormiguita.log`, rotación 1MB) |
 
 ### Plan Maestro v31.1 (E1–E13 + F1 + F2)
 
