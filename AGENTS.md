@@ -1,3 +1,21 @@
+# NORMA MÁXIMA, INVARIANTE Y BLOQUEANTE DEL PROYECTO
+
+## Estabilidad de resultados frente al crecimiento del corpus
+
+> **Esta norma es la puerta de decisión obligatoria de mayor prioridad del proyecto.** Ninguna decisión de diseño, algoritmo, cambio de datos, optimización, evaluación o publicación puede aprobarse ni darse por validada sin definir y verificar cómo preserva esta invariancia.
+
+Para cada algoritmo se debe especificar el tamaño del corpus `N`, la consulta y configuración relevantes, y qué datos nuevos son irrelevantes para el caso evaluado. Si `D` es el corpus, `q` la consulta e `I` contiene solo información irrelevante para `q`, el resultado debe permanecer igual —o dentro de una tolerancia numérica definida **antes** de medir— al crecer el corpus:
+
+`F(D, q) = F(D ∪ I, q)`
+
+La comparación debe mantener constantes la versión, los parámetros y la semilla aleatoria, cuando exista. Antes de aceptar un algoritmo o cambio, se probará con un corpus de referencia y otro ampliado con datos irrelevantes; cualquier diferencia no prevista bloquea la decisión hasta que se explique, corrija o se documente y autorice explícitamente el alcance aplicable. No se puede relajar el criterio después de ver los resultados.
+
+Esta invariancia no exige respuestas idénticas cuando el corpus incorpora información **pertinente**: en ese caso el resultado puede y, si la evidencia lo justifica, debe cambiar. La exigencia es que el tamaño por sí solo, el orden de almacenamiento u otros cambios declarados irrelevantes no alteren la salida. La reproducibilidad para entradas y condiciones idénticas también es obligatoria.
+
+El costo computacional es un requisito separado: cada algoritmo debe declarar y medir su objetivo de complejidad respecto a `N`. `O(1)` describe costo, no invariancia ni corrección, y no se prometerá si la tarea no lo permite. Si no se puede definir o verificar el contrato de invariancia y sus pruebas, la decisión queda **BLOQUEADA**: no implementar, aprobar, integrar, publicar ni afirmar validación hasta resolverlo o recibir autorización explícita para una excepción de alcance.
+
+---
+
 # BioRAG — Definitive Agent Field Manual & Master Operating Instructions
 
 > **To any agent reading this**: You are stepping into **MemoryBioRAG**, a bio-inspired, mathematically pure associative memory engine. It is engineered to surpass traditional vector RAG *without* pre-trained deep neural embeddings, *without* external API calls, *without* GPUs, and running 100% locally on CPU via graph theory, linear algebra, and hyperdimensional computing.
