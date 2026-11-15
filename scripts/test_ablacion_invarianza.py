@@ -74,10 +74,11 @@ def preparar_bases(snap_src, n_irrelevantes=10000):
     shutil.copyfile(snap_src, TMP_B)
 
     conB = sqlite3.connect(TMP_B)
+    # Lote de ruido 100% sintético y query-term-disjoint (sin palabras comunes del español)
     batch = [
         (
-            f"nodo_ruido_ablacion_{i:05d}",
-            f"contenido de relleno sin relacion semantica token_{i} palabra_{i*7%997}",
+            f"nodo_ruido_hex_{i:05d}",
+            f"ruido_rnd_block_{i:05d} hash_hex_{i*37%99991:05x} kterm_{i*13%88883:05x}",
             0.5,
             "activo"
         )
@@ -177,7 +178,7 @@ class InterceptorBusqueda:
             if isinstance(sql, str) and "SELECT DISTINCT dimension_id" in sql and "FROM largo_plazo_dimensiones" in sql:
                 if self.query_actual:
                     conceptos_peticion = list(params[0]) if params else []
-                    if self.query_actual not in self.capturadas_dims:
+                    if not self.capturadas_dims.get(self.query_actual):
                         self.capturadas_dims[self.query_actual] = conceptos_peticion
 
                     if self.query_actual in self.semillas_dims:
@@ -197,7 +198,7 @@ class InterceptorBusqueda:
 
         def patched_evocacion(semillas, *args, **kwargs):
             if self.query_actual:
-                if self.query_actual not in self.capturadas_cadena:
+                if not self.capturadas_cadena.get(self.query_actual):
                     self.capturadas_cadena[self.query_actual] = list(semillas)
 
                 if self.query_actual in self.semillas_cadena:
@@ -211,16 +212,31 @@ class InterceptorBusqueda:
 
         def patched_hibrido(**kwargs):
             conc = self.concepto_actual
+            bm25_previo = kwargs.get("bm25_norm", 0.0)
+            imputado = False
+            bm25_inyectado = bm25_previo
+
             if self.query_actual and conc:
                 if self.query_actual not in self.capturadas_hibrido:
                     self.capturadas_hibrido[self.query_actual] = {}
 
                 # Inyección real de BM25_norm si está activa en Modo 4 / Modo 5
-                if self.query_actual in self.scores_bm25 and conc in self.scores_bm25[self.query_actual]:
-                    kwargs["bm25_norm"] = self.scores_bm25[self.query_actual][conc]
+                if self.query_actual in self.scores_bm25:
+                    if conc in self.scores_bm25[self.query_actual]:
+                        bm25_inyectado = self.scores_bm25[self.query_actual][conc]
+                    else:
+                        bm25_inyectado = 0.0
+                        imputado = True
+                    kwargs["bm25_norm"] = bm25_inyectado
 
+            sc_final = orig_hibrido(**kwargs)
+
+            if self.query_actual and conc:
                 self.capturadas_hibrido[self.query_actual][conc] = {
                     "bm25_norm": kwargs.get("bm25_norm", 0.0),
+                    "bm25_previo_dinamico": bm25_previo,
+                    "bm25_inyectado": bm25_inyectado,
+                    "imputado_ausente_en_A": imputado,
                     "dim_score": kwargs.get("dim_score", 0.0),
                     "peso_sinaptico": kwargs.get("peso_sinaptico", 0.0),
                     "concepto_ratio": kwargs.get("concepto_ratio", 0.0),
@@ -228,9 +244,10 @@ class InterceptorBusqueda:
                     "score_latente": kwargs.get("score_latente", 0.0),
                     "score_cadena": kwargs.get("score_cadena", 0.0),
                     "tematico_score": kwargs.get("tematico_score", 0.0),
+                    "score_hibrido_pre_rerank": sc_final
                 }
 
-            return orig_hibrido(**kwargs)
+            return sc_final
 
         cerebro._calcular_score_hibrido = patched_hibrido
 
@@ -255,6 +272,12 @@ def ejecutar_evaluacion(db_path, casos, interceptor=None, ignore_peso=True):
 
         if interceptor:
             interceptor.query_actual = q
+            if q not in interceptor.capturadas_dims:
+                interceptor.capturadas_dims[q] = []
+            if q not in interceptor.capturadas_cadena:
+                interceptor.capturadas_cadena[q] = []
+            if q not in interceptor.capturadas_hibrido:
+                interceptor.capturadas_hibrido[q] = {}
 
         pagina, _ = cerebro.buscar_por_frase(
             q,
@@ -264,14 +287,23 @@ def ejecutar_evaluacion(db_path, casos, interceptor=None, ignore_peso=True):
         )
 
         top5 = [row[0] for row in pagina[:5]] if pagina else []
+        top5_scores = [(row[0], round(row[4], 6)) for row in pagina[:5]] if pagina else []
         en_r5 = (gold in top5)
         en_r1 = (top5[0] == gold) if top5 else False
+
+        if interceptor and pagina:
+            for row in pagina:
+                conc = row[0]
+                sc_post = round(row[4], 6)
+                if conc in interceptor.capturadas_hibrido.get(q, {}):
+                    interceptor.capturadas_hibrido[q][conc]["score_postprocesado"] = sc_post
 
         res_caso = {
             "id": c["id"],
             "query": q,
             "gold": gold,
             "top5": top5,
+            "top5_scores_postprocesados": top5_scores,
             "r5": en_r5,
             "r1": en_r1
         }
@@ -327,6 +359,13 @@ def comparar_con_base(res_base_casos, res_base_q, res_test_casos, res_test_q, ma
     aciertos_base_filt = sum(1 for c in casos_filtrados_base if c["r5"])
     aciertos_test_filt = sum(1 for c in casos_filtrados_test if c["r5"])
 
+    # Cálculo independiente de cambios de orden para el subconjunto filtrado
+    queries_filtradas = set(c["query"] for c in casos_filtrados_base)
+    cambios_orden_filt = 0
+    for q in queries_filtradas:
+        if res_base_q.get(q) != res_test_q.get(q):
+            cambios_orden_filt += 1
+
     perdidos_filt = [c for c in perdidos_bruto if not c.get("ambiguo")]
     ganados_filt = [c for c in ganados_bruto if not c.get("ambiguo")]
 
@@ -344,6 +383,8 @@ def comparar_con_base(res_base_casos, res_base_q, res_test_casos, res_test_q, ma
         },
         "filtrado": {
             "total": total_filtrado,
+            "total_queries": len(queries_filtradas),
+            "cambios_orden": cambios_orden_filt,
             "aciertos_base": aciertos_base_filt,
             "aciertos_test": aciertos_test_filt,
             "perdidos": len(perdidos_filt),
@@ -380,20 +421,20 @@ def main():
     queries_unicas = sorted(list(set(c["query"] for c in casos)))
     print(f"Casos 'sinonimo': {len(casos)} (Consultas únicas: {len(queries_unicas)})")
 
+    print(f"Preparando bases temporales (B = A + {args.n_nodos} nodos en /tmp)...")
+    cntA, cntB = preparar_bases(args.snap, args.n_nodos)
+    print(f"Base A activos: {cntA} | Base B activos: {cntB}")
+
+    # Clasificación de ambigüedad abierta desde la copia temporal TMP_A para no tocar jamás la snapshot original
     from core.memory_store import SQLiteMemoryBioRAG
     from scripts.evaluar_qa import clasificar_casos_sinonimo
-    cerebro_temp = SQLiteMemoryBioRAG(args.snap)
+    cerebro_temp = SQLiteMemoryBioRAG(TMP_A)
     raw_casos_para_clasif = [c["raw"] for c in casos]
     marcas_ambiguedad = clasificar_casos_sinonimo(cerebro_temp, raw_casos_para_clasif)
     cerebro_temp.cerrar_sistema()
 
     ambiguos_r5 = {cid: m for cid, m in marcas_ambiguedad.items() if m.get("ambigua_r5")}
     print(f"Casos clasificados ambigua_r5 (>5 reclamantes): {len(ambiguos_r5)}")
-
-    print("-" * 80)
-    print(f"Preparando bases temporales (B = A + {args.n_nodos} nodos en /tmp)...")
-    cntA, cntB = preparar_bases(args.snap, args.n_nodos)
-    print(f"Base A activos: {cntA} | Base B activos: {cntB}")
     print("-" * 80)
 
     # 1. Base A (Referencia canónica)
@@ -408,7 +449,8 @@ def main():
 
     # 2. Modo 0: Baseline en Base B
     print("2/7: Evaluando Modo 0: Baseline en Base B...")
-    res_B0_casos, res_B0_q = ejecutar_evaluacion(TMP_B, casos, None, ignore_peso=args.ignore_peso)
+    interceptor_M0 = InterceptorBusqueda()
+    res_B0_casos, res_B0_q = ejecutar_evaluacion(TMP_B, casos, interceptor_M0, ignore_peso=args.ignore_peso)
     comp_M0 = comparar_con_base(res_A_casos, res_A_q, res_B0_casos, res_B0_q, marcas_ambiguedad)
 
     # 3. Modo 1: Semillas Dimensionales fijadas
@@ -476,13 +518,61 @@ def main():
         },
         "marcas_ambiguedad": marcas_ambiguedad,
         "condiciones": {
-            "Base_A": {"casos": res_A_casos, "top5_por_query": res_A_q},
-            "Modo_0_Baseline": {"comp": comp_M0, "casos": res_B0_casos, "top5_por_query": res_B0_q},
-            "Modo_1_DimsFijadas": {"comp": comp_M1, "casos": res_B1_casos, "top5_por_query": res_B1_q},
-            "Modo_2_CadenaFijada": {"comp": comp_M2, "casos": res_B2_casos, "top5_por_query": res_B2_q},
-            "Modo_3_DualFijada": {"comp": comp_M3, "casos": res_B3_casos, "top5_por_query": res_B3_q},
-            "Modo_4_BM25Fijado": {"comp": comp_M4, "casos": res_B4_casos, "top5_por_query": res_B4_q},
-            "Modo_5_TotalFijado": {"comp": comp_M5, "casos": res_B5_casos, "top5_por_query": res_B5_q},
+            "Base_A": {
+                "casos": res_A_casos,
+                "top5_por_query": res_A_q,
+                "semillas_dims": interceptor_A.capturadas_dims,
+                "semillas_cadena": interceptor_A.capturadas_cadena,
+                "scores_hibrido_detalle": interceptor_A.capturadas_hibrido,
+            },
+            "Modo_0_Baseline": {
+                "comp": comp_M0,
+                "casos": res_B0_casos,
+                "top5_por_query": res_B0_q,
+                "semillas_dims": interceptor_M0.capturadas_dims,
+                "semillas_cadena": interceptor_M0.capturadas_cadena,
+                "scores_hibrido_detalle": interceptor_M0.capturadas_hibrido,
+            },
+            "Modo_1_DimsFijadas": {
+                "comp": comp_M1,
+                "casos": res_B1_casos,
+                "top5_por_query": res_B1_q,
+                "semillas_dims": interceptor_M1.capturadas_dims,
+                "semillas_cadena": interceptor_M1.capturadas_cadena,
+                "scores_hibrido_detalle": interceptor_M1.capturadas_hibrido,
+            },
+            "Modo_2_CadenaFijada": {
+                "comp": comp_M2,
+                "casos": res_B2_casos,
+                "top5_por_query": res_B2_q,
+                "semillas_dims": interceptor_M2.capturadas_dims,
+                "semillas_cadena": interceptor_M2.capturadas_cadena,
+                "scores_hibrido_detalle": interceptor_M2.capturadas_hibrido,
+            },
+            "Modo_3_DualFijada": {
+                "comp": comp_M3,
+                "casos": res_B3_casos,
+                "top5_por_query": res_B3_q,
+                "semillas_dims": interceptor_M3.capturadas_dims,
+                "semillas_cadena": interceptor_M3.capturadas_cadena,
+                "scores_hibrido_detalle": interceptor_M3.capturadas_hibrido,
+            },
+            "Modo_4_BM25Fijado": {
+                "comp": comp_M4,
+                "casos": res_B4_casos,
+                "top5_por_query": res_B4_q,
+                "semillas_dims": interceptor_M4.capturadas_dims,
+                "semillas_cadena": interceptor_M4.capturadas_cadena,
+                "scores_hibrido_detalle": interceptor_M4.capturadas_hibrido,
+            },
+            "Modo_5_TotalFijado": {
+                "comp": comp_M5,
+                "casos": res_B5_casos,
+                "top5_por_query": res_B5_q,
+                "semillas_dims": interceptor_M5.capturadas_dims,
+                "semillas_cadena": interceptor_M5.capturadas_cadena,
+                "scores_hibrido_detalle": interceptor_M5.capturadas_hibrido,
+            },
         }
     }
 
@@ -516,10 +606,11 @@ def main():
     print("=" * 80)
     print(f"{'Condición':<34} | {'Top-5 Alterado':<16} | {'R@5 Aciertos':<12} | {'Perdidos / Ganados'}")
     print("-" * 80)
-    print(f"{'Base A (Referencia canónica)':<34} | {'0/58 (0.0%)':<16} | {comp_M0['filtrado']['aciertos_base']}/{comp_M0['filtrado']['total']}      | 0 / 0")
+    s_alt_base = f"0/{comp_M0['filtrado']['total_queries']} (0.0%)"
+    print(f"{'Base A (Referencia canónica)':<34} | {s_alt_base:<16} | {comp_M0['filtrado']['aciertos_base']}/{comp_M0['filtrado']['total']}      | 0 / 0")
 
     for nombre, comp in condiciones_print:
-        s_alt = f"{comp['cambios_orden']}/58"
+        s_alt = f"{comp['filtrado']['cambios_orden']}/{comp['filtrado']['total_queries']}"
         s_r5 = f"{comp['filtrado']['aciertos_test']}/{comp['filtrado']['total']}"
         s_pg = f"{comp['filtrado']['perdidos']} / {comp['filtrado']['ganados']}"
         print(f"{nombre:<34} | {s_alt:<16} | {s_r5:<12} | {s_pg}")
