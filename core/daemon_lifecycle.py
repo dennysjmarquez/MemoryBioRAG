@@ -58,6 +58,15 @@ def _borrar_pid() -> None:
         pass
 
 
+def is_daemon_enabled() -> bool:
+    """Verifica si el daemon en segundo plano está habilitado vía variable de entorno.
+
+    Por defecto está DESACTIVADO (0). Solo se activa si BIORAG_DAEMON_ENABLED=1/true/on.
+    """
+    val = os.environ.get("BIORAG_DAEMON_ENABLED", "0").strip().lower()
+    return val in ("1", "true", "yes", "on")
+
+
 # --- Health check ------------------------------------------------------------
 
 def is_daemon_alive() -> bool:
@@ -160,9 +169,14 @@ def ensure_daemon_alive(
     Check + spawn si necesario. Llamar al arrancar el MCP server.
     Usa un lock no bloqueante para evitar que múltiples instancias MCP concurrentes
     intenten spawnear daemons simultáneamente en arranques simultáneos.
-    
+
+    INVARIANTE: Desactivado por defecto. Solo spawnea si BIORAG_DAEMON_ENABLED=1.
     Retorna True si el daemon está vivo (o se spawneó exitosamente).
     """
+    if not is_daemon_enabled():
+        logger.debug("Daemon deshabilitado por defecto (BIORAG_DAEMON_ENABLED != 1)")
+        return False
+
     if is_daemon_alive():
         pid = _leer_pid()
         logger.info("Daemon ya vivo (PID %s)", pid)
@@ -203,3 +217,59 @@ def ensure_daemon_alive(
             intervalo_horas=intervalo_horas,
             max_nodos=max_nodos,
         )
+
+
+def stop_daemon(timeout: float = 5.0) -> bool:
+    """Detiene cualquier instancia activa del daemon de mantenimiento.
+
+    1. Intenta por PID file con SIGTERM (graceful).
+    2. Espera hasta `timeout` segundos.
+    3. Si no responde, aplica SIGKILL.
+    4. Fallback: busca por nombre de proceso si el PID file no existía.
+    """
+    pid = _leer_pid()
+    detenido = False
+
+    if pid is not None:
+        try:
+            os.kill(pid, signal.SIGTERM)
+            inicio = time.time()
+            while time.time() - inicio < timeout:
+                time.sleep(0.1)
+                try:
+                    os.kill(pid, 0)
+                except (OSError, ProcessLookupError):
+                    detenido = True
+                    break
+            if not detenido:
+                try:
+                    os.kill(pid, signal.SIGKILL)
+                    detenido = True
+                except (OSError, ProcessLookupError):
+                    detenido = True
+        except (OSError, ProcessLookupError):
+            detenido = True
+        _borrar_pid()
+
+    # Fallback cross-process
+    if sys.platform != "win32":
+        try:
+            res = subprocess.run(
+                ["pgrep", "-f", "graph_maintenance_daemon.py"],
+                capture_output=True, text=True
+            )
+            my_pid = os.getpid()
+            for line in res.stdout.strip().splitlines():
+                line = line.strip()
+                if line and line.isdigit():
+                    p = int(line)
+                    if p != my_pid:
+                        try:
+                            os.kill(p, signal.SIGTERM)
+                            detenido = True
+                        except OSError:
+                            pass
+        except Exception:
+            pass
+
+    return detenido

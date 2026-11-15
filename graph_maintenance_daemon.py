@@ -15,12 +15,14 @@ Características:
 - Modo --once para ejecución single-shot
 
 Uso:
-    python3 graph_maintenance_daemon.py              # Daemon continuo
+    python3 graph_maintenance_daemon.py              # Daemon continuo (requiere BIORAG_DAEMON_ENABLED=1 o --force)
     python3 graph_maintenance_daemon.py --once       # Un solo ciclo
     python3 graph_maintenance_daemon.py --status     # Ver estado actual
     python3 graph_maintenance_daemon.py --reset      # Resetear estado
+    python3 graph_maintenance_daemon.py --stop       # Detener daemon en ejecución
 
 Variables de entorno:
+    BIORAG_DAEMON_ENABLED          — 0/off (default): desactivado; 1/on: habilitado
     BIORAG_DAEMON_INTERVALO_HORAS  — Intervalo entre ciclos (default: 6)
     BIORAG_DAEMON_MAX_NODOS        — Nodos por ciclo (default: 10)
     BIORAG_DAEMON_LOCK_PATH        — Ruta del lock file (default: .hormiguita.lock)
@@ -403,6 +405,14 @@ def main():
         help="Resetear estado de la hormiguita"
     )
     parser.add_argument(
+        "--stop", action="store_true",
+        help="Detener el daemon en ejecución"
+    )
+    parser.add_argument(
+        "--force", action="store_true",
+        help="Forzar arranque del daemon continuo ignorando BIORAG_DAEMON_ENABLED=0"
+    )
+    parser.add_argument(
         "--max-nodos", type=int, default=MAX_NODOS_POR_CICLO,
         help=f"Máximo de nodos por ciclo (default: {MAX_NODOS_POR_CICLO})"
     )
@@ -432,7 +442,27 @@ def main():
     if args.reset:
         daemon.reset_estado()
         return
-    
+
+    # Modo stop
+    if args.stop:
+        from core.daemon_lifecycle import stop_daemon
+        detenido = stop_daemon()
+        if detenido:
+            print("✓ Daemon de La Hormiguita detenido correctamente.")
+        else:
+            print("ℹ No se encontró ninguna instancia del daemon en ejecución.")
+        return
+
+    # Invariante: por defecto el daemon continuo está apagado (BIORAG_DAEMON_ENABLED=0).
+    # Solo corre si BIORAG_DAEMON_ENABLED=1, o con --force, o con --once.
+    daemon_enabled = os.environ.get("BIORAG_DAEMON_ENABLED", "0").strip().lower() in ("1", "true", "yes", "on")
+    if not args.once and not daemon_enabled and not args.force:
+        print("ℹ Daemon continuo desactivado por defecto (BIORAG_DAEMON_ENABLED=0).")
+        print("  • Para ejecutar un solo ciclo ahora: python3 graph_maintenance_daemon.py --once")
+        print("  • Para activar el daemon continuo:   BIORAG_DAEMON_ENABLED=1 python3 graph_maintenance_daemon.py")
+        print("  • O bien fuerza el arranque con:     python3 graph_maintenance_daemon.py --force")
+        return
+
     # Adquirir lock
     lock = DaemonLock(LOCK_PATH)
     if not lock.adquirir():

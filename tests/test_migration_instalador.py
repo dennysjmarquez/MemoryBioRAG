@@ -174,3 +174,28 @@ def test_migrate_legacy_database(tmp_path, monkeypatch):
     assert row is not None
     assert row[0] == "corteza_activa"
 
+
+def test_daemon_enabled_flag(monkeypatch):
+    from core.daemon_lifecycle import is_daemon_enabled, ensure_daemon_alive
+
+    # 1. Por defecto (sin env var) -> False
+    monkeypatch.delenv("BIORAG_DAEMON_ENABLED", raising=False)
+    assert is_daemon_enabled() is False
+    assert ensure_daemon_alive() is False
+
+    # 2. Con 0 -> False
+    monkeypatch.setenv("BIORAG_DAEMON_ENABLED", "0")
+    assert is_daemon_enabled() is False
+    assert ensure_daemon_alive() is False
+
+    # 3. Con 1 -> True
+    monkeypatch.setenv("BIORAG_DAEMON_ENABLED", "1")
+    assert is_daemon_enabled() is True
+
+
+def test_daemon_stop_command():
+    from core.daemon_lifecycle import stop_daemon
+    # Detener cuando no hay daemon debe ser seguro y retornar bool
+    assert isinstance(stop_daemon(), bool)
+
+
