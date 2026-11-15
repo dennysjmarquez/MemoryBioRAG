@@ -244,6 +244,7 @@ def _platform_configs() -> dict[str, dict]:
 
     antigravity_candidates: list[Path | None] = [
         Path.home() / ".gemini" / "config" / "mcp_config.json",
+        Path.home() / ".gemini" / "antigravity" / "mcp_config.json",
         Path.home() / ".gemini" / "mcp_config.json",
     ]
 
@@ -353,7 +354,7 @@ def _platform_configs() -> dict[str, dict]:
             "label": "Antigravity (Gemini)",
             "path": _pick_path(antigravity_candidates, Path.home() / ".gemini" / "config" / "mcp_config.json"),
             "key_path": ["mcpServers", "biorag"],
-            "format": "sse",
+            "format": "stdio",
         },
         "vscode": {
             "label": "VS Code",
@@ -1114,10 +1115,13 @@ def _checkpoint2() -> None:
 # ── MCP config builders ─────────────────────────────────────────────────────
 
 def _build_stdio_entry() -> dict:
-    """Build the MCP entry for stdio transport (OpenCode, Claude, etc.)."""
+    """Build the MCP entry for stdio transport (OpenCode, Claude, Antigravity, etc.)."""
     return {
         "command": _python(),
         "args": [str(_script_path())],
+        "env": {
+            "BIORAG_PATH": str(_db_path()),
+        },
     }
 
 
@@ -1235,6 +1239,17 @@ def _configure_platform(name: str, info: dict) -> bool:
 
     if ok:
         _ok(f"Configurado en {info['label']}")
+        # Sincronizar ambas rutas de Antigravity si existen para máxima compatibilidad
+        if name == "antigravity":
+            for alt in [Path.home() / ".gemini" / "antigravity" / "mcp_config.json", Path.home() / ".gemini" / "config" / "mcp_config.json"]:
+                if alt != path:
+                    try:
+                        alt.parent.mkdir(parents=True, exist_ok=True)
+                        alt_config = _read_json(alt)
+                        _nested_set(alt_config, key_path, entry)
+                        _write_json_with_checkpoint(alt, alt_config)
+                    except Exception:
+                        pass
         # Install OpenCode plugin alongside MCP config
         if name == "opencode":
             _install_opencode_plugin()
@@ -1881,14 +1896,6 @@ def install() -> None:
             _info("Puedes hacerlo manualmente con --show-config")
         elif configured > 0:
             _ok(f"{configured} agente(s) configurado(s) correctamente")
-
-        # Antigravity necesita un servidor en segundo plano para conectarse.
-        # Se instala automáticamente sin preguntar (es un detalle técnico
-        # que el usuario final no necesita entender).
-        if "antigravity" in detected:
-            _step("Activando BioRAG como servicio en segundo plano para Antigravity...")
-            _info("Antigravity necesita que BioRAG corra en segundo plano para conectarse.")
-            _install_systemd()
 
     # Checkpoint 4
     _step("Verificación final...")
