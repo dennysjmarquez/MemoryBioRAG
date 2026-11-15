@@ -63,7 +63,6 @@ def _resolve_install_dir() -> Path:
 
 INSTALL_DIR = _resolve_install_dir()
 BACKUPS_DIR = Path.home() / ".biorag" / "backups"
-SSE_PORT = 8080
 OPENCODE_PLUGIN_NAME = "opencode-biorag-remember-plugin"
 # Nombre del plugin para OpenCode V2 (API @opencode/plugin ≥ 2.x)
 OPENCODE_PLUGIN_NAME_V2 = "opencode-2-biorag-remember-plugin"
@@ -406,7 +405,6 @@ def _biorag_already_configured(info: dict) -> bool:
     'Correctly configured' means:
     - The nested key path exists in the config.
     - For stdio entries: the script path matches the current INSTALL_DIR.
-    - For SSE entries: the serverUrl is present.
 
     This enables idempotent installs: if nothing changed, we skip the write
     and tell the user it's already up to date — exactly like rustup or homebrew.
@@ -438,10 +436,6 @@ def _biorag_already_configured(info: dict) -> bool:
 
     if not isinstance(node, dict):
         return False
-
-    # Validate the entry points to the right place
-    if info["format"] == "sse":
-        return "serverUrl" in node
 
     # stdio: check the script path is still valid (covers reinstall to new dir)
     script = str(_script_path())
@@ -1134,13 +1128,6 @@ def _build_opencode_entry() -> dict:
     }
 
 
-def _build_sse_entry(port: int = SSE_PORT) -> dict:
-    """Build the MCP entry for SSE transport (Antigravity)."""
-    return {
-        "serverUrl": f"http://localhost:{port}/sse",
-    }
-
-
 def _build_hermes_entry() -> dict:
     """Build the MCP entry for Hermes (YAML in ~/.hermes/config.yaml)."""
     return {
@@ -1208,9 +1195,7 @@ def _configure_platform(name: str, info: dict) -> bool:
 
     key_path = info["key_path"]
 
-    if info["format"] == "sse":
-        entry = _build_sse_entry()
-    elif info["format"] == "hermes_yaml":
+    if info["format"] == "hermes_yaml":
         entry = _build_hermes_entry()
     elif name == "opencode":
         entry = _build_opencode_entry()
@@ -1497,80 +1482,6 @@ def _verify_final() -> None:
         print(f"\n  {_yellow('⚠ CLI funcional, MCP con advertencias')}")
 
 
-# ── Systemd service (SSE daemon) ───────────────────────────────────────────
-
-def _install_systemd(port: int = SSE_PORT) -> bool:
-    """Create a systemd --user service for the SSE server (Linux only).
-
-    Uses systemd user mode (no sudo required). Includes anti-crash-loop
-    limits per GEMINI.md: StartLimitBurst=5, StartLimitIntervalSec=60.
-    """
-    if sys.platform != "linux":
-        _warn("El servicio en segundo plano solo está disponible en Linux")
-        return False
-
-    service_name = "biorag-mcp"
-    # systemd --user: ~/.config/systemd/user/
-    user_systemd_dir = Path.home() / ".config" / "systemd" / "user"
-    user_systemd_dir.mkdir(parents=True, exist_ok=True)
-    service_path = user_systemd_dir / f"{service_name}.service"
-
-    unit = textwrap.dedent(f"""\
-        [Unit]
-        Description=BioRAG - Memoria persistente (servicio en segundo plano)
-        After=default.target
-
-        [Service]
-        Type=simple
-        ExecStart={_python()} {_script_path()} --sse --port {port}
-        Restart=always
-        RestartSec=5
-        # Anti crash-loop: si falla 5 veces en 60s, se detiene solo
-        StartLimitBurst=5
-        StartLimitIntervalSec=60
-        Environment=BIORAG_PATH={_db_path()}
-
-        [Install]
-        WantedBy=default.target
-    """)
-
-    try:
-        service_path.write_text(unit)
-
-        # Habilitar lingering para que el servicio arranque sin sesión activa
-        subprocess.run(
-            ["loginctl", "enable-linger"],
-            capture_output=True, text=True,  # fallo silencioso si no disponible
-        )
-
-        subprocess.run(
-            ["systemctl", "--user", "daemon-reload"],
-            check=True, capture_output=True, text=True,
-        )
-        result = subprocess.run(
-            ["systemctl", "--user", "enable", "--now", service_name],
-            capture_output=True, text=True,
-        )
-        if result.returncode == 0:
-            _ok(f"Servicio en segundo plano activado ({service_name})")
-            _info(f"BioRAG corre en http://localhost:{port}/sse")
-        else:
-            # El unit está instalado aunque el start falle (ej: sesión nueva)
-            _ok(f"Servicio registrado: {service_path}")
-            _info("Se activará automáticamente al iniciar sesión.")
-            _info(f"Para iniciar ahora: systemctl --user start {service_name}")
-        return True
-    except subprocess.CalledProcessError as exc:
-        _warn(f"No se pudo activar el servicio automáticamente: {exc.stderr.strip()}")
-        _info(f"Puedes iniciarlo manualmente con:")
-        _info(f"  python3 {_script_path()} --sse --port {port}")
-        return False
-    except Exception as exc:
-        _warn(f"No se pudo crear el servicio: {exc}")
-        _info(f"Inicio manual: python3 {_script_path()} --sse --port {port}")
-        return False
-
-
 # ── Help / show-config (copy-paste blocks) ─────────────────────────────────
 
 def _print_config_blocks() -> None:
@@ -1618,11 +1529,14 @@ def _print_config_blocks() -> None:
             "json": {
                 "mcpServers": {
                     "biorag": {
-                        "serverUrl": f"http://localhost:{SSE_PORT}/sse",
+                        "command": python_path,
+                        "args": [str(script_path)],
+                        "env": {
+                            "BIORAG_PATH": str(_db_path()),
+                        },
                     }
                 }
             },
-            "note": "Requiere servidor SSE corriendo (ver --systemd)",
         },
         "VS Code": {
             "path": ".vscode/mcp.json (en la raíz del proyecto)",
@@ -1994,7 +1908,7 @@ def show_summary() -> None:
 # ── CLI ─────────────────────────────────────────────────────────────────────
 
 def download_if_needed() -> bool:
-    """Ensure BioRAG is downloaded (for --show-config, --systemd)."""
+    """Ensure BioRAG is downloaded (for --show-config)."""
     if not _script_path().exists():
         _download_repo()
         _install_mcp()
@@ -2012,7 +1926,7 @@ def main() -> None:
               python3 install.py
               python3 install.py --uninstall
               python3 install.py --show-config
-              python3 install.py --systemd
+              python3 install.py --status
         """),
     )
     parser.add_argument(
@@ -2026,14 +1940,6 @@ def main() -> None:
     parser.add_argument(
         "--status", action="store_true",
         help="Mostrar estado de instalación actual",
-    )
-    parser.add_argument(
-        "--systemd", action="store_true",
-        help="Crear servicio systemd para SSE (Linux)",
-    )
-    parser.add_argument(
-        "--port", type=int, default=SSE_PORT,
-        help=f"Puerto para modo SSE (default: {SSE_PORT})",
     )
 
     args = parser.parse_args()
@@ -2049,11 +1955,6 @@ def main() -> None:
 
     if args.uninstall:
         uninstall()
-        return
-
-    if args.systemd:
-        download_if_needed()
-        _install_systemd(args.port)
         return
 
     # Default: full install
