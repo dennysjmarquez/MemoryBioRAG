@@ -17,11 +17,13 @@
  *   chat.message                    → session.hook("prompt") + ctx.session.synthetic()
  *   experimental.session.compacting → session.hook("compaction") (event.system.push)
  *   event session.compacted         → ctx.event.subscribe({types:["session.compaction.ended"]})
- *   client.tui.showToast            → eliminado (sin equivalente en server plugins V2)
+ *   client.tui.showToast (session.idle) → session.hook("experimental.idle") + notify-send
+ *                                        (notificación de escritorio, mismo camino que notify.ts)
  *   client.app.log                  → log a archivo (best-effort, para verificación)
  */
 import { Plugin } from "@opencode/plugin";
 import { appendFileSync } from "node:fs";
+import { execFile } from "node:child_process";
 
 // --- LOGGING TEMPORAL (verificación) — quitar tras comprobar ---
 const DEBUG_LOG = "/tmp/opencode/biorag-remember.log";
@@ -159,6 +161,7 @@ export default Plugin.define({
 	id: "biorag-remember",
 	setup: async (ctx) => {
 		let turnCount = 0;
+		let sent = false;
 
 		// Por cada prompt de usuario: decidir qué reminder toca y empujarlo
 		// invisible (synthetic sin description no se renderiza en el TUI).
@@ -170,6 +173,7 @@ export default Plugin.define({
 			turnCount++;
 			if (!text) return;
 
+			sent = true;
 			void ctx.session
 				.synthetic({ sessionID: event.sessionID, text, resume: false })
 				.then(() => log(`turn ${turnCount - 1}: reminder inyectado`))
@@ -181,6 +185,26 @@ export default Plugin.define({
 		// ANTES de compactar — preservar instrucciones en contexto compactado
 		await ctx.session.hook("compaction", (event) => {
 			event.system.push({ type: "text", text: REMINDER_BIORAG_COMPACT });
+		});
+
+		// Notificación de escritorio cuando un turno con reminder queda idle
+		// (equivalente V2 del viejo client.tui.showToast en session.idle).
+		// Usa notify-send, igual que el plugin notify.ts — el mismo camino nativo.
+		await ctx.session.hook("experimental.idle", (event) => {
+			if (!sent) return;
+			sent = false;
+			execFile(
+				"notify-send",
+				["--app-name=OpenCode", "Auto-save", "recordatorio BioRAG enviado ..."],
+				(err) => {
+					if (err) {
+						log(`notify-send FALLO: ${err.message}`);
+						return;
+					}
+					log("notify-send OK");
+				},
+			);
+			void event;
 		});
 
 		// Reset del contador al compactar (evento renombrado en V2:
