@@ -1,0 +1,25 @@
+{
+  "fixture": "synthetic_two_memory_japanese",
+  "database": "fresh_temporary_deleted_on_exit",
+  "transport": "direct MCP Python handlers; not stdio",
+  "synapses": [
+    [
+      "灯台警告記録",
+      "霧夜観測手掛かり",
+      "manual",
+      0.5
+    ],
+    [
+      "霧夜観測手掛かり",
+      "灯台警告記録",
+      "manual",
+      0.5
+    ]
+  ],
+  "integrity_check": "ok",
+  "free_query_seed_hit": false,
+  "aligned_query_seed_hit": true,
+  "aligned_query_target_in_expanded_context": true,
+  "context_window": 1,
+  "interpretation": "single scripted path; not an independent agent evaluation"
+}
