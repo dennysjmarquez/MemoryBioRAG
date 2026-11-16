@@ -1226,10 +1226,10 @@ def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, 
             pass
 
     # ─── Fallback 2.5 (E1): SDM binario 2048 bits ───
-    # Legado opt-in: buscar_sdm lee todos los vectores (O(N)), por lo que el
-    # default está apagado hasta incorporar un índice de candidatos. Si se activa
-    # explícitamente, solo corre con < 3 candidatos y consultas de ≥ 3 tokens.
-    # No toca layout SDM ni fusiona nodos; QCR sigue activo (FP).
+    # Fallback SDM activo por defecto: buscar_sdm lee todos los vectores (O(N));
+    # aceptamos ese coste por resiliencia mientras se implementa un índice Hamming/LSH.
+    # Solo corre fuera de modo estricto, con < 3 candidatos y consultas de ≥ 3 tokens.
+    # No toca layout SDM ni fusiona nodos; QCR sigue activo para controlar FPs.
     if (
         constants.SDM_FALLBACK_ACTIVO
         and not modo_estricto

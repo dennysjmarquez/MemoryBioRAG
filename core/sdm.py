@@ -532,11 +532,10 @@ def rescatar_fallback_sdm(cerebro, query: str, *, limite: int = 5,
                           sim_min=None, radio_max=None) -> list:
     """Fallback 2.5: rescate Hamming/Jaccard cuando el pool léxico es pobre.
 
-    Este fallback legacy está desactivado por defecto: buscar_sdm compara todos
-    los vectores SDM (O(N)) y no debe ejecutarse en línea sin un índice de
-    candidatos. El flag BIORAG_SDM_FALLBACK=1 lo habilita explícitamente para
-    pruebas o corpus pequeños. No reindexa la base durante la búsqueda; si no
-    hay vectores, no hay señal.
+    Este fallback está activo por defecto por resiliencia; buscar_sdm compara
+    todos los vectores SDM (O(N)). Aceptamos ese coste temporal mientras se
+    implementa un índice Hamming/LSH. BIORAG_SDM_FALLBACK=0 lo desactiva.
+    No reindexa la base durante la búsqueda; si no hay vectores, no hay señal.
 
     sim_min recorta ruido en consultas negativas (Gate FP 0%).
     """

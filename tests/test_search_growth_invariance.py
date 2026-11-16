@@ -248,8 +248,8 @@ def test_un_recuerdo_nuevo_pertinente_si_puede_entrar_al_top5(tmp_path, monkeypa
     assert _sha256(_SNAPSHOT) == snapshot_hash
 
 
-def test_sdm_full_scan_is_opt_in_and_skipped_by_online_search(tmp_path, monkeypatch):
-    """Keep the legacy O(N) SDM fallback out of the default search path."""
+def test_sdm_full_scan_is_skipped_when_fallback_is_disabled(tmp_path, monkeypatch):
+    """The explicit SDM off switch prevents the O(N) full scan."""
     from core.memory import constants
     import core.sdm as sdm
 
@@ -268,11 +268,11 @@ def test_sdm_full_scan_is_opt_in_and_skipped_by_online_search(tmp_path, monkeypa
     )
     db.conn.set_trace_callback(statements.append)
     try:
-        # This no-overlap query reaches Fallback 2.5 when the legacy flag is on.
+        # This no-overlap query reaches Fallback 2.5 when enabled.
         db.buscar_por_frase(query, limite=5)
         assert query in calls
 
-        # The production default is now OFF; no full nodos_sdm read is allowed.
+        # The explicit off switch must prevent the full nodos_sdm scan.
         calls.clear()
         statements.clear()
         monkeypatch.setattr(constants, "SDM_FALLBACK_ACTIVO", False)
@@ -286,8 +286,8 @@ def test_sdm_full_scan_is_opt_in_and_skipped_by_online_search(tmp_path, monkeypa
     assert _sha256(_SNAPSHOT) == snapshot_hash
 
 
-def test_sdm_fallback_default_is_disabled():
-    """An unset env var must not re-enable the O(N) online fallback."""
+def test_sdm_fallback_default_is_enabled():
+    """With no environment override, Fallback 2.5 is enabled."""
     env = os.environ.copy()
     env.pop("BIORAG_SDM_FALLBACK", None)
     root = Path(__file__).resolve().parents[1]
@@ -304,4 +304,4 @@ def test_sdm_fallback_default_is_disabled():
         check=True,
         text=True,
     )
-    assert result.stdout.strip().splitlines()[-1] == "0"
+    assert result.stdout.strip().splitlines()[-1] == "1"

@@ -158,11 +158,10 @@ if CONVERGENCIA_EVIDENCIA_MAX_BONUS != _bonus_requested:
         _bonus_env, CONVERGENCIA_EVIDENCIA_MAX_BONUS,
     )
 
-# E1: SDM Kanerva (2048 bits) como Fallback 2.5. `buscar_sdm` lee y compara
-# todos los vectores, por lo que no es apto para el path de búsqueda en línea
-# sin un índice de candidatos. Se conserva como opt-in de diagnóstico/legacy.
-# Default OFF; `BIORAG_SDM_FALLBACK=1` lo reactiva explícitamente.
-SDM_FALLBACK_ACTIVO = os.environ.get('BIORAG_SDM_FALLBACK', '0').lower() in ('1', 'true', 'yes')
+# E1: SDM Kanerva (2048 bits) como Fallback 2.5. `buscar_sdm` compara
+# todos los vectores (O(N)); aceptamos ese coste por resiliencia mientras se
+# implementa un índice Hamming/LSH. `BIORAG_SDM_FALLBACK=0` lo desactiva.
+SDM_FALLBACK_ACTIVO = os.environ.get('BIORAG_SDM_FALLBACK', '1').lower() in ('1', 'true', 'yes')
 SDM_FALLBACK_K = int(os.environ.get('BIORAG_SDM_FALLBACK_K', '5'))
 
 # E3: QCR ponderado por IDF. Default ON. Umbral 0.30–0.45 (default 0.40).

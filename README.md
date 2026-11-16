@@ -3331,7 +3331,7 @@ Ver tabla de defaults al inicio del README. Resumen:
 | `BIORAG_EPISODIO_LIMITE` | `5` | F2 |
 | `BIORAG_EPISODIO_BUCKET_SEG` | `86400` | F2 |
 
-> **Estado del fallback SDM en este checkout:** el default efectivo es `0`, porque `buscar_sdm()` lee todos los vectores (`O(N)`) en cada consulta. El `1` de la tabla conserva la configuración histórica v31.1; `BIORAG_SDM_FALLBACK=1` queda como opt-in experimental y no forma parte del path online predeterminado.
+> **Estado del fallback SDM en este checkout:** el default efectivo es `1` para rescatar recuerdos en modo no estricto cuando la búsqueda léxica ofrece menos de 3 candidatos y la consulta tiene al menos 3 tokens. `buscar_sdm()` compara todos los vectores (`O(N)`); aceptamos temporalmente ese coste por resiliencia mientras se implementa un índice Hamming/LSH. `BIORAG_SDM_FALLBACK=0` lo desactiva.
 
 ### Búsqueda y Rendimiento
 
