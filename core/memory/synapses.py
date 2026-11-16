@@ -22,6 +22,30 @@ from core.memory import constants
 
 logger = logging.getLogger("BioRAG.Memory.Synapses")
 
+# Ventana máxima de aristas por extremo para que un hub no convierta el rescate
+# asociativo en un barrido proporcional al tamaño creciente del grafo.
+_MAX_ARISTAS_POR_DIRECCION = 512
+
+
+def _aristas_locales_acotadas(self, concepto, limite=_MAX_ARISTAS_POR_DIRECCION):
+    """Lee una ventana estable de aristas incidentes usando los índices de extremos."""
+    rowid_max = getattr(self, "_search_baseline_sinapsis_rowid", None)
+    salida = []
+    limite = min(_MAX_ARISTAS_POR_DIRECCION, max(1, int(limite)))
+    for columna, vecino in (("origen", "destino"), ("destino", "origen")):
+        sql = f"SELECT {vecino}, peso, rowid FROM sinapsis WHERE {columna} = ?"
+        params = [concepto]
+        if rowid_max is not None:
+            sql += " AND rowid <= ?"
+            params.append(int(rowid_max))
+        sql += " ORDER BY rowid DESC LIMIT ?"
+        params.append(limite)
+        try:
+            salida.extend(self.cursor.execute(sql, tuple(params)).fetchall())
+        except Exception:
+            continue
+    return salida
+
 
 def aplicar_refuerzo_dopaminergico(self, concepto: str, exito: bool, motivo: str = None) -> bool:
     """
@@ -190,26 +214,20 @@ def _evocacion_por_cadena(self, semillas, max_saltos=None, limite=None):
                 continue
             visitados.add(nodo)
 
-            # Fan Effect (ACT-R): atenuación conservativa por grado de dispersión del nodo emisor
-            self.cursor.execute(
-                "SELECT COUNT(*) FROM ("
-                "SELECT destino FROM sinapsis WHERE origen = ? "
-                "UNION "
-                "SELECT origen FROM sinapsis WHERE destino = ?"
-                ")",
-                (nodo, nodo)
-            )
-            fan_grado = self.cursor.fetchone()[0] or 1
+            # Fan Effect (ACT-R): se calcula sobre una ventana indexada y
+            # estable. El grado satura a 2 * 512 para que un hub creciente no
+            # fuerce un COUNT(*) sobre todas sus aristas en cada consulta.
+            aristas = _aristas_locales_acotadas(self, nodo)
+            fan_grado = len({fila[0] for fila in aristas}) or 1
             fan_factor = 1.0 / math.log(math.e + max(0, fan_grado - 1))
 
-            self.cursor.execute(
-                "SELECT destino, peso FROM sinapsis WHERE origen = ? "
-                "UNION "
-                "SELECT origen, peso FROM sinapsis WHERE destino = ? "
-                "ORDER BY peso DESC LIMIT 10",
-                (nodo, nodo)
-            )
-            for vecino, peso in self.cursor.fetchall():
+            # UNION legacy eliminaba pares (vecino, peso) repetidos. Reproducimos
+            # esa semántica sobre la ventana acotada antes de propagar Top-10.
+            mejores_aristas = sorted(
+                {(fila[0], fila[1]) for fila in aristas},
+                key=lambda par: (-(par[1] or 0.0), par[0]),
+            )[:10]
+            for vecino, peso in mejores_aristas:
                 if vecino not in visitados:
                     sv = score * (peso or 0.5) * fan_factor * decay
                     if sv > 0.05:
@@ -304,21 +322,51 @@ def _expandir_contexto_bfs(self, pagina_resultados, depth, profundidad="activos"
             concepto = r[0]
             score_actual = r[4]
             
-            # Recuperar vecinos directos de la base de datos (anti-trampa alfabética de SQLite)
+            # Recuperar una ventana fija por extremo. ORDER BY rowid se sirve
+            # desde los índices de sinapsis y evita ordenar todas las aristas de
+            # un hub antes de aplicar el límite visible al usuario.
+            max_vecinos_nodo = min(
+                _MAX_ARISTAS_POR_DIRECCION,
+                max(0, int(os.environ.get("BIORAG_MAX_VECINOS_POR_NODO", "6"))),
+            )
+            if max_vecinos_nodo <= 0:
+                continue
+            limite_lectura = _MAX_ARISTAS_POR_DIRECCION
+            rowid_max = getattr(self, "_search_baseline_sinapsis_rowid", None)
+            filtro_rowid = " AND rowid <= ?" if rowid_max is not None else ""
+            params_aristas = [concepto]
+            if rowid_max is not None:
+                params_aristas.append(int(rowid_max))
+            params_aristas.append(limite_lectura)
+            params_aristas.append(concepto)
+            if rowid_max is not None:
+                params_aristas.append(int(rowid_max))
+            params_aristas.append(limite_lectura)
+            params_aristas.append(max_vecinos_nodo)
             self.cursor.execute(f"""
-                SELECT l.concepto, l.contenido, l.peso_sinaptico, l.estado, l.asociaciones, s.peso
-                FROM (
-                    SELECT destino as vecino, peso, rowid FROM sinapsis WHERE origen = ?
+                WITH salida AS (
+                    SELECT destino AS vecino, peso, rowid FROM sinapsis
+                    WHERE origen = ?{filtro_rowid}
+                    ORDER BY rowid DESC LIMIT ?
+                ), entrada AS (
+                    SELECT origen AS vecino, peso, rowid FROM sinapsis
+                    WHERE destino = ?{filtro_rowid}
+                    ORDER BY rowid DESC LIMIT ?
+                ), aristas AS (
+                    SELECT vecino, peso, rowid FROM salida
                     UNION ALL
-                    SELECT origen as vecino, peso, rowid FROM sinapsis WHERE destino = ?
-                ) s
-                JOIN largo_plazo l ON l.concepto = s.vecino
+                    SELECT vecino, peso, rowid FROM entrada
+                )
+                SELECT l.concepto, l.contenido, l.peso_sinaptico, l.estado,
+                       l.asociaciones, a.peso
+                FROM aristas a
+                JOIN largo_plazo l ON l.concepto = a.vecino
                 WHERE 1=1{filtro_estado}
-                ORDER BY s.peso DESC, s.rowid DESC
-            """, (concepto, concepto))
-            
+                ORDER BY a.peso DESC, a.rowid DESC
+                LIMIT ?
+            """, tuple(params_aristas))
+
             agregados = 0
-            max_vecinos_nodo = int(os.environ.get("BIORAG_MAX_VECINOS_POR_NODO", "6"))
             vecinos_padre_vistos = set()
             for row in self.cursor.fetchall():
                 if agregados >= max_vecinos_nodo:

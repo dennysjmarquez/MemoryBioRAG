@@ -23,6 +23,12 @@ from core.stemmer_es import _quitar_acentos
 from core.memory import constants
 from core.memory import neurona
 from core.memory import escala as _escala
+from core.memory.stable_ranking import (
+    CorpusIndependentLexicalRanker,
+    orden_candidato_fts,
+)
+from core.memory.growth_stable_fts import REFERENCE_FTS, REFERENCE_UNICODE_FTS
+from core.memory.bm25_calibration import normalizar_mapa_bm25
 
 logger = logging.getLogger("BioRAG.MemoryStore")
 
@@ -96,6 +102,7 @@ def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, 
     self.last_score_base_map = {}
     self.last_score_bonus_map = {}
     self.last_score_base_top = None
+    baseline_rowid = getattr(self, "_search_baseline_rowid", None)
     # SRL v16.0: Filtrado por roles semánticos (buscar_por_rol)
     conceptos_validos_rol = None
     if buscar_por_rol:
@@ -188,10 +195,17 @@ def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, 
             _tokens_probe = [t for t in _tokens_probe if t]
             if _tokens_probe:
                 _fts_and_probe = " AND ".join(f'"{t}"' for t in _tokens_probe)
-                _cnt_probe = self.cursor.execute(
-                    "SELECT COUNT(*) FROM largo_plazo_fts WHERE largo_plazo_fts MATCH ?",
-                    (_fts_and_probe,)
-                ).fetchone()[0]
+                if baseline_rowid is not None:
+                    _cnt_probe = self.cursor.execute(
+                        "SELECT COUNT(*) FROM largo_plazo_fts "
+                        "WHERE largo_plazo_fts MATCH ? AND rowid <= ?",
+                        (_fts_and_probe, baseline_rowid),
+                    ).fetchone()[0]
+                else:
+                    _cnt_probe = self.cursor.execute(
+                        "SELECT COUNT(*) FROM largo_plazo_fts WHERE largo_plazo_fts MATCH ?",
+                        (_fts_and_probe,),
+                    ).fetchone()[0]
                 _necesita_expansion = _cnt_probe == 0
         except Exception as exc:
             logger.debug(f"[BioRAG.Probe] Excepción en probe FTS5 AND (fallback a expandir=True): {exc}")
@@ -330,8 +344,10 @@ def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, 
             self._epistemico_publicar_sin_consulta()
         return [], 0
 
-    # Calcular pesos diferenciales de tokens por centralidad en la red
-    pesos_tokens = self._pesar_tokens_query(frase)
+    # La antigua centralidad por token consultaba sinapsis con LIKE '%token%'
+    # en cada búsqueda, pero `pesos_tokens` no participaba en el score. Se elimina
+    # ese barrido de aristas del camino caliente; las señales asociativas usadas
+    # más abajo siguen intactas.
 
     # Build filter clauses
     filtros = []
@@ -348,6 +364,12 @@ def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, 
     if hasta_ts is not None:
         filtros.append("l.creado_en <= ?")
         temporal_params.append(hasta_ts)
+    # La búsqueda base opera sobre el prefijo estable del corpus. Las altas
+    # posteriores se recuperan aparte como overlay, sin alterar gates ni LIMITs
+    # de los fallbacks históricos.
+    if baseline_rowid is not None:
+        filtros.append("l.rowid <= ?")
+        temporal_params.append(int(baseline_rowid))
     clause = (" AND " + " AND ".join(filtros)) if filtros else ""
 
     def _fts_safe_term(term):
@@ -390,27 +412,106 @@ def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, 
         fts_match = _fts_safe_phrase(frase_fts)
 
     # RF-19 (spec 001): boost por sustantivos_clave — condición MATCH adicional en la
-    # columna dedicada (peso BM25 4.0x según RF-5). Solo en modo no estricto (path
-    # default): en estricto un OR debilitaría la semántica AND. Solo se construye cuando
-    # se provee, porque el FTS de snapshots legacy (3 columnas) no tiene la columna.
+    # columna dedicada. Solo se construye cuando se provee, porque algunos snapshots
+    # legacy conservan el FTS de tres columnas.
+    sk_tokens = []
     if sustantivos_clave_boost and not modo_estricto:
         sk_tokens = [t for t in _quitar_acentos(str(sustantivos_clave_boost)).split(",") if t]
         if sk_tokens:
             sk_fts = " OR ".join(f'"{_fts_safe_term(t)}"' for t in sk_tokens)
             boost_match = f"sustantivos_clave:({sk_fts})"
             fts_match = f"({fts_match}) OR {boost_match}" if fts_match else boost_match
-    sql = """
+
+    # El corpus de referencia conserva la BM25 de FTS5 con sus cuatro pesos
+    # históricos. Como el índice es inmutable, N/df/avgdl no cambian al crecer el
+    # corpus. Las altas posteriores se puntúan con el ranker local independiente.
+    baseline_fts_ready = bool(getattr(self, "_search_baseline_fts_ready", False))
+    fts_table = REFERENCE_FTS if baseline_fts_ready else "largo_plazo_fts"
+    unicode_fts_table = (
+        REFERENCE_UNICODE_FTS if baseline_fts_ready else "largo_plazo_fts_unicode"
+    )
+    bm25_expression = (
+        f"bm25({fts_table}, 5.0, 1.0, 2.0, 4.0)"
+        if baseline_fts_ready else "NULL"
+    )
+    unicode_bm25_expression = (
+        f"bm25({unicode_fts_table})" if baseline_fts_ready else "NULL"
+    )
+    unicode_order_expression = (
+        unicode_bm25_expression if baseline_fts_ready else "l.rowid"
+    )
+    try:
+        self.cursor.execute("SELECT sustantivos_clave FROM largo_plazo LIMIT 0")
+        sustantivos_select = "COALESCE(l.sustantivos_clave, '')"
+    except sqlite3.OperationalError:
+        sustantivos_select = "''"
+
+    ranking_variants = [query, frase_fts]
+    ranking_variants.extend(parafrasis_fts or [])
+    ranking_variants.extend(protected_terms or [])
+    ranking_variants.extend(sk_tokens)
+    ranker_lexico = CorpusIndependentLexicalRanker(ranking_variants)
+
+    sql = f"""
         SELECT l.rowid, l.concepto, l.contenido, l.peso_sinaptico,
-               l.estado, l.asociaciones,
-               bm25(largo_plazo_fts, 5.0, 1.0, 2.0, 4.0) AS bm25_val
-        FROM largo_plazo_fts f
+               l.estado, l.asociaciones, COALESCE(l.sinonimos, ''),
+               {sustantivos_select}, {bm25_expression} AS bm25_val
+        FROM {fts_table} f
         CROSS JOIN largo_plazo l ON l.rowid = f.rowid
-        WHERE largo_plazo_fts MATCH ?{filtro}
-        ORDER BY bm25(largo_plazo_fts, 5.0, 1.0, 2.0, 4.0) * (0.5 + 0.5 * l.peso_sinaptico)
+        WHERE {fts_table} MATCH ?{{filtro}}
     """.format(filtro=clause)
 
     todos = []
-    bm25_raw = {}  # concepto -> raw BM25 from FTS5
+    stable_bm25_scores = {}  # score léxico local para rescates/overlay
+    bm25_raw = {}  # BM25 del FTS congelado para los recuerdos de referencia
+
+    def _score_fts_row(row):
+        if len(row) > 7:
+            sinonimos_row, nouns_row = row[6] or "", row[7] or ""
+        else:
+            sinonimos_row, nouns_row = "", ""
+        score = ranker_lexico.score(row[1] or "", row[2] or "", sinonimos_row, nouns_row)
+        concepto_row = row[1]
+        if concepto_row:
+            if len(row) > 8 and row[8] is not None:
+                try:
+                    bm25_raw[concepto_row] = float(row[8])
+                except (TypeError, ValueError):
+                    pass
+            score = max(score, stable_bm25_scores.get(concepto_row, 0.0))
+            stable_bm25_scores[concepto_row] = score
+        return score
+
+    def _ordenar_filas_fts(rows, *, aplicar_peso_sinaptico=True):
+        def _key(row):
+            _score = _score_fts_row(row)
+            if baseline_fts_ready and len(row) > 8 and row[8] is not None:
+                try:
+                    return orden_candidato_fts(
+                        abs(float(row[8])), row[1], row[3],
+                        aplicar_peso_sinaptico=aplicar_peso_sinaptico,
+                    )
+                except (TypeError, ValueError):
+                    pass
+            return orden_candidato_fts(
+                _score, row[1], row[3],
+                aplicar_peso_sinaptico=aplicar_peso_sinaptico,
+            )
+        return sorted(rows, key=_key)
+
+    def _ordenar_pool_estable(rows):
+        # El flujo primario ya viene en el orden BM25 congelado (NEAR primero,
+        # después los añadidos por OR), como el ranker histórico. No volver a
+        # ordenar ese prefijo con un score local distinto.
+        if baseline_fts_ready and bm25_raw:
+            return rows
+        return sorted(
+            rows,
+            key=lambda row: orden_candidato_fts(
+                stable_bm25_scores.get(row[1], 0.0), row[1], row[3]
+            ),
+        )
+
     # Split hyphenated tokens for FTS5 safety and better matching
     palabras_raw = [w for w in frase.split() if len(w) >= 2]
     palabras = []
@@ -436,6 +537,9 @@ def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, 
         if categoria:
             cat_id = self._resolver_categoria_id(categoria)
             fb_rol_filtros.append(f"categoria = {cat_id}")
+        if baseline_rowid is not None:
+            fb_rol_filtros.append("rowid <= ?")
+            fb_rol_params.append(int(baseline_rowid))
         if fb_rol_filtros:
             sql_rol_all += " AND " + " AND ".join(fb_rol_filtros)
 
@@ -461,26 +565,48 @@ def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, 
         palabras_like = [w for w in frase.split() if len(w) >= 2]
     resultados_concepto = {}
     if palabras_like:
-        like_clauses = []
-        like_params = []
-        for w in palabras_like:
-            like_clauses.append(
-                "(l.concepto LIKE '%' || ? || '%' AND "
-                "(PALABRA_COMPLETA(?, l.concepto) = 1 OR length(?) >= 5))"
-            )
-            like_params.extend([w, w, w])
-        like_where = " AND ".join(like_clauses)
-        clause_like = clause.replace("l.", "") if clause else ""
-        sql_like = f"""
+        # El FTS de columna reemplaza LIKE '%...%' sobre toda largo_plazo. Las
+        # palabras de 3+ caracteres salen del índice trigram; las más cortas usan
+        # unicode61 y PALABRA_COMPLETA, con un límite de candidatos acotado.
+        trigram_terms = [w for w in palabras_like if len(w) >= 3]
+        concept_terms = trigram_terms or palabras_like
+        concept_fts = fts_table if trigram_terms else unicode_fts_table
+        concept_match = " AND ".join(
+            f'concepto : "{_fts_safe_phrase(w)}"' for w in concept_terms
+        )
+        concept_pc_conds = []
+        concept_pc_params = []
+        for word in palabras_like:
+            if len(word) <= 4:
+                concept_pc_conds.append("PALABRA_COMPLETA(?, l.concepto) = 1")
+                concept_pc_params.append(word)
+        concept_pc_clause = (
+            " AND " + " AND ".join(concept_pc_conds) if concept_pc_conds else ""
+        )
+        concept_order = (
+            f"bm25({concept_fts}, 5.0, 1.0, 2.0, 4.0)"
+            if concept_fts == fts_table and baseline_fts_ready
+            else (f"bm25({concept_fts})" if baseline_fts_ready else "l.rowid")
+        )
+        concept_cap = max(100, min(1000, int(limite or 5) * 10))
+        sql_concept = f"""
             SELECT l.rowid, l.concepto, l.contenido, l.peso_sinaptico,
                    l.estado, l.asociaciones
-            FROM largo_plazo l
-            WHERE {like_where}{clause_like}
+            FROM {concept_fts} f
+            CROSS JOIN largo_plazo l ON l.rowid = f.rowid
+            WHERE {concept_fts} MATCH ?{clause}{concept_pc_clause}
+            ORDER BY {concept_order} LIMIT ?
         """
         try:
-            self.cursor.execute(sql_like, like_params + temporal_params)
+            self.cursor.execute(
+                sql_concept,
+                (concept_match,) + tuple(temporal_params) + tuple(concept_pc_params)
+                + (concept_cap,),
+            )
             for r in self.cursor.fetchall():
-                match_ratio = sum(1 for w in palabras_like if w.lower() in r[1].lower()) / len(palabras_like)
+                match_ratio = sum(
+                    1 for word in palabras_like if word.lower() in r[1].lower()
+                ) / len(palabras_like)
                 resultados_concepto[r[1]] = match_ratio
                 origen_scores[r[1]] = ("concepto", match_ratio)
         except sqlite3.OperationalError:
@@ -514,11 +640,10 @@ def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, 
         near_query = f'NEAR({" ".join(palabras_safe)}, 15)'
         try:
             self.cursor.execute(sql_con_pc, tuple([near_query]) + tuple(temporal_params) + tuple(pc_params))
-            _raw = self.cursor.fetchall()
+            _raw = _ordenar_filas_fts(self.cursor.fetchall())
             todos = []
             for r in _raw:
                 todos.append(r[:6])
-                bm25_raw[r[1]] = r[6]
                 origen_scores[r[1]] = ("literal", 0.0)
         except sqlite3.OperationalError:
             pass
@@ -527,11 +652,10 @@ def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, 
     if not solo_protegidos and not todos:
         try:
             self.cursor.execute(sql_con_pc, (fts_match,) + tuple(temporal_params) + tuple(pc_params))
-            _raw = self.cursor.fetchall()
+            _raw = _ordenar_filas_fts(self.cursor.fetchall())
             todos = []
             for r in _raw:
                 todos.append(r[:6])
-                bm25_raw[r[1]] = r[6]
                 origen_scores[r[1]] = ("literal", 0.0)
         except sqlite3.OperationalError:
             pass
@@ -541,20 +665,35 @@ def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, 
     if not solo_protegidos and 3 <= len(todos) < limite and fts_match:
         try:
             self.cursor.execute(sql_con_pc, (fts_match,) + tuple(temporal_params) + tuple(pc_params))
-            _raw = self.cursor.fetchall()
+            _raw = _ordenar_filas_fts(self.cursor.fetchall())
             seen_rowids = {r[0] for r in todos}
             for r in _raw:
                 if r[0] not in seen_rowids:
                     todos.append(r[:6])
-                    bm25_raw[r[1]] = r[6]
                     if r[1] not in origen_scores:
                         origen_scores[r[1]] = ("literal", 0.0)
                     seen_rowids.add(r[0])
         except sqlite3.OperationalError:
             pass
 
-    # Store FTS5-only concepts for pseudo-relevance feedback (before content expansion)
-    fts5_conceptos = [r[1] for r in todos if r[1]]
+    # The first lexical seed set is deterministic and isolated from later fallback
+    # insertions. It anchors pseudo-dimensions, spreading activation, local QCR IDF,
+    # and the associative pool so unrelated fallback rows cannot perturb them.
+    todos = _ordenar_pool_estable(todos)
+    baseline_rowid = getattr(self, "_search_baseline_rowid", None)
+    if baseline_rowid is None:
+        # Compatibilidad con instancias antiguas o esquemas donde no se pudo
+        # registrar el límite: conserva la semilla histórica de la búsqueda.
+        fts5_conceptos = [r[1] for r in todos if r[1]]
+    else:
+        # Las señales derivadas de las semillas (dimensiones inferidas, PPMI,
+        # temática, spreading activation y QCR) se calculan solo con el corpus
+        # que existía al fijar el límite. Las altas posteriores siguen siendo
+        # candidatas y se puntúan individualmente, pero no reescalan recuerdos
+        # antiguos por ocupar un lugar en el pool.
+        fts5_conceptos = [
+            r[1] for r in todos if r[1] and int(r[0]) <= int(baseline_rowid)
+        ]
 
     # ─── Términos protegidos: búsqueda exacta contra unicode61 + PALABRA_COMPLETA ───
     # Los términos entre comillas dobles ("CV", "IA") bypassan trigram y se buscan
@@ -570,22 +709,21 @@ def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, 
         try:
             self.cursor.execute(
                 f"SELECT l.rowid, l.concepto, l.contenido, l.peso_sinaptico, "
-                f"l.estado, l.asociaciones, "
-                f"bm25(largo_plazo_fts_unicode) AS bm25_val "
-                f"FROM largo_plazo_fts_unicode f "
+                f"l.estado, l.asociaciones, COALESCE(l.sinonimos, ''), "
+                f"{sustantivos_select}, {unicode_bm25_expression} AS bm25_val "
+                f"FROM {unicode_fts_table} f "
                 f"CROSS JOIN largo_plazo l ON l.rowid = f.rowid "
-                f"WHERE largo_plazo_fts_unicode MATCH ?"
-                f"{clause}{pc_prot_clause} "
-                f"ORDER BY bm25(largo_plazo_fts_unicode) "
-                f"LIMIT ?",
+                f"WHERE {unicode_fts_table} MATCH ?"
+                f"{clause}{pc_prot_clause} ORDER BY {unicode_order_expression} LIMIT ?",
                 (fts_protected,) + tuple(temporal_params) + tuple(pc_prot_params) + (limite * 3,)
             )
-            prot_results = self.cursor.fetchall()
+            prot_results = _ordenar_filas_fts(
+                self.cursor.fetchall(), aplicar_peso_sinaptico=False
+            )[:limite * 3]
             seen_rowids = {r[0] for r in todos}
             for r in prot_results:
                 if r[0] not in seen_rowids:
                     todos.append(r[:6])
-                    bm25_raw[r[1]] = r[6]
                     origen_scores[r[1]] = ("protegido", 1.0)
                     seen_rowids.add(r[0])
         except sqlite3.OperationalError:
@@ -599,13 +737,12 @@ def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, 
             # Si hay paráfrasis y no se encontró nada, usar fts_match directamente
             try:
                 self.cursor.execute(sql_con_pc, (fts_match,) + tuple(temporal_params) + tuple(pc_params))
-                or_results = self.cursor.fetchall()
+                or_results = _ordenar_filas_fts(self.cursor.fetchall())
                 seen_rowids = {r[0] for r in todos}
                 for r in or_results:
                     if r[0] not in seen_rowids:
                         origen_scores[r[1]] = ("parafrasis", 0.0)
                         todos.append(r[:6])
-                        bm25_raw[r[1]] = r[6]
             except sqlite3.OperationalError:
                 pass
 
@@ -615,23 +752,26 @@ def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, 
     if not modo_estricto and len(todos) < 3:
         try:
             query_wild = self._agregar_prefix_wildcards(query)
-            sql_unicode = """
+            sql_unicode = f"""
                 SELECT l.rowid, l.concepto, l.contenido, l.peso_sinaptico,
-                       l.estado, l.asociaciones,
-                       bm25(largo_plazo_fts_unicode) AS bm25_val
-                FROM largo_plazo_fts_unicode f
+                       l.estado, l.asociaciones, COALESCE(l.sinonimos, ''),
+                       {sustantivos_select}, {unicode_bm25_expression} AS bm25_val
+                FROM {unicode_fts_table} f
                 CROSS JOIN largo_plazo l ON l.rowid = f.rowid
-                WHERE largo_plazo_fts_unicode MATCH ?{filtro}
-                ORDER BY bm25(largo_plazo_fts_unicode)
-                LIMIT ?
+                WHERE {unicode_fts_table} MATCH ?{{filtro}}
+                ORDER BY {unicode_order_expression} LIMIT ?
             """.format(filtro=clause)
-            self.cursor.execute(sql_unicode, (query_wild,) + tuple(temporal_params) + (max(limite * 3, 10),))
-            uni_results = self.cursor.fetchall()
+            self.cursor.execute(
+                sql_unicode,
+                (query_wild,) + tuple(temporal_params) + (max(limite * 3, 10),),
+            )
+            uni_results = _ordenar_filas_fts(
+                self.cursor.fetchall(), aplicar_peso_sinaptico=False
+            )[:max(limite * 3, 10)]
             seen_rowids = {r[0] for r in todos}
             for r in uni_results:
                 if r[0] not in seen_rowids:
                     todos.append(r[:6])
-                    bm25_raw[r[1]] = r[6]
                     origen_scores[r[1]] = ("unicode", 0.0)
         except sqlite3.OperationalError:
             pass
@@ -650,10 +790,15 @@ def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, 
         if categoria:
             cat_id_fb2 = self._resolver_categoria_id(categoria)
             filtros_fb.append(f"categoria = {cat_id_fb2}")
+        if baseline_rowid is not None:
+            filtros_fb.append(f"rowid <= {int(baseline_rowid)}")
         where_fb = ("WHERE " + " AND ".join(filtros_fb)) if filtros_fb else ""
         try:
             _ids_17 = (
-                _escala.rowids_por_parecido(self.cursor, query, where_fb, (), sql_limit)
+                _escala.rowids_por_parecido(
+                    self.cursor, query, where_fb, (), sql_limit,
+                    baseline_rowid=baseline_rowid,
+                )
                 if _escala.activa() else None
             )
             if _ids_17 is None:
@@ -682,7 +827,9 @@ def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, 
             _conocidas_17 = set()
             if _escala.activa():
                 _qn_17 = {w: _escala.sin_tildes(w) for w in query_words_filtradas}
-                _raras_17 = set(_escala.palabras_desconocidas(self.cursor, list(_qn_17.values())))
+                _raras_17 = set(_escala.palabras_desconocidas(
+                    self.cursor, list(_qn_17.values()), baseline_rowid=baseline_rowid
+                ))
                 _conocidas_17 = {w for w, n in _qn_17.items() if n not in _raras_17}
             candidatos = []
             for row in filas:
@@ -741,7 +888,10 @@ def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, 
             if query_tokens:
                 try:
                     try:
-                        grafo = _cargar_grafo(self.cursor)
+                        grafo = _cargar_grafo(
+                            self.cursor,
+                            rowid_max=getattr(self, "_search_baseline_sinapsis_rowid", None),
+                        )
                         # Batch: pre-fetch puentes FTS5 una vez (1 query SQL)
                         # En vez de N queries FTS5 separadas en _similitud_red
                         filtrar = [t for t in query_tokens if len(t) >= 2]
@@ -763,11 +913,17 @@ def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, 
                             pc_bridge_params = tuple(pc_bridge_params_list)
                             try:
                                 bridge_filter = " AND l.estado = 'activo'"
+                                if baseline_rowid is not None:
+                                    bridge_filter += f" AND l.rowid <= {int(baseline_rowid)}"
+                                bridge_rank = (
+                                    f"bm25({fts_table}, 5.0, 1.0, 2.0, 4.0)"
+                                    if baseline_fts_ready else "l.rowid"
+                                )
                                 self.cursor.execute(
-                                    "SELECT DISTINCT l.concepto FROM largo_plazo_fts f "
-                                    "CROSS JOIN largo_plazo l ON l.rowid = f.rowid "
-                                    "WHERE largo_plazo_fts MATCH ? " + bridge_filter
-                                    + pc_bridge_clause + " LIMIT 50",
+                                    f"SELECT DISTINCT l.concepto FROM {fts_table} f "
+                                    f"CROSS JOIN largo_plazo l ON l.rowid = f.rowid "
+                                    f"WHERE {fts_table} MATCH ? " + bridge_filter
+                                    + pc_bridge_clause + f" ORDER BY {bridge_rank}, l.rowid LIMIT 50",
                                     (fts_q,) + pc_bridge_params
                                 )
                                 nodos_cache = {row[0] for row in self.cursor.fetchall()}
@@ -777,6 +933,8 @@ def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, 
                         if fts_tokens:
                             fts_q = " OR ".join(fts_tokens)
                             lat_clause = " AND l.estado = 'activo'"
+                            if baseline_rowid is not None:
+                                lat_clause += f" AND l.rowid <= {int(baseline_rowid)}"
                             # Filtro PALABRA_COMPLETA en candidatos: evita falsos positivos de trigram
                             # Relajación: solo se exige PALABRA_COMPLETA para palabras cortas (longitud <= 4)
                             pc_lat_clause = ""
@@ -793,11 +951,16 @@ def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, 
                                         pc_lat_conds.append("(1 = 1)")
                                 pc_lat_clause = " AND (" + " AND ".join(pc_lat_conds) + ")"
                                 pc_lat_params = tuple(pc_lat_params_list)
+                            lat_rank = (
+                                f"bm25({fts_table}, 5.0, 1.0, 2.0, 4.0)"
+                                if baseline_fts_ready else "l.rowid"
+                            )
                             self.cursor.execute(
-                                "SELECT l.rowid, l.concepto, l.contenido, l.peso_sinaptico, "
-                                "l.estado, l.asociaciones "
-                                "FROM largo_plazo_fts f CROSS JOIN largo_plazo l ON l.rowid = f.rowid "
-                                "WHERE largo_plazo_fts MATCH ?" + lat_clause + pc_lat_clause + " LIMIT ?",
+                                f"SELECT l.rowid, l.concepto, l.contenido, l.peso_sinaptico, "
+                                f"l.estado, l.asociaciones "
+                                f"FROM {fts_table} f CROSS JOIN largo_plazo l ON l.rowid = f.rowid "
+                                f"WHERE {fts_table} MATCH ?" + lat_clause + pc_lat_clause
+                                + f" ORDER BY {lat_rank}, l.rowid LIMIT ?",
                                 (fts_q,) + pc_lat_params + (constants.CANDIDATOS_SIMILITUD,)
                             )
                             candidatos_lat = self.cursor.fetchall()
@@ -831,18 +994,32 @@ def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, 
     # Fallback 2.0: substring match con word boundary via PALABRA_COMPLETA
     if not modo_estricto and len(todos) < 3 and len(query) >= 2:
         filtros_fb = []
+        params_fb = []
         if profundidad != "profundo":
-            filtros_fb.append("estado = 'activo'")
+            filtros_fb.append("l.estado = 'activo'")
         if categoria:
-            cat_id_fb = self._resolver_categoria_id(categoria)
-            filtros_fb.append(f"categoria = {cat_id_fb}")
-        # PALABRA_COMPLETA filtra en DB: "culo" no matchea "artículo"
-        filtros_fb.append("PALABRA_COMPLETA(?, contenido) = 1")
-        where_fb = "WHERE " + " AND ".join(filtros_fb)
+            filtros_fb.append("l.categoria = ?")
+            params_fb.append(self._resolver_categoria_id(categoria))
+        if baseline_rowid is not None:
+            filtros_fb.append("l.rowid <= ?")
+            params_fb.append(int(baseline_rowid))
+        # La búsqueda de frase exacta se resuelve por postings unicode61; el
+        # predicado de palabra completa conserva el contrato sin escanear N filas.
+        filtros_fb.append("PALABRA_COMPLETA(?, l.contenido) = 1")
+        params_fb.append(query.lower())
+        where_fb = " AND ".join(filtros_fb)
+        fts_phrase = f'"{_fts_safe_phrase(query)}"'
+        fallback_order = (
+            f"bm25({unicode_fts_table})" if baseline_fts_ready else "l.rowid"
+        )
         try:
             self.cursor.execute(
-                f"SELECT rowid, concepto, contenido, peso_sinaptico, estado, asociaciones FROM largo_plazo {where_fb}",
-                (query.lower(),)
+                f"SELECT l.rowid, l.concepto, l.contenido, l.peso_sinaptico, "
+                f"l.estado, l.asociaciones FROM {unicode_fts_table} f "
+                "CROSS JOIN largo_plazo l ON l.rowid = f.rowid "
+                f"WHERE {unicode_fts_table} MATCH ? AND {where_fb} "
+                f"ORDER BY {fallback_order} LIMIT 50",
+                (fts_phrase,) + tuple(params_fb),
             )
             filas = self.cursor.fetchall()
             seen_rowids = {r[0] for r in todos}
@@ -856,19 +1033,18 @@ def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, 
     # Fallback 1.8: Snap reciente (últimos 7 días)
     if not modo_estricto and len(todos) < 3 and len(query) >= 2:
         limite_tiempo = time.time() - (7 * 86400)
-        # sql_con_pc ya incluye el filtro PALABRA_COMPLETA — previene falsos positivos
-        sql_snap = sql_con_pc.replace("ORDER BY bm25(largo_plazo_fts, 5.0, 1.0, 2.0, 4.0) * (0.5 + 0.5 * l.peso_sinaptico)",
-                                      "AND l.ultimo_acceso > ? ORDER BY bm25(largo_plazo_fts, 5.0, 1.0, 2.0, 4.0) * (0.5 + 0.5 * l.peso_sinaptico) LIMIT 5")
+        # sql_con_pc ya lleva los filtros de la búsqueda principal. El orden local
+        # se aplica después de leer solo las coincidencias del índice FTS.
+        sql_snap = sql_con_pc + " AND l.ultimo_acceso > ? ORDER BY l.rowid LIMIT 5"
         try:
             self.cursor.execute(sql_snap, (query,) + tuple(temporal_params) + tuple(pc_params) + (limite_tiempo,))
-            snap_r = self.cursor.fetchall()
+            snap_r = _ordenar_filas_fts(self.cursor.fetchall())[:5]
             if snap_r:
                 print(f"[TRACE] 1.8 Snap: {len(snap_r)} → {[r[1] for r in snap_r[:3]]}")
             seen_rowids = {r[0] for r in todos}
             for r in snap_r:
                 if r[0] not in seen_rowids:
                     todos.append(r[:6])
-                    bm25_raw[r[1]] = r[6]
         except sqlite3.OperationalError:
             pass
 
@@ -898,6 +1074,7 @@ def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, 
                         "SELECT l.concepto FROM largo_plazo_fts f "
                         "CROSS JOIN largo_plazo l ON l.rowid = f.rowid "
                         "WHERE largo_plazo_fts MATCH ? AND l.estado = 'activo' "
+                        + (f"AND l.rowid <= {int(baseline_rowid)} " if baseline_rowid is not None else "")
                         + pc_seed_clause + " LIMIT 5",
                         (fts_q,) + pc_seed_params
                     )
@@ -950,20 +1127,30 @@ def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, 
     # pregunta trae palabras que la memoria no conoce (typo/variante), el rescate corre
     # sin importar cuántos recuerdos haya. Ver core/memory/escala.py.
     if not _fb_activo and not modo_estricto and _escala.activa():
-        if _escala.palabras_desconocidas(self.cursor, _q_toks_fb):
+        if _escala.palabras_desconocidas(
+                self.cursor, _q_toks_fb, baseline_rowid=baseline_rowid
+        ):
             _fb_activo = True
 
     if not modo_estricto and _fb_activo and len(query) >= 3:
         try:
             from core.fallback_simbolico import buscar_fallback_simbolico
             estado_filter = "WHERE estado = 'activo'" if profundidad != "profundo" else ""
+            if baseline_rowid is not None:
+                estado_filter += (
+                    (" AND " if estado_filter else "WHERE ")
+                    + f"rowid <= {int(baseline_rowid)}"
+                )
             cat_filter = ""
             if categoria:
                 cat_id_fb = self._resolver_categoria_id(categoria)
                 cat_filter = f" AND categoria = {cat_id_fb}" if estado_filter else f"WHERE categoria = {cat_id_fb}"
 
             _ids_fb = (
-                _escala.rowids_por_parecido(self.cursor, query, f"{estado_filter}{cat_filter}", (), 1000)
+                _escala.rowids_por_parecido(
+                    self.cursor, query, f"{estado_filter}{cat_filter}", (), 1000,
+                    baseline_rowid=baseline_rowid,
+                )
                 if _escala.activa() else None
             )
             if _ids_fb is None:
@@ -1012,10 +1199,18 @@ def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, 
         try:
             from core.similitud_conceptual import buscar_por_similitud_latente
             latente_results = buscar_por_similitud_latente(
-                self.cursor, query, limite=max(limite, 5), umbral=0.3, cerebro=self
+                self.cursor,
+                query,
+                limite=max(limite, 5),
+                umbral=0.3,
+                cerebro=self,
+                baseline_rowid=baseline_rowid,
+                edge_rowid_max=getattr(self, "_search_baseline_sinapsis_rowid", None),
             )
             seen_rowids = {r[0] for r in todos}
             for lat_score, row in latente_results:
+                if baseline_rowid is not None and int(row[0]) > int(baseline_rowid):
+                    continue
                 if row[0] not in seen_rowids:
                     todos.append(row[:6])
                     seen_rowids.add(row[0])
@@ -1031,10 +1226,10 @@ def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, 
             pass
 
     # ─── Fallback 2.5 (E1): SDM binario 2048 bits ───
-    # POR QUÉ aquí y no en scoring: el gold ausente del pool no se recupera
-    # reordenando. Solo se activa si FTS+fallbacks dejaron < 3 candidatos y
-    # la consulta tiene ≥ 3 tokens (consultas negativas cortas no disparan).
-    # No toca layout SDM. No fusiona nodos. QCR sigue activo (FP).
+    # Legado opt-in: buscar_sdm lee todos los vectores (O(N)), por lo que el
+    # default está apagado hasta incorporar un índice de candidatos. Si se activa
+    # explícitamente, solo corre con < 3 candidatos y consultas de ≥ 3 tokens.
+    # No toca layout SDM ni fusiona nodos; QCR sigue activo (FP).
     if (
         constants.SDM_FALLBACK_ACTIVO
         and not modo_estricto
@@ -1059,7 +1254,8 @@ def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, 
                     (conc,),
                 )
                 row = self.cursor.fetchone()
-                if row and (profundidad == "profundo" or row[4] == "activo"):
+                if (row and (baseline_rowid is None or int(row[0]) <= int(baseline_rowid))
+                        and (profundidad == "profundo" or row[4] == "activo")):
                     todos.append(row)
                     _seen_sdm.add(conc)
                     origen_scores[conc] = ("sdm", float(hit["similitud"]))
@@ -1094,24 +1290,49 @@ def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, 
             except Exception:
                 pass
         if palabras_sin:
-            sin_conds = " OR ".join(["l.sinonimos LIKE '%' || ? || '%'" for _ in palabras_sin])
-            sin_params = list(palabras_sin)
-        try:
-            sin_where = f"l.sinonimos IS NOT NULL AND l.sinonimos != '' AND l.estado = 'activo' AND ({sin_conds})"
-            self.cursor.execute(
-                f"SELECT l.concepto, l.sinonimos, l.peso_sinaptico "
-                f"FROM largo_plazo l "
-                f"WHERE {sin_where}",
-                sin_params
-            )
-            for conc, sin_text, _ in self.cursor.fetchall():
-                if conc not in {r[1] for r in todos}:
-                    match_ratio = sum(1 for w in palabras_like if w.lower() in (sin_text or "").lower()) / len(palabras_like)
-                    umbral_sin = 1.0 if modo_estricto else 0.1
-                    if match_ratio >= umbral_sin:
-                        resultados_semantica[conc] = match_ratio
-        except (sqlite3.OperationalError, sqlite3.ProgrammingError):
-            pass
+            synonym_terms = {
+                "trigram": [w for w in palabras_sin if len(w) >= 3],
+                "unicode": [w for w in palabras_sin if len(w) < 3],
+            }
+            candidate_cap_syn = max(100, min(1000, int(limite or 5) * 10))
+            for tokenizer, terms in synonym_terms.items():
+                if not terms:
+                    continue
+                synonym_table = fts_table if tokenizer == "trigram" else unicode_fts_table
+                synonym_match = " OR ".join(
+                    f'sinonimos : "{_fts_safe_phrase(term)}"' for term in terms
+                )
+                synonym_filters = ["l.estado = 'activo'"]
+                synonym_params = []
+                if baseline_rowid is not None:
+                    synonym_filters.append("l.rowid <= ?")
+                    synonym_params.append(int(baseline_rowid))
+                synonym_order = (
+                    f"bm25({synonym_table}, 5.0, 1.0, 2.0, 4.0)"
+                    if tokenizer == "trigram" and baseline_fts_ready
+                    else (f"bm25({synonym_table})" if baseline_fts_ready else "l.rowid")
+                )
+                try:
+                    self.cursor.execute(
+                        f"SELECT l.concepto, l.sinonimos, l.peso_sinaptico "
+                        f"FROM {synonym_table} f "
+                        "CROSS JOIN largo_plazo l ON l.rowid = f.rowid "
+                        f"WHERE {synonym_table} MATCH ? AND "
+                        + " AND ".join(synonym_filters)
+                        + f" ORDER BY {synonym_order} LIMIT ?",
+                        (synonym_match,) + tuple(synonym_params) + (candidate_cap_syn,),
+                    )
+                    for conc, sin_text, _ in self.cursor.fetchall():
+                        if conc not in {r[1] for r in todos}:
+                            match_ratio = sum(
+                                1 for word in palabras_like
+                                if word.lower() in (sin_text or "").lower()
+                            ) / len(palabras_like)
+                            umbral_sin = 1.0 if modo_estricto else 0.1
+                            if match_ratio >= umbral_sin:
+                                resultados_semantica[conc] = match_ratio
+                except (sqlite3.OperationalError, sqlite3.ProgrammingError):
+                    pass
     if resultados_semantica:
         seen = {r[1] for r in todos}
         for concepto, match_ratio in resultados_semantica.items():
@@ -1139,11 +1360,13 @@ def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, 
                 if conc in _seen_lex:
                     origen_scores[conc] = ("lexico_aprendido", hit["confidence"])
                     continue
-                self.cursor.execute(
+                sql_lex = (
                     "SELECT rowid, concepto, contenido, peso_sinaptico, estado, asociaciones "
-                    "FROM largo_plazo WHERE concepto = ?",
-                    (conc,),
+                    "FROM largo_plazo WHERE concepto = ?"
                 )
+                if baseline_rowid is not None:
+                    sql_lex += f" AND rowid <= {int(baseline_rowid)}"
+                self.cursor.execute(sql_lex, (conc,))
                 row = self.cursor.fetchone()
                 if row and (profundidad == "profundo" or row[4] == "activo"):
                     todos.append(row)
@@ -1182,36 +1405,81 @@ def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, 
             except sqlite3.OperationalError:
                 pass
 
-        # Only expand candidate pool when FTS returned few results
+        # Only expand candidate pool when FTS returned few results. Candidate
+        # generation stays on the indexed FTS postings; never evaluate the
+        # PALABRA_INICIO_ANCHO predicate over every long-term memory.
         if len(todos) < 3:
             seen_ids = {r[0] for r in todos}
             seen_conceptos = {r[1] for r in todos}
             min_matches = min(2, len(palabras))
-            content_sql = f"""
-                SELECT l.rowid, l.concepto, l.contenido, l.peso_sinaptico,
-                       l.estado, l.asociaciones,
-                       ({match_count_clause}) AS match_count
-                FROM largo_plazo l
-                WHERE l.estado = 'activo'
-                  AND ({match_count_clause}) >= ?
-                ORDER BY match_count DESC, l.peso_sinaptico DESC
-                LIMIT ?
-            """
-            try:
-                self.cursor.execute(content_sql, match_params + match_params + [min_matches, max(limite * 3, 20)])
-                content_new = []
-                for row in self.cursor.fetchall():
-                    if row[0] not in seen_ids and row[1] not in seen_conceptos:
-                        content_new.append(row[:6])
-                        seen_ids.add(row[0])
-                        seen_conceptos.add(row[1])
-                        if row[1] not in origen_scores:
-                            origen_scores[row[1]] = ("contenido", min(1.0, row[6] / len(palabras) * 1.5))
-                        content_match_counts[row[1]] = row[6]
-                if content_new:
-                    todos = content_new + todos
-            except sqlite3.OperationalError:
-                pass
+            candidate_cap = max(100, min(1000, max(limite * 3, 20) * 10))
+            content_rows = {}
+            content_sources = []
+            long_content_terms = [word for word in palabras if len(word) >= 3]
+            short_content_terms = [word for word in palabras if len(word) < 3]
+            if long_content_terms:
+                content_sources.append((fts_table, long_content_terms))
+            if short_content_terms:
+                content_sources.append((unicode_fts_table, short_content_terms))
+
+            for content_table, content_terms in content_sources:
+                content_match = " OR ".join(
+                    f'contenido : "{_fts_safe_phrase(word)}"'
+                    for word in content_terms
+                )
+                content_filters = ["l.estado = 'activo'"]
+                content_params = list(match_params) + [content_match]
+                if baseline_rowid is not None:
+                    content_filters.append("l.rowid <= ?")
+                    content_params.append(int(baseline_rowid))
+                content_order = (
+                    f"bm25({content_table}, 5.0, 1.0, 2.0, 4.0)"
+                    if content_table == fts_table and baseline_fts_ready
+                    else (f"bm25({content_table})" if baseline_fts_ready else "l.rowid")
+                )
+                content_sql = f"""
+                    SELECT l.rowid, l.concepto, l.contenido, l.peso_sinaptico,
+                           l.estado, l.asociaciones,
+                           ({match_count_clause}) AS match_count
+                    FROM {content_table} f
+                    CROSS JOIN largo_plazo l ON l.rowid = f.rowid
+                    WHERE {content_table} MATCH ?
+                      AND {" AND ".join(content_filters)}
+                    ORDER BY {content_order} LIMIT ?
+                """
+                try:
+                    self.cursor.execute(
+                        content_sql,
+                        tuple(match_params) + (content_match,)
+                        + tuple(content_params[len(match_params) + 1:])
+                        + (candidate_cap,),
+                    )
+                    for row in self.cursor.fetchall():
+                        if int(row[6] or 0) >= min_matches:
+                            content_rows.setdefault(int(row[0]), row)
+                except sqlite3.OperationalError:
+                    pass
+
+            content_candidates = sorted(
+                content_rows.values(),
+                key=lambda row: (
+                    -int(row[6] or 0), -float(row[3] or 0.0), str(row[1] or "")
+                ),
+            )[:max(limite * 3, 20)]
+            content_new = []
+            for row in content_candidates:
+                if row[0] in seen_ids or row[1] in seen_conceptos:
+                    continue
+                content_new.append(row[:6])
+                seen_ids.add(row[0])
+                seen_conceptos.add(row[1])
+                if row[1] not in origen_scores:
+                    origen_scores[row[1]] = (
+                        "contenido", min(1.0, row[6] / len(palabras) * 1.5)
+                    )
+                content_match_counts[row[1]] = row[6]
+            if content_new:
+                todos = content_new + todos
 
     # Multihop v1: expansion 1-salto (flag OFF default; gate decide).
     # Solo activos+activos: jamas inyecta en dormido/profundo/negativo-921.
@@ -1230,7 +1498,8 @@ def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, 
                     for row in self.cursor.execute(
                         "SELECT rowid, concepto, contenido, peso_sinaptico,"
                         " estado, asociaciones FROM largo_plazo"
-                        " WHERE concepto IN (%s) AND estado='activo'" % _mh_ph,
+                        " WHERE concepto IN (%s) AND estado='activo'" % _mh_ph
+                        + (f" AND rowid <= {int(baseline_rowid)}" if baseline_rowid is not None else ""),
                         tuple(_mh_nombres),
                     )
                 }
@@ -1243,6 +1512,77 @@ def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, 
                         origen_scores[_c] = ("expansion", constants.MULTIHOP_PRIOR)
         except Exception as e:
             logger.warning("multihop: expansion fallo (%s: %s)", type(e).__name__, e)
+
+    # Recuperación de altas posteriores: se consulta como overlay DESPUÉS de
+    # completar la ruta base. Así una fila nueva no altera gates, LIMITs ni
+    # semillas asociativas de los recuerdos ya existentes, pero una coincidencia
+    # léxica nueva pertinente sí puede competir con ellos en el score local.
+    if baseline_rowid is not None:
+        overlay_filters = ["l.rowid > ?"]
+        overlay_params = [int(baseline_rowid)]
+        if profundidad != "profundo":
+            overlay_filters.append("l.estado = 'activo'")
+        if categoria:
+            overlay_filters.append("l.categoria = ?")
+            overlay_params.append(self._resolver_categoria_id(categoria))
+        if desde_ts is not None:
+            overlay_filters.append("l.creado_en >= ?")
+            overlay_params.append(desde_ts)
+        if hasta_ts is not None:
+            overlay_filters.append("l.creado_en <= ?")
+            overlay_params.append(hasta_ts)
+        overlay_where = " AND ".join(overlay_filters)
+        overlay_cap = max(100, min(1000, int(limite or 10) * 20))
+        seen_overlay_rowids = {int(r[0]) for r in todos}
+
+        def _agregar_overlay(rows):
+            for row in rows:
+                rowid, concepto = int(row[0]), row[1]
+                if rowid in seen_overlay_rowids or not concepto:
+                    continue
+                _score_fts_row(row)
+                todos.append(row[:6])
+                origen_scores.setdefault(concepto, ("literal", 0.0))
+                seen_overlay_rowids.add(rowid)
+
+        # El overlay es la puerta para altas pertinentes. Rankearlo por los
+        # postings FTS (no por rowid) evita que un lote anterior de ruido lexical
+        # oculte un recuerdo relevante recién agregado detrás del cap.
+        if fts_match:
+            try:
+                self.cursor.execute(
+                    "SELECT l.rowid, l.concepto, l.contenido, l.peso_sinaptico, "
+                    "l.estado, l.asociaciones, COALESCE(l.sinonimos, ''), "
+                    f"{sustantivos_select} "
+                    "FROM largo_plazo_fts f "
+                    "CROSS JOIN largo_plazo l ON l.rowid = f.rowid "
+                    "WHERE largo_plazo_fts MATCH ? AND " + overlay_where + " "
+                    "ORDER BY rank LIMIT ?",
+                    (fts_match,) + tuple(overlay_params) + (overlay_cap,),
+                )
+                _agregar_overlay(self.cursor.fetchall())
+            except sqlite3.OperationalError:
+                pass
+
+        unicode_overlay_query = (
+            " OR ".join(f'"{term}"' for term in protected_terms)
+            if protected_terms else self._agregar_prefix_wildcards(query)
+        )
+        if unicode_overlay_query:
+            try:
+                self.cursor.execute(
+                    "SELECT l.rowid, l.concepto, l.contenido, l.peso_sinaptico, "
+                    "l.estado, l.asociaciones, COALESCE(l.sinonimos, ''), "
+                    f"{sustantivos_select} "
+                    "FROM largo_plazo_fts_unicode f "
+                    "CROSS JOIN largo_plazo l ON l.rowid = f.rowid "
+                    "WHERE largo_plazo_fts_unicode MATCH ? AND " + overlay_where + " "
+                    "ORDER BY rank LIMIT ?",
+                    (unicode_overlay_query,) + tuple(overlay_params) + (overlay_cap,),
+                )
+                _agregar_overlay(self.cursor.fetchall())
+            except sqlite3.OperationalError:
+                pass
 
     # [AUDIT #15 — PPMI Vector Retrieval: DESCARTADO tras 3 iteraciones]
     # Iteración 1 (pool < 3, antes de SA): mató SA (27→1 queries). Revertido.
@@ -1341,6 +1681,9 @@ def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, 
             fb_filtros_params.append(cat_id_fb)
         if profundidad != "profundo":
             fb_filtros_extra.append("l.estado = 'activo'")
+        if baseline_rowid is not None:
+            fb_filtros_extra.append("l.rowid <= ?")
+            fb_filtros_params.append(int(baseline_rowid))
         fb_where_extra = (" AND " + " AND ".join(fb_filtros_extra)) if fb_filtros_extra else ""
         if constants.DIM_RESONANCIA:
             # Fase A (resonancia dimensional): candidatura por merito
@@ -1425,31 +1768,30 @@ def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, 
         except sqlite3.OperationalError:
             pass
 
-    # Normalización BM25 relativa intra-query (invariante a escala del corpus N).
-    # Reemplaza la constante fija 3.0 que saturaba y comprimía scores al crecer el corpus.
-    # Calcula min/max sobre los candidatos de la query actual para preservar discriminación.
-    # Aplica escala = min(1.0, hi) para evitar inflar ruido en queries sin match fuerte (typos).
-    # Guarda _last_bm25_bounds para que buscar_por_rafaga comparta la misma escala en biorag_recordar.
-    raw_vals = [abs(v) for v in bm25_raw.values()]
-    if raw_vals:
-        lo, hi = min(raw_vals), max(raw_vals)
-        rango = hi - lo if hi > lo else 1.0
-        escala = min(1.0, hi) if hi > 0 else 1.0
-        if hi > lo:
-            bm25_norm_map = {c: ((abs(v) - lo) / rango) * escala for c, v in bm25_raw.items()}
-        elif len(bm25_raw) == 1 and hi >= 3.0:
-            bm25_norm_map = {c: escala for c, v in bm25_raw.items()}
-        else:
-            bm25_norm_map = {c: 0.0 for c, v in bm25_raw.items()}
-        self._last_bm25_bounds = (lo, hi, escala)
+    # Para el cohorte de referencia se conserva la calibración BM25 histórica,
+    # pero se calcula sobre su índice inmutable: las inserciones del overlay no
+    # cambian N/df/avgdl ni los límites de normalización de los recuerdos viejos.
+    if baseline_fts_ready and bm25_raw:
+        bm25_norm_map, self._last_bm25_bounds = normalizar_mapa_bm25(
+            bm25_raw, mode="minmax"
+        )
     else:
         bm25_norm_map = {}
         self._last_bm25_bounds = None
 
-    # Asignar BM25 sintético a candidatos de rescate (typo, simbólico, dimensional_fallback, concepto)
-    # para que no compitan con bm25=0 frente a matches parciales débiles,
-    # preservando la escala intra-query para mantener 0% falsos positivos en ruido.
-    escala_activa = self._last_bm25_bounds[2] if (self._last_bm25_bounds and self._last_bm25_bounds[2] > 0.3) else 0.8
+    # Filas Unicode y altas posteriores no pertenecen al índice BM25 congelado;
+    # reciben el score léxico local, que depende solo de query + recuerdo.
+    for concepto, score_local in stable_bm25_scores.items():
+        if concepto not in bm25_norm_map:
+            bm25_norm_map[concepto] = score_local
+
+    # Los candidatos de rescate conservan el prior histórico, con la escala del
+    # cohorte congelado cuando existe evidencia BM25 suficiente.
+    escala_activa = (
+        self._last_bm25_bounds[2]
+        if self._last_bm25_bounds and self._last_bm25_bounds[2] > 0.3
+        else 0.8
+    )
     for conc, (origen, sc_capa) in origen_scores.items():
         if conc not in bm25_norm_map and origen in ("typo", "simbolico", "dimensional_fallback", "concepto", "lexico_aprendido"):
             bm25_norm_map[conc] = min(1.0, escala_activa * float(sc_capa or 0.5))
@@ -1594,40 +1936,38 @@ def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, 
     _ppmi_vq = None
     _ppmi_q_set = set(tokens_query) if tokens_query else set()
     _ppmi_es_corta = len(_ppmi_q_set) <= 2
-    _ppmi_pool_set = {r[1] for r in todos}
+    # Short-query IDF/hop components are bounded to stable lexical seeds, not to
+    # fallback candidates that may be injected later for unrelated reasons.
+    _ppmi_pool_set = set(fts5_conceptos)
     if constants.PPMI_VECTOR_WEIGHT > 0.0 and self._ppmi_index and tokens_query:
         try:
             _ppmi_vq = self._ppmi_index.vector_query(list(tokens_query))
         except Exception:
             _ppmi_vq = None
 
-    # v22.1: Pre-compute thematic profiles and lazy-cache pairwise scores
-    # On-demand calculation per candidate pair (O(K^2) for K=50 top candidates instead of O(N^2) for N=800 all nodes)
+    # La señal temática conserva su matemática asociativa, pero sus perfiles e IDF
+    # se calculan solo para las 15 semillas léxicas estables de esta consulta. Esto
+    # elimina el barrido O(N) y evita que recuerdos ajenos modifiquen el peso de
+    # pares de recuerdos ya existentes.
+    _temas_referencia = list(dict.fromkeys(fts5_conceptos[:15]))
     _perfiles_tematicos = {}
     _idf_tematico = {}
+    _thematic_scores_local = {}
     _todas_dims = None
     try:
         from core.tematica import calcular_perfiles_presencia, calcular_idf_dims, similitud_tematica
-        if self._thematic_profiles_cache is not None:
-            _perfiles_tematicos = self._thematic_profiles_cache
-            _idf_tematico = self._thematic_idf_cache
-        else:
-            _perfiles_tematicos = calcular_perfiles_presencia(self)
-            _idf_tematico = calcular_idf_dims(self)
-            self._thematic_profiles_cache = _perfiles_tematicos
-            self._thematic_idf_cache = _idf_tematico
-            self._thematic_scores_cache = {}
-        if self._thematic_scores_cache is None:
-            self._thematic_scores_cache = {}
-        _todas_dims = set(_idf_tematico.keys())
+        if _temas_referencia:
+            _perfiles_tematicos = calcular_perfiles_presencia(self, _temas_referencia)
+            _idf_tematico = calcular_idf_dims(self, _perfiles_tematicos)
+            _todas_dims = set(_idf_tematico.keys())
     except Exception:
         pass
 
-    # ─── Precompute Spreading Activation (cadena) scores from top seeds ───
+    # ─── Precompute Spreading Activation (cadena) scores from stable lexical seeds ───
     cadena_scores_map = {}
-    if not modo_estricto and todos:
+    if not modo_estricto and fts5_conceptos:
         try:
-            semillas_top = [r[1] for r in todos[:5] if r[1]]
+            semillas_top = [c for c in fts5_conceptos[:5] if c]
             if semillas_top:
                 evocados, _ = self._evocacion_por_cadena(semillas_top)
                 for conc_ev, decay_score, _ in evocados:
@@ -1683,7 +2023,7 @@ def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, 
     if constants.CAMPO_POTENCIAL_PESO > 0.0 and todos and _ppmi_vq is not None:
         try:
             from core.ppmi_hybrid_search import calcular_campo_potencial_ppmi
-            _pool_c = [r[1] for r in todos if r[1]][:constants.CAMPO_K if constants.CAMPO_K > 0 else 0]
+            _pool_c = [c for c in fts5_conceptos if c][:constants.CAMPO_K if constants.CAMPO_K > 0 else 0]
             if _pool_c:
                 campo_map = calcular_campo_potencial_ppmi(
                     self, _ppmi_vq, _pool_c, sigma=constants.CAMPO_SIGMA
@@ -1748,27 +2088,27 @@ def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, 
             ) / len(palabras_like)
         sinonimos_ratio = max(sinonimos_ratio, sinonimos_substring)
 
-        # v22.1: Compute thematic score (presence + absence of dimensions)
-        # On-demand pairwise calculation over top-15 candidates with memoization (O(1) cached)
-        # Fix: per-candidate gate — tematico_score solo si hay evidencia léxica real
-        # (bm25 > 0.001 o concepto_ratio > 0.001) Y no hay señal fuerte de sinónimo
+        # Similitud de presencia/ausencia contra las semillas léxicas estables de
+        # esta query. El IDF es local al conjunto acotado y la caché vive solo en
+        # esta búsqueda; ningún recuerdo nuevo ajeno puede reescalar estos pares.
         tematico_score = 0.0
         bm25_val = bm25_norm_map.get(concepto, 0.0)
         if _perfiles_tematicos and _todas_dims and (bm25_val > 0.001 or concepto_ratio > 0.001) and sinonimos_ratio < 0.5:
             sims = []
-            for _, (other_concepto, _, _, _, _, _) in enumerate(todos[:15]):
+            for other_concepto in _temas_referencia:
                 if other_concepto != concepto and concepto and other_concepto:
                     c1, c2 = str(concepto), str(other_concepto)
                     pair_key = (c1, c2) if c1 <= c2 else (c2, c1)
-                    if pair_key not in self._thematic_scores_cache:
-                        s = similitud_tematica(concepto, other_concepto, self, _perfiles_tematicos, _idf_tematico)
-                        self._thematic_scores_cache[pair_key] = s
-                    else:
-                        s = self._thematic_scores_cache[pair_key]
-                    if s > 0.02:  # umbral estable
-                        sims.append(s)
+                    if pair_key not in _thematic_scores_local:
+                        _thematic_scores_local[pair_key] = similitud_tematica(
+                            concepto, other_concepto, self,
+                            _perfiles_tematicos, _idf_tematico,
+                        )
+                    score_tematica_par = _thematic_scores_local[pair_key]
+                    if score_tematica_par > 0.02:
+                        sims.append(score_tematica_par)
             if sims:
-                tematico_score = min(1.0, sum(sims) / len(sims) * 3.0)  # multiplicador óptimo 3.0
+                tematico_score = min(1.0, sum(sims) / len(sims) * 3.0)
 
         # Signal #11: Jensen-Shannon Divergence (distributional overlap)
         jsd_val = 0.0
@@ -1797,9 +2137,10 @@ def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, 
                 q_toks_list = list(tokens_query)
                 q_set = set(q_toks_list)
                 es_corta = len(q_set) <= 2
-                pool_set = {r[1] for r in todos}
                 vq = self._ppmi_index.vector_query(q_toks_list)
-                _raw_ppmi, _ = score_candidato(self._ppmi_index, vq, q_set, es_corta, concepto, pool_set)
+                _raw_ppmi, _ = score_candidato(
+                    self._ppmi_index, vq, q_set, es_corta, concepto, _ppmi_pool_set
+                )
                 # Normalizar: el score bruto de score_candidato ronda 0-2 para query corta (dividir por 2.0), 0-1 para larga
                 ppmi_val = min(1.0, max(0.0, _raw_ppmi / (2.0 if es_corta else 1.0)))
 
@@ -1906,19 +2247,46 @@ def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, 
         hub_canonical_set = set(hub_expansion.get("canonical_nodes", []))
     q_tokens_qcr = [t.lower() for t in re.findall(r'\w{3,}', query)]
     _qcr_idf_map = {}
-    if QCR_ACTIVO and constants.QCR_IDF_ACTIVO and q_tokens_qcr:
+    _fts_seed_set_qcr = set(fts5_conceptos)
+    _qcr_seed_docs = []
+    _qcr_seen_concepts = set()
+    for _row_qcr in todos:
+        _concept_qcr = _row_qcr[1]
+        if not _concept_qcr or _concept_qcr not in _fts_seed_set_qcr or _concept_qcr in _qcr_seen_concepts:
+            continue
+        _qcr_seen_concepts.add(_concept_qcr)
+        _qcr_seed_docs.append(
+            f"{_concept_qcr} {_row_qcr[2] or ''} "
+            f"{concepto_sinonimos_map.get(_concept_qcr, '')} "
+            f"{concepto_sustantivos_map.get(_concept_qcr, '')}"
+        )
+    if QCR_ACTIVO and constants.QCR_IDF_ACTIVO and q_tokens_qcr and _qcr_seed_docs:
         try:
-            _qcr_idf_map = self._idf_tokens_qcr(q_tokens_qcr)
+            _qcr_idf_map = self._idf_tokens_qcr(q_tokens_qcr, _qcr_seed_docs)
         except Exception:
             _qcr_idf_map = {}
     _qcr_umbral = constants.QCR_IDF_UMBRAL if (constants.QCR_IDF_ACTIVO and _qcr_idf_map) else 0.50
     if QCR_ACTIVO and len(q_tokens_qcr) >= 2 and resultados_con_hibrido:
         filtrados_qcr = []
+        filtrados_qcr_base = []
+        filtrados_qcr_overlay = []
+        overlay_concepts_qcr = (
+            {r[1] for r in todos if int(r[0]) > int(baseline_rowid)}
+            if baseline_rowid is not None else set()
+        )
+
+        def _guardar_qcr(fila):
+            filtrados_qcr.append(fila)
+            if fila[0] in overlay_concepts_qcr:
+                filtrados_qcr_overlay.append(fila)
+            else:
+                filtrados_qcr_base.append(fila)
+
         _idf_den = sum(_qcr_idf_map.get(t, 1.0) for t in q_tokens_qcr) if _qcr_idf_map else float(len(q_tokens_qcr))
         for conc, cont, peso, est, sc, asoc in resultados_con_hibrido:
             # Bypass QCR para nodos canónicos del hub
             if conc in hub_canonical_set:
-                filtrados_qcr.append((conc, cont, peso, est, sc, asoc))
+                _guardar_qcr((conc, cont, peso, est, sc, asoc))
                 continue
             # QCR debe mirar las mismas cuatro columnas consultables que el
             # ranker/FTS; omitir sustantivos_clave descartaba hits válidos que
@@ -1957,13 +2325,24 @@ def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, 
                 constants.DIM_ESCAPE and origen_tipo == "dimensional_fallback"
                 and score_capa >= constants.DIM_ESCAPE_T
             ):
-                filtrados_qcr.append((conc, cont, peso, est, sc, asoc))
+                _guardar_qcr((conc, cont, peso, est, sc, asoc))
             elif (constants.QCR_TYPO_ACTIVA and sc >= constants.QCR_TYPO_PISO
                     and constants._qcr_todos_cercanos(q_tokens_qcr, text_target, constants.QCR_TYPO_DIST)):
                 # F-QCR-D4: segunda oportunidad por typos (ver flags). Flag OFF:
                 # cortocircuito, path byte-identico.
-                filtrados_qcr.append((conc, cont, peso, est, sc, asoc))
-        if filtrados_qcr:
+                _guardar_qcr((conc, cont, peso, est, sc, asoc))
+        if baseline_rowid is not None:
+            resultados_base = [
+                r for r in resultados_con_hibrido
+                if r[0] not in overlay_concepts_qcr
+            ]
+            if filtrados_qcr_base:
+                resultados_base = filtrados_qcr_base
+            resultados_con_hibrido = sorted(
+                resultados_base + filtrados_qcr_overlay,
+                key=lambda r: r[4], reverse=True,
+            )
+        elif filtrados_qcr:
             resultados_con_hibrido = filtrados_qcr
 
     # ── CONCEPT HUB: Post-procesamiento — promoción competitiva del nodo canónico ──

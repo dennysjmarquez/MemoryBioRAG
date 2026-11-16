@@ -794,6 +794,86 @@ def _crear_tablas_nuevas_si_faltan(self):
     # reconstruye solo si falta la 4ª columna (mismo check que en _crear_estructura_cerebral).
     self._crear_tabla_fts()
 
+    # Fijar una sola vez el límite de rowid del corpus de referencia. Las
+    # inserciones normales usan AUTOINCREMENT y quedan como overlay sin escanear
+    # la tabla durante cada búsqueda. El marcador vive en la tabla key/value ya
+    # existente, por lo que no se añade otro objeto de esquema.
+    try:
+        self._crear_tabla_data()
+        clave_baseline = "search_baseline_rowid"
+        row_baseline = self.cursor.execute(
+            "SELECT valor FROM data WHERE clave = ?", (clave_baseline,)
+        ).fetchone()
+        if row_baseline is None:
+            max_rowid = self.cursor.execute(
+                "SELECT COALESCE(MAX(rowid), 0) FROM largo_plazo"
+            ).fetchone()[0]
+            self.cursor.execute(
+                "INSERT OR IGNORE INTO data (clave, valor, descripcion) VALUES (?, ?, ?)",
+                (clave_baseline, str(int(max_rowid or 0)),
+                 "Último rowid del corpus de referencia para búsqueda invariante al crecimiento"),
+            )
+            row_baseline = self.cursor.execute(
+                "SELECT valor FROM data WHERE clave = ?", (clave_baseline,)
+            ).fetchone()
+        try:
+            baseline_cutoff = max(0, int(row_baseline[0]))
+        except (TypeError, ValueError):
+            baseline_cutoff = int(self.cursor.execute(
+                "SELECT COALESCE(MAX(rowid), 0) FROM largo_plazo"
+            ).fetchone()[0] or 0)
+            self.cursor.execute(
+                "UPDATE data SET valor = ? WHERE clave = ?",
+                (str(baseline_cutoff), clave_baseline),
+            )
+        self._search_baseline_rowid = baseline_cutoff
+
+        # Congelar también el prefijo de aristas. Las asociaciones creadas por
+        # recuerdos añadidos después no deben alterar los scores de la cohorte
+        # histórica ni volver a hacer crecer el coste de lectura de sus hubs.
+        clave_sinapsis = "search_baseline_sinapsis_rowid"
+        row_sinapsis = self.cursor.execute(
+            "SELECT valor FROM data WHERE clave = ?", (clave_sinapsis,)
+        ).fetchone()
+        if row_sinapsis is None:
+            max_sinapsis_rowid = self.cursor.execute(
+                "SELECT COALESCE(MAX(rowid), 0) FROM sinapsis"
+            ).fetchone()[0]
+            self.cursor.execute(
+                "INSERT OR IGNORE INTO data (clave, valor, descripcion) VALUES (?, ?, ?)",
+                (clave_sinapsis, str(int(max_sinapsis_rowid or 0)),
+                 "Último rowid de sinapsis del cohorte de referencia para búsqueda estable"),
+            )
+            row_sinapsis = self.cursor.execute(
+                "SELECT valor FROM data WHERE clave = ?", (clave_sinapsis,)
+            ).fetchone()
+        try:
+            self._search_baseline_sinapsis_rowid = max(0, int(row_sinapsis[0]))
+        except (TypeError, ValueError):
+            self._search_baseline_sinapsis_rowid = int(
+                self.cursor.execute(
+                    "SELECT COALESCE(MAX(rowid), 0) FROM sinapsis"
+                ).fetchone()[0] or 0
+            )
+            self.cursor.execute(
+                "UPDATE data SET valor = ? WHERE clave = ?",
+                (str(self._search_baseline_sinapsis_rowid), clave_sinapsis),
+            )
+    except (sqlite3.Error, TypeError, ValueError) as exc:
+        self._search_baseline_rowid = None
+        self._search_baseline_sinapsis_rowid = None
+        logger.warning("No se pudo fijar el corpus de referencia de búsqueda: %s", exc)
+
+    self._search_baseline_fts_ready = False
+    if self._search_baseline_rowid is not None:
+        try:
+            from core.memory.growth_stable_fts import asegurar_indice_referencia
+            self._search_baseline_fts_ready = asegurar_indice_referencia(
+                self.conn, self._search_baseline_rowid
+            )
+        except Exception as exc:
+            logger.warning("No se pudo preparar el FTS de referencia: %s", exc)
+
     self.conn.commit()
 
 
