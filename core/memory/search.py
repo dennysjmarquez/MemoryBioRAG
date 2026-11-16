@@ -37,6 +37,16 @@ _ORIGENES_NO_LITERALES = {
     "dimensional_fallback", "semantica", "unicode", "lexico_aprendido", "sdm"
 }
 
+
+def _corte_rowid_positivo(valor):
+    """Return a usable rowid cutoff; zero and invalid values mean no cutoff."""
+    try:
+        corte = int(valor)
+    except (TypeError, ValueError, OverflowError):
+        return None
+    return corte if corte > 0 else None
+
+
 try:
     from core.calibracion import (zscore_por_query, fusion_rrf, FusionLogistica,
                                    CalibradorPlatt, calibracion_isotonica,
@@ -102,7 +112,12 @@ def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, 
     self.last_score_base_map = {}
     self.last_score_bonus_map = {}
     self.last_score_base_top = None
-    baseline_rowid = getattr(self, "_search_baseline_rowid", None)
+    baseline_rowid = _corte_rowid_positivo(
+        getattr(self, "_search_baseline_rowid", None)
+    )
+    baseline_sinapsis_rowid = _corte_rowid_positivo(
+        getattr(self, "_search_baseline_sinapsis_rowid", None)
+    )
     # SRL v16.0: Filtrado por roles semánticos (buscar_por_rol)
     conceptos_validos_rol = None
     if buscar_por_rol:
@@ -680,7 +695,6 @@ def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, 
     # insertions. It anchors pseudo-dimensions, spreading activation, local QCR IDF,
     # and the associative pool so unrelated fallback rows cannot perturb them.
     todos = _ordenar_pool_estable(todos)
-    baseline_rowid = getattr(self, "_search_baseline_rowid", None)
     if baseline_rowid is None:
         # Compatibilidad con instancias antiguas o esquemas donde no se pudo
         # registrar el límite: conserva la semilla histórica de la búsqueda.
@@ -890,7 +904,7 @@ def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, 
                     try:
                         grafo = _cargar_grafo(
                             self.cursor,
-                            rowid_max=getattr(self, "_search_baseline_sinapsis_rowid", None),
+                            rowid_max=baseline_sinapsis_rowid,
                         )
                         # Batch: pre-fetch puentes FTS5 una vez (1 query SQL)
                         # En vez de N queries FTS5 separadas en _similitud_red
@@ -1205,7 +1219,7 @@ def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, 
                 umbral=0.3,
                 cerebro=self,
                 baseline_rowid=baseline_rowid,
-                edge_rowid_max=getattr(self, "_search_baseline_sinapsis_rowid", None),
+                edge_rowid_max=baseline_sinapsis_rowid,
             )
             seen_rowids = {r[0] for r in todos}
             for lat_score, row in latente_results:

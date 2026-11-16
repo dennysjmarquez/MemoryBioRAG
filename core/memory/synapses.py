@@ -27,9 +27,18 @@ logger = logging.getLogger("BioRAG.Memory.Synapses")
 _MAX_ARISTAS_POR_DIRECCION = 512
 
 
+def _baseline_sinapsis_positivo(self):
+    """Treat missing, invalid, or zero synapse baselines as no rowid cutoff."""
+    try:
+        rowid_max = int(getattr(self, "_search_baseline_sinapsis_rowid", None))
+    except (TypeError, ValueError, OverflowError):
+        return None
+    return rowid_max if rowid_max > 0 else None
+
+
 def _aristas_locales_acotadas(self, concepto, limite=_MAX_ARISTAS_POR_DIRECCION):
     """Lee una ventana estable de aristas incidentes usando los índices de extremos."""
-    rowid_max = getattr(self, "_search_baseline_sinapsis_rowid", None)
+    rowid_max = _baseline_sinapsis_positivo(self)
     salida = []
     limite = min(_MAX_ARISTAS_POR_DIRECCION, max(1, int(limite)))
     for columna, vecino in (("origen", "destino"), ("destino", "origen")):
@@ -332,7 +341,7 @@ def _expandir_contexto_bfs(self, pagina_resultados, depth, profundidad="activos"
             if max_vecinos_nodo <= 0:
                 continue
             limite_lectura = _MAX_ARISTAS_POR_DIRECCION
-            rowid_max = getattr(self, "_search_baseline_sinapsis_rowid", None)
+            rowid_max = _baseline_sinapsis_positivo(self)
             filtro_rowid = " AND rowid <= ?" if rowid_max is not None else ""
             params_aristas = [concepto]
             if rowid_max is not None:

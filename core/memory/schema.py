@@ -800,66 +800,64 @@ def _crear_tablas_nuevas_si_faltan(self):
     # existente, por lo que no se añade otro objeto de esquema.
     try:
         self._crear_tabla_data()
-        clave_baseline = "search_baseline_rowid"
-        row_baseline = self.cursor.execute(
-            "SELECT valor FROM data WHERE clave = ?", (clave_baseline,)
-        ).fetchone()
-        if row_baseline is None:
-            max_rowid = self.cursor.execute(
-                "SELECT COALESCE(MAX(rowid), 0) FROM largo_plazo"
-            ).fetchone()[0]
-            self.cursor.execute(
-                "INSERT OR IGNORE INTO data (clave, valor, descripcion) VALUES (?, ?, ?)",
-                (clave_baseline, str(int(max_rowid or 0)),
-                 "Último rowid del corpus de referencia para búsqueda invariante al crecimiento"),
-            )
-            row_baseline = self.cursor.execute(
-                "SELECT valor FROM data WHERE clave = ?", (clave_baseline,)
+
+        def _baseline_positivo(clave, tabla, descripcion):
+            """Carga un corte positivo o lo fija solo si ya existe una cohorte."""
+            row = self.cursor.execute(
+                "SELECT valor FROM data WHERE clave = ?", (clave,)
             ).fetchone()
-        try:
-            baseline_cutoff = max(0, int(row_baseline[0]))
-        except (TypeError, ValueError):
-            baseline_cutoff = int(self.cursor.execute(
-                "SELECT COALESCE(MAX(rowid), 0) FROM largo_plazo"
+            try:
+                cutoff = int(row[0]) if row is not None else 0
+            except (TypeError, ValueError, OverflowError):
+                cutoff = 0
+
+            if cutoff > 0:
+                return cutoff, False
+
+            # Un baseline cero es el marcador antiguo de una tabla vacía, no
+            # un prefijo válido: una vez que hay filas, reemplazarlo por el
+            # rowid real; si sigue vacía, no persistir ningún corte.
+            cutoff = int(self.cursor.execute(
+                f"SELECT COALESCE(MAX(rowid), 0) FROM {tabla}"
             ).fetchone()[0] or 0)
-            self.cursor.execute(
-                "UPDATE data SET valor = ? WHERE clave = ?",
-                (str(baseline_cutoff), clave_baseline),
+            if cutoff > 0:
+                self.cursor.execute(
+                    "INSERT OR REPLACE INTO data (clave, valor, descripcion) "
+                    "VALUES (?, ?, ?)",
+                    (clave, str(cutoff), descripcion),
+                )
+                return cutoff, True
+
+            self.cursor.execute("DELETE FROM data WHERE clave = ?", (clave,))
+            return None, True
+
+        clave_baseline = "search_baseline_rowid"
+        self._search_baseline_rowid, baseline_memoria_recalculado = _baseline_positivo(
+            clave_baseline,
+            "largo_plazo",
+            "Último rowid del corpus de referencia para búsqueda invariante al crecimiento",
+        )
+
+        # Si el corte anterior faltaba o era 0, las tablas FTS de referencia
+        # pudieron haberse creado vacías por la inicialización antigua. No se
+        # puede asumir que representen el nuevo corte: reconstruirlas.
+        if baseline_memoria_recalculado and self._search_baseline_rowid is not None:
+            from core.memory.growth_stable_fts import (
+                REFERENCE_FTS, REFERENCE_UNICODE_FTS,
             )
-        self._search_baseline_rowid = baseline_cutoff
+            self.cursor.execute(f"DROP TABLE IF EXISTS {REFERENCE_FTS}")
+            self.cursor.execute(f"DROP TABLE IF EXISTS {REFERENCE_UNICODE_FTS}")
 
         # Congelar también el prefijo de aristas. Las asociaciones creadas por
         # recuerdos añadidos después no deben alterar los scores de la cohorte
         # histórica ni volver a hacer crecer el coste de lectura de sus hubs.
         clave_sinapsis = "search_baseline_sinapsis_rowid"
-        row_sinapsis = self.cursor.execute(
-            "SELECT valor FROM data WHERE clave = ?", (clave_sinapsis,)
-        ).fetchone()
-        if row_sinapsis is None:
-            max_sinapsis_rowid = self.cursor.execute(
-                "SELECT COALESCE(MAX(rowid), 0) FROM sinapsis"
-            ).fetchone()[0]
-            self.cursor.execute(
-                "INSERT OR IGNORE INTO data (clave, valor, descripcion) VALUES (?, ?, ?)",
-                (clave_sinapsis, str(int(max_sinapsis_rowid or 0)),
-                 "Último rowid de sinapsis del cohorte de referencia para búsqueda estable"),
-            )
-            row_sinapsis = self.cursor.execute(
-                "SELECT valor FROM data WHERE clave = ?", (clave_sinapsis,)
-            ).fetchone()
-        try:
-            self._search_baseline_sinapsis_rowid = max(0, int(row_sinapsis[0]))
-        except (TypeError, ValueError):
-            self._search_baseline_sinapsis_rowid = int(
-                self.cursor.execute(
-                    "SELECT COALESCE(MAX(rowid), 0) FROM sinapsis"
-                ).fetchone()[0] or 0
-            )
-            self.cursor.execute(
-                "UPDATE data SET valor = ? WHERE clave = ?",
-                (str(self._search_baseline_sinapsis_rowid), clave_sinapsis),
-            )
-    except (sqlite3.Error, TypeError, ValueError) as exc:
+        self._search_baseline_sinapsis_rowid, _ = _baseline_positivo(
+            clave_sinapsis,
+            "sinapsis",
+            "Último rowid de sinapsis del cohorte de referencia para búsqueda estable",
+        )
+    except (sqlite3.Error, TypeError, ValueError, OverflowError) as exc:
         self._search_baseline_rowid = None
         self._search_baseline_sinapsis_rowid = None
         logger.warning("No se pudo fijar el corpus de referencia de búsqueda: %s", exc)

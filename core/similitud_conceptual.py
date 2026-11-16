@@ -40,12 +40,21 @@ _MAX_SEMILLAS_EXPANSION = 10
 _MAX_VECINOS_EXPANSION = 16
 
 
+def _rowid_corte_positivo(valor):
+    """Return a positive rowid cutoff; zero and invalid values mean no cutoff."""
+    try:
+        cutoff = int(valor)
+    except (TypeError, ValueError, OverflowError):
+        return None
+    return cutoff if cutoff > 0 else None
+
+
 class _GrafoSinapticoLazy:
     """Vista indexada y acotada del grafo, limitada al cohorte de referencia."""
 
     def __init__(self, cursor, rowid_max=None):
         self._cursor = cursor
-        self._rowid_max = int(rowid_max) if rowid_max is not None else None
+        self._rowid_max = _rowid_corte_positivo(rowid_max)
         self._vecinos_cache = {}
         self._grado_cache = {}
         try:
@@ -487,6 +496,8 @@ def _obtener_candidatos_similitud(
     score completo de O(N). Se reserva la mayoría para matches léxicos y el resto
     para expansión asociativa de pocas semillas, con fan-out limitado por índice.
     """
+    baseline_rowid = _rowid_corte_positivo(baseline_rowid)
+    edge_rowid_max = _rowid_corte_positivo(edge_rowid_max)
     sub_tokens = []
     for token in query_tokens:
         if len(token) >= 3:
@@ -607,6 +618,8 @@ def buscar_por_similitud_latente(
         baseline_rowid = getattr(cerebro, "_search_baseline_rowid", None)
     if edge_rowid_max is None and cerebro is not None:
         edge_rowid_max = getattr(cerebro, "_search_baseline_sinapsis_rowid", None)
+    baseline_rowid = _rowid_corte_positivo(baseline_rowid)
+    edge_rowid_max = _rowid_corte_positivo(edge_rowid_max)
 
     query_tokens = _tokenizar_query(frase)
     if not query_tokens:
