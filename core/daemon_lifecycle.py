@@ -2,16 +2,17 @@
 BioRAG Daemon Lifecycle — Gestión cross-platform del daemon de mantenimiento del grafo
 ======================================================================================
 
-El MCP server usa este módulo para asegurar que el daemon de la hormiguita
-esté corriendo como proceso detachado. El daemon sobrevive a la muerte del
-MCP server — cuando opencode cierra, el daemon sigue. La próxima vez que
-opencode abra, el MCP server checkea si sigue vivo.
+El MCP server puede usar este módulo para comprobar o iniciar el daemon de
+mantenimiento como proceso separado. El inicio automático está desactivado
+por defecto y requiere BIORAG_DAEMON_ENABLED=1; si se habilita, el proceso
+puede sobrevivir al MCP server y la siguiente instancia comprueba su estado.
 
 Uso en mcp_server.py:
     from core.daemon_lifecycle import ensure_daemon_alive
-    ensure_daemon_alive()  # Called once at server startup
+    ensure_daemon_alive()  # Solo inicia si BIORAG_DAEMON_ENABLED está habilitado
 
 Variables de entorno:
+    BIORAG_DAEMON_ENABLED          — Activación explícita (default: 0)
     BIORAG_DAEMON_INTERVALO_HORAS  — Intervalo entre ciclos (default: 6)
     BIORAG_DAEMON_MAX_NODOS        — Nodos por ciclo (default: 10)
 """

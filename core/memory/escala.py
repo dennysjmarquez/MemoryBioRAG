@@ -25,7 +25,7 @@ recuerdo VIEJO), sino porque dos decisiones del buscador dependían del tamaño:
 Coste constante: una consulta al vocabulario por palabra (índice FTS5) y una
 consulta trigram acotada por el mismo LIMIT que ya existía.
 
-Interruptor: BIORAG_ESCALA=0 vuelve al comportamiento anterior.
+Interruptor: BIORAG_ESCALA=0 desactiva estas ayudas de escala; no revierte por sí solo todo el buscador a una versión anterior.
 """
 from __future__ import annotations
 

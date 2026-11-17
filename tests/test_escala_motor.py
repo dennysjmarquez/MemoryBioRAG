@@ -1,19 +1,17 @@
-"""Invariancia de escala DENTRO del motor real (v35.1).
+"""Regresión de invariancia de escala dentro del motor real.
 
-Reproduce los dos mecanismos del experimento de escala (2026-10-25) sobre una COPIA del
-snapshot, agregando muy pocos recuerdos. Sin el arreglo (BIORAG_ESCALA=0) la respuesta
-correcta desaparece del top-5; con el arreglo vuelve al 1er lugar.
+Los casos vienen del experimento histórico de escala (2026-10-25), que detectó que
+el crecimiento del corpus podía degradar la recuperación y el orden. El buscador
+actual ha cambiado desde entonces: ``BIORAG_ESCALA=0`` desactiva ayudas concretas
+de ``core/memory/escala.py``, pero no revierte todo el ranking al código histórico.
+Por eso estas pruebas verifican que las respuestas correctas sigan primeras con
+las ayudas activadas y desactivadas.
 
-  1. Una sola nota que cita la pregunta con typos apagaba el rescate de typos para
-     TODOS los recuerdos (la compuerta miraba la cobertura de otros recuerdos) y el
-     filtro QCR eliminaba después a la respuesta.
-  2. Cinco notas que comparten UNA palabra con la pregunta pasaban a ser las 5 de las
-     que se infieren las dimensiones de la pregunta; recuerdos genéricos sin ninguna
-     palabra de la pregunta se saltaban el filtro de palabras por ese camino.
-  3. Al buscar candidatos de typo entre los más parecidos (y no entre los 200 más
-     viejos), el parecido difuso trataba una palabra real como typo de otra palabra
-     real («rector» ≈ «vector») y esos recuerdos le ganaban a la respuesta que tiene
-     las tres palabras literales.
+El fixture usa una COPIA temporal del snapshot y agrega pocos recuerdos para cubrir:
+  1. Una nota que cita una consulta con typos.
+  2. Cinco notas que comparten una palabra y dimensiones inferidas.
+  3. Una palabra real que no debe confundirse con otra palabra real («rector» y
+     «vector»), aunque el rescate difuso siga disponible para typos genuinos.
 """
 import os
 import shutil
@@ -77,14 +75,12 @@ def test_con_el_arreglo_la_respuesta_vuelve_al_primer_lugar(memoria_crecida, mon
 
 
 @pytest.mark.parametrize("query,oro", [(Q_TYPO, ORO_TYPO), (Q_DIM, ORO_DIM)])
-def test_sin_el_arreglo_se_reproduce_la_falla(memoria_crecida, monkeypatch, query, oro):
-    # Documenta el mecanismo: el comentario original indicaba que si un día este
-    # test fallaba porque la respuesta SÍ aparece sin el arreglo, el motor cambió.
-    # Con la llegada de growth_stable_fts (aislamiento del cohorte FTS/BM25 de
-    # referencia), el ranking base quedó protegido contra el crecimiento del corpus
-    # y la respuesta ya no es desplazada del top-5 incluso con BIORAG_ESCALA=0.
-    pytest.skip("Superado por growth_stable_fts: el ranking base está aislado del crecimiento")
-
+def test_respuesta_se_mantiene_primera_con_escala_legacy_desactivada(
+        memoria_crecida, monkeypatch, query, oro):
+    # El interruptor apaga las ayudas heredadas de escala; no debe borrar una
+    # respuesta que el ranking actual ya recupera correctamente.
+    monkeypatch.setenv("BIORAG_ESCALA", "0")
+    assert _top5(memoria_crecida, query, oro)[:1] == [oro]
 
 
 def test_genericos_sin_palabras_de_la_pregunta_no_ocupan_el_top(memoria_crecida, monkeypatch):

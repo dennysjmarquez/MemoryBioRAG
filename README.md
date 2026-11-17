@@ -1,21 +1,25 @@
 # BioRAG — Memoria Cognitiva Biomimética y Simbólica para Agentes de IA
 
-> **Versión Oficial:** v36.0
+> **Versión candidata no publicada:** v36.0 · gate local de pruebas y QA en verde (2026-10-21).
 > **Paradigma:** Motor Python + SQLite FTS5. **Sin embeddings densos, GPU ni llamadas a APIs externas** en el path de búsqueda.
-> **Motor:** Arquitectura modularizada (18 submódulos `core/memory/` + 15 submódulos `core/mcp_server/` + fachada delgada) + SQLite FTS5 WAL + PPMI-SVD (100 dimensiones) + espacio semántico de 13 ejes + grafo sináptico Hebbiano + SDM (2048 bits) + calibración conforme + activación ACT-R + Concept Hubs + validación simétrica fail-fast de sustantivos clave + **neurona de reordenamiento que aprende sola** (29 señales → 6 ocultas → 1 corrección, con piso en la fórmula a mano) + **neurona asociativa cerrada de fábrica** (5 agujas → fuerza 0–1: ¿dos recuerdos tienen que ver?; examinada, aún no decide en el motor) + enlaces del agente intocables + **córtex vivo desacoplado del repo en `~/.biorag/`** + **instalador zero-touch multi-plataforma**.
+> **Motor:** Arquitectura modularizada (18 submódulos `core/memory/` + 15 submódulos `core/mcp_server/` + fachada delgada) + SQLite FTS5 WAL + PPMI-SVD (100 dimensiones) + espacio semántico de 13 ejes + grafo sináptico Hebbiano + SDM (2048 bits) + calibración conforme + activación ACT-R + Concept Hubs + validación simétrica fail-fast de sustantivos clave + **neurona de reordenamiento que aprende sola** (29 señales → 6 ocultas → 1 corrección, con piso en la fórmula a mano) + **neurona asociativa cerrada de fábrica** (5 agujas → fuerza 0–1: ¿dos recuerdos tienen que ver?; examinada, aún no decide en el motor) + enlaces del agente intocables + **destino canónico del córtex en `~/.biorag/`** + **instalador de configuración MCP para clientes compatibles**.
 > **Idiomas:** Español e inglés (stemming bilingüe, expansión simbólica con WordNet, Concept Hubs de 5 ángulos y Domain Dict).
 
 **BioRAG** es una memoria simbólica persistente para agentes de IA que aborda la pérdida de contexto entre sesiones mediante recuperación híbrida. “Biomimética” describe una inspiración de diseño; no significa que el motor simule literalmente un cerebro humano. Los resultados de rendimiento se limitan a los benchmarks y snapshots indicados.
 
 ---
 
-## 📊 Métricas de la suite oficial (v33.0 · 2026-10-14 · vigentes en v36.0)
+## 📊 Resultados históricos de la suite oficial (baseline v33.0 · 2026-10-14)
 
 > **v34.0:** con una DB nueva, o sin campeón, la neurona no actúa y estos números se mantienen **idénticos** (son el piso). Con el campeón ya aprendido sobre la copia del snapshot (`despertar_neurona.sh`, 500 ciclos), la misma suite da **Recall@5 100.00 % · Recall@1 94.06 % (823/875) · MRR 0.964 · FP 0/40**, sin ninguna categoría por debajo del piso. Detalle en [La Neurona de BioRAG](#-novedades-de-la-versión-v340--la-neurona-de-biorag).
 >
 > **v35.0:** la QA oficial sale **idéntica** antes y después de todos los cambios de la v35 (Recall@5 100.00 % · Recall@1 91.89 % · MRR 0.950 · FP 0/40, misma máquina y semilla). Detalle en [La Neurona Asociativa](#-novedades-de-la-versión-v350--la-neurona-asociativa-sináptica).
 >
-> **v36.0:** la suite QA oficial sale **100% idéntica** (Recall@5 100.00 % · Recall@1 91.77 % · MRR 0.950 · FP 0/40) mientras la suite de pruebas unitarias alcanza **838/838 tests aprobados**, certificando el desacoplamiento físico de la base de datos viva a `~/.biorag/`, el instalador sin intervención humana, la detección de API por contratos de paquetes y la parada prudente anti-corrupción. Detalle en [Novedades de la v36.0](#-novedades-de-la-versión-v360--aislamiento-de-cortex-instalador-zero-touch-y-parada-prudente).
+> **Gate local de v36.0 (2026-10-21; candidata no publicada):** se ejecutó en copias temporales del árbol de trabajo y del snapshot oficial; no se usó la DB viva.
+> - **Pruebas unitarias:** `PYTHONHASHSEED=0 python -m pytest tests/` — 852 passed, 18 skipped (870 recopilados; 240.19 s), Python 3.11.2.
+> - **QA oficial:** `bash scripts/run_qa_suite.sh --qa-only`, con `BIORAG_QA_GATE=1` y `PYTHONHASHSEED` sin fijar — 921 casos (875 de recuperación, 40 negativos y 6 ambiguos fuera del denominador global). R@5 **100.00% (875/875)**, R@1 **93.03% (814/875)**, MRR **0.9566**, FP **0/40**; `[GATE] OK` (997.17 s).
+> - La copia medida no tenía un campeón de la neurona de ranking, así que esta no actuó. El archivo aislado de casos fallidos contiene dos entradas de categoría `ambiguo`, aparte de las métricas globales de recuperación.
+> - El snapshot original conservó SHA-256 `104dd2902aaf24c3ce93624492ea95a719acbdcca50f4f6bc123ac8317749796` antes y después; la copia usada para QA coincidió. La tabla siguiente conserva métricas históricas del baseline v33.0, no resultados de v36.0. Este gate local no equivale a aprobación, release ni publicación.
 >
 > **Cada base tiene su propia neurona.** La neurona aprende con los recuerdos de la base donde vive y se guarda dentro de ella. Esta tabla mide una copia del snapshot oficial, que no trae neurona entrenada: por eso muestra la fórmula a mano sola (el piso), aunque tu neurona esté trabajando en tu DB viva. La QA ahora lo dice antes de medir y nombra el parámetro para verla: `python scripts/evaluar_qa.py --con-neurona`. Detalle en [La neurona en la QA](#la-neurona-en-la-qa-cada-base-tiene-la-suya).
 
@@ -31,7 +35,7 @@ Evaluación sobre el snapshot congelado oficial canónico (**921 casos totales e
 | **MRR (Mean Reciprocal Rank)** | **0.950** | Posición recíproca promedio ponderada (0.9497 sin redondear; métrica complementaria observada). |
 | **Falsos positivos** | **0/40 (0.00%)** | Calibración conforme efectiva en los 40 controles negativos del benchmark (FP rate observada 0.00%). |
 | **Casos ambiguos (contradictorios)** | **6 casos (2 con cobertura parcial)** | Evaluados por separado del Recall global; 2 casos no cubren al menos una de las etiquetas contradictorias. |
-| **Tests unitarios** | **838/838 aprobados** (v36.0) | Cobertura completa de invariantes, validación pre-DB fail-fast, contratos MCP, normalización, catálogo, las 18 capas de protección de la neurona, el script de despertar, la neurona asociativa, los enlaces del agente intocables, migración atómica a `~/.biorag/`, instalador zero-touch multi-agente, 3 guardias de plugin OpenCode y parada prudente del daemon. |
+| **Pruebas unitarias de la candidata v36.0** | **852 passed · 18 skipped** | `PYTHONHASHSEED=0 python -m pytest tests/` en copia aislada (870 recopilados; 240.19 s; Python 3.11.2). Resultado actual del gate, no cifra histórica. |
 | **Suite Concept Hub** | **5/5 TOP-1 (100.00%)** | Precisión perfecta en los 5 casos de prueba de puentes asociativos registrados. |
 | **Abismo léxico (EXP-Q)** | **3/3 Pool · 2/3 Top-5 · 1/3 Top-1** | 3/3 descubiertos en pool de grafo; 2/3 en Top-5 (pos #1 y #4) y 1/3 en Top-1 (pos #1). |
 | **Sinónimos · Recall@5 / Recall@1** | **100% (55/55) / 56.36%** | Cobertura total en Top-5; el 43.64% restante queda entre Top-2 y Top-5. |
@@ -49,49 +53,42 @@ Evaluación sobre el snapshot congelado oficial canónico (**921 casos totales e
 
 ---
 
-## 🛡️ Novedades de la Versión v36.0 — Aislamiento del Cortex (`~/.biorag/`), Instalador Zero-Touch y Parada Prudente
+## 🛡️ Candidato v36.0 — Ruta de datos, configuración MCP y control del daemon
 
-> **En una frase:** Tu base de datos viva ahora vive **fuera del repositorio** (`~/.biorag/memory_biorag.db`) para que ningún `git pull` o `checkout` pueda tocarla jamás; el instalador es **100% desatendido (cero preguntas técnicas)** y el daemon cuenta con **parada prudente** para proteger SQLite.
+> **En una frase:** El destino canónico de una instalación nueva es `~/.biorag/memory_biorag.db`, fuera del repositorio. La resolución sigue respetando argumentos y `BIORAG_PATH` explícitos, además del fallback legacy documentado. El instalador automatiza la configuración de clientes compatibles; el daemon de mantenimiento es opt-in y su parada solicita un cierre ordenado, con timeout y fallback forzado.
 
 | Pieza | Estado en v36.0 |
 |---|---|
-| **Cortex desacoplado (`~/.biorag/`)** | ✅ Base de datos viva migrada fuera del árbol de Git con fallback retrocompatible y checkpoint WAL atómico |
-| **Instalador Zero-Touch (`install.py`)** | ✅ Configuración automática silenciosa de 5 plataformas (Claude Code, OpenCode, Antigravity, VS Code, Hermes YAML) |
-| **Detección de API OpenCode (3 Guardias)** | ✅ Inspección de paquetes `@opencode/plugin` en disco (sin parsear strings frágiles de CLI) |
-| **Servicio Daemon SSE (Antigravity)** | ✅ Auto-configurado en `systemd --user` con límites anti crash-loop (`StartLimitBurst=5`) |
-| **Control Maestro del Daemon (`La Hormiguita`)** | ✅ `BIORAG_DAEMON_ENABLED=0` por defecto; el MCP server no lo spawnea en segundo plano sin permiso explícito |
-| **Protocolo de Parada Prudente (`--stop`)** | ✅ `python3 graph_maintenance_daemon.py --stop` con espera de ciclo activo, cierre limpio y timeout de 30s |
-| **Pruebas unitarias** | ✅ **838/838 aprobados** (7 tests nuevos de migración + 2 de ciclo de vida del daemon) |
-| **QA oficial canónica** | ✅ **100% idéntica**: Recall@5 100.00 % · Recall@1 91.77 % · MRR 0.950 · FP 0/40 · `[GATE] OK` |
+| **Cortex desacoplado (`~/.biorag/`)** | Ruta canónica de usuario fuera del repo; el instalador intenta migrar la base legacy y, si ya existe destino, crea copias de respaldo antes de resolver el conflicto. `BIORAG_PATH` y el fallback legacy siguen aplicando. |
+| **Instalador (`install.py`)** | Automatiza la detección y escritura de configuración para clientes compatibles; el resultado depende del entorno y debe validarse en cada plataforma. |
+| **Detección de API OpenCode** | Comprueba los paquetes locales y el schema disponible; si no hay evidencia, usa el fallback definido en código. |
+| **Transporte Antigravity** | La configuración MCP generada usa `stdio`; esta versión no instala un servicio SSE de systemd. |
+| **Control del daemon (`La Hormiguita`)** | `BIORAG_DAEMON_ENABLED=0` por defecto; el servidor MCP solo intenta iniciarlo si se habilita explícitamente. |
+| **Comando de parada (`--stop`)** | Solicita `SIGTERM`, espera hasta 30 s y puede recurrir a `SIGKILL` si el proceso no termina. No es una garantía de cierre limpio en todos los casos. |
+| **Pruebas unitarias y QA** | Gate local ejecutado el 2026-10-21 en copias aisladas: pytest 852 passed/18 skipped; QA oficial de 921 casos con `[GATE] OK` (R@5 100.00%, R@1 93.03%, MRR 0.9566, FP 0/40). La candidata sigue sin publicar; esto no es aprobación de release. |
 
 ---
 
 ### 1. Aislamiento Físico del Cortex (`~/.biorag/memory_biorag.db`)
 
-Antes de la v36.0, la base de datos viva residía en `MemoryBioRAG_Data/memory_biorag.db` dentro de la carpeta del proyecto. Cualquier sincronización de Git, cambio de rama o rebase ponía en riesgo la memoria del usuario.
+Las versiones anteriores podían resolver la base dentro del árbol del proyecto. En esta versión, el destino canónico de una instalación nueva está en `~/.biorag/memory_biorag.db`, lo que reduce la exposición accidental a operaciones sobre el repositorio; no impide que un argumento explícito o `BIORAG_PATH` seleccione otra ubicación.
 
-En la v36.0:
-* **Ubicación canónica:** `~/.biorag/memory_biorag.db` (en el espacio de usuario del sistema operativo).
-* **Migración atómica transparente:** `install.py` detecta si existe una base legacy en el árbol local, ejecuta un checkpoint `PRAGMA wal_checkpoint(TRUNCATE)`, crea un respaldo de seguridad en `~/.biorag/backups/` y mueve los archivos (`.db`, `-wal`, `-shm`) de forma atómica.
-* **Cadena de resolución de rutas (`core/paths.py`):**
-  1. Parámetro explícito en código.
-  2. Variable de entorno `BIORAG_PATH`.
-  3. `~/.biorag/memory_biorag.db` (si existe o ruta por defecto).
-  4. Fallback retrocompatible a `MemoryBioRAG_Data/memory_biorag.db` (únicamente si aún no se ha migrado).
-* **Aislamiento de Tests:** Todos los tests de QA continúan apuntando estrictamente al snapshot inmutable congelado (`snapshots/qa_escape_qcr_20260811.db`) garantizando reproducibilidad matemática absoluta.
+La implementación actual:
+* **Migración legacy:** `install.py` busca `MemoryBioRAG_Data/memory_biorag.db` e intenta `PRAGMA wal_checkpoint(TRUNCATE)`; si el checkpoint falla, emite una advertencia y continúa. Si el destino no existe, mueve la base sin crear primero una copia de respaldo. Si el destino ya existe, copia ambas bases a `~/.biorag/backups/`; luego conserva el destino cuando su tamaño no es menor, o lo reemplaza por la base legacy si esta es mayor. No combina las dos bases ni compara su contenido.
+* **Límite de la migración:** el movimiento de `.db`, `-wal` y `-shm` no constituye una transacción atómica de conjunto. No debe describirse como migración atómica ni como garantía absoluta contra pérdida de datos.
+* **Resolución de rutas (`core/paths.py`):** argumento explícito → `BIORAG_PATH` → base de usuario existente → base legacy existente → destino predeterminado de usuario.
+* **QA:** la QA oficial usa su snapshot de referencia; esta descripción no implica que se haya ejecutado el gate completo para cada árbol de trabajo.
 
 ---
 
-### 2. Instalador Zero-Touch Multi-Agente
+### 2. Instalador de configuraciones MCP para clientes compatibles
 
-El instalador `python3 install.py` fue rediseñado bajo la directriz **UX-First**:
-* **Cero prompts confusos:** Se eliminaron las preguntas crípticas en el terminal como `¿Crear servicio systemd para SSE? [y/N]`. Un usuario no programador clona el repo, corre `python3 install.py` y el sistema queda 100% operativo sin fricción.
-* **Soporte Multi-Agente Integral:**
-  * **OpenCode:** Inyección de configuración MCP y selección del plugin `remember`.
-  * **Claude Code:** Configuración automática en `~/.claude.json`.
-  * **Antigravity (Gemini):** Configuración en modo SSE (`http://localhost:8080/sse`) y auto-despliegue del servicio en segundo plano mediante `systemd --user` con directivas anti crash-loop (`StartLimitBurst=5`, `StartLimitIntervalSec=60`).
-  * **VS Code:** Configuración en los settings de MCP.
-  * **Hermes AI Agent:** Parcheo seguro de `~/.hermes/config.yaml` preservando comentarios y formato original sin dependencias externas.
+El instalador `python3 install.py` automatiza la detección y escritura de configuración para las plataformas que reconoce. La instalación y el handshake deben verificarse en cada entorno compatible; el código no garantiza que cualquier cliente o configuración local quede operativo sin intervención.
+* **Transporte MCP:** las entradas generadas usan `stdio` (OpenCode tiene un formato de configuración propio).
+* **OpenCode:** detecta la API de plugin a partir de paquetes locales y del schema disponible, con un fallback definido en código.
+* **Antigravity:** genera una entrada MCP `stdio`; esta versión no instala un servicio SSE ni una unidad de `systemd --user`.
+* **Hermes:** incluye un parcheador para la sección `mcp_servers.biorag` en YAML.
+* **Otros clientes:** las rutas y claves configuradas están definidas en `install.py`; la existencia de una entrada escrita no sustituye una prueba real de conexión.
 
 ---
 
@@ -111,8 +108,8 @@ En lugar de parsear la salida de texto de `opencode --version` (que puede cambia
   ```bash
   python3 graph_maintenance_daemon.py --stop
   ```
-* **Graceful Shutdown sin corrupción de datos:**
-  Si el demonio se encuentra a mitad de una transacción reflexiva o podado de sinapsis en SQLite (`self.en_ciclo = True`), la señal `SIGTERM` no mata el proceso bruscamente. El demonio completa el ciclo activo, salva el estado, ejecuta `cerebro.cerrar_sistema()` y cierra SQLite limpiamente. El comando de parada espera hasta 30 segundos con feedback progresivo antes de aplicar cualquier acción forzada.
+* **Parada solicitada con límite:**
+  Si el demonio se encuentra a mitad de una transacción reflexiva o podado de sinapsis en SQLite (`self.en_ciclo = True`), la señal `SIGTERM` solicita el cierre ordenado, pero no garantiza que el ciclo termine dentro del timeout. El ciclo en curso puede concluir antes de que venza la espera; si el proceso sigue vivo a los 30 segundos, el código intenta `SIGKILL`, por lo que no se garantiza un cierre limpio en todos los casos. Durante la espera, el comando imprime avisos periódicos.
 
 ---
 
@@ -1144,7 +1141,7 @@ Ya no somos esclavas de un modelo de lenguaje para buscar conocimiento; la memor
   2. `problema`: Dolor, duda, fallo o necesidad humana/técnica que resuelve.
   3. `solucion`: Técnica, mecanismo o teoría aplicada por el nodo.
   4. `situacion`: Caso de uso, rol o contexto de búsqueda práctico.
-  5. `ingenuo`: Búsqueda coloquial sin tecnicismos (estilo Google novato).
+  5. `ingenuo`: Búsqueda coloquial sin tecnicismos (estilo de búsqueda de una persona principiante).
 - **Archivo:** `core/concept_hub.py`, herramientas MCP `concept_hub_crear` y `concept_hub_agregar_bridges`.
 
 ### 2. WordNet Blindado (Bilingüe Real ES/EN)
@@ -1491,11 +1488,11 @@ git clone <url> MemoryBioRAG && cd MemoryBioRAG
 python3 install.py
 ```
 
-`install.py` se encarga de todo de forma 100% desatendida:
-* Despliega la base de datos viva en `~/.biorag/memory_biorag.db` (aislada fuera del repo).
-* Instala las dependencias y diccionarios semánticos (WordNet + OMW).
-* Detecta y configura automáticamente tus agentes instalados (Claude Code, OpenCode, Antigravity, VS Code, Hermes).
-* En Linux con Antigravity, registra y arranca el servicio en segundo plano (`systemd --user`) con protecciones anti-crash.
+`install.py` automatiza varios pasos de una instalación compatible; la detección y el handshake deben verificarse en el entorno concreto:
+* Usa `~/.biorag/memory_biorag.db` como destino canónico y ofrece migrar una base legacy, con los límites descritos arriba.
+* Instala dependencias y datos de WordNet/OMW cuando la etapa correspondiente se completa correctamente.
+* Detecta rutas de configuración de clientes compatibles y genera entradas MCP; escribir la configuración no demuestra que el cliente haya establecido conexión.
+* No instala en esta versión un servicio SSE de `systemd --user`. El daemon de mantenimiento es opcional y se controla mediante `BIORAG_DAEMON_ENABLED`.
 
 ### Instalación Manual de Dependencias
 
@@ -2178,7 +2175,7 @@ BioRAG no implementa una técnica aislada — sintetiza **treinta mecanismos cie
 
 | Mecanismo | Fundamento científico | Dónde vive en el código | Para qué se usa |
 |---|---|---|---|
-| **PPMI / Word2Vec Duality (Shifted PPMI)** | Levy & Goldberg (2014); Mikolov et al. (2013) | `core/ppmi_vectorizer.py` | Justificación matemática de que la matriz PPMI desplazada equivale a los embeddings de Word2Vec de Google, logrando espacio vectorial semántico sin redes neuronales ni GPU. |
+| **PPMI / relación con Skip-gram (Shifted PPMI)** | Levy & Goldberg (2014); Mikolov et al. (2013) | `core/ppmi_vectorizer.py` | Relaciona Skip-gram with Negative Sampling con una factorización de PMI desplazada; BioRAG usa una variante PPMI+SVD local para construir representaciones vectoriales coocurrenciales, sin modelo denso preentrenado. |
 | **LSA — Latent Semantic Analysis (Truncated SVD)** | Landauer & Dumais (1997); Deerwester et al. (1990) | `core/ppmi_vectorizer.py` | Reducción de dimensionalidad espectral (100 Dims) sobre la matriz de co-ocurrencia para capturar sinonimia limpia y relaciones semánticas latentes de 2º orden. |
 | **Fusión híbrida multi-señal (13 señales)** | Diseño propio — combina BM25, Jaccard, PPMI coseno, JSD, predicados SRL y 8 señales más | `core/memory_store.py` — `_score_hibrido()` | Fusionar 13 señales ortogonales (léxica, vectorial, dimensional, sináptica, temporal) en un score único ponderado para cada resultado de búsqueda. |
 | **HDC — Hyperdimensional Computing (VSA Binding)** | Kanerva (2009); Smolensky (1990) | `core/sdm.py` | Enlazar vectorialmente roles semánticos SRL (Sujeto-Acción-Objeto-Contexto) mediante operaciones ortogonales para búsquedas relacionales lógicas. |
@@ -2499,7 +2496,7 @@ Cada capa se ejecuta SOLO si la anterior devolvió pocos resultados (< 3 o < lim
 |---|---|---|---|---|
 | **1** | NEAR query | `NEAR(palabras, 15)` | Busca palabras dentro de ventana de 15 tokens | Proximity search (Elasticsearch `match_phrase`) |
 | **2** | LIKE en concepto | `LIKE '%palabra%'` + `PALABRA_COMPLETA` | Substring match en nombre de nodo con word boundary | Fuzzy entity matching |
-| **3** | FTS5 AND exacto | `MATCH` con paráfrasis OR | Full-text search con BM25 ponderado | BM25 ranking (Google, Elasticsearch) |
+| **3** | FTS5 AND exacto | `MATCH` con paráfrasis OR | Full-text search con BM25 ponderado | BM25 ranking (Lucene/Elasticsearch) |
 | **4** | Términos protegidos | unicode61 + `PALABRA_COMPLETA` | Bypass de trigram para términos entre comillas ("CV") | Exact match (Solr `exact`) |
 | **5** | OR fallback | `palabra1 OR palabra2` | Amplía recall cuando AND da pocos resultados | Boolean OR expansion |
 | **6** | Prefix wildcards | `"react*"` en unicode61 | Tolerancia a prefijos (react → reactive) | Prefix query (Lucene `PrefixQuery`) |

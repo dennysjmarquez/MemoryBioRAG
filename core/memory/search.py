@@ -2238,15 +2238,18 @@ def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, 
         if _ppmi_vq is not None:
             try:
                 from core.ppmi_hybrid_search import score_candidato
-                q_toks_list = list(tokens_query)
-                q_set = set(q_toks_list)
-                es_corta = len(q_set) <= 2
-                vq = self._ppmi_index.vector_query(q_toks_list)
+                # El vector de consulta y sus metadatos se prepararon una vez
+                # antes del bucle; reutilizarlos evita una vectorización por candidato.
                 _raw_ppmi, _ = score_candidato(
-                    self._ppmi_index, vq, q_set, es_corta, concepto, _ppmi_pool_set
+                    self._ppmi_index,
+                    _ppmi_vq,
+                    _ppmi_q_set,
+                    _ppmi_es_corta,
+                    concepto,
+                    _ppmi_pool_set,
                 )
                 # Normalizar: el score bruto de score_candidato ronda 0-2 para query corta (dividir por 2.0), 0-1 para larga
-                ppmi_val = min(1.0, max(0.0, _raw_ppmi / (2.0 if es_corta else 1.0)))
+                ppmi_val = min(1.0, max(0.0, _raw_ppmi / (2.0 if _ppmi_es_corta else 1.0)))
 
             except Exception:
                 ppmi_val = 0.0

@@ -18,6 +18,20 @@
   - La columna "fórmula sola" coincide con la corrida sin neurona en todas las categorías.
   - 34 pruebas nuevas en `tests/test_qa_neurona.py`.
 
+## [Sin publicar] — v36.0: ruta de datos, configuración MCP y ciclo de vida del daemon
+
+**Estado:** candidata v36.0 no publicada. El gate local de pruebas unitarias y QA se ejecutó y pasó el 2026-10-21 en copias temporales; esto no constituye aprobación ni publicación de un release.
+
+- Ruta canónica de usuario en `~/.biorag/memory_biorag.db`; se conserva el orden de resolución por argumento, `BIORAG_PATH`, base de usuario y fallback legacy.
+- `install.py` incluye una migración legacy con checkpoint best-effort. Cuando ya existe destino, copia ambas bases a backups antes de resolver el conflicto por tamaño; cuando no existe destino, mueve la legacy sin crear primero un backup. No combina bases, no compara su contenido y el movimiento de `.db`, `-wal` y `-shm` no tiene garantía de atomicidad de conjunto.
+- Configuración MCP `stdio` para clientes detectados, incluido un parcheador YAML para Hermes y detección de API de plugin OpenCode.
+- Daemon de mantenimiento opt-in (`BIORAG_DAEMON_ENABLED=0` por defecto) y comando `--stop` con solicitud de cierre y fallback `SIGKILL` tras el timeout.
+- Python mínimo `>=3.11` en el paquete; CI configurado para Python 3.11 y 3.12.
+- **Gate de cierre (copias temporales; entorno con Python 3.11.2 y dependencias de `requirements.txt`):**
+  - `PYTHONHASHSEED=0 python -m pytest tests/`: **852 passed, 18 skipped** (870 recopilados; 240.19 s).
+  - `bash scripts/run_qa_suite.sh --qa-only`, con `BIORAG_QA_GATE=1` y `PYTHONHASHSEED` sin fijar: **921 casos**; R@5 **100.00% (875/875)**, R@1 **93.03% (814/875)**, MRR **0.9566**, FP **0/40**; `[GATE] OK` (997.17 s). Los seis casos ambiguos quedan fuera del denominador global; el archivo temporal de fallos registra dos entradas de esa categoría.
+  - La copia evaluada no tenía campeón de la neurona de ranking, que no actuó. El snapshot original mantuvo SHA-256 `104dd2902aaf24c3ce93624492ea95a719acbdcca50f4f6bc123ac8317749796` antes y después; la copia de QA coincidió. Las salidas se aislaron fuera del checkout.
+
 ## [v35.0] — 2026-10-25 — La Neurona Asociativa (sináptica)
 
 **Versión mayor por su contenido científico: BioRAG tiene su segunda neurona, la que decide si dos recuerdos de verdad tienen que ver. Queda construida, calibrada de fábrica, examinada y cerrada (no aprende), pero todavía no decide dentro del motor. Ranking sin cambios. La API MCP no cambia sus herramientas; solo se quitaron las sugerencias de vincular/desvincular. Los enlaces que hace el agente ya no los borra el sistema.**
@@ -817,7 +831,7 @@ Release de **estandarización cognitiva de puentes semánticos y optimización r
   - `problema`: dolor, duda, fallo o necesidad humana/técnica resuelta.
   - `solucion`: técnica, mecanismo o teoría aplicada por el nodo.
   - `situacion`: caso de uso, rol o contexto de búsqueda práctico.
-  - `ingenuo`: búsqueda coloquial sin tecnicismos (estilo Google novato).
+  - `ingenuo`: búsqueda coloquial sin tecnicismos (estilo de búsqueda de una persona principiante).
   - Validador determinista que garantiza calidad, longitud mínima y vocabulario disjunto (anti-destinatario).
 - **Prompting Estricto y Esquemas MCP Actualizados**:
   - Herramientas `concept_hub_crear` y `concept_hub_agregar_bridges` con docstrings detallados, reglas del validador y ejemplos JSON listos para LLMs autónomos.

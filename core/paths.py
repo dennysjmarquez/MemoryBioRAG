@@ -5,9 +5,11 @@ por su cuenta (cwd, constantes locales, env). Eso produce DBs divergentes:
 enseñás por una interfaz y otra no ve las consecuencias. Una sola función
 es la fuente de verdad para el path efectivo.
 
-La base de datos viva reside fuera del repositorio en ~/.biorag/memory_biorag.db
-(multiplataforma: Windows %USERPROFILE%/.biorag, macOS/Linux ~/.biorag),
-protegida contra git pulls, cambios de rama y mutaciones del repositorio.
+El destino canónico para una instalación nueva está fuera del repositorio, en
+~/.biorag/memory_biorag.db (multiplataforma: Windows %USERPROFILE%/.biorag,
+macOS/Linux ~/.biorag). La resolución sigue respetando primero un argumento
+explícito y BIORAG_PATH, y conserva el fallback a la ruta legacy si existe;
+por tanto, un override puede apuntar deliberadamente dentro del repositorio.
 """
 from __future__ import annotations
 
