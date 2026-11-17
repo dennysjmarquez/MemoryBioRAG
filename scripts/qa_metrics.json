@@ -1,15 +1,15 @@
 {
-  "version": "v35.0",
-  "generado_en": "2026-11-17T00:50:42",
-  "elapsed_seconds": 2006.81,
+  "version": "v36.0",
+  "generado_en": "2026-11-17T18:36:46",
+  "elapsed_seconds": 1891.49,
   "casos_file": "casos_qa_baseline_v1.jsonl",
   "casos_total": 921,
   "db_src": "/mnt/recursos_compartidos_y_otros/MemoryBioRAG/MemoryBioRAG_Data/memory_biorag_qa_run.db",
   "global": {
     "queries": 875,
     "recall_at_5": 98.4,
-    "recall_at_1": 92.57,
-    "mrr": 0.9484,
+    "recall_at_1": 92.34,
+    "mrr": 0.9472,
     "fallos": 14,
     "negativos_total": 40,
     "negativos_fp": 0,
@@ -41,8 +41,8 @@
     "literal": {
       "total": 487,
       "recall_at_5": 100.0,
-      "recall_at_1": 99.59,
-      "mrr": 0.9979,
+      "recall_at_1": 99.38,
+      "mrr": 0.9969,
       "fallos": 0
     },
     "por_tema": {
@@ -76,8 +76,8 @@
     "variante_gramatical": {
       "total": 65,
       "recall_at_5": 98.46,
-      "recall_at_1": 93.85,
-      "mrr": 0.959,
+      "recall_at_1": 92.31,
+      "mrr": 0.9513,
       "fallos": 1
     }
   },
@@ -103,9 +103,9 @@
     },
     "global_r1": {
       "queries": 850,
-      "recall_at_1": 94.94,
-      "mrr": 0.9684,
-      "no_top1": 43
+      "recall_at_1": 94.71,
+      "mrr": 0.9672,
+      "no_top1": 45
     },
     "categorias": {
       "cruce_idioma": {
@@ -140,7 +140,7 @@
         },
         "r1": {
           "total": 487,
-          "recall_at_1": 99.59,
+          "recall_at_1": 99.38,
           "apartados": 0
         }
       },
@@ -200,7 +200,7 @@
         },
         "r1": {
           "total": 65,
-          "recall_at_1": 93.85,
+          "recall_at_1": 92.31,
           "apartados": 0
         }
       }
@@ -566,16 +566,16 @@
         },
         "literal": {
           "total": 487,
-          "hits1_formula": 485,
-          "hits1_neurona": 485,
+          "hits1_formula": 484,
+          "hits1_neurona": 484,
           "hits5_formula": 487,
           "hits5_neurona": 487,
-          "recall_at_1_formula": 99.59,
-          "recall_at_1_neurona": 99.59,
+          "recall_at_1_formula": 99.38,
+          "recall_at_1_neurona": 99.38,
           "recall_at_5_formula": 100.0,
           "recall_at_5_neurona": 100.0,
-          "mrr_formula": 0.9979,
-          "mrr_neurona": 0.9979
+          "mrr_formula": 0.9969,
+          "mrr_neurona": 0.9969
         },
         "por_tema": {
           "total": 65,
@@ -631,30 +631,30 @@
         },
         "variante_gramatical": {
           "total": 65,
-          "hits1_formula": 56,
-          "hits1_neurona": 61,
+          "hits1_formula": 55,
+          "hits1_neurona": 60,
           "hits5_formula": 64,
           "hits5_neurona": 64,
-          "recall_at_1_formula": 86.15,
-          "recall_at_1_neurona": 93.85,
+          "recall_at_1_formula": 84.62,
+          "recall_at_1_neurona": 92.31,
           "recall_at_5_formula": 98.46,
           "recall_at_5_neurona": 98.46,
-          "mrr_formula": 0.9179,
-          "mrr_neurona": 0.959
+          "mrr_formula": 0.9103,
+          "mrr_neurona": 0.9513
         }
       },
       "global": {
         "total": 875,
-        "hits1_formula": 802,
-        "hits1_neurona": 810,
+        "hits1_formula": 800,
+        "hits1_neurona": 808,
         "hits5_formula": 861,
         "hits5_neurona": 861,
-        "recall_at_1_formula": 91.66,
-        "recall_at_1_neurona": 92.57,
+        "recall_at_1_formula": 91.43,
+        "recall_at_1_neurona": 92.34,
         "recall_at_5_formula": 98.4,
         "recall_at_5_neurona": 98.4,
-        "mrr_formula": 0.9426,
-        "mrr_neurona": 0.9484
+        "mrr_formula": 0.9414,
+        "mrr_neurona": 0.9472
       }
     },
     "cambios": {
@@ -667,9 +667,9 @@
     "incoherentes": 0,
     "tiempos": {
       "decisiones": 921,
-      "mediana_ms": 0.082,
-      "p95_ms": 0.192,
-      "max_ms": 0.932
+      "mediana_ms": 0.081,
+      "p95_ms": 0.153,
+      "max_ms": 0.798
     },
     "control_de_dano": {
       "tolerancia_casos": 1,

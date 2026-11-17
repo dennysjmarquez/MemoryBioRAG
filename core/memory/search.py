@@ -447,13 +447,15 @@ def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, 
     )
     bm25_expression = (
         f"bm25({fts_table}, 5.0, 1.0, 2.0, 4.0)"
-        if baseline_fts_ready else "NULL"
+        if (baseline_fts_ready and _escala.activa()) else "NULL"
     )
     unicode_bm25_expression = (
-        f"bm25({unicode_fts_table})" if baseline_fts_ready else "NULL"
+        f"bm25({unicode_fts_table})"
+        if (baseline_fts_ready and _escala.activa()) else "NULL"
     )
     unicode_order_expression = (
-        unicode_bm25_expression if baseline_fts_ready else "l.rowid"
+        unicode_bm25_expression
+        if (baseline_fts_ready and _escala.activa()) else "l.rowid"
     )
     try:
         self.cursor.execute("SELECT sustantivos_clave FROM largo_plazo LIMIT 0")
