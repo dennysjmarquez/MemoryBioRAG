@@ -1184,6 +1184,53 @@ def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, 
                     tuple(_ids_fb),
                 )
             candidatos_fb = self.cursor.fetchall()
+
+            # Mantener la ruta histórica acotada al prefijo. Las altas posteriores
+            # solo pueden entrar por rescate simbólico cuando la búsqueda no tuvo
+            # semillas léxicas de referencia; así una copia nueva de palabras de
+            # la query no cambia el ranking de una búsqueda ya anclada al cohorte.
+            if baseline_rowid is not None and not fts5_conceptos:
+                try:
+                    overlay_filtros_fb = []
+                    overlay_params_fb = []
+                    if profundidad != "profundo":
+                        overlay_filtros_fb.append("l.estado = 'activo'")
+                    if categoria:
+                        overlay_filtros_fb.append("l.categoria = ?")
+                        overlay_params_fb.append(cat_id_fb)
+                    overlay_filtros_fb.append("l.rowid > ?")
+                    overlay_params_fb.append(int(baseline_rowid))
+                    overlay_where_fb = "WHERE " + " AND ".join(overlay_filtros_fb)
+                    _ids_fb_overlay = (
+                        _escala.rowids_por_parecido(
+                            self.cursor, query, overlay_where_fb,
+                            tuple(overlay_params_fb), 1000,
+                            baseline_rowid=None,
+                        )
+                        if _escala.activa() else None
+                    )
+                    if _ids_fb_overlay is None:
+                        self.cursor.execute(
+                            "SELECT l.rowid, l.concepto, l.contenido, "
+                            "l.peso_sinaptico, l.estado, l.asociaciones, l.sinonimos "
+                            f"FROM largo_plazo l {overlay_where_fb} LIMIT 1000",
+                            tuple(overlay_params_fb),
+                        )
+                        candidatos_fb.extend(self.cursor.fetchall())
+                    elif _ids_fb_overlay:
+                        self.cursor.execute(
+                            "SELECT rowid, concepto, contenido, peso_sinaptico, "
+                            "estado, asociaciones, sinonimos FROM largo_plazo "
+                            f"WHERE rowid IN ({','.join('?' * len(_ids_fb_overlay))}) "
+                            "ORDER BY rowid",
+                            tuple(_ids_fb_overlay),
+                        )
+                        candidatos_fb.extend(self.cursor.fetchall())
+                except Exception:
+                    # Un fallo al explorar el overlay no bloquea el rescate del
+                    # conjunto de referencia ya recuperado.
+                    pass
+
             if candidatos_fb:
                 fb_results = buscar_fallback_simbolico(
                     query,
@@ -1740,6 +1787,49 @@ def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, 
                 dim_counts = Counter({c: len(ds) for c, ds in concepto_fb_ids.items()})
                 top = dict(dim_counts.most_common(50))
                 concepto_fb_ids = {c: concepto_fb_ids[c] for c in top}
+
+            # Las altas posteriores al corte de referencia también deben ser
+            # recuperables por una dimensión explícita. Se consultan en un pool
+            # separado para que no desplacen candidatos históricos del límite
+            # ni alteren su orden por frecuencia de inserción.
+            if baseline_rowid is not None and not _dims_inferidas:
+                fb_overlay_filtros = ["l.rowid > ?"]
+                fb_overlay_params = [int(baseline_rowid)]
+                if categoria:
+                    fb_overlay_filtros.append("l.categoria = ?")
+                    fb_overlay_params.append(cat_id_fb)
+                if profundidad != "profundo":
+                    fb_overlay_filtros.append("l.estado = 'activo'")
+                fb_overlay_where = " AND " + " AND ".join(fb_overlay_filtros)
+                fb_overlay_k = (
+                    constants.DIM_RESONANCIA_K if constants.DIM_RESONANCIA else 50
+                )
+                fb_overlay_sql = f"""
+                    SELECT d.concepto, GROUP_CONCAT(d.dimension_id)
+                    FROM largo_plazo_dimensiones d
+                    JOIN largo_plazo l ON l.concepto = d.concepto
+                    WHERE d.dimension_id IN ({dim_ids_str}){fb_overlay_where}
+                    GROUP BY d.concepto
+                    HAVING COUNT(DISTINCT d.dimension_id) >= ?
+                    ORDER BY COUNT(DISTINCT d.dimension_id) DESC,
+                             l.peso_sinaptico DESC, d.concepto ASC
+                    LIMIT ?
+                """
+                try:
+                    self.cursor.execute(
+                        fb_overlay_sql,
+                        tuple(fb_overlay_params) + (umbral_efectivo, fb_overlay_k),
+                    )
+                    for concepto, dims_csv in self.cursor.fetchall():
+                        concepto_fb_ids.setdefault(
+                            concepto,
+                            [int(x) for x in (dims_csv or "").split(",") if x],
+                        )
+                except sqlite3.OperationalError:
+                    # Un índice/schema legacy incompleto no debe ocultar los
+                    # candidatos dimensionales de la cohorte de referencia.
+                    pass
+
             # Calcular coseno ponderado y agregar nodos nuevos SOLO si superan umbral
             import math
             query_dim_set = set(dimensiones_ids)
