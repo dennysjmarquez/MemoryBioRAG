@@ -1,5 +1,7 @@
 # Plan de publicación v36.0 (decisión de Dennys, 2026-10-27)
 
+> **Aclaración posterior de numeración (Dennys):** la versión actual de trabajo se considera v36.0. Este documento conserva su etiqueta histórica: el alcance que aquí se llamaba v36 se desplaza a v37, y la etapa neuronal que la ruta llamaba v37 se desplaza a v38. No inferir cierre o publicación por el cambio de rótulos; las fases y evidencias se deben reconciliar con el estado real.
+>
 > Documento de trabajo del auditor. Se ejecuta **cuando el operador cierre la limpieza del motor (E4)**. El auditor avisa a Dennys cuando llegue ese punto.
 
 ## Decisión

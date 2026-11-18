@@ -1,34 +1,34 @@
 {
   "version": "v36.0",
-  "generado_en": "2026-11-17T18:36:46",
-  "elapsed_seconds": 1891.49,
+  "generado_en": "2026-11-18T01:49:37",
+  "elapsed_seconds": 719.53,
   "casos_file": "casos_qa_baseline_v1.jsonl",
   "casos_total": 921,
-  "db_src": "/mnt/recursos_compartidos_y_otros/MemoryBioRAG/MemoryBioRAG_Data/memory_biorag_qa_run.db",
+  "db_src": "isolated temporary copy derived from snapshots/qa_escape_qcr_20260811.db",
   "global": {
     "queries": 875,
-    "recall_at_5": 98.4,
-    "recall_at_1": 92.34,
-    "mrr": 0.9472,
-    "fallos": 14,
+    "recall_at_5": 100.0,
+    "recall_at_1": 93.03,
+    "mrr": 0.9566,
+    "fallos": 0,
     "negativos_total": 40,
     "negativos_fp": 0,
     "negativos_fp_rate": 0.0,
     "negativos_contaminados": 0,
-    "spreading_activation": 5,
+    "spreading_activation": 9,
     "etiquetas_obsoletas_resueltas": 3,
     "etiquetas_irreparables": 0,
     "queries_ambiguas": 3,
-    "nodos_dormidos_iniciales": 8,
-    "nodos_restaurados_entre_casos": 65,
+    "nodos_dormidos_iniciales": 15,
+    "nodos_restaurados_entre_casos": 64,
     "orden_no_monotonico": 0
   },
   "categorias": {
     "cruce_idioma": {
       "total": 8,
       "recall_at_5": 100.0,
-      "recall_at_1": 75.0,
-      "mrr": 0.8542,
+      "recall_at_1": 62.5,
+      "mrr": 0.7396,
       "fallos": 0
     },
     "dormido": {
@@ -41,44 +41,44 @@
     "literal": {
       "total": 487,
       "recall_at_5": 100.0,
-      "recall_at_1": 99.38,
-      "mrr": 0.9969,
+      "recall_at_1": 99.59,
+      "mrr": 0.9979,
       "fallos": 0
     },
     "por_tema": {
       "total": 65,
-      "recall_at_5": 95.38,
+      "recall_at_5": 100.0,
       "recall_at_1": 66.15,
-      "mrr": 0.7726,
-      "fallos": 3
+      "mrr": 0.7823,
+      "fallos": 0
     },
     "pregunta_natural": {
       "total": 65,
       "recall_at_5": 100.0,
-      "recall_at_1": 95.38,
-      "mrr": 0.9769,
+      "recall_at_1": 96.92,
+      "mrr": 0.9846,
       "fallos": 0
     },
     "sinonimo": {
       "total": 55,
-      "recall_at_5": 83.64,
-      "recall_at_1": 54.55,
-      "mrr": 0.6397,
-      "fallos": 9
+      "recall_at_5": 100.0,
+      "recall_at_1": 58.18,
+      "mrr": 0.7361,
+      "fallos": 0
     },
     "typo": {
       "total": 65,
-      "recall_at_5": 98.46,
-      "recall_at_1": 89.23,
-      "mrr": 0.9346,
-      "fallos": 1
+      "recall_at_5": 100.0,
+      "recall_at_1": 92.31,
+      "mrr": 0.9564,
+      "fallos": 0
     },
     "variante_gramatical": {
       "total": 65,
-      "recall_at_5": 98.46,
-      "recall_at_1": 92.31,
-      "mrr": 0.9513,
-      "fallos": 1
+      "recall_at_5": 100.0,
+      "recall_at_1": 93.85,
+      "mrr": 0.9628,
+      "fallos": 0
     }
   },
   "qa_honesta": {
@@ -91,21 +91,21 @@
       "referencia": "qa_escape_qcr_20260811.db"
     },
     "sinonimo_total": 61,
-    "obsoletas": 1,
-    "ambiguas": 30,
+    "obsoletas": 0,
+    "ambiguas": 28,
     "con_las_dos_marcas": 0,
-    "apartados_r5": 18,
-    "apartados_r1": 31,
+    "apartados_r5": 14,
+    "apartados_r1": 28,
     "global_r5": {
-      "queries": 861,
-      "recall_at_5": 99.3,
-      "fallos": 6
+      "queries": 865,
+      "recall_at_5": 100.0,
+      "fallos": 0
     },
     "global_r1": {
-      "queries": 850,
-      "recall_at_1": 94.71,
-      "mrr": 0.9672,
-      "no_top1": 45
+      "queries": 853,
+      "recall_at_1": 95.19,
+      "mrr": 0.9707,
+      "no_top1": 41
     },
     "categorias": {
       "cruce_idioma": {
@@ -116,7 +116,7 @@
         },
         "r1": {
           "total": 8,
-          "recall_at_1": 75.0,
+          "recall_at_1": 62.5,
           "apartados": 0
         }
       },
@@ -140,14 +140,14 @@
         },
         "r1": {
           "total": 487,
-          "recall_at_1": 99.38,
+          "recall_at_1": 99.59,
           "apartados": 0
         }
       },
       "por_tema": {
         "r5": {
           "total": 65,
-          "recall_at_5": 95.38,
+          "recall_at_5": 100.0,
           "apartados": 0
         },
         "r1": {
@@ -164,43 +164,43 @@
         },
         "r1": {
           "total": 65,
-          "recall_at_1": 95.38,
+          "recall_at_1": 96.92,
           "apartados": 0
         }
       },
       "sinonimo": {
         "r5": {
-          "total": 41,
-          "recall_at_5": 97.56,
-          "apartados": 18
+          "total": 45,
+          "recall_at_5": 100.0,
+          "apartados": 14
         },
         "r1": {
-          "total": 30,
-          "recall_at_1": 90.0,
-          "apartados": 31
+          "total": 33,
+          "recall_at_1": 90.91,
+          "apartados": 28
         }
       },
       "typo": {
         "r5": {
           "total": 65,
-          "recall_at_5": 98.46,
+          "recall_at_5": 100.0,
           "apartados": 0
         },
         "r1": {
           "total": 65,
-          "recall_at_1": 89.23,
+          "recall_at_1": 92.31,
           "apartados": 0
         }
       },
       "variante_gramatical": {
         "r5": {
           "total": 65,
-          "recall_at_5": 98.46,
+          "recall_at_5": 100.0,
           "apartados": 0
         },
         "r1": {
           "total": 65,
-          "recall_at_1": 92.31,
+          "recall_at_1": 93.85,
           "apartados": 0
         }
       }
@@ -211,7 +211,7 @@
         "query": "benchmark",
         "esperado": "benchmark_antes_despues_fix3",
         "obsoleta": false,
-        "n_reclamantes": 14,
+        "n_reclamantes": 6,
         "apartado_r5": true,
         "apartado_r1": true,
         "pasa_hoy": true
@@ -221,10 +221,10 @@
         "query": "perfil",
         "esperado": "dennys-identidad-profunda",
         "obsoleta": false,
-        "n_reclamantes": 22,
+        "n_reclamantes": 16,
         "apartado_r5": true,
         "apartado_r1": true,
-        "pasa_hoy": false
+        "pasa_hoy": true
       },
       {
         "id": "0520",
@@ -241,7 +241,7 @@
         "query": "compromiso",
         "esperado": "principio-memoria-hibrida-agente-naturalidad",
         "obsoleta": false,
-        "n_reclamantes": 3,
+        "n_reclamantes": 2,
         "apartado_r5": false,
         "apartado_r1": true,
         "pasa_hoy": false
@@ -251,7 +251,7 @@
         "query": "capas",
         "esperado": "auto_vincular_tres_capas_semantica",
         "obsoleta": false,
-        "n_reclamantes": 8,
+        "n_reclamantes": 7,
         "apartado_r5": true,
         "apartado_r1": true,
         "pasa_hoy": true
@@ -271,7 +271,7 @@
         "query": "formularios",
         "esperado": "ngx_nested_forms_dennys_solo",
         "obsoleta": false,
-        "n_reclamantes": 5,
+        "n_reclamantes": 4,
         "apartado_r5": false,
         "apartado_r1": true,
         "pasa_hoy": true
@@ -281,7 +281,7 @@
         "query": "install",
         "esperado": "artemis_install_ponytail_ecosistema",
         "obsoleta": false,
-        "n_reclamantes": 3,
+        "n_reclamantes": 2,
         "apartado_r5": false,
         "apartado_r1": true,
         "pasa_hoy": true
@@ -291,18 +291,8 @@
         "query": "arquitectura",
         "esperado": "arquitectura_memoria_biorag",
         "obsoleta": false,
-        "n_reclamantes": 37,
+        "n_reclamantes": 26,
         "apartado_r5": true,
-        "apartado_r1": true,
-        "pasa_hoy": false
-      },
-      {
-        "id": "0600",
-        "query": "documentación técnica",
-        "esperado": "auditoria_tecnica_v14_0_readme",
-        "obsoleta": false,
-        "n_reclamantes": 2,
-        "apartado_r5": false,
         "apartado_r1": true,
         "pasa_hoy": true
       },
@@ -311,7 +301,7 @@
         "query": "compromiso",
         "esperado": "compromiso-real-athena-clave-de-confianza",
         "obsoleta": false,
-        "n_reclamantes": 3,
+        "n_reclamantes": 2,
         "apartado_r5": false,
         "apartado_r1": true,
         "pasa_hoy": false
@@ -331,7 +321,7 @@
         "query": "búsqueda semántica",
         "esperado": "arquitectura_dos_niveles_biorag",
         "obsoleta": false,
-        "n_reclamantes": 10,
+        "n_reclamantes": 6,
         "apartado_r5": true,
         "apartado_r1": true,
         "pasa_hoy": true
@@ -344,15 +334,15 @@
         "n_reclamantes": 4,
         "apartado_r5": false,
         "apartado_r1": true,
-        "pasa_hoy": false
+        "pasa_hoy": true
       },
       {
         "id": "0650",
         "query": "funciona",
         "esperado": "plugin_biorag-remember_v8.3_-_adaptación_de_dennys_+_claude",
         "obsoleta": false,
-        "n_reclamantes": 6,
-        "apartado_r5": true,
+        "n_reclamantes": 5,
+        "apartado_r5": false,
         "apartado_r1": true,
         "pasa_hoy": true
       },
@@ -365,16 +355,6 @@
         "apartado_r5": false,
         "apartado_r1": true,
         "pasa_hoy": true
-      },
-      {
-        "id": "0674",
-        "query": "filtro-arquitecto-prolijo",
-        "esperado": "compuerta-pre-validacion",
-        "obsoleta": true,
-        "n_reclamantes": 0,
-        "apartado_r5": true,
-        "apartado_r1": true,
-        "pasa_hoy": false
       },
       {
         "id": "0686",
@@ -391,18 +371,8 @@
         "query": "metodologia",
         "esperado": "dennys-working-style",
         "obsoleta": false,
-        "n_reclamantes": 14,
+        "n_reclamantes": 11,
         "apartado_r5": true,
-        "apartado_r1": true,
-        "pasa_hoy": false
-      },
-      {
-        "id": "0698",
-        "query": "universal",
-        "esperado": "protocolo_enriquecimiento_busquedas",
-        "obsoleta": false,
-        "n_reclamantes": 4,
-        "apartado_r5": false,
         "apartado_r1": true,
         "pasa_hoy": true
       },
@@ -411,20 +381,20 @@
         "query": "agente",
         "esperado": "aforismo_criterio_agente",
         "obsoleta": false,
-        "n_reclamantes": 32,
+        "n_reclamantes": 29,
         "apartado_r5": true,
         "apartado_r1": true,
-        "pasa_hoy": false
+        "pasa_hoy": true
       },
       {
         "id": "0734",
         "query": "regla",
         "esperado": "plan_mode_biorag",
         "obsoleta": false,
-        "n_reclamantes": 57,
+        "n_reclamantes": 21,
         "apartado_r5": true,
         "apartado_r1": true,
-        "pasa_hoy": false
+        "pasa_hoy": true
       },
       {
         "id": "0740",
@@ -451,7 +421,7 @@
         "query": "biorag",
         "esperado": "auto-consulta-permanente-biorag",
         "obsoleta": false,
-        "n_reclamantes": 206,
+        "n_reclamantes": 170,
         "apartado_r5": true,
         "apartado_r1": true,
         "pasa_hoy": false
@@ -461,8 +431,8 @@
         "query": "falso positivo",
         "esperado": "fts5_trigram_peligro_palabras_cortas",
         "obsoleta": false,
-        "n_reclamantes": 6,
-        "apartado_r5": true,
+        "n_reclamantes": 4,
+        "apartado_r5": false,
         "apartado_r1": true,
         "pasa_hoy": true
       },
@@ -481,27 +451,27 @@
         "query": "memory",
         "esperado": "notebooklm-memory-biorag-project",
         "obsoleta": false,
-        "n_reclamantes": 8,
+        "n_reclamantes": 6,
         "apartado_r5": true,
         "apartado_r1": true,
-        "pasa_hoy": false
+        "pasa_hoy": true
       },
       {
         "id": "0805",
         "query": "cv",
         "esperado": "cv_seccion_d_test_vinculacion",
         "obsoleta": false,
-        "n_reclamantes": 20,
+        "n_reclamantes": 11,
         "apartado_r5": true,
         "apartado_r1": true,
-        "pasa_hoy": false
+        "pasa_hoy": true
       },
       {
         "id": "0811",
         "query": "biorag",
         "esperado": "protocolo_busqueda_biorag_automatica",
         "obsoleta": false,
-        "n_reclamantes": 206,
+        "n_reclamantes": 170,
         "apartado_r5": true,
         "apartado_r1": true,
         "pasa_hoy": false
@@ -511,8 +481,8 @@
         "query": "limpieza",
         "esperado": "v13_2_limpieza_tabla_semantica",
         "obsoleta": false,
-        "n_reclamantes": 7,
-        "apartado_r5": true,
+        "n_reclamantes": 4,
+        "apartado_r5": false,
         "apartado_r1": true,
         "pasa_hoy": true
       }
@@ -520,20 +490,20 @@
   },
   "neurona": {
     "activa": true,
-    "actuo": true,
+    "actuo": false,
     "entrenada_en_la_copia": null,
     "con_neurona_decision": null,
-    "origen": "/home/dennys/.biorag/memory_biorag.db",
-    "origen_es_snapshot": false,
+    "origen": "snapshots/qa_escape_qcr_20260811.db",
+    "origen_es_snapshot": true,
     "base_medida": {
-      "campeon": true,
-      "margen": 5.0,
-      "ciclos": 437,
-      "ascensos": 8,
+      "campeon": false,
+      "margen": 0.0,
+      "ciclos": 0,
+      "ascensos": 0,
       "retiros": 0,
-      "tranquila": true,
-      "estudio": 380,
-      "guardia": 86
+      "tranquila": false,
+      "estudio": 0,
+      "guardia": 0
     },
     "db_viva": null,
     "columnas": {
@@ -541,15 +511,15 @@
         "cruce_idioma": {
           "total": 8,
           "hits1_formula": 5,
-          "hits1_neurona": 6,
+          "hits1_neurona": 5,
           "hits5_formula": 8,
           "hits5_neurona": 8,
           "recall_at_1_formula": 62.5,
-          "recall_at_1_neurona": 75.0,
+          "recall_at_1_neurona": 62.5,
           "recall_at_5_formula": 100.0,
           "recall_at_5_neurona": 100.0,
-          "mrr_formula": 0.7604,
-          "mrr_neurona": 0.8542
+          "mrr_formula": 0.7396,
+          "mrr_neurona": 0.7396
         },
         "dormido": {
           "total": 65,
@@ -566,110 +536,110 @@
         },
         "literal": {
           "total": 487,
-          "hits1_formula": 484,
-          "hits1_neurona": 484,
+          "hits1_formula": 485,
+          "hits1_neurona": 485,
           "hits5_formula": 487,
           "hits5_neurona": 487,
-          "recall_at_1_formula": 99.38,
-          "recall_at_1_neurona": 99.38,
+          "recall_at_1_formula": 99.59,
+          "recall_at_1_neurona": 99.59,
           "recall_at_5_formula": 100.0,
           "recall_at_5_neurona": 100.0,
-          "mrr_formula": 0.9969,
-          "mrr_neurona": 0.9969
+          "mrr_formula": 0.9979,
+          "mrr_neurona": 0.9979
         },
         "por_tema": {
           "total": 65,
-          "hits1_formula": 41,
+          "hits1_formula": 43,
           "hits1_neurona": 43,
-          "hits5_formula": 62,
-          "hits5_neurona": 62,
-          "recall_at_1_formula": 63.08,
+          "hits5_formula": 65,
+          "hits5_neurona": 65,
+          "recall_at_1_formula": 66.15,
           "recall_at_1_neurona": 66.15,
-          "recall_at_5_formula": 95.38,
-          "recall_at_5_neurona": 95.38,
-          "mrr_formula": 0.7513,
-          "mrr_neurona": 0.7726
+          "recall_at_5_formula": 100.0,
+          "recall_at_5_neurona": 100.0,
+          "mrr_formula": 0.7823,
+          "mrr_neurona": 0.7823
         },
         "pregunta_natural": {
           "total": 65,
           "hits1_formula": 63,
-          "hits1_neurona": 62,
+          "hits1_neurona": 63,
           "hits5_formula": 65,
           "hits5_neurona": 65,
           "recall_at_1_formula": 96.92,
-          "recall_at_1_neurona": 95.38,
+          "recall_at_1_neurona": 96.92,
           "recall_at_5_formula": 100.0,
           "recall_at_5_neurona": 100.0,
-          "mrr_formula": 0.9821,
-          "mrr_neurona": 0.9769
+          "mrr_formula": 0.9846,
+          "mrr_neurona": 0.9846
         },
         "sinonimo": {
           "total": 55,
-          "hits1_formula": 30,
-          "hits1_neurona": 30,
-          "hits5_formula": 46,
-          "hits5_neurona": 46,
-          "recall_at_1_formula": 54.55,
-          "recall_at_1_neurona": 54.55,
-          "recall_at_5_formula": 83.64,
-          "recall_at_5_neurona": 83.64,
-          "mrr_formula": 0.6412,
-          "mrr_neurona": 0.6397
+          "hits1_formula": 32,
+          "hits1_neurona": 32,
+          "hits5_formula": 55,
+          "hits5_neurona": 55,
+          "recall_at_1_formula": 58.18,
+          "recall_at_1_neurona": 58.18,
+          "recall_at_5_formula": 100.0,
+          "recall_at_5_neurona": 100.0,
+          "mrr_formula": 0.7361,
+          "mrr_neurona": 0.7361
         },
         "typo": {
           "total": 65,
-          "hits1_formula": 57,
-          "hits1_neurona": 58,
-          "hits5_formula": 64,
-          "hits5_neurona": 64,
-          "recall_at_1_formula": 87.69,
-          "recall_at_1_neurona": 89.23,
-          "recall_at_5_formula": 98.46,
-          "recall_at_5_neurona": 98.46,
-          "mrr_formula": 0.9244,
-          "mrr_neurona": 0.9346
+          "hits1_formula": 60,
+          "hits1_neurona": 60,
+          "hits5_formula": 65,
+          "hits5_neurona": 65,
+          "recall_at_1_formula": 92.31,
+          "recall_at_1_neurona": 92.31,
+          "recall_at_5_formula": 100.0,
+          "recall_at_5_neurona": 100.0,
+          "mrr_formula": 0.9564,
+          "mrr_neurona": 0.9564
         },
         "variante_gramatical": {
           "total": 65,
-          "hits1_formula": 55,
-          "hits1_neurona": 60,
-          "hits5_formula": 64,
-          "hits5_neurona": 64,
-          "recall_at_1_formula": 84.62,
-          "recall_at_1_neurona": 92.31,
-          "recall_at_5_formula": 98.46,
-          "recall_at_5_neurona": 98.46,
-          "mrr_formula": 0.9103,
-          "mrr_neurona": 0.9513
+          "hits1_formula": 61,
+          "hits1_neurona": 61,
+          "hits5_formula": 65,
+          "hits5_neurona": 65,
+          "recall_at_1_formula": 93.85,
+          "recall_at_1_neurona": 93.85,
+          "recall_at_5_formula": 100.0,
+          "recall_at_5_neurona": 100.0,
+          "mrr_formula": 0.9628,
+          "mrr_neurona": 0.9628
         }
       },
       "global": {
         "total": 875,
-        "hits1_formula": 800,
-        "hits1_neurona": 808,
-        "hits5_formula": 861,
-        "hits5_neurona": 861,
-        "recall_at_1_formula": 91.43,
-        "recall_at_1_neurona": 92.34,
-        "recall_at_5_formula": 98.4,
-        "recall_at_5_neurona": 98.4,
-        "mrr_formula": 0.9414,
-        "mrr_neurona": 0.9472
+        "hits1_formula": 814,
+        "hits1_neurona": 814,
+        "hits5_formula": 875,
+        "hits5_neurona": 875,
+        "recall_at_1_formula": 93.03,
+        "recall_at_1_neurona": 93.03,
+        "recall_at_5_formula": 100.0,
+        "recall_at_5_neurona": 100.0,
+        "mrr_formula": 0.9566,
+        "mrr_neurona": 0.9566
       }
     },
     "cambios": {
-      "reordenadas": 189,
-      "subio_al_1": 12,
-      "bajo_del_1": 4,
-      "mejoro": 21,
-      "empeoro": 6
+      "reordenadas": 0,
+      "subio_al_1": 0,
+      "bajo_del_1": 0,
+      "mejoro": 0,
+      "empeoro": 0
     },
     "incoherentes": 0,
     "tiempos": {
-      "decisiones": 921,
-      "mediana_ms": 0.081,
-      "p95_ms": 0.153,
-      "max_ms": 0.798
+      "decisiones": 0,
+      "mediana_ms": 0.0,
+      "p95_ms": 0.0,
+      "max_ms": 0.0
     },
     "control_de_dano": {
       "tolerancia_casos": 1,
