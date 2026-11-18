@@ -61,6 +61,7 @@ from core.mcp_server import oracle as _mcp_oracle
 from core.mcp_server import sync as _mcp_sync
 from core.mcp_server import calibrar as _mcp_calibrar
 from core.mcp_server import resources as _mcp_resources
+from core.mcp_server import update_checker as _mcp_updates
 from core.mcp_server import prompt as _mcp_prompt
 from core.mcp_server import write as _mcp_write
 from core.mcp_server import search as _mcp_search
@@ -76,11 +77,23 @@ def _build_server():
             f"  pip install 'mcp>=1.0.0,<2'\n  ({exc})"
         ) from exc
 
+    update_checker = _mcp_updates.UpdateChecker()
+    VersionAwareFastMCP = _mcp_updates.version_aware_server_class(
+        FastMCP,
+        update_checker,
+        logger,
+    )
+
     # ORACLE_PROMPT va aquí como `instructions`: es el contexto base del agente.
     # FastMCP lo inyecta como system-level context — NO usar como descripción de tool.
-    mcp = FastMCP(
+    update_instructions = (
+        ORACLE_PROMPT
+        + "\n\nSi recibes una notificación MCP de nueva versión de BioRAG, "
+        "comunícasela al usuario; no actualices ni instales automáticamente."
+    )
+    mcp = VersionAwareFastMCP(
         "biorag",
-        instructions=ORACLE_PROMPT,
+        instructions=update_instructions,
     )
 
     # ── Submódulos extraídos (Fase 2) ────────────────────────────────────────
@@ -96,6 +109,7 @@ def _build_server():
     _mcp_sync.register(mcp)
     _mcp_calibrar.register(mcp)
     _mcp_resources.register(mcp)
+    _mcp_updates.register(mcp, update_checker)
     _mcp_prompt.register(mcp)
     _mcp_write.register(mcp)
     _mcp_search.register(mcp)
@@ -170,6 +184,10 @@ def main(argv: Optional[list[str]] = None) -> int:
         sys.stderr.write(f"BioRAG MCP: {exc}\n")
         return 2
 
+    update_checker = getattr(server, "update_checker", None)
+    if update_checker is not None:
+        update_checker.start()  # petición remota en background; no retrasa initialize
+
     # El MCP es el guardián del daemon: al arrancar cualquier consola,
     # verifica que la hormiguita esté viva y la spawnea si hace falta.
     # El daemon es un proceso detachado que sobrevive al cierre de la sesión.
@@ -214,6 +232,9 @@ def main(argv: Optional[list[str]] = None) -> int:
         logger.exception("BioRAG MCP server crashed")
         sys.stderr.write(f"BioRAG MCP server error: {exc}\n")
         return 1
+    finally:
+        if update_checker is not None:
+            update_checker.stop()
     return 0
 
 

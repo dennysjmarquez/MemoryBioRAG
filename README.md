@@ -1550,6 +1550,12 @@ pip install numpy nltk fastapi uvicorn pytest mcp
 python3 -c "import nltk; nltk.download('wordnet'); nltk.download('omw-1.4')"
 ```
 
+### Avisos de versiones estables en MCP
+
+El servidor consulta en segundo plano la política `update_policy.json` del canal estable. Solo anuncia una versión recomendada después de comprobar que el tag es estable, existe en el repositorio de código y no está bloqueado; no escoge automáticamente el tag más reciente. Si la política no está publicada (HTTP 404), `biorag://version` informa `sin_politica` sin recomendar ninguna versión. `update_policy.example.json` es una plantilla sin tag recomendado: la aprobación debe hacerse explícitamente en el repositorio Stable.
+
+La consulta se repite cada 24 horas, no transmite recuerdos ni bloquea el uso de memoria, y nunca instala automáticamente. Define `BIORAG_UPDATE_CHECK=0` para desactivarla.
+
 ### Snapshot de Base de Datos para Pruebas
 
 El repositorio incluye un snapshot congelado listo para usar sin necesidad de la DB de producción:
