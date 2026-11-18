@@ -23,6 +23,9 @@ Es la actitud con la que se trabaja en este proyecto, por encima de cualquier t�
 - **Motor:** SQLite FTS5 WAL + Factorización PPMI-SVD (100 dims) + Espacio Semántico de 13 Ejes + Grafo Sináptico Hebbiano + Sparse Distributed Memory (SDM 2048-bit) + Calibración Conforme.
 - **Idiomas:** Español + Inglés (stemming bilingüe ES/EN + expansión simbólica vía WordNet + Domain Dict automático).
 
+- **Enfoque:** *un sistema con comportamiento vivo, que se adapta y evoluciona.* BioRAG ya mostró conductas que nadie le dictó: recuerdos que se agrupan solos en islas, que se duermen y despiertan, conexiones que nacen y se debilitan con el uso. Todo lo que se construya debe **fomentar** que esas conductas nazcan solas, de forma adaptativa y evolutiva, en vez de imponerlas a mano (Pilar 13).
+- **Inclinación:** *"MemoryBioRAG se inclina hacia la inteligencia distribuida y asociativa, no hacia la inteligencia monolítica."* (Dennys Marquez, 2026-10-28). Criterio repartido en un motor rápido y neuronas pequeñas en puntos precisos; recuerdos que se hilan por asociación (ver Pilares 9–11 y la visión §0).
+
 ## 2. El Inverso Fundamental
 
 > **BioRAG no piensa. El agente piensa.**
@@ -86,6 +89,48 @@ BioRAG es la **memoria externa** del agente — no su cognición. El trabajo cog
 - Ninguna neurona entra al motor sin: **piso** (la fórmula a mano sigue siendo el mínimo garantizado), **techo** (cuánto puede mover como máximo), **guardianes** (comprobaciones que la apagan si algo no cuadra) y **examen propio**.
 - Funciona con la base vacía, en tiempo constante, y solo **suma** encima del ranking; nunca lo reemplaza.
 - El modelo es la primera neurona del motor: cualquier neurona nueva se construye y calibra igual.
+
+### Pilar 12: El Ruido Útil No se Mata (regla de oro)
+> *"Si quitamos el ruido, nos quedamos con un sistema ciego, típico, normal y común como cualquier buscador. Y esto no lo es."* — Dennys Marquez (2026-10-29)
+
+**La regla:**
+- **Las neuronas (re-ranking, razonamiento) solo ORDENAN.** Nunca quitan, filtran ni vacían la lista.
+- **Ningún cambio** del motor ni del MCP puede dejar al agente sin los recuerdos parecidos o relacionados que acompañan al mejor, aunque suba una métrica de una sola consulta. Si un cambio recorta la lista, tiene que demostrar con medición que **no se pierden las pistas** (además del Pilar 1).
+- **Un "no sé" no vacía la lista.** Si el cerebro no está seguro, **lo dice** (`nivel_certeza`, aviso de brecha) y **sigue mostrando lo parecido**. No lo esconde.
+- El orden importa: lo que mejor encaja va arriba (la brújula es el top-1 / top-5); el ruido útil va debajo, a la vista, pero sin tapar al bueno.
+
+**Por qué:**
+- **BioRAG no es un buscador; es un cerebro.** El agente y el cerebro forman **una sola mente**: el agente intenta recordar, el cerebro le "tira" lo parecido, y lo parecido trae **palabras pista** con las que el agente vuelve a buscar ("gatito" → "gato" → el recuerdo). Así recuerda una persona: casi nunca a la primera; va tirando del hilo hasta dar con el recuerdo, porque el recuerdo está ahí.
+- **Ese ruido ES el hilo.** En el ejercicio n.º 2 (visión §2u), el recuerdo buscado llegó gracias a un vecino que no era la respuesta: fue la pista. Sin ese "ruido", el agente no lo habría encontrado.
+- **La completación de patrones** (traer lo incompleto y lo cercano) es la capacidad más poderosa del sistema, y nace justamente de lo que parece ruido. Un filtro que solo deja "lo exacto" la apaga.
+- **Si se mata el ruido:** sube un número en una prueba de una sola consulta, pero el sistema queda **ciego**: solo encuentra lo que ya se sabe nombrar. Eso es un buscador común, y eso destruye el proyecto.
+
+**Cómo se aplica (sin romper lo demás):**
+- Proteger el ruido útil **no** significa tapar la respuesta con basura: los falsos positivos siguen midiéndose (FP 0/40) y el mejor recuerdo debe estar arriba. Se resuelve **ordenando y diciendo qué tan cerca está cada cosa**, no borrando.
+- Todo filtro existente que hoy recorte la lista (por ejemplo, el filtro de cobertura de palabras, QCR; visión §2u, ejercicio n.º 3) se registra y se conversa con Dennys antes de tocarlo, con medición de pistas conservadas. El OK es siempre suyo.
+- Detalle y ejemplos: `docs/Mi neurona en el sistema/vision_como_recuerda_biorag/README.md` (P10, P11 y §2u).
+
+### Pilar 13: Un Sistema Vivo: Fomentar lo que Nace Solo (enfoque rector)
+> *"Ya demostró síntomas de ser un sistema vivo. Eso nadie lo programó, ni siquiera una neurona. Hay que cablear y dejar que ese tipo de conductas nazcan de forma natural, adaptativa, evolutiva."* — Dennys Marquez (2026-10-29)
+
+**El enfoque:** BioRAG se construye como un **organismo**, no como una máquina de reglas. Se pone algo en su sitio y se deja que todo lo que lo rodea (el uso, el agente, el sueño, el tiempo) influya y construya lo demás. El objetivo es un sistema vivo, natural y completo, que **se adapta y evoluciona**.
+
+**La evidencia de que ya pasa (medida, no supuesta):**
+- **Islas de recuerdos.** El código solo trae un detector genérico de grupos (LPA, v16.0). **Qué islas se forman, cuántas y con qué recuerdos nadie lo escribió:** salió del uso. Aparecieron solas, se parecían a lo que hace una base vectorial y, cuando la memoria creció, **se apagaron solas** por saturación del grafo. Las islas por significado siguen sanas (125 en la viva). Detalle: `docs/Mi neurona en el sistema/islas_de_recuerdos/README.md`.
+- **Sueño y despertar.** Recuerdos que se duermen por desuso (162 de 1.357) y despiertan al recordarlos (visión §2u, ejercicio 3).
+- **Conexiones que nacen del uso** (hebbianas, de co-ocurrencia, del sueño) y se debilitan si no se usan.
+
+**Reglas para fomentarlo (aplican a todo cambio):**
+1. **Reglas locales simples antes que órdenes globales.** Se prefieren mecanismos pequeños que actúan "en el vecindario" (reforzar lo que se usa junto, debilitar lo que no se usa, consolidar de noche) y de los que el orden **emerge**. No se imponen listas, taxonomías ni categorías escritas a mano para cada base (Política A: no inventar ejes).
+2. **Dejar espacio para crecer.** Catálogos abiertos (dimensiones de mundo abierto), estructuras que se crean solas. Lo que el sistema crea tiene que ser **legible** para humanos y agentes, y no hacerse pasar por algo "de fábrica" (lección del 2026-10-07: prefijo `tema_`).
+3. **Homeostasis: que lo vivo no se ahogue al crecer.** Todo mecanismo emergente necesita su equilibrio (poda, escalado, umbrales relativos al tamaño de la memoria) para seguir funcionando con 10 veces más recuerdos. Las islas del sueño murieron justo por falta de esto.
+4. **Nacer de los datos, en cualquier base.** Lo que emerge tiene que salir del propio uso de cada memoria, desde la base vacía, sin sembrarlo a mano. Así da el mismo comportamiento en cualquier base.
+5. **Observar antes de usar, y nunca borrar por no entender** (visión P12 y §2w). Lo que nace solo se mide y se documenta. Recién entonces se decide si se usa, se mejora o se deja.
+6. **Primero para asociar, después para ordenar.** Una señal emergente entra primero como pista o asociación (Pilar 12). Al ranking solo entra con medición y el OK de Dennys (Pilares 1 y 11). Las islas ya enseñaron esto: sanas para asociar, negativas para reordenar (agosto de 2026).
+
+**La pregunta obligatoria antes de cada cambio:** *¿esto deja que el comportamiento nazca solo, o lo impone a mano? ¿Y sigue vivo cuando la memoria crezca 10 veces?*
+
+**Límites (para que lo vivo no rompa lo demás):** fomentar la emergencia **no** suspende los otros pilares. Cero regresiones (1), un cambio a la vez (2), modular y hexagonal (9), documentado (10) y neuronas con piso, techo y guardianes (11) siguen mandando. Lo vivo se cultiva con medición, no con fe.
 
 ## 4. Stack Técnico
 

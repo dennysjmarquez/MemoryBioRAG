@@ -158,9 +158,9 @@ if CONVERGENCIA_EVIDENCIA_MAX_BONUS != _bonus_requested:
         _bonus_env, CONVERGENCIA_EVIDENCIA_MAX_BONUS,
     )
 
-# E1: SDM Kanerva (2048 bits) como Fallback 2.5. Solo generación cuando el
-# pool léxico es pobre. OFF con BIORAG_SDM_FALLBACK=0. No es señal de scoring
-# (eso es E2, paso aparte).
+# E1: SDM Kanerva (2048 bits) como Fallback 2.5. `buscar_sdm` compara
+# todos los vectores (O(N)); aceptamos ese coste por resiliencia mientras se
+# implementa un índice Hamming/LSH. `BIORAG_SDM_FALLBACK=0` lo desactiva.
 SDM_FALLBACK_ACTIVO = os.environ.get('BIORAG_SDM_FALLBACK', '1').lower() in ('1', 'true', 'yes')
 SDM_FALLBACK_K = int(os.environ.get('BIORAG_SDM_FALLBACK_K', '5'))
 

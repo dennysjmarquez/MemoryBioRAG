@@ -1,3 +1,21 @@
+# NORMA MÁXIMA, INVARIANTE Y BLOQUEANTE DEL PROYECTO
+
+## Estabilidad de resultados frente al crecimiento del corpus
+
+> **Esta norma es la puerta de decisión obligatoria de mayor prioridad del proyecto.** Ninguna decisión de diseño, algoritmo, cambio de datos, optimización, evaluación o publicación puede aprobarse ni darse por validada sin definir y verificar cómo preserva esta invariancia.
+
+Para cada algoritmo se debe especificar el tamaño del corpus `N`, la consulta y configuración relevantes, y qué datos nuevos son irrelevantes para el caso evaluado. Si `D` es el corpus, `q` la consulta e `I` contiene solo información irrelevante para `q`, el resultado debe permanecer igual —o dentro de una tolerancia numérica definida **antes** de medir— al crecer el corpus:
+
+`F(D, q) = F(D ∪ I, q)`
+
+La comparación debe mantener constantes la versión, los parámetros y la semilla aleatoria, cuando exista. Antes de aceptar un algoritmo o cambio, se probará con un corpus de referencia y otro ampliado con datos irrelevantes; cualquier diferencia no prevista bloquea la decisión hasta que se explique, corrija o se documente y autorice explícitamente el alcance aplicable. No se puede relajar el criterio después de ver los resultados.
+
+Esta invariancia no exige respuestas idénticas cuando el corpus incorpora información **pertinente**: en ese caso el resultado puede y, si la evidencia lo justifica, debe cambiar. La exigencia es que el tamaño por sí solo, el orden de almacenamiento u otros cambios declarados irrelevantes no alteren la salida. La reproducibilidad para entradas y condiciones idénticas también es obligatoria.
+
+El costo computacional es un requisito separado: cada algoritmo debe declarar y medir su objetivo de complejidad respecto a `N`. `O(1)` describe costo, no invariancia ni corrección, y no se prometerá si la tarea no lo permite. Si no se puede definir o verificar el contrato de invariancia y sus pruebas, la decisión queda **BLOQUEADA**: no implementar, aprobar, integrar, publicar ni afirmar validación hasta resolverlo o recibir autorización explícita para una excepción de alcance.
+
+---
+
 # BioRAG — Definitive Agent Field Manual & Master Operating Instructions
 
 > **To any agent reading this**: You are stepping into **MemoryBioRAG**, a bio-inspired, mathematically pure associative memory engine. It is engineered to surpass traditional vector RAG *without* pre-trained deep neural embeddings, *without* external API calls, *without* GPUs, and running 100% locally on CPU via graph theory, linear algebra, and hyperdimensional computing.
@@ -64,6 +82,17 @@ Every piece records **what problem it solves, why at that point, and which measu
 No neuron enters the engine without a **floor** (the hand formula stays the guaranteed minimum), a **ceiling** (maximum it can move), **guardians** (checks that switch it off when something does not match) and its own **exam**. Empty-DB safe, constant time, it only **adds** on top of the ranking. The engine's first neuron is the model.
 
 ---
+
+### Invariant 9: Useful Noise Is Never Killed (golden rule — `CONSTITUTION.md` Pilar 12)
+- **Neurons (re-ranking, reasoning) only ORDER.** They never remove, filter or empty the result list.
+- No engine or MCP change may strip the related / similar memories that come with the best one, even if a single-query metric goes up. A change that shortens the list must prove, by measurement, that the cue memories are kept.
+- A "don't know" never empties the list: the brain says how close it is (`nivel_certeza`, knowledge-gap warning) and still shows the similar memories.
+- **Why:** BioRAG is a brain, not a search engine. Agent + brain are one mind: the agent tries to recall, the brain returns similar memories, and those bring cue words for the next search (pattern completion). That "noise" is the thread that leads to the memory. Kill it and the system becomes blind — an ordinary search engine.
+
+### Invariant 10: A Living System: Foster What Emerges (guiding focus — `CONSTITUTION.md` Pilar 13)
+- BioRAG is built as an **organism**, not a rule machine: place a piece and let usage, the agent, sleep and time shape the rest. It has already shown behavior nobody dictated: memory **islands** that formed on their own and faded when the graph saturated, memories that fall asleep and wake up when recalled, synapses born from use.
+- **Every change must foster such behavior emerging naturally (adaptive, evolutionary) instead of imposing it by hand.** Prefer simple local rules over global hand-written orders. Keep catalogs open but legible. Give every emergent mechanism homeostasis so it survives 10× growth. It must emerge from each DB's own data, starting from an empty DB. Observe and measure before using it, and never delete it just because it isn't understood yet. Emergent signals go to association/cues first; they reach ranking only with measurement and Dennys's OK.
+- Mandatory question: *does this let the behavior emerge, or impose it by hand? Does it stay alive when memory grows 10×?* All other invariants still apply.
 
 ## 3. The Search Pipeline Anatomy (`core/memory_store.py`)
 

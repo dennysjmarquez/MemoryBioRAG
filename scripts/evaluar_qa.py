@@ -363,7 +363,8 @@ def run_evaluation(argv=None):
     # No contaminar log_busquedas con consultas del benchmark
     os.environ["BIORAG_NO_LOG"] = "1"
 
-    src_db = os.environ.get('BIORAG_PATH') or os.path.join(base_dir, "MemoryBioRAG_Data", "memory_biorag.db")
+    from core.paths import resolve_db_path
+    src_db = resolve_db_path()
 
     # La copia de trabajo va fuera del repo: la QA no debe dejar ficheros suyos
     # en el árbol de trabajo ni junto a las bases que mide (higiene E2b-C).

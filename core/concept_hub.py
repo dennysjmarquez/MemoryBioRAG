@@ -330,7 +330,7 @@ def agregar_bridges(conn: sqlite3.Connection, hub_id: str, bridges: Union[List[D
             "  2. 'problema': dolor o falla que resuelve este nodo\n"
             "  3. 'solucion': técnica o herramienta que aplica este nodo\n"
             "  4. 'situacion': caso de uso, rol o contexto de búsqueda\n"
-            "  5. 'ingenuo': búsqueda sin tecnicismos (cómo lo googlearía un novato)\n\n"
+            "  5. 'ingenuo': búsqueda sin tecnicismos (cómo lo buscaría una persona principiante)\n\n"
             "Ejemplo en JSON/dict:\n"
             "bridges=[\n"
             "  {'text': 'modo reposo del sistema de memoria', 'angle': 'sinonimo'},\n"
@@ -1005,7 +1005,6 @@ class _IndiceBridges:
              y, por tanto, máxima penalización cuando la consulta lo pide y la
              bridge no lo explica).
     nodos:   {hub_id: [nodos del hub]}, canonical primero.
->>>>>>> Stashed changes
     """
 
     __slots__ = ("sello", "clave", "filas", "idf", "idf_max", "nodos", "n_por_hub", "inv")

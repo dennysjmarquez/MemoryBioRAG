@@ -1,0 +1,756 @@
+{
+  "titulo": "Resultado exacto del smoke test MCP temporal",
+  "fecha_local": "2026-10-30",
+  "autorizacion": "Autorización explícita del usuario recibida en esta conversación.",
+  "estado": "completado_con_hallazgo",
+  "rama": "arena/9a54babb-memorybiorag",
+  "commit_codigo": "41e1793abb9e346f01e619c17611dc158ff27f4a",
+  "transporte": "MCP real stdio mediante MCPProcess y qa_stdio_server_intuicion.py",
+  "extractor_respuesta": "parse_tool_result de scripts/evaluar_qa_intuicion_asociaciones_e1.py",
+  "extractores_canales": [
+    "main_result_concepts",
+    "context_concepts",
+    "response_concepts"
+  ],
+  "entorno": {
+    "python": "/tmp/mcp-smoke-venv/bin/python",
+    "mcp_version": "1.30.0 (requirements.txt)",
+    "temp_root": "/tmp/biorag-smoke-mcp-w5gsf3j4",
+    "db_path": "/tmp/biorag-smoke-mcp-w5gsf3j4/smoke.sqlite3",
+    "db_nueva_antes_de_inicio": true,
+    "db_path_temporal": "Eliminada después de guardar respuesta MCP, errores y snapshot final; ruta original: /tmp/biorag-smoke-mcp-w5gsf3j4/smoke.sqlite3"
+  },
+  "restricciones": {
+    "db_viva_o_snapshot_accedido": false,
+    "qa_completa_ejecutada": false,
+    "motor_o_ranking_modificados": false,
+    "umbrales": "pendientes"
+  },
+  "llamadas": [
+    {
+      "fase": "busqueda_previa",
+      "concepto": "smoke_mcp_reintento_objetivo",
+      "tool": "recordar",
+      "argumentos": {
+        "query": "smoke_mcp_reintento_objetivo En este escenario sintético de prueba, un cliente reintenta una solicitud al servicio después de recibir una respuesta temporal 503.",
+        "sustantivos_clave": "cliente,reintenta,solicitud,servicio",
+        "deep": false,
+        "limite": 5,
+        "asociados": false,
+        "context_window": 0
+      },
+      "respuesta_mcp_cruda": "⚠️ parafrasis=None — Sin parafrasis, el recall es ~40%. Generá 3-5 reformulaciones.\n⚠️ dias=None, desde=None — Sin filtro temporal, traés TODO incluyendo cosas viejas.\n⚠️ asociados=False — No ves las conexiones de los nodos. Usá asociados=True.\n⚠️ dimensiones=None — Sin boost semántico. Usá dimensiones cuando busques por propiedades ontológicas (emoción, entidad, acción, cualidad, coordenada, intención, dominio, cualia, epistemia, escala_abstraccion, centralidad_identitaria, textura_experiencial, modalidad). Ejemplo: dimensiones='intencion_aprender' o dimensiones='dominio_tecnico'\n🍽️ BRECHA DE CONOCIMIENTO (0 resultados): BioRAG no encontró nada sobre 'smoke_mcp_reintento_objetivo En este escenario sintético de prueba, un cliente reintenta una solicitud al servicio después de recibir una respuesta temporal 503.'. No respondas con hueco ni inventes. Impulso de nutrirte: investigá el tema en fuente externa (web, documentación) y GUARDÁ lo aprendido en BioRAG con biorag_aprender ANTES de responder. Cerrá la brecha — el aprendizaje queda tuyo.\n\n{\"total\": 0, \"resultados\": [], \"contingencia_contexto\": true, \"mensaje\": \"No se encontraron recuerdos en la corteza. Busca en tu historial de conversacion o contexto actual.\"}",
+      "respuesta_parseada": {
+        "total": 0,
+        "resultados": [],
+        "contingencia_contexto": true,
+        "mensaje": "No se encontraron recuerdos en la corteza. Busca en tu historial de conversacion o contexto actual."
+      },
+      "error_transporte": null,
+      "duplicado_exacto_detectado": false
+    },
+    {
+      "fase": "aprender",
+      "concepto": "smoke_mcp_reintento_objetivo",
+      "tool": "aprender",
+      "argumentos": {
+        "concepto": "smoke_mcp_reintento_objetivo",
+        "contenido": "En este escenario sintético de prueba, un cliente reintenta una solicitud al servicio después de recibir una respuesta temporal 503.",
+        "dimensiones": "{\"entidad\": [\"identidad_concepto\"], \"accion\": [\"accion_persistencia_computacion\"], \"cualidad\": [\"cualidad_abstracta_conceptual\"], \"intencion\": [\"intencion_documentar\"], \"dominio\": [\"dominio_tecnico\"], \"cualia\": [\"telica_funcion\"], \"epistemia\": [\"hipotetica\"], \"escala_abstraccion\": [\"instancia\"], \"centralidad_identitaria\": [\"impersonal\"], \"modalidad\": [\"capacidad\"]}",
+        "bridges": [
+          {
+            "angle": "sinonimo",
+            "text": "significado equivalente mcp reintento objetivo"
+          },
+          {
+            "angle": "problema",
+            "text": "problema recurrente mcp reintento objetivo"
+          },
+          {
+            "angle": "solucion",
+            "text": "solucion operativa mcp reintento objetivo"
+          },
+          {
+            "angle": "situacion",
+            "text": "escenario practico mcp reintento objetivo"
+          },
+          {
+            "angle": "ingenuo",
+            "text": "consulta sencilla mcp reintento objetivo"
+          }
+        ],
+        "sustantivos_clave": "cliente,reintenta,solicitud,servicio",
+        "cat": "General",
+        "busqueda_previa": true
+      },
+      "respuesta_mcp_cruda": "⚠️ syn=None — Sin sinónimos, 'smoke_mcp_reintento_objetivo' solo es visible por nombre exacto. Nadie que busque con otras palabras lo encontrará. Si consolidás sin syn, el nodo queda enterrado. Poné mínimo 5 sinónimos cubriendo: literal, relacionado, abstracto.\n  Ejemplo de syn para este nodo:\n    syn='versión actual,latest,changelog,novedades,release notes'\n\n{\"status\": \"ok\", \"mensaje\": \"'smoke_mcp_reintento_objetivo' aprendido en corto plazo. Categoria: General. Usa 'consolidar' para fijar a largo plazo. Hub 'hub_smoke_mcp_reintento_objetivo' creado con 5 bridges.\", \"concepto\": \"smoke_mcp_reintento_objetivo\", \"sinapsis\": 0}",
+      "respuesta_parseada": {
+        "status": "ok",
+        "mensaje": "'smoke_mcp_reintento_objetivo' aprendido en corto plazo. Categoria: General. Usa 'consolidar' para fijar a largo plazo. Hub 'hub_smoke_mcp_reintento_objetivo' creado con 5 bridges.",
+        "concepto": "smoke_mcp_reintento_objetivo",
+        "sinapsis": 0
+      },
+      "error_transporte": null
+    },
+    {
+      "fase": "busqueda_previa",
+      "concepto": "smoke_mcp_reintento_idempotencia",
+      "tool": "recordar",
+      "argumentos": {
+        "query": "smoke_mcp_reintento_idempotencia En el escenario sintético, una clave de idempotencia permite reintentar una solicitud sin crear una operación duplicada en el servicio.",
+        "sustantivos_clave": "clave,idempotencia,solicitud,duplicada",
+        "deep": false,
+        "limite": 5,
+        "asociados": false,
+        "context_window": 0
+      },
+      "respuesta_mcp_cruda": "⚠️ parafrasis=None — Sin parafrasis, el recall es ~40%. Generá 3-5 reformulaciones.\n⚠️ dias=None, desde=None — Sin filtro temporal, traés TODO incluyendo cosas viejas.\n⚠️ asociados=False — No ves las conexiones de los nodos. Usá asociados=True.\n⚠️ dimensiones=None — Sin boost semántico. Usá dimensiones cuando busques por propiedades ontológicas (emoción, entidad, acción, cualidad, coordenada, intención, dominio, cualia, epistemia, escala_abstraccion, centralidad_identitaria, textura_experiencial, modalidad). Ejemplo: dimensiones='intencion_aprender' o dimensiones='dominio_tecnico'\n🍽️ BRECHA DE CONOCIMIENTO (0 resultados): BioRAG no encontró nada sobre 'smoke_mcp_reintento_idempotencia En el escenario sintético, una clave de idempotencia permite reintentar una solicitud sin crear una operación duplicada en el servicio.'. No respondas con hueco ni inventes. Impulso de nutrirte: investigá el tema en fuente externa (web, documentación) y GUARDÁ lo aprendido en BioRAG con biorag_aprender ANTES de responder. Cerrá la brecha — el aprendizaje queda tuyo.\n\n{\"total\": 0, \"resultados\": [], \"contingencia_contexto\": true, \"mensaje\": \"No se encontraron recuerdos en la corteza. Busca en tu historial de conversacion o contexto actual.\"}",
+      "respuesta_parseada": {
+        "total": 0,
+        "resultados": [],
+        "contingencia_contexto": true,
+        "mensaje": "No se encontraron recuerdos en la corteza. Busca en tu historial de conversacion o contexto actual."
+      },
+      "error_transporte": null,
+      "duplicado_exacto_detectado": false
+    },
+    {
+      "fase": "aprender",
+      "concepto": "smoke_mcp_reintento_idempotencia",
+      "tool": "aprender",
+      "argumentos": {
+        "concepto": "smoke_mcp_reintento_idempotencia",
+        "contenido": "En el escenario sintético, una clave de idempotencia permite reintentar una solicitud sin crear una operación duplicada en el servicio.",
+        "dimensiones": "{\"entidad\": [\"identidad_concepto\"], \"accion\": [\"accion_persistencia_computacion\"], \"cualidad\": [\"cualidad_abstracta_conceptual\"], \"intencion\": [\"intencion_documentar\"], \"dominio\": [\"dominio_tecnico\"], \"cualia\": [\"telica_funcion\"], \"epistemia\": [\"hipotetica\"], \"escala_abstraccion\": [\"instancia\"], \"centralidad_identitaria\": [\"impersonal\"], \"modalidad\": [\"capacidad\"]}",
+        "bridges": [
+          {
+            "angle": "sinonimo",
+            "text": "significado equivalente mcp reintento idempotencia"
+          },
+          {
+            "angle": "problema",
+            "text": "problema recurrente mcp reintento idempotencia"
+          },
+          {
+            "angle": "solucion",
+            "text": "solucion operativa mcp reintento idempotencia"
+          },
+          {
+            "angle": "situacion",
+            "text": "escenario practico mcp reintento idempotencia"
+          },
+          {
+            "angle": "ingenuo",
+            "text": "consulta sencilla mcp reintento idempotencia"
+          }
+        ],
+        "sustantivos_clave": "clave,idempotencia,solicitud,duplicada",
+        "cat": "General",
+        "busqueda_previa": true
+      },
+      "respuesta_mcp_cruda": "⚠️ syn=None — Sin sinónimos, 'smoke_mcp_reintento_idempotencia' solo es visible por nombre exacto. Nadie que busque con otras palabras lo encontrará. Si consolidás sin syn, el nodo queda enterrado. Poné mínimo 5 sinónimos cubriendo: literal, relacionado, abstracto.\n  Ejemplo de syn para este nodo:\n    syn='versión actual,latest,changelog,novedades,release notes'\n\n{\"status\": \"ok\", \"mensaje\": \"'smoke_mcp_reintento_idempotencia' aprendido en corto plazo. Categoria: General. Usa 'consolidar' para fijar a largo plazo. Hub 'hub_smoke_mcp_reintento_idempotencia' creado con 5 bridges.\", \"concepto\": \"smoke_mcp_reintento_idempotencia\", \"sinapsis\": 0}",
+      "respuesta_parseada": {
+        "status": "ok",
+        "mensaje": "'smoke_mcp_reintento_idempotencia' aprendido en corto plazo. Categoria: General. Usa 'consolidar' para fijar a largo plazo. Hub 'hub_smoke_mcp_reintento_idempotencia' creado con 5 bridges.",
+        "concepto": "smoke_mcp_reintento_idempotencia",
+        "sinapsis": 0
+      },
+      "error_transporte": null
+    },
+    {
+      "fase": "busqueda_previa",
+      "concepto": "smoke_mcp_reintento_backoff",
+      "tool": "recordar",
+      "argumentos": {
+        "query": "smoke_mcp_reintento_backoff En el escenario sintético, el backoff exponencial aumenta la espera entre reintentos y reduce la presión sobre un servicio durante errores temporales.",
+        "sustantivos_clave": "backoff,exponencial,reintentos,servicio",
+        "deep": false,
+        "limite": 5,
+        "asociados": false,
+        "context_window": 0
+      },
+      "respuesta_mcp_cruda": "⚠️ parafrasis=None — Sin parafrasis, el recall es ~40%. Generá 3-5 reformulaciones.\n⚠️ dias=None, desde=None — Sin filtro temporal, traés TODO incluyendo cosas viejas.\n⚠️ asociados=False — No ves las conexiones de los nodos. Usá asociados=True.\n⚠️ dimensiones=None — Sin boost semántico. Usá dimensiones cuando busques por propiedades ontológicas (emoción, entidad, acción, cualidad, coordenada, intención, dominio, cualia, epistemia, escala_abstraccion, centralidad_identitaria, textura_experiencial, modalidad). Ejemplo: dimensiones='intencion_aprender' o dimensiones='dominio_tecnico'\n🍽️ BRECHA DE CONOCIMIENTO (0 resultados): BioRAG no encontró nada sobre 'smoke_mcp_reintento_backoff En el escenario sintético, el backoff exponencial aumenta la espera entre reintentos y reduce la presión sobre un servicio durante errores temporales.'. No respondas con hueco ni inventes. Impulso de nutrirte: investigá el tema en fuente externa (web, documentación) y GUARDÁ lo aprendido en BioRAG con biorag_aprender ANTES de responder. Cerrá la brecha — el aprendizaje queda tuyo.\n\n{\"total\": 0, \"resultados\": [], \"contingencia_contexto\": true, \"mensaje\": \"No se encontraron recuerdos en la corteza. Busca en tu historial de conversacion o contexto actual.\"}",
+      "respuesta_parseada": {
+        "total": 0,
+        "resultados": [],
+        "contingencia_contexto": true,
+        "mensaje": "No se encontraron recuerdos en la corteza. Busca en tu historial de conversacion o contexto actual."
+      },
+      "error_transporte": null,
+      "duplicado_exacto_detectado": false
+    },
+    {
+      "fase": "aprender",
+      "concepto": "smoke_mcp_reintento_backoff",
+      "tool": "aprender",
+      "argumentos": {
+        "concepto": "smoke_mcp_reintento_backoff",
+        "contenido": "En el escenario sintético, el backoff exponencial aumenta la espera entre reintentos y reduce la presión sobre un servicio durante errores temporales.",
+        "dimensiones": "{\"entidad\": [\"identidad_concepto\"], \"accion\": [\"accion_persistencia_computacion\"], \"cualidad\": [\"cualidad_abstracta_conceptual\"], \"intencion\": [\"intencion_documentar\"], \"dominio\": [\"dominio_tecnico\"], \"cualia\": [\"telica_funcion\"], \"epistemia\": [\"hipotetica\"], \"escala_abstraccion\": [\"instancia\"], \"centralidad_identitaria\": [\"impersonal\"], \"modalidad\": [\"capacidad\"]}",
+        "bridges": [
+          {
+            "angle": "sinonimo",
+            "text": "significado equivalente mcp reintento backoff"
+          },
+          {
+            "angle": "problema",
+            "text": "problema recurrente mcp reintento backoff"
+          },
+          {
+            "angle": "solucion",
+            "text": "solucion operativa mcp reintento backoff"
+          },
+          {
+            "angle": "situacion",
+            "text": "escenario practico mcp reintento backoff"
+          },
+          {
+            "angle": "ingenuo",
+            "text": "consulta sencilla mcp reintento backoff"
+          }
+        ],
+        "sustantivos_clave": "backoff,exponencial,reintentos,servicio",
+        "cat": "General",
+        "busqueda_previa": true
+      },
+      "respuesta_mcp_cruda": "⚠️ syn=None — Sin sinónimos, 'smoke_mcp_reintento_backoff' solo es visible por nombre exacto. Nadie que busque con otras palabras lo encontrará. Si consolidás sin syn, el nodo queda enterrado. Poné mínimo 5 sinónimos cubriendo: literal, relacionado, abstracto.\n  Ejemplo de syn para este nodo:\n    syn='versión actual,latest,changelog,novedades,release notes'\n\n{\"status\": \"ok\", \"mensaje\": \"'smoke_mcp_reintento_backoff' aprendido en corto plazo. Categoria: General. Usa 'consolidar' para fijar a largo plazo. Hub 'hub_smoke_mcp_reintento_backoff' creado con 5 bridges.\", \"concepto\": \"smoke_mcp_reintento_backoff\", \"sinapsis\": 0}",
+      "respuesta_parseada": {
+        "status": "ok",
+        "mensaje": "'smoke_mcp_reintento_backoff' aprendido en corto plazo. Categoria: General. Usa 'consolidar' para fijar a largo plazo. Hub 'hub_smoke_mcp_reintento_backoff' creado con 5 bridges.",
+        "concepto": "smoke_mcp_reintento_backoff",
+        "sinapsis": 0
+      },
+      "error_transporte": null
+    },
+    {
+      "fase": "busqueda_previa",
+      "concepto": "smoke_mcp_color_favorito",
+      "tool": "recordar",
+      "argumentos": {
+        "query": "smoke_mcp_color_favorito En una nota ficticia sin relación con servicios, un personaje de prueba prefiere el color verde para pintar una cometa.",
+        "sustantivos_clave": "personaje,color,verde,cometa",
+        "deep": false,
+        "limite": 5,
+        "asociados": false,
+        "context_window": 0
+      },
+      "respuesta_mcp_cruda": "⚠️ parafrasis=None — Sin parafrasis, el recall es ~40%. Generá 3-5 reformulaciones.\n⚠️ dias=None, desde=None — Sin filtro temporal, traés TODO incluyendo cosas viejas.\n⚠️ asociados=False — No ves las conexiones de los nodos. Usá asociados=True.\n⚠️ dimensiones=None — Sin boost semántico. Usá dimensiones cuando busques por propiedades ontológicas (emoción, entidad, acción, cualidad, coordenada, intención, dominio, cualia, epistemia, escala_abstraccion, centralidad_identitaria, textura_experiencial, modalidad). Ejemplo: dimensiones='intencion_aprender' o dimensiones='dominio_tecnico'\n🍽️ BRECHA DE CONOCIMIENTO (0 resultados): BioRAG no encontró nada sobre 'smoke_mcp_color_favorito En una nota ficticia sin relación con servicios, un personaje de prueba prefiere el color verde para pintar una cometa.'. No respondas con hueco ni inventes. Impulso de nutrirte: investigá el tema en fuente externa (web, documentación) y GUARDÁ lo aprendido en BioRAG con biorag_aprender ANTES de responder. Cerrá la brecha — el aprendizaje queda tuyo.\n\n{\"total\": 0, \"resultados\": [], \"contingencia_contexto\": true, \"mensaje\": \"No se encontraron recuerdos en la corteza. Busca en tu historial de conversacion o contexto actual.\"}",
+      "respuesta_parseada": {
+        "total": 0,
+        "resultados": [],
+        "contingencia_contexto": true,
+        "mensaje": "No se encontraron recuerdos en la corteza. Busca en tu historial de conversacion o contexto actual."
+      },
+      "error_transporte": null,
+      "duplicado_exacto_detectado": false
+    },
+    {
+      "fase": "aprender",
+      "concepto": "smoke_mcp_color_favorito",
+      "tool": "aprender",
+      "argumentos": {
+        "concepto": "smoke_mcp_color_favorito",
+        "contenido": "En una nota ficticia sin relación con servicios, un personaje de prueba prefiere el color verde para pintar una cometa.",
+        "dimensiones": "{\"entidad\": [\"identidad_concepto\"], \"accion\": [\"accion_persistencia_computacion\"], \"cualidad\": [\"cualidad_abstracta_conceptual\"], \"intencion\": [\"intencion_documentar\"], \"dominio\": [\"dominio_tecnico\"], \"cualia\": [\"telica_funcion\"], \"epistemia\": [\"hipotetica\"], \"escala_abstraccion\": [\"instancia\"], \"centralidad_identitaria\": [\"impersonal\"], \"modalidad\": [\"capacidad\"]}",
+        "bridges": [
+          {
+            "angle": "sinonimo",
+            "text": "significado equivalente mcp color favorito"
+          },
+          {
+            "angle": "problema",
+            "text": "problema recurrente mcp color favorito"
+          },
+          {
+            "angle": "solucion",
+            "text": "solucion operativa mcp color favorito"
+          },
+          {
+            "angle": "situacion",
+            "text": "escenario practico mcp color favorito"
+          },
+          {
+            "angle": "ingenuo",
+            "text": "consulta sencilla mcp color favorito"
+          }
+        ],
+        "sustantivos_clave": "personaje,color,verde,cometa",
+        "cat": "General",
+        "busqueda_previa": true
+      },
+      "respuesta_mcp_cruda": "⚠️ syn=None — Sin sinónimos, 'smoke_mcp_color_favorito' solo es visible por nombre exacto. Nadie que busque con otras palabras lo encontrará. Si consolidás sin syn, el nodo queda enterrado. Poné mínimo 5 sinónimos cubriendo: literal, relacionado, abstracto.\n  Ejemplo de syn para este nodo:\n    syn='versión actual,latest,changelog,novedades,release notes'\n\n{\"status\": \"ok\", \"mensaje\": \"'smoke_mcp_color_favorito' aprendido en corto plazo. Categoria: General. Usa 'consolidar' para fijar a largo plazo. Hub 'hub_smoke_mcp_color_favorito' creado con 5 bridges.\", \"concepto\": \"smoke_mcp_color_favorito\", \"sinapsis\": 0}",
+      "respuesta_parseada": {
+        "status": "ok",
+        "mensaje": "'smoke_mcp_color_favorito' aprendido en corto plazo. Categoria: General. Usa 'consolidar' para fijar a largo plazo. Hub 'hub_smoke_mcp_color_favorito' creado con 5 bridges.",
+        "concepto": "smoke_mcp_color_favorito",
+        "sinapsis": 0
+      },
+      "error_transporte": null
+    },
+    {
+      "fase": "consolidar",
+      "tool": "consolidar",
+      "argumentos": {},
+      "respuesta_mcp_cruda": "{\"status\": \"ok\", \"mensaje\": \"--- Iniciando Ciclo de Consolidación (Sueño) ---\\n[PMI] Corpus recalculado: 4 nodos, 15 pares, 1.1ms\\n[SDM] 4 vectores reindexados (full periódico).\\n[PPMI] 4 nodos reindexados con PPMI+SVD+Retrofitting (full periódico).\\n[MemoryBioRAG] Proceso de consolidación y equilibrio sináptico completado con éxito.\"}",
+      "respuesta_parseada": {
+        "status": "ok",
+        "mensaje": "--- Iniciando Ciclo de Consolidación (Sueño) ---\n[PMI] Corpus recalculado: 4 nodos, 15 pares, 1.1ms\n[SDM] 4 vectores reindexados (full periódico).\n[PPMI] 4 nodos reindexados con PPMI+SVD+Retrofitting (full periódico).\n[MemoryBioRAG] Proceso de consolidación y equilibrio sináptico completado con éxito."
+      },
+      "error_transporte": null
+    },
+    {
+      "fase": "vincular",
+      "tool": "vincular",
+      "argumentos": {
+        "a": "smoke_mcp_reintento_objetivo",
+        "b": "smoke_mcp_reintento_idempotencia"
+      },
+      "respuesta_mcp_cruda": "{\"status\": \"ok\", \"mensaje\": \"Sinapsis: 'smoke_mcp_reintento_objetivo' <--> 'smoke_mcp_reintento_idempotencia'\"}",
+      "respuesta_parseada": {
+        "status": "ok",
+        "mensaje": "Sinapsis: 'smoke_mcp_reintento_objetivo' <--> 'smoke_mcp_reintento_idempotencia'"
+      },
+      "error_transporte": null
+    },
+    {
+      "fase": "vincular",
+      "tool": "vincular",
+      "argumentos": {
+        "a": "smoke_mcp_reintento_objetivo",
+        "b": "smoke_mcp_reintento_backoff"
+      },
+      "respuesta_mcp_cruda": "{\"status\": \"ok\", \"mensaje\": \"Sinapsis: 'smoke_mcp_reintento_objetivo' <--> 'smoke_mcp_reintento_backoff'\"}",
+      "respuesta_parseada": {
+        "status": "ok",
+        "mensaje": "Sinapsis: 'smoke_mcp_reintento_objetivo' <--> 'smoke_mcp_reintento_backoff'"
+      },
+      "error_transporte": null
+    },
+    {
+      "fase": "recordar_final",
+      "tool": "recordar",
+      "argumentos": {
+        "query": "cliente reintenta solicitud 503 evitar operación duplicada",
+        "sustantivos_clave": "cliente,reintenta,solicitud,duplicada",
+        "deep": false,
+        "asociados": true,
+        "limite": 5,
+        "context_window": 1
+      },
+      "respuesta_mcp_cruda": "⚠️ parafrasis=None — Sin parafrasis, el recall es ~40%. Generá 3-5 reformulaciones.\n⚠️ dias=None, desde=None — Sin filtro temporal, traés TODO incluyendo cosas viejas.\n⚠️ dimensiones=None — Sin boost semántico. Usá dimensiones cuando busques por propiedades ontológicas (emoción, entidad, acción, cualidad, coordenada, intención, dominio, cualia, epistemia, escala_abstraccion, centralidad_identitaria, textura_experiencial, modalidad). Ejemplo: dimensiones='intencion_aprender' o dimensiones='dominio_tecnico'\n🍽️ BRECHA DE CONOCIMIENTO (score_top=0.33 < 0.5): los resultados sobre 'cliente reintenta solicitud 503 evitar operación duplicada' casi no cubren lo consultado. Primero probá PASO 2 (ráfaga con rafaga_palabras); si aún no cubre, investigá en fuente externa y GUARDÁ lo aprendido en BioRAG con biorag_aprender ANTES de responder.\n\n{\"total\": 3, \"pagina_actual\": 1, \"paginas_totales\": 1, \"resultados\": [{\"concepto\": \"smoke_mcp_reintento_objetivo\", \"contenido\": \"En este escenario sintético de prueba, un cliente reintenta una solicitud al servicio después de recibir una respuesta temporal 503.\", \"peso_sinaptico\": 0.98, \"estado\": \"activo\", \"score_hibrido\": 0.4084, \"confianza_calibrada\": 0.3803, \"nivel_certeza\": \"relacionado_confianza_media\", \"edad_dias\": 0, \"timestamp_creado\": 0, \"fecha_legible\": null, \"stale\": false, \"asociaciones\": {\"total\": 3, \"items\": [\"smoke_mcp_color_favorito\", \"smoke_mcp_reintento_backoff\", \"smoke_mcp_reintento_idempotencia\"], \"truncada\": false}, \"asociaciones_enriquecidas\": [{\"concepto\": \"smoke_mcp_reintento_idempotencia\", \"fuerza_arista\": 0.87, \"tipo_sinapsis\": \"co_nombre\", \"peso_vecino\": 0.98, \"resumen\": \"En el escenario sintético, una clave de idempotencia permite reintentar una solicitud sin crear una operación duplicada \"}, {\"concepto\": \"smoke_mcp_reintento_backoff\", \"fuerza_arista\": 0.87, \"tipo_sinapsis\": \"co_nombre\", \"peso_vecino\": 0.98, \"resumen\": \"En el escenario sintético, el backoff exponencial aumenta la espera entre reintentos y reduce la presión sobre un servic\"}, {\"concepto\": \"smoke_mcp_color_favorito\", \"fuerza_arista\": 0.53, \"tipo_sinapsis\": \"co_nombre\", \"peso_vecino\": 0.98, \"resumen\": \"En una nota ficticia sin relación con servicios, un personaje de prueba prefiere el color verde para pintar una cometa.\"}], \"score_hibrido_base\": 0.3803, \"bonus_convergencia_multicampo\": 0.0281, \"dimensiones_semanticas\": {\"accion\": [\"accion_persistencia_computacion\"], \"cualidad\": [\"cualidad_abstracta_conceptual\"], \"entidad\": [\"identidad_concepto\"], \"intencion\": [\"intencion_documentar\"], \"dominio\": [\"dominio_tecnico\"], \"cualia\": [\"telica_funcion\"], \"epistemia\": [\"hipotetica\"], \"escala_abstraccion\": [\"instancia\"], \"centralidad_identitaria\": [\"impersonal\"], \"modalidad\": [\"capacidad\"]}}, {\"concepto\": \"smoke_mcp_reintento_idempotencia\", \"contenido\": \"En el escenario sintético, una clave de idempotencia permite reintentar una solicitud sin crear una operación duplicada en el servicio.\", \"peso_sinaptico\": 0.98, \"estado\": \"activo\", \"score_hibrido\": 0.3088, \"confianza_calibrada\": 0.2828, \"nivel_certeza\": \"sin_evidencia_directa\", \"edad_dias\": 0, \"timestamp_creado\": 0, \"fecha_legible\": null, \"stale\": false, \"asociaciones\": {\"total\": 3, \"items\": [\"smoke_mcp_color_favorito\", \"smoke_mcp_reintento_backoff\", \"smoke_mcp_reintento_objetivo\"], \"truncada\": false}, \"asociaciones_enriquecidas\": [{\"concepto\": \"smoke_mcp_reintento_backoff\", \"fuerza_arista\": 0.87, \"tipo_sinapsis\": \"co_nombre\", \"peso_vecino\": 0.98, \"resumen\": \"En el escenario sintético, el backoff exponencial aumenta la espera entre reintentos y reduce la presión sobre un servic\"}, {\"concepto\": \"smoke_mcp_reintento_objetivo\", \"fuerza_arista\": 0.77, \"tipo_sinapsis\": \"co_nombre\", \"peso_vecino\": 0.98, \"resumen\": \"En este escenario sintético de prueba, un cliente reintenta una solicitud al servicio después de recibir una respuesta t\"}, {\"concepto\": \"smoke_mcp_color_favorito\", \"fuerza_arista\": 0.53, \"tipo_sinapsis\": \"co_nombre\", \"peso_vecino\": 0.98, \"resumen\": \"En una nota ficticia sin relación con servicios, un personaje de prueba prefiere el color verde para pintar una cometa.\"}], \"score_hibrido_base\": 0.2828, \"bonus_convergencia_multicampo\": 0.026, \"dimensiones_semanticas\": {\"accion\": [\"accion_persistencia_computacion\"], \"cualidad\": [\"cualidad_abstracta_conceptual\"], \"entidad\": [\"identidad_concepto\"], \"intencion\": [\"intencion_documentar\"], \"dominio\": [\"dominio_tecnico\"], \"cualia\": [\"telica_funcion\"], \"epistemia\": [\"hipotetica\"], \"escala_abstraccion\": [\"instancia\"], \"centralidad_identitaria\": [\"impersonal\"], \"modalidad\": [\"capacidad\"]}}], \"contexto_expandido\": [{\"concepto\": \"smoke_mcp_reintento_backoff\", \"contenido\": \"En el escenario sintético, el backoff exponencial aumenta la espera entre reintentos y reduce la presión sobre un servicio durante errores temporales.\", \"peso_sinaptico\": 0.98, \"estado\": \"activo\", \"score_hibrido\": 0.4385, \"confianza_calibrada\": 0.4385, \"nivel_certeza\": \"relacionado_confianza_media\", \"edad_dias\": 0, \"timestamp_creado\": 0, \"fecha_legible\": null, \"stale\": false, \"asociaciones\": {\"total\": 3, \"items\": [\"smoke_mcp_color_favorito\", \"smoke_mcp_reintento_idempotencia\", \"smoke_mcp_reintento_objetivo\"], \"truncada\": false}, \"asociaciones_enriquecidas\": [], \"dimensiones_semanticas\": {\"accion\": [\"accion_persistencia_computacion\"], \"cualidad\": [\"cualidad_abstracta_conceptual\"], \"entidad\": [\"identidad_concepto\"], \"intencion\": [\"intencion_documentar\"], \"dominio\": [\"dominio_tecnico\"], \"cualia\": [\"telica_funcion\"], \"epistemia\": [\"hipotetica\"], \"escala_abstraccion\": [\"instancia\"], \"centralidad_identitaria\": [\"impersonal\"], \"modalidad\": [\"capacidad\"]}}, {\"concepto\": \"smoke_mcp_color_favorito\", \"contenido\": \"En una nota ficticia sin relación con servicios, un personaje de prueba prefiere el color verde para pintar una cometa.\", \"peso_sinaptico\": 0.98, \"estado\": \"activo\", \"score_hibrido\": 0.3603, \"confianza_calibrada\": 0.3603, \"nivel_certeza\": \"relacionado_confianza_media\", \"edad_dias\": 0, \"timestamp_creado\": 0, \"fecha_legible\": null, \"stale\": false, \"asociaciones\": {\"total\": 3, \"items\": [\"smoke_mcp_reintento_backoff\", \"smoke_mcp_reintento_idempotencia\", \"smoke_mcp_reintento_objetivo\"], \"truncada\": false}, \"asociaciones_enriquecidas\": [], \"dimensiones_semanticas\": {\"accion\": [\"accion_persistencia_computacion\"], \"cualidad\": [\"cualidad_abstracta_conceptual\"], \"entidad\": [\"identidad_concepto\"], \"intencion\": [\"intencion_documentar\"], \"dominio\": [\"dominio_tecnico\"], \"cualia\": [\"telica_funcion\"], \"epistemia\": [\"hipotetica\"], \"escala_abstraccion\": [\"instancia\"], \"centralidad_identitaria\": [\"impersonal\"], \"modalidad\": [\"capacidad\"]}}], \"sinapsis_creadas\": [], \"profundidad\": \"activos\", \"trazabilidad\": {\"capa_literal\": 0.3317, \"capa_parafrasis\": 0.0, \"capa_rafaga\": 0, \"fallback_dimensional\": 0, \"match_exacto\": false, \"total_candidatos_todos\": 3}, \"advertencia_temporal\": false}",
+      "respuesta_parseada": {
+        "total": 3,
+        "pagina_actual": 1,
+        "paginas_totales": 1,
+        "resultados": [
+          {
+            "concepto": "smoke_mcp_reintento_objetivo",
+            "contenido": "En este escenario sintético de prueba, un cliente reintenta una solicitud al servicio después de recibir una respuesta temporal 503.",
+            "peso_sinaptico": 0.98,
+            "estado": "activo",
+            "score_hibrido": 0.4084,
+            "confianza_calibrada": 0.3803,
+            "nivel_certeza": "relacionado_confianza_media",
+            "edad_dias": 0,
+            "timestamp_creado": 0,
+            "fecha_legible": null,
+            "stale": false,
+            "asociaciones": {
+              "total": 3,
+              "items": [
+                "smoke_mcp_color_favorito",
+                "smoke_mcp_reintento_backoff",
+                "smoke_mcp_reintento_idempotencia"
+              ],
+              "truncada": false
+            },
+            "asociaciones_enriquecidas": [
+              {
+                "concepto": "smoke_mcp_reintento_idempotencia",
+                "fuerza_arista": 0.87,
+                "tipo_sinapsis": "co_nombre",
+                "peso_vecino": 0.98,
+                "resumen": "En el escenario sintético, una clave de idempotencia permite reintentar una solicitud sin crear una operación duplicada "
+              },
+              {
+                "concepto": "smoke_mcp_reintento_backoff",
+                "fuerza_arista": 0.87,
+                "tipo_sinapsis": "co_nombre",
+                "peso_vecino": 0.98,
+                "resumen": "En el escenario sintético, el backoff exponencial aumenta la espera entre reintentos y reduce la presión sobre un servic"
+              },
+              {
+                "concepto": "smoke_mcp_color_favorito",
+                "fuerza_arista": 0.53,
+                "tipo_sinapsis": "co_nombre",
+                "peso_vecino": 0.98,
+                "resumen": "En una nota ficticia sin relación con servicios, un personaje de prueba prefiere el color verde para pintar una cometa."
+              }
+            ],
+            "score_hibrido_base": 0.3803,
+            "bonus_convergencia_multicampo": 0.0281,
+            "dimensiones_semanticas": {
+              "accion": [
+                "accion_persistencia_computacion"
+              ],
+              "cualidad": [
+                "cualidad_abstracta_conceptual"
+              ],
+              "entidad": [
+                "identidad_concepto"
+              ],
+              "intencion": [
+                "intencion_documentar"
+              ],
+              "dominio": [
+                "dominio_tecnico"
+              ],
+              "cualia": [
+                "telica_funcion"
+              ],
+              "epistemia": [
+                "hipotetica"
+              ],
+              "escala_abstraccion": [
+                "instancia"
+              ],
+              "centralidad_identitaria": [
+                "impersonal"
+              ],
+              "modalidad": [
+                "capacidad"
+              ]
+            }
+          },
+          {
+            "concepto": "smoke_mcp_reintento_idempotencia",
+            "contenido": "En el escenario sintético, una clave de idempotencia permite reintentar una solicitud sin crear una operación duplicada en el servicio.",
+            "peso_sinaptico": 0.98,
+            "estado": "activo",
+            "score_hibrido": 0.3088,
+            "confianza_calibrada": 0.2828,
+            "nivel_certeza": "sin_evidencia_directa",
+            "edad_dias": 0,
+            "timestamp_creado": 0,
+            "fecha_legible": null,
+            "stale": false,
+            "asociaciones": {
+              "total": 3,
+              "items": [
+                "smoke_mcp_color_favorito",
+                "smoke_mcp_reintento_backoff",
+                "smoke_mcp_reintento_objetivo"
+              ],
+              "truncada": false
+            },
+            "asociaciones_enriquecidas": [
+              {
+                "concepto": "smoke_mcp_reintento_backoff",
+                "fuerza_arista": 0.87,
+                "tipo_sinapsis": "co_nombre",
+                "peso_vecino": 0.98,
+                "resumen": "En el escenario sintético, el backoff exponencial aumenta la espera entre reintentos y reduce la presión sobre un servic"
+              },
+              {
+                "concepto": "smoke_mcp_reintento_objetivo",
+                "fuerza_arista": 0.77,
+                "tipo_sinapsis": "co_nombre",
+                "peso_vecino": 0.98,
+                "resumen": "En este escenario sintético de prueba, un cliente reintenta una solicitud al servicio después de recibir una respuesta t"
+              },
+              {
+                "concepto": "smoke_mcp_color_favorito",
+                "fuerza_arista": 0.53,
+                "tipo_sinapsis": "co_nombre",
+                "peso_vecino": 0.98,
+                "resumen": "En una nota ficticia sin relación con servicios, un personaje de prueba prefiere el color verde para pintar una cometa."
+              }
+            ],
+            "score_hibrido_base": 0.2828,
+            "bonus_convergencia_multicampo": 0.026,
+            "dimensiones_semanticas": {
+              "accion": [
+                "accion_persistencia_computacion"
+              ],
+              "cualidad": [
+                "cualidad_abstracta_conceptual"
+              ],
+              "entidad": [
+                "identidad_concepto"
+              ],
+              "intencion": [
+                "intencion_documentar"
+              ],
+              "dominio": [
+                "dominio_tecnico"
+              ],
+              "cualia": [
+                "telica_funcion"
+              ],
+              "epistemia": [
+                "hipotetica"
+              ],
+              "escala_abstraccion": [
+                "instancia"
+              ],
+              "centralidad_identitaria": [
+                "impersonal"
+              ],
+              "modalidad": [
+                "capacidad"
+              ]
+            }
+          }
+        ],
+        "contexto_expandido": [
+          {
+            "concepto": "smoke_mcp_reintento_backoff",
+            "contenido": "En el escenario sintético, el backoff exponencial aumenta la espera entre reintentos y reduce la presión sobre un servicio durante errores temporales.",
+            "peso_sinaptico": 0.98,
+            "estado": "activo",
+            "score_hibrido": 0.4385,
+            "confianza_calibrada": 0.4385,
+            "nivel_certeza": "relacionado_confianza_media",
+            "edad_dias": 0,
+            "timestamp_creado": 0,
+            "fecha_legible": null,
+            "stale": false,
+            "asociaciones": {
+              "total": 3,
+              "items": [
+                "smoke_mcp_color_favorito",
+                "smoke_mcp_reintento_idempotencia",
+                "smoke_mcp_reintento_objetivo"
+              ],
+              "truncada": false
+            },
+            "asociaciones_enriquecidas": [],
+            "dimensiones_semanticas": {
+              "accion": [
+                "accion_persistencia_computacion"
+              ],
+              "cualidad": [
+                "cualidad_abstracta_conceptual"
+              ],
+              "entidad": [
+                "identidad_concepto"
+              ],
+              "intencion": [
+                "intencion_documentar"
+              ],
+              "dominio": [
+                "dominio_tecnico"
+              ],
+              "cualia": [
+                "telica_funcion"
+              ],
+              "epistemia": [
+                "hipotetica"
+              ],
+              "escala_abstraccion": [
+                "instancia"
+              ],
+              "centralidad_identitaria": [
+                "impersonal"
+              ],
+              "modalidad": [
+                "capacidad"
+              ]
+            }
+          },
+          {
+            "concepto": "smoke_mcp_color_favorito",
+            "contenido": "En una nota ficticia sin relación con servicios, un personaje de prueba prefiere el color verde para pintar una cometa.",
+            "peso_sinaptico": 0.98,
+            "estado": "activo",
+            "score_hibrido": 0.3603,
+            "confianza_calibrada": 0.3603,
+            "nivel_certeza": "relacionado_confianza_media",
+            "edad_dias": 0,
+            "timestamp_creado": 0,
+            "fecha_legible": null,
+            "stale": false,
+            "asociaciones": {
+              "total": 3,
+              "items": [
+                "smoke_mcp_reintento_backoff",
+                "smoke_mcp_reintento_idempotencia",
+                "smoke_mcp_reintento_objetivo"
+              ],
+              "truncada": false
+            },
+            "asociaciones_enriquecidas": [],
+            "dimensiones_semanticas": {
+              "accion": [
+                "accion_persistencia_computacion"
+              ],
+              "cualidad": [
+                "cualidad_abstracta_conceptual"
+              ],
+              "entidad": [
+                "identidad_concepto"
+              ],
+              "intencion": [
+                "intencion_documentar"
+              ],
+              "dominio": [
+                "dominio_tecnico"
+              ],
+              "cualia": [
+                "telica_funcion"
+              ],
+              "epistemia": [
+                "hipotetica"
+              ],
+              "escala_abstraccion": [
+                "instancia"
+              ],
+              "centralidad_identitaria": [
+                "impersonal"
+              ],
+              "modalidad": [
+                "capacidad"
+              ]
+            }
+          }
+        ],
+        "sinapsis_creadas": [],
+        "profundidad": "activos",
+        "trazabilidad": {
+          "capa_literal": 0.3317,
+          "capa_parafrasis": 0.0,
+          "capa_rafaga": 0,
+          "fallback_dimensional": 0,
+          "match_exacto": false,
+          "total_candidatos_todos": 3
+        },
+        "advertencia_temporal": false
+      },
+      "error_transporte": null,
+      "canales_extraidos": {
+        "resultados": [
+          "smoke_mcp_reintento_objetivo",
+          "smoke_mcp_reintento_idempotencia"
+        ],
+        "contexto_expandido": [
+          "smoke_mcp_color_favorito",
+          "smoke_mcp_reintento_backoff"
+        ],
+        "asociaciones": [
+          "smoke_mcp_color_favorito",
+          "smoke_mcp_reintento_backoff",
+          "smoke_mcp_reintento_idempotencia",
+          "smoke_mcp_color_favorito",
+          "smoke_mcp_reintento_backoff",
+          "smoke_mcp_reintento_objetivo"
+        ],
+        "asociaciones_enriquecidas": [
+          "smoke_mcp_color_favorito",
+          "smoke_mcp_reintento_backoff",
+          "smoke_mcp_reintento_idempotencia",
+          "smoke_mcp_color_favorito",
+          "smoke_mcp_reintento_backoff",
+          "smoke_mcp_reintento_objetivo"
+        ]
+      }
+    }
+  ],
+  "recuerdos_sinteticos": [
+    {
+      "concepto": "smoke_mcp_reintento_objetivo",
+      "contenido": "En este escenario sintético de prueba, un cliente reintenta una solicitud al servicio después de recibir una respuesta temporal 503.",
+      "sustantivos_clave": "cliente,reintenta,solicitud,servicio"
+    },
+    {
+      "concepto": "smoke_mcp_reintento_idempotencia",
+      "contenido": "En el escenario sintético, una clave de idempotencia permite reintentar una solicitud sin crear una operación duplicada en el servicio.",
+      "sustantivos_clave": "clave,idempotencia,solicitud,duplicada"
+    },
+    {
+      "concepto": "smoke_mcp_reintento_backoff",
+      "contenido": "En el escenario sintético, el backoff exponencial aumenta la espera entre reintentos y reduce la presión sobre un servicio durante errores temporales.",
+      "sustantivos_clave": "backoff,exponencial,reintentos,servicio"
+    },
+    {
+      "concepto": "smoke_mcp_color_favorito",
+      "contenido": "En una nota ficticia sin relación con servicios, un personaje de prueba prefiere el color verde para pintar una cometa.",
+      "sustantivos_clave": "personaje,color,verde,cometa"
+    }
+  ],
+  "estado_db_temporal": {
+    "integridad": "ok",
+    "nodos_activos": [
+      "smoke_mcp_color_favorito",
+      "smoke_mcp_reintento_backoff",
+      "smoke_mcp_reintento_idempotencia",
+      "smoke_mcp_reintento_objetivo"
+    ],
+    "cantidad_nodos_activos": 4,
+    "aristas": {
+      "smoke_mcp_color_favorito": [
+        "smoke_mcp_reintento_backoff",
+        "smoke_mcp_reintento_idempotencia",
+        "smoke_mcp_reintento_objetivo"
+      ],
+      "smoke_mcp_reintento_backoff": [
+        "smoke_mcp_color_favorito",
+        "smoke_mcp_reintento_idempotencia",
+        "smoke_mcp_reintento_objetivo"
+      ],
+      "smoke_mcp_reintento_idempotencia": [
+        "smoke_mcp_color_favorito",
+        "smoke_mcp_reintento_backoff",
+        "smoke_mcp_reintento_objetivo"
+      ],
+      "smoke_mcp_reintento_objetivo": [
+        "smoke_mcp_color_favorito",
+        "smoke_mcp_reintento_backoff",
+        "smoke_mcp_reintento_idempotencia"
+      ]
+    }
+  },
+  "errores": [],
+  "base_temporal_eliminada_tras_registrar": true,
+  "evaluacion_funcional": {
+    "flujo_aprender_consolidar_vincular_recordar": "completado por MCP stdio real",
+    "busqueda_previa_real_antes_de_cada_aprender": "4/4 llamadas recordar con total=0; no se encontró duplicado exacto antes de escribir",
+    "respuesta_por_canales": "campos separados observables y extraídos con helpers del arnés",
+    "resultado_de_separacion": "parcial: el ruido sin valor apareció en asociaciones/contexto y también tiene aristas en la DB temporal final",
+    "expectativa_sobre_ruido_sin_valor": "no cumplida en este smoke; no se alteró motor/configuración para corregirlo",
+    "ranking_o_umbrales": "no evaluados; pendientes",
+    "qa_completa": "no ejecutada"
+  },
+  "hallazgo_grafo_temporal": {
+    "momento_de_inspeccion": "tras la secuencia completa, incluyendo recordar_final; no se tomó snapshot intermedio, por lo que no se atribuye cuándo ni qué llamada creó las aristas extra",
+    "vinculos_explicitos_llamados_por_el_smoke": [
+      [
+        "smoke_mcp_reintento_objetivo",
+        "smoke_mcp_reintento_idempotencia"
+      ],
+      [
+        "smoke_mcp_reintento_objetivo",
+        "smoke_mcp_reintento_backoff"
+      ]
+    ],
+    "aristas_bidireccionales_observadas_en_snapshot_final": 6,
+    "aristas_extra_no_solicitadas_explicitamente": [
+      [
+        "smoke_mcp_color_favorito",
+        "smoke_mcp_reintento_objetivo"
+      ],
+      [
+        "smoke_mcp_color_favorito",
+        "smoke_mcp_reintento_idempotencia"
+      ],
+      [
+        "smoke_mcp_color_favorito",
+        "smoke_mcp_reintento_backoff"
+      ],
+      [
+        "smoke_mcp_reintento_idempotencia",
+        "smoke_mcp_reintento_backoff"
+      ]
+    ],
+    "nota": "Observación del estado final de la DB sintética; no se infiere causalidad ni se atribuye la creación de estas aristas a una llamada concreta."
+  }
+}

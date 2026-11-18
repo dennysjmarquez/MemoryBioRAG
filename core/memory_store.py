@@ -288,8 +288,10 @@ class SQLiteMemoryBioRAG:
     def _asegurar_catalogo_dimensiones(self):
         return schema._asegurar_catalogo_dimensiones(self)
 
-    def _idf_tokens_qcr(self, tokens):
-        return scoring._idf_tokens_qcr(self, tokens=tokens)
+    def _idf_tokens_qcr(self, tokens, candidate_texts=None):
+        return scoring._idf_tokens_qcr(
+            self, tokens=tokens, candidate_texts=candidate_texts
+        )
 
     def _calcular_jaccard(self, str1, str2):
         return scoring._calcular_jaccard(self, str1=str1, str2=str2)

@@ -21,6 +21,13 @@ La tesis de ingeniería, en una frase (formulada por otra IA a partir de la idea
 
 **No es tener mucha IA, sino la IA correcta en el lugar correcto.** Lo propio de BioRAG no es una pieza suelta, sino la combinación de todas. Sin reclamar primicias.
 
+**La inclinación, en una frase (Dennys, 2026-10-28):** *"MemoryBioRAG se inclina hacia la inteligencia distribuida y asociativa, no hacia la inteligencia monolítica."*
+- **Distribuida:** el criterio no vive en una sola red grande, sino repartido en un motor rápido y unas pocas neuronas pequeñas, cada una en su punto, con su piso, su techo y sus guardianes. Las piezas son módulos desacoplados (Pilares 9–11).
+- **Asociativa:** recordar es hilar. Un recuerdo trae pistas que llevan a otros (sinapsis, hubs, ráfaga P7), y el agente tira de ellas, como hace una persona.
+- **No monolítica:** ni en el código (nada de archivos gigantes acoplados) ni en la inteligencia (nada de un único modelo que lo decida todo).
+
+**La frontera siguiente (octava aportación, 2026-10-28):** *"MemoryBioRAG no aspira solo a recuperar información: aspira a recordar con criterio, distinguiendo evidencia, obsolescencia, procedencia y suficiencia."* De memoria asociativa a **memoria asociativa con juicio**: el motor rápido, pocas neuronas, y ninguna decisión importante sin guardianes.
+
 **La proyección (Dennys, 2026-10-28):** BioRAG será un **cerebro de silicio** con **inteligencia de criterio en ciertos lugares**, donde van neuronas finamente calibradas, con su piso, su techo y sus guardianes, como la primera neurona (Constitución, Pilar 11).
 - Dennys lo ve como **la evolución de la base de datos vectorial**. Las bases vectoriales quedarán para lo suyo: **grandes documentos embebidos**. La memoria de un agente será un cerebro.
 - La meta es **llegar a lo que hace una base vectorial, pero por otro camino**, y superarlo. Antes no había neuronas en el motor; ahora las hay. Esa es la **inclinación** del proyecto.
@@ -43,6 +50,9 @@ La tesis de ingeniería, en una frase (formulada por otra IA a partir de la idea
 | P7 | **La ráfaga debe ser natural** | Un humano no trae 500 recuerdos: trae una partecita, y esa parte trae **pistas** que guían a otras, y se va hilando | La ráfaga entrega unos pocos recuerdos más las pistas (palabras) que llevan a los siguientes |
 | P8 | **Neuronas puente donde una ecuación no alcanza** | — | Neuronas pequeñas y entrenadas en puntos exclusivos, cableadas de verdad |
 | P9 | **Aprovechar el silicio** | — | No copiar las limitaciones biológicas: velocidad, exactitud y tiempo constante |
+| P10 | **No es un buscador: siempre trae lo parecido y dice qué tan cerca está** | "Busco algo que nunca hice y me llegan recuerdos parecidos que me dan la idea de cómo hacerlo" | No se vacía la lista: lo exacto se entrega como exacto, y lo parecido como parecido. Ver §2u |
+| P11 | **El ruido útil no se mata** | "Por la sinapsis le llegan cosas que se asemejan y el agente intuye: a Dennys le gusta así, aquí se hace así" | Quitar ruido nunca puede borrar la asociación. Cada recorte se mide también por lo que se pierde de parecido. Ver §2u |
+| P12 | **Observar lo que nace solo** | "Eso lo parió el mismo sistema: se agrupaban en islas, como una base vectorial, pero salió por naturaleza" | Lo que emerge sin que nadie lo programe (islas, hubs, recuerdos que se duermen y despiertan) se **observa, se mide y se documenta** antes de decidir si se usa, se mejora o se deja. Nunca se borra por no entenderlo. Ver §2w |
 
 ---
 
@@ -1089,6 +1099,42 @@ La otra IA aceptó las correcciones: tres errores suyos (fórmula inventada, cif
 
 **Qué cambia en el plan:** nada del orden. Suma dos cosas: (1) **detectar** casi-duplicados y versiones como aguja de la capa 2, sin fusionar; (2) **medir el aporte de LTP/LTD** junto con WordNet y la hormiguita, antes de diseñar neuronas nuevas.
 
+**Octava aportación externa (2026-10-28): evaluación científica y "recordar con juicio".** Dennys la trajo de otra IA. Su idea central: la identidad del proyecto ya está clara; ahora falta **demostrar con protocolos externos** que produce ventajas medibles. Propone el experimento *"Cuando la memoria ayuda y cuando estorba"* y una frontera nueva: **recordar con criterio** (válido ahora, reemplazado, hipótesis, de otro agente, sin evidencia suficiente).
+
+| Propuesta | Decisión | Por qué / dónde encaja |
+|---|---|---|
+| **Comparación externa**: contra FTS5/BM25 puro, RAG vectorial y un sistema de memoria conocido | **Adoptado** (ya recomendado) | Es la recomendación n.º 9 del auditor: un banco público de memoria a largo plazo para agentes. Va **después de v36**, con el motor cerrado. Ganar "en su terreno", sin prometer superioridad universal |
+| **Memoria obsoleta o contradictoria** | **Adoptado: ya es el núcleo de la capa 2** | Es el caso de la versión (§2h), la aguja de fecha C1, los pares gemelos y los "insuficientes difíciles" (§2s). Se suma una medida nueva: **tasa de recuerdo obsoleto en el primer lugar** |
+| **Utilidad real** (¿recordar cambia la acción del agente?) | **Adoptado para más adelante** | Se mide **en simulación** y fuera de producción, sin registrar el uso del agente (regla de Dennys). Va después de v37 |
+| **Costo y latencia** (tiempo por consulta, memoria usada) | **Adoptado ya** | La auditoría F5 midió ~3 s de importación + ~2,3 s de construcción por herramienta. Se reportará en v36 (ms por consulta y MB) y es la mejora n.º 4 recomendada (guardar el cerebro en memoria) |
+| **Abstención** ("no hay evidencia suficiente") | **Ya en curso** | Es la E4 (una base nueva no tiene umbral propio) y la salida "insuficiente" de la capa 2 |
+| **Procedencia** (origen, momento, agente, evidencia) | **Parcial: falta decidir una parte** | Ya hay **momento** (`creado_en`) y **tipo de evidencia** (la dimensión `epistemia`). **No hay columna de agente de origen** en `largo_plazo` (revisado en `core/memory/schema.py`). Añadirla sin trabajo extra para el agente (que la ponga el MCP) es una propuesta a decidir por Dennys |
+| **Multiagente adversario** (dos agentes con recuerdos contradictorios) | **Aplazado** | La base existe (mensajes entre agentes); el caso adversario es un experimento posterior |
+| **Experimento "Cuando la memoria ayuda y cuando estorba"**: casos correctos, obsoletos, contradictorios y sin respuesta; tres modos (motor solo, + neurona de razonamiento, + plasticidad); medir top-1, top-5, latencia, memoria, tasa de obsoleto y abstención correcta; **publicar la tabla completa aunque algo no mejore** | **Adoptado: será el examen de v37** | Coincide con los datos por construcción de §2s (resuelto / competido / insuficiente). Publicar resultados negativos ya es costumbre aquí (experimentos 12 y 13). El modo "+ plasticidad" cumple también el experimento 2 de la séptima aportación |
+| **"Recordar con juicio"** | **Adoptado como frontera** | Ya existe la base: `epistemia` distingue `verificada`, `inferida`, `reportada_externa`, `hipotetica` y `obsoleta` (`core/memory/schema.py:929-935`). Falta que el motor y la capa 2 **la usen** para decidir; es parte de la aguja de tipo (§2s) |
+
+**Citas (no verificadas por el auditor):** varias son de 2026 (ICLR 2026, ACL 2026, arXiv 2606–2609, KDD 2026). Leerlas antes de usarlas.
+
+**Regla de éxito del examen de v37 (novena aportación, 2026-10-28; se fija ANTES de ejecutar).** Así se declara si un experimento salió bien:
+
+> *"Una mejora solo cuenta si no degrada el caso base: la neurona puede ganar en casos difíciles, pero no puede empeorar la recuperación literal, aumentar la latencia de forma injustificada ni hacer que un recuerdo obsoleto suba al primer lugar."*
+
+En concreto, para que la regla se pueda medir:
+1. **Ninguna categoría baja** (R@1 y R@5) en ninguna de las 4 QA oficiales, empezando por **literal** (hoy 100 / 99,59 según el README). Ganar en sinónimos o temas cruzados no compensa romper un caso fácil (Pilar 1).
+2. **Falsos positivos:** se mantiene 0/40, y la abstención correcta no baja.
+3. **Recuerdo obsoleto en el primer lugar:** su tasa no sube frente al motor solo.
+4. **Latencia:** se mide la mediana y el p95 por consulta. Cualquier aumento se reporta y debe justificarse con la ganancia. **Propuesta del auditor: como máximo +10 % en el p95** (lo confirma Dennys).
+5. **Base no vista:** el resultado vale en una base que la neurona no vio al entrenar.
+6. **Se publica la tabla completa**, gane o pierda.
+
+**Procedencia (recomendación de la otra IA, igual a la del auditor):** que el MCP guarde **qué agente** creó cada recuerdo como **dato pasivo**, sin trabajo extra para el agente y sin que el cerebro juzgue texto. Sirve después para conflictos entre agentes y auditoría. **Pendiente del OK de Dennys**; si lo da, va como cambio pequeño y aislado después de E4, con migración que no toque los recuerdos existentes.
+
+**Citas:** todas las de las aportaciones externas son **referencias de inspiración, no fundamentos**. La fuerza del proyecto está en sus mediciones.
+
+**Fase de visión: CERRADA (2026-10-28).** Ya están la identidad (distribuida, asociativa, no monolítica), la tesis (motor rápido + pocas neuronas donde se decide), la frontera (recordar con juicio), el examen ("cuando la memoria ayuda y cuando estorba") y la regla de honestidad (publicar también lo que no mejora). No se suman ideas nuevas hasta tener evidencia. Lo que sigue es ejecutar: **B4a → resto de E3 → E4 → Fase 2 → v36.0 → examen de v37**.
+
+**Decisión abierta para v37 (Dennys, 2026-10-29): ¿reusar la neurona de ranking (neurona 1) o sustituirla?** Dennys duda entre reusarla o dejarla aparte y hacer después una que la sustituya y haga todo lo que necesitamos; "ya veremos cuando llegue el momento". Postura inicial del auditor, que se decidirá con mediciones: **empezar dejándola como piso** (capa 1, tal como se acordó: la capa 2 se AÑADE encima) y **retirarla solo si la neurona de razonamiento demuestra, con la regla de éxito, que hace todo lo que ella hace y mejor**, en las 4 QA y en una base no vista. Así nunca hay un momento sin piso.
+
 ## 2t. Superar a WordNet: sinónimos "nivel dios" o una solución propia (Dennys, 2026-10-28, para después)
 
 **La visión de Dennys:** más adelante, mejorar lo que hoy hace WordNet hasta un nivel muy superior, con WordNet, con algo equivalente mejor o con **una solución propia**, decidido **por la medida de este proyecto**.
@@ -1168,6 +1214,125 @@ WordNet hace **dos trabajos distintos**, y la respuesta es distinta para cada un
 
 ---
 
+## 2u. "No es un buscador": intuición, ruido útil y saber qué tan cerca está (Dennys, 2026-10-29)
+
+### Lo que dijo Dennys (resumen fiel)
+- BioRAG es un cerebro, "un organismo vivo, de silicio, pero vivo"; no es un buscador, ni un RAG, ni una base vectorial.
+- Cuando el agente no encuentra lo exacto, el cerebro le hace llegar cosas parecidas (por ruido o por la sinapsis), y el agente **intuye**: "a Dennys le gusta así", "aquí las cosas se hacen así", "hice algo parecido, quizás esto". Así aprende un humano, y vale para cualquier tema.
+- Un "no sé" que corta mata esa intuición. El ruido "a veces es bueno": no hay que quitarlo del todo.
+- Teme que hayamos limitado muchas cosas al quitar ruido.
+
+### Postura del auditor
+- **De acuerdo.** Un buscador responde "¿hay coincidencias?"; una mente responde "¿a qué me recuerda esto?". BioRAG debe ser lo segundo.
+- Lo único que el agente necesita además es **saber qué tan cerca está** cada recuerdo (exacto, parecido o lejano), para no presentar una pista como si fuera un hecho. Es la sensación de "lo tengo en la punta de la lengua". El peligro no es la intuición; es confundir intuición con recuerdo.
+- **Nuevo sentido de E4:** no "aprender a decir no sé", sino **"decir qué tan cerca estoy"**. La lista no se vacía (salvo que no exista nada, como en una base vacía).
+
+### Lo que dice el código hoy (verificado en `c695310`)
+- El "no sé" seco existe: `core/mcp_server/search.py:~600` vacía la lista si el mejor resultado no pasa el umbral. Pero está **apagado por defecto** (`BIORAG_CALIBRACION_ACTIVA=0`, `core/memory/umbral.py:269-271`). Hoy el MCP no corta.
+- **El temor de Dennys tiene base:** la QA oficial solo mide si el recuerdo **exacto** sale en el top 5. Varios recortes de "ruido" en `core/memory/search.py` (expansiones que no se hacen, inyección PPMI retirada, etc.) se aceptaron porque subían ese número; **ninguno se midió por lo que se perdía de parecido**.
+- La hormiguita se retiró y la neurona asociativa que la reemplaza **todavía no está cableada**. Hoy la vía de asociación espontánea está apagada.
+
+### Siguiente paso propuesto (conversar antes de hacer nada)
+1. **Medir antes de tocar:** una QA "asociativa". En una copia se quita el recuerdo exacto, y se mide si llegan sus parientes útiles (mismo tema, misma forma de hacer las cosas). Así sabremos con números si limitamos de más.
+2. Recién con esa medida, decidir: marcar cercanía (exacto/parecido/lejano), reservar uno o dos lugares de la ráfaga para asociaciones marcadas como tales, y cablear la neurona asociativa (P7, P10, P11).
+3. Regla para todo recorte futuro: se mide el recuerdo exacto **y** lo que se pierde de parecido.
+
+### Regla de Dennys para las neuronas (2026-10-29)
+- **Las neuronas que se creen (re-ranking, razonamiento) solo ORDENAN.** No quitan, no filtran, no vacían. El ruido es necesario: cuando alguien no atina a lo que busca, y sobre todo cuando va a crear algo, busca lo que se le asemeje y le pueda servir.
+- Encaje con la neurociencia (inspiración, no prueba): el hipocampo **completa patrones** a partir de pistas parciales; la activación se **propaga** a lo relacionado; recordar e imaginar usan la **misma red** (Schacter y Addis, simulación episódica constructiva), por eso crear necesita lo parecido. La inhibición de competidores al recordar (Wimber et al., 2015) **baja** a los rivales, no los borra. En BioRAG, eso es ordenar.
+- La neuroplasticidad (Hebb, LTP/LTD, poda por desuso) actúa **con el tiempo y por uso** (sinapsis, decaimiento, sueño/consolidación), nunca como un filtro en el momento de recordar.
+
+### Las dos mitades del cerebro BioRAG (Dennys, 2026-10-29)
+- **Completar patrones es lo más potente que debe tener.** Con una pista a medias llegan recuerdos parecidos (o lejanos: la familia del usuario, cómo se hizo algo en otro lado), y el agente **saca conclusiones** de cómo responder.
+- **La brújula** (top 1 / top 5, la neurona de razonamiento) es la otra mitad: cuando se busca algo concreto, lo pone arriba.
+- **Diferencia con una base vectorial:** allí se llega por distancia entre vectores del texto entero. Aquí se llega por varias vías a la vez, como en un cerebro: palabras, sustantivos clave, dimensiones, sinapsis por uso conjunto, tiempo, grafo y neuronas. Además, cada llegada se puede explicar.
+- ~~El auditor dijo que las vectoriales todavía ganan cuando el sentido coincide sin palabras compartidas.~~ **Corregido por Dennys (2026-10-29):** esa comparación ponía el motor solo contra una vectorial sola, y la unidad real es **agente + cerebro, una sola mente** (P6). El agente no hace una sola consulta: **intenta recordar**. Guardaste "gatito" y te preguntan por "gato": lanza una ráfaga, llegan cosas relacionadas, una de ellas trae la pista ("gatico"), saca la palabra y vuelve a buscar, hasta dar con el recuerdo. Una vectorial es estática (sirve para documentos); esto es un ciclo vivo de recordar.
+- **Consecuencia para medir:** la QA oficial mide **una sola consulta**, es decir, mide como a un buscador y subestima el sistema. Los puntos débiles `sinonimo` y `cruce_idioma` son de una sola consulta, no de la mente completa. La comparación externa debe ser **agente + BioRAG contra agente + base vectorial**, con varios intentos permitidos, y contando también intentos y tiempo.
+- **Regla: no matar este ciclo.** Las cosas relacionadas que traen pistas (P7, P11) son el motor de este sistema. Cualquier cambio que las recorte destruye el proyecto, aunque suba la QA de una sola consulta.
+
+### Ejercicio de intuición n.º 1 (2026-10-29, agente real de Dennys por MCP)
+Pregunta sin recuerdo exacto en la base: "una app para los gastos de la casa; intuye cómo la quiero". La hoja de respuestas tenía 10 intuiciones esperadas. Se publica solo el resumen; el contenido personal queda fuera del repo.
+
+- **Resultado:** 5 aciertos completos, 3 parciales y 2 fallos. Además, una lista honesta de lo que no sabía. **La intuición funciona:** con recuerdos parecidos, el agente dedujo cómo diseñar, cómo trabajar con Dennys y el estilo visual.
+- **Los 2 fallos** ("nada monolítico, carpetas ordenadas" y "su stack de frontend") ocurrieron porque **esos recuerdos no llegaron**. En una copia, la búsqueda del agente, que llevaba su propia hipótesis ("apps simples local offline"), no los trae en el top 50. Una búsqueda neutra ("preferencias de Dennys para crear una app") trae el de "no monolítico" en el **puesto 2**. Lección: el agente buscó lo que ya suponía. El cerebro podría ayudar con pistas (P7), y la neurona de razonamiento con la pregunta "¿qué me están preguntando?": aquí, **preferencias del usuario**.
+- **Fidelidad:** una cita era real, pero estaba atribuida a otro recuerdo, y un dato ("X años juntos") no aparece en la copia del 26-10. Es exactamente el caso de P10: **intuición presentada como recuerdo**. Hace falta que el cerebro diga qué tan cerca está cada cosa.
+- **Fricción:** `local-first` fue rechazado como sustantivo clave (no se admite el guion). Es un pendiente menor de usabilidad.
+
+### Ejercicio n.º 2: el auditor usa el MCP como agente (2026-10-29)
+Servidor MCP de `master` levantado en proceso sobre una **copia** de la viva (dump del 26-10, sha `a61913ce…`), llamando a `recordar` como un agente. Se publica solo el resumen.
+
+- **El ciclo funciona tal como lo describe Dennys.** Tarea: "escribir como Dennys a un cliente nuevo". La primera búsqueda trajo la metodología correcta en el puesto 1, y sus **vecinos** (asociaciones) traían pistas ("antipatrón de texto", "estilo de carta"). Con esas pistas, la segunda búsqueda trajo **7 recuerdos de estilo** en el top 8. En una búsqueda vaga ("aquella vez que Dennys se emocionó…"), un vecino de la primera respuesta fue la pista, y la tercera búsqueda dio el recuerdo con `evidencia_directa` y score 1.0.
+- **El cerebro trae recuerdos que se contradicen y el agente debe resolver por fecha (P2):** una metodología del 21-09 dice "nombrar el problema del cliente"; una enseñanza del 01-10 dice lo contrario. Hoy nada marca cuál es la vigente.
+- **Ya existe una señal de cercanía:** `nivel_certeza` (`evidencia_directa`, `relacionado_confianza_media`, `sin_evidencia_directa`) y el aviso "BRECHA DE CONOCIMIENTO" cuando el top es menor que 0,5. P10 no parte de cero, pero la etiqueta sale del score y **se equivoca**: un recuerdo muy pertinente, validado por Dennys, salió como `sin_evidencia_directa`.
+- **Ruido que entierra:** una consulta casi literal, sin ráfaga, deja el recuerdo exacto en el **puesto 1**. La misma consulta con una ráfaga de palabras genéricas lo baja al **puesto 16 de 50**: sigue ahí, pero fuera de la vista del top 8. Es un caso exacto para la neurona de razonamiento: ordenar sin quitar.
+- **Higiene:** un recuerdo tiene pegado en su contenido el log de consolidación ("--- Iniciando Ciclo de Consolidación (Sueño) ---"). Hay que revisarlo después, sin borrar nada.
+- **Advertencia:** cada llamada modifica la copia (sinapsis), igual que en uso real, así que el orden de las llamadas influye.
+
+### Ejercicio n.º 3: todos los parámetros de `recordar`, uno por uno (2026-10-29)
+Mismo montaje que el ejercicio 2 (servidor MCP de `master` `f8c2b16` en proceso, **copia** de la viva sha `a61913ce…`, auto-paráfrasis/auto-dims/autoguardado OFF). Unas 50 llamadas cortas, cada una cambiando un solo parámetro. Para lo que dependía del orden se repitió sobre una copia **fresca**. Se publica solo el resumen; los nombres de recuerdos personales se omiten.
+
+**Lo que funciona como se espera**
+- **Sin query:** `recordar()` devuelve el log cronológico (lo último guardado). `desde`/`hasta` sin query da ese rango. Con solo `dimensiones` entra al modo dimensional: trae recuerdos "por su naturaleza" (p. ej. `{"emocion":["tristeza"],"entidad":["identidad_vinculo"]}` → recuerdos de familia y gratitud), con scores planos (~0,33) y todos `sin_evidencia_directa`.
+- **`deep=True`** busca también en los **162 dormidos** (de 1.357). Un recuerdo dormido cuyo nombre contiene las palabras exactas **no aparece ni en el top 50** con búsqueda normal; con `deep=True` sale **#1 (0,71–0,86)**. Además **recordarlo lo despierta** (pasa a `activo`, peso 0,15): reconsolidación, como en el cerebro. Este era el recuerdo "vecino" que sirvió de pista en el ejercicio 2.
+- **`cat`** correcto reduce el conjunto (627 → 119). **`dias`/`desde`** filtran por fecha de creación. **`modo_estricto`** reduce (278 → 53) y mantiene el #1. **`context_window=1`** agrega `contexto_expandido` con vecinos. **`usar_inferencia`** (por defecto `True`) solo suma unas centésimas (0,334 → 0,362), suficiente para cambiar la etiqueta de `sin_evidencia_directa` a `relacionado_confianza_media`.
+
+**Hallazgos (verificados en código; ninguno se tocó)**
+1. **`asociaciones_max` se ignora en `recordar`.** El esquema lo anuncia, pero la herramienta `recordar` no se lo pasa a `_recordar_impl` (`core/mcp_server/search.py:1416-1422`); solo `buscar` lo pasa (`:1516-1523`). Con `asociaciones_max=40` siguen saliendo 12 (`truncada: true`). Al revés, `buscar` no pasa `dias/desde/hasta/autor/ordenar_por`.
+2. **El formato de `dimensiones` se contradice.** El aviso del propio tool sugiere `dimensiones='intencion_aprender'`, pero ese formato da error: hay que pasar JSON (`{"emocion":["afecto"]}`). Un agente que sigue el aviso falla.
+3. **El filtro QCR deja la lista en 1.** Con 2+ palabras, el filtro de cobertura (`core/memory/search.py:1880-1955`, ≥50 % de las palabras, ponderado por IDF) descarta todo lo que no tiene suficientes palabras de la consulta. "perrito regalar" → **1 resultado** de 1.077 candidatos, aun con `limite=20`; la página 2 sale vacía con "BRECHA… 0 resultados". Es la guarda que da FP 0/40, pero **corta los recuerdos relacionados** que dan pistas (P11). Con 1 palabra no pasa ("perro" → 20 de 63). Es motor; solo se registra para conversar.
+4. **`total` engaña:** informa los candidatos de antes del filtro (1.049) cuando se devuelve 1.
+5. **`ordenar_por=recencia/antiguedad` reemplaza la relevancia en todo el conjunto:** arriba quedan recuerdos de score 0,2 sin relación, y el aviso "BRECHA (score_top=0,26)" se dispara solo porque cambió el orden (se mide sobre el primero ya reordenado). Confirma P2: "lo más reciente" debe ir **dentro del mismo tema**, no sobre todo el conjunto.
+6. **`cat` no filtra del todo:** con `cat="Project"` aparecen en el top 5 recuerdos de categoría Personal y General. Falta ver en código qué capa se lo salta.
+7. **`buscar_por_rol` ignora la query:** con rol, "regla" y "Dennys" dan la misma lista, todos con score 1,0 y `evidencia_directa` (es un filtro sobre la tabla `predicados`, 397 filas, sin ranking). **Rol sin query** cae al modo cronológico (`core/mcp_server/search.py:327`) aunque el motor sí lo soporta (`core/memory/search.py:412`).
+8. **Tolerancia a typos con palabra vacía:** "perro" trae recuerdos técnicos marcados `evidencia_directa` (0,62–0,67) porque contienen "**pero**" (distancia 1). La capa de typos no debería corregir hacia palabras vacías.
+9. **`autor` inexistente** vacía la lista y el aviso dice "BioRAG no encontró nada", cuando el recuerdo existe y lo vació el filtro.
+10. **`parafrasis` y `rafaga_palabras` (sin forzar) no mejoraron** el caso fácil: la paráfrasis bajó el top de 0,585 a 0,547 y encendió "BRECHA"; la ráfaga sin `forzar_rafaga` no se ejecuta si el top ya pasa 0,5.
+
+**Lectura para el plan:** 1, 2, 4, 7 y 9 son de interfaz MCP (cablear, documentar o avisar mejor), no de ranking. 3, 5 y 6 tocan el motor y van a conversación con Dennys antes de cualquier cosa (P11: el ruido útil no se mata). 8 es un caso concreto para el plan de criterio neuronal (E4/E5). Una idea de bajo riesgo para después: cuando un dormido encaja mucho mejor que lo activo, avisar "hay un recuerdo dormido que encaja: probá `deep=True`" (pista, no cambio de orden).
+
+## 2v. Las islas de recuerdos: auto-clustering (Dennys, 2026-10-29, para después)
+
+**Lo que dijo Dennys (resumen fiel):** los recuerdos se agrupan solos en **islas**, "islas fantasma": cosas parecidas, que tienen que ver con lo mismo o que comparten palabras. Algo parecido a lo vectorial, pero **no en duro**. "Una vez se vio". Es una parte muy importante del sistema; hay que descubrir qué es y qué ventajas se le sacan.
+
+**Qué es hoy, en código (verificado en `master` `f8c2b16`):**
+- `core/auto_clustering.py` (v16.0). En cada **sueño** (consolidación, `core/memory/consolidation.py` ~556-563) corre **Label Propagation (LPA)** sobre el grafo de sinapsis (peso ≥ 0,1). Cada isla con **≥ 5 recuerdos** y **densidad ≥ 0,3** se guarda como una **dimensión emergente** en el eje `dominio`, con nombre `tema_<3 palabras frecuentes>`, y sus recuerdos quedan marcados con esa dimensión. Es la parte "abierta" de las dimensiones: el propio cerebro crea coordenadas nuevas.
+- **Uso en la búsqueda: solo indirecto.** Como son dimensiones, entran al coseno dimensional (`core/memory/search.py` ~1293). Ninguna señal compara "la isla de la consulta" con "la isla del candidato" (ya lo anotaban `docs/AUDITORIA_PROFUNDA_26_MECANISMOS.md` #25 y `docs/AUDITORIA_POSICIONAMIENTO_20260913.md` §4.6: "Islas/LPA huérfano").
+- Otros "clusters" distintos, que no hay que confundir: los clusters **hebbianos de dimensiones** de la SDM (`core/sdm.py`, `db/hebbian_clusters.json`), los **cromosomas** de `core/adn_conceptual.py` (reusan el mismo LPA) y el mapa de **burbujas** del Neuro-Visor (`docs/NEURO_VISOR_DASHBOARD_DOCUMENTACION_COMPLETA.md`).
+
+**Qué pasa hoy en la viva (copia sha `a61913ce…`, solo lectura):**
+- El grafo creció: **1.194 recuerdos activos** y unas **26.000 conexiones** entre ellos (grado medio ≈ 44). Con tantas conexiones, el LPA **inunda todo con una sola etiqueta**: **1 isla de 1.194**, densidad muy por debajo de 0,3 → **0 islas nuevas** por ciclo.
+- Como el sueño solo actualiza las islas si encuentra alguna, la que quedó (`tema_umbral_v28_calibrar`, 5 recuerdos) está **congelada** de un ciclo viejo. Por eso "una vez se vio" y hoy no: con poca memoria las islas salían; con mucha, el método se ahoga.
+- **Las islas sí existen; es el método el que no las ve.** Con otro método clásico de comunidades (Louvain, probado solo como medición, fuera del repo) aparecen **6 islas grandes** (modularidad 0,32) con temas reconocibles: identidad y agentes; motor técnico y lecciones; perfil, postulaciones y frontend; reglas y protocolos; versiones de BioRAG y dimensiones; MCP y herramientas. Sin las conexiones de tipo `sinonimo_explicito` (15.219, la mitad del grafo) salen **11 islas** (modularidad 0,40).
+
+> **Actualización 2026-10-29 (investigación profunda):** todo lo que ya se había investigado sobre islas está rescatado de la memoria viva, el código y los scripts en [`../islas_de_recuerdos/README.md`](../islas_de_recuerdos/README.md). Lo esencial: en agosto se encontraron **islas de significado sanas** (vectores PPMI propios; hoy 125 islas en la viva, la mayor del 3,5 %, modularidad 0,72), que codifican sinonimia 21,5× sobre el azar. Pero **seis formas de usarlas para reordenar el top-5 dieron neto negativo**: sirven para **asociar y dar pistas**, no para ordenar a la fuerza. **Corrección:** la idea 2 de abajo (desempate por isla) ya se probó como impulso de ranking y dio negativo; solo tiene sentido de otra forma, medida por el neto.
+
+**Ventajas posibles (ideas, todavía no medidas):**
+1. **Pistas por isla (P5, P7):** cuando llega un recuerdo, mostrar 2–3 vecinos de su misma isla como palabras pista. Es ruido útil con sentido (Pilar 12), no al azar.
+2. **Desempate por contexto:** si el agente viene "pensando" en una isla (sus búsquedas anteriores), los recuerdos de esa isla suben un poco (moto vs. moto de agua, P4). Solo **ordena**.
+3. **Búsqueda sin texto por isla:** "tráeme lo de esa isla" como una dimensión más, ya que hoy se guardan como dimensiones.
+4. **Higiene:** recuerdos sueltos (sin isla) o islas que se contradicen por fecha (P2) como candidatos a revisar, **sin borrar nada**.
+
+**Qué haría primero (conversar antes):** una medición de solo lectura sobre copias, sin tocar el motor: (a) qué método da islas estables entre sueños y entre bases (LPA con freno, Louvain/Leiden, o filtrar por tipo de conexión); (b) con qué frecuencia el recuerdo buscado está en la misma isla que el #1 o que las pistas de los ejercicios 1–3. Si sirve, se diseña como pieza propia (Pilar 9), con piso, techo y guardianes (Pilar 11), y con el OK de Dennys.
+
+## 2w. Observar lo que nace solo: el cerebro como organismo que evoluciona (Dennys, 2026-10-29)
+
+**Lo que dijo Dennys (resumen fiel):** las islas fueron "algo que parió el mismo sistema". Nadie las diseñó con esa forma: los recuerdos se agruparon solos por parecido, y él sintió que se parecía a una base vectorial, pero era un **comportamiento biológico real, no de mentira**, que salió por naturaleza. Como en la evolución de cualquier organismo, el sistema se adapta y crea cosas. Hay que estar pendientes de **hacia dónde va el cerebro**: qué surge solo, qué se puede reutilizar, mejorar u observar.
+
+**Postura del auditor:**
+- Es una forma correcta y valiosa de trabajar. El caso de las islas lo demuestra con datos: el comportamiento existió, se apagó solo cuando la memoria creció (el grafo se saturó) y nadie lo notó durante semanas, porque nadie lo estaba mirando (ver `../islas_de_recuerdos/README.md`, §3b).
+- Lo que emerge **no se asume bueno ni malo de antemano**: se mide. Las islas de significado resultaron sanas y útiles para asociar, pero no para reordenar (medido en agosto). Las dos cosas son conocimiento.
+
+**Qué emerge hoy en BioRAG (lista inicial, para vigilar):**
+1. **Islas** por sinapsis (apagadas por saturación) y por significado (sanas: 125 en la viva).
+2. **Hubs**: recuerdos que acumulan muchas conexiones (umbral `BIORAG_HUB_UMBRAL`).
+3. **Sueño y despertar**: 162 de 1.357 recuerdos dormidos; recordar uno con `deep=True` lo despierta (ejercicio 3).
+4. **Dimensiones creadas por los agentes** (mundo abierto): 6 hoy, una de ellas en un eje que no le corresponde (`protocolo` en `escala_abstraccion`).
+5. **Sinapsis que nacen solas** (`pmi_hebbiano`, `co_semantica`, `dmn_synthesized`…) y la proporción de cada tipo (hoy `sinonimo_explicito` es casi la mitad del grafo).
+
+**Enfoque rector (Dennys, 2026-10-29):** quedó escrito en `CONSTITUTION.md` **Pilar 13, "Un Sistema Vivo: Fomentar lo que Nace Solo"**, y en `AGENTS.md` Invariante 10. Todo lo que se construya debe fomentar que estas conductas nazcan solas, de forma adaptativa y evolutiva, con homeostasis para que no se ahoguen al crecer.
+
+**Idea para después (conversar antes): un "observatorio" de solo lectura.** Un script que, sobre una copia, saque cada tanto la foto de estas señales (número y tamaño de islas, hubs, dormidos y despertados, dimensiones nuevas, tipos de sinapsis) y la compare con la anterior. Así se ve hacia dónde va el cerebro y se nota a tiempo cuando algo nace o se apaga. No toca el motor, no escribe en la base y no registra el uso de nadie (solo cuenta la estructura).
+
 ## 3. El orden para llegar (paso a pasito)
 
 | Etapa | Qué | Relación con la visión |
@@ -1189,7 +1354,7 @@ Cómo entrenar cualquier neurona: `../GUIA_CREAR_UNA_NEURONA.md`.
 
 Antes de construir cualquier neurona o pieza nueva:
 
-1. ¿Qué principio (P1–P9) cumple?
+1. ¿Qué principio (P1–P11) cumple?
 2. ¿Su infraestructura previa ya existe? (§2.2)
 3. ¿Tiene todos los seguros? (§2.3)
 4. ¿Mejora sin bajar nada, en cualquier base?

@@ -14,37 +14,25 @@ import re
 from core.memory import constants
 
 
-def _idf_tokens_qcr(self, tokens):
-    """IDF de tokens de query para QCR. Cache por instancia. DF vía FTS5 MATCH (índice), no scan del corpus."""
-    if not getattr(self, "_qcr_idf_cache", None):
-        self._qcr_idf_cache = {}
-    if getattr(self, "_qcr_n_docs", None) is None:
-        try:
-            self._qcr_n_docs = max(
-                1, int(self.cursor.execute("SELECT COUNT(*) FROM largo_plazo").fetchone()[0] or 1)
-            )
-        except Exception:
-            self._qcr_n_docs = 1
+def _idf_tokens_qcr(self, tokens, candidate_texts=None):
+    """IDF acotado al conjunto léxico recuperado para esta query.
+
+    No consulta COUNT(*) ni las estadísticas globales de FTS5: ambas cambian al
+    añadir recuerdos no pertinentes. `candidate_texts` contiene únicamente los
+    documentos recuperados por las coincidencias léxicas de esta búsqueda, de
+    modo que el coste es O(k × q) sobre el pool ya indexado, no O(N) sobre la DB.
+    Sin candidatos léxicos se devuelve peso uniforme y el QCR conserva su fallback.
+    """
+    unique_tokens = tuple(dict.fromkeys(str(token).lower() for token in tokens if token))
+    documents = tuple(str(text or "").lower() for text in (candidate_texts or ()))
+    if not documents:
+        return {token: 1.0 for token in unique_tokens}
+
+    n_docs = len(documents)
     out = {}
-    n = self._qcr_n_docs
-    for t in tokens:
-        if t in self._qcr_idf_cache:
-            out[t] = self._qcr_idf_cache[t]
-            continue
-        df = 0
-        try:
-            safe = (t or "").replace('"', "")
-            if safe:
-                self.cursor.execute(
-                    "SELECT COUNT(*) FROM largo_plazo_fts WHERE largo_plazo_fts MATCH ?",
-                    (f'"{safe}"',),
-                )
-                df = int(self.cursor.fetchone()[0] or 0)
-        except Exception:
-            df = 0
-        idf = math.log((n + 1) / (df + 1)) + 1.0
-        self._qcr_idf_cache[t] = idf
-        out[t] = idf
+    for token in unique_tokens:
+        df = sum(1 for text in documents if token in text)
+        out[token] = math.log((n_docs + 1) / (df + 1)) + 1.0
     return out
 
 

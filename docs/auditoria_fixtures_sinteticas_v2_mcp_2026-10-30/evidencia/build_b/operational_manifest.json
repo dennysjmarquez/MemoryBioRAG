@@ -1,0 +1,11 @@
+{
+  "schema": "synthetic_gold_manifest_v1",
+  "provenance": "synthetic",
+  "original_gold_read": false,
+  "gold_path": "/tmp/biorag_v2_fixture_pair_jyhifZ/build_b/synthetic_gold_v2.jsonl",
+  "gold_sha256": "5d83616a63be7c73bbea8bb90452091316d7e238835013440a6fd939c13d16d8",
+  "published_gold_version": "synthetic_gold_v2",
+  "published_gold_sha256": "5d83616a63be7c73bbea8bb90452091316d7e238835013440a6fd939c13d16d8",
+  "published_gold_manifest_sha256": "ed433826d89229f75e8af1c57b48c9c4fe3e808e4e14eaa1103ea8cac8d64b1f",
+  "operational_manifest_role": "temporary MCP fixture preparation binding; not a measurement approval"
+}

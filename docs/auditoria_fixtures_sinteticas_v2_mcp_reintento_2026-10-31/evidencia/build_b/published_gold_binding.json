@@ -1,0 +1,12 @@
+{
+  "schema": "published_synthetic_gold_binding_v1",
+  "published_gold_version": "synthetic_gold_v2",
+  "published_gold_sha256": "5d83616a63be7c73bbea8bb90452091316d7e238835013440a6fd939c13d16d8",
+  "published_gold_version_manifest_sha256": "ed433826d89229f75e8af1c57b48c9c4fe3e808e4e14eaa1103ea8cac8d64b1f",
+  "copied_gold_sha256": "5d83616a63be7c73bbea8bb90452091316d7e238835013440a6fd939c13d16d8",
+  "operational_manifest_sha256": "8a5d47f77e6d7213eb4daea66092e7b6a9c4965998833f1cd0821cab936a7d3e",
+  "construction_id": "3c3ace91cf934ff8927e59b8accd046d",
+  "preparation_command_exit_code": 0,
+  "preparation_cli_report_sha256": "9c2fc4c76710f0e0db9094c8dc19ec20cc6606e1213eb5609abac2cd8a359503",
+  "scope": "preparación MCP y auditoría solamente; no es aprobación de medición"
+}

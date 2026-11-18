@@ -1,0 +1,33 @@
+{
+  "schema": "fixture_preparation_error_inventory_v1",
+  "builds": {
+    "build_a": {
+      "preparation_exit_code": 0,
+      "mcp_event_count": 9,
+      "mcp_tool_call_errors": [],
+      "run_failure_present": false,
+      "mcp_teardown_failure_present": false,
+      "cli_stderr_sha256": "de9b88e9781f3c2ae4241ca6682cac6b856c1804e313cd653c430f0f898f22ac",
+      "cli_stderr_bytes": 908,
+      "cli_stderr_classification": "mensajes de estado PMI/MCP; sin traceback ni excepción",
+      "preparation_report_persisted": true,
+      "cli_report_persisted": true,
+      "reports_byte_identical": true
+    },
+    "build_b": {
+      "preparation_exit_code": 0,
+      "mcp_event_count": 9,
+      "mcp_tool_call_errors": [],
+      "run_failure_present": false,
+      "mcp_teardown_failure_present": false,
+      "cli_stderr_sha256": "de9b88e9781f3c2ae4241ca6682cac6b856c1804e313cd653c430f0f898f22ac",
+      "cli_stderr_bytes": 908,
+      "cli_stderr_classification": "mensajes de estado PMI/MCP; sin traceback ni excepción",
+      "preparation_report_persisted": true,
+      "cli_report_persisted": true,
+      "reports_byte_identical": true
+    }
+  },
+  "comparison_exit_code": 0,
+  "comparison_stderr_bytes": 0
+}
