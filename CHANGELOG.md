@@ -1,8 +1,12 @@
 # BioRAG Changelog
 
-## [Sin publicar] — La neurona en la QA
+## [v36.0] — Cierre técnico (integración y publicación en `master` pendientes)
 
-**Solo herramientas de medición: el motor, la API MCP y las bases no cambian.**
+**Estado:** v36.0 se declara cerrada técnicamente para esta rama. Esta entrada agrupa la instrumentación de QA y las capacidades de instalación, rutas de datos y ciclo de vida que acompañan al cierre. No afirma que la rama ya se haya fusionado, etiquetado o publicado.
+
+### Medición de la neurona de ranking en QA
+
+**Solo herramientas de medición: el motor de búsqueda, la API MCP y las bases no cambian por esta instrumentación.**
 
 - **`evaluar_qa.py` muestra la neurona de ranking** (módulo nuevo `scripts/qa_neurona.py`):
   - **Aviso antes de medir:** qué base mide, si tiene neurona y si tu DB viva sí la tiene (la lee en solo lectura, sin abrir el motor sobre ella). Si la neurona está en otra base, lo dice y nombra el parámetro para verla. Cada base tiene su propia neurona.
@@ -18,9 +22,9 @@
   - La columna "fórmula sola" coincide con la corrida sin neurona en todas las categorías.
   - 34 pruebas nuevas en `tests/test_qa_neurona.py`.
 
-## [Sin publicar] — v36.0: ruta de datos, configuración MCP y ciclo de vida del daemon
+### Ruta de datos, configuración MCP y ciclo de vida del daemon
 
-**Estado:** candidata v36.0 no publicada. El gate local de pruebas unitarias y QA se ejecutó y pasó el 2026-10-21 en copias temporales; esto no constituye aprobación ni publicación de un release.
+**Validación registrada del cierre (2026-10-21; copias temporales):** las pruebas unitarias y la QA oficial pasaron en las copias descritas abajo. La integración en `master` y la etiqueta de v36.0 aún están pendientes.
 
 - Ruta canónica de usuario en `~/.biorag/memory_biorag.db`; se conserva el orden de resolución por argumento, `BIORAG_PATH`, base de usuario y fallback legacy.
 - `install.py` incluye una migración legacy con checkpoint best-effort. Cuando ya existe destino, copia ambas bases a backups antes de resolver el conflicto por tamaño; cuando no existe destino, mueve la legacy sin crear primero un backup. No combina bases, no compara su contenido y el movimiento de `.db`, `-wal` y `-shm` no tiene garantía de atomicidad de conjunto.

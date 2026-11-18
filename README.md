@@ -1,6 +1,6 @@
 # BioRAG — Memoria Cognitiva Biomimética y Simbólica para Agentes de IA
 
-> **Versión candidata no publicada:** v36.0 · gate local de pruebas y QA en verde (2026-10-21).
+> **Versión del código en esta rama:** v36.0 (cierre técnico). La integración/publicación en `master` y el tag aún están pendientes.
 > **Paradigma:** Motor Python + SQLite FTS5. **Sin embeddings densos, GPU ni llamadas a APIs externas** en el path de búsqueda.
 > **Motor:** Arquitectura modularizada (18 submódulos `core/memory/` + 15 submódulos `core/mcp_server/` + fachada delgada) + SQLite FTS5 WAL + PPMI-SVD (100 dimensiones) + espacio semántico de 13 ejes + grafo sináptico Hebbiano + SDM (2048 bits) + calibración conforme + activación ACT-R + Concept Hubs + validación simétrica fail-fast de sustantivos clave + **neurona de reordenamiento que aprende sola** (29 señales → 6 ocultas → 1 corrección, con piso en la fórmula a mano) + **neurona asociativa cerrada de fábrica** (5 agujas → fuerza 0–1: ¿dos recuerdos tienen que ver?; examinada, aún no decide en el motor) + enlaces del agente intocables + **destino canónico del córtex en `~/.biorag/`** + **instalador de configuración MCP para clientes compatibles**.
 > **Idiomas:** Español e inglés (stemming bilingüe, expansión simbólica con WordNet, Concept Hubs de 5 ángulos y Domain Dict).
@@ -15,11 +15,11 @@
 >
 > **v35.0:** la QA oficial sale **idéntica** antes y después de todos los cambios de la v35 (Recall@5 100.00 % · Recall@1 91.89 % · MRR 0.950 · FP 0/40, misma máquina y semilla). Detalle en [La Neurona Asociativa](#-novedades-de-la-versión-v350--la-neurona-asociativa-sináptica).
 >
-> **Gate local de v36.0 (2026-10-21; candidata no publicada):** se ejecutó en copias temporales del árbol de trabajo y del snapshot oficial; no se usó la DB viva.
+> **Validación registrada para v36.0 (2026-10-21; copias temporales):** se ejecutó sobre copias aisladas del árbol de trabajo y del snapshot oficial; no se usó la DB viva.
 > - **Pruebas unitarias:** `PYTHONHASHSEED=0 python -m pytest tests/` — 852 passed, 18 skipped (870 recopilados; 240.19 s), Python 3.11.2.
 > - **QA oficial:** `bash scripts/run_qa_suite.sh --qa-only`, con `BIORAG_QA_GATE=1` y `PYTHONHASHSEED` sin fijar — 921 casos (875 de recuperación, 40 negativos y 6 ambiguos fuera del denominador global). R@5 **100.00% (875/875)**, R@1 **93.03% (814/875)**, MRR **0.9566**, FP **0/40**; `[GATE] OK` (997.17 s).
 > - La copia medida no tenía un campeón de la neurona de ranking, así que esta no actuó. El archivo aislado de casos fallidos contiene dos entradas de categoría `ambiguo`, aparte de las métricas globales de recuperación.
-> - El snapshot original conservó SHA-256 `104dd2902aaf24c3ce93624492ea95a719acbdcca50f4f6bc123ac8317749796` antes y después; la copia usada para QA coincidió. La tabla siguiente conserva métricas históricas del baseline v33.0, no resultados de v36.0. Este gate local no equivale a aprobación, release ni publicación.
+> - El snapshot original conservó SHA-256 `104dd2902aaf24c3ce93624492ea95a719acbdcca50f4f6bc123ac8317749796` antes y después; la copia usada para QA coincidió. La tabla siguiente conserva métricas históricas del baseline v33.0, no resultados de v36.0. La integración y el tag de v36.0 en `master` siguen pendientes.
 >
 > **Cada base tiene su propia neurona.** La neurona aprende con los recuerdos de la base donde vive y se guarda dentro de ella. Esta tabla mide una copia del snapshot oficial, que no trae neurona entrenada: por eso muestra la fórmula a mano sola (el piso), aunque tu neurona esté trabajando en tu DB viva. La QA ahora lo dice antes de medir y nombra el parámetro para verla: `python scripts/evaluar_qa.py --con-neurona`. Detalle en [La neurona en la QA](#la-neurona-en-la-qa-cada-base-tiene-la-suya).
 
@@ -35,7 +35,7 @@ Evaluación sobre el snapshot congelado oficial canónico (**921 casos totales e
 | **MRR (Mean Reciprocal Rank)** | **0.950** | Posición recíproca promedio ponderada (0.9497 sin redondear; métrica complementaria observada). |
 | **Falsos positivos** | **0/40 (0.00%)** | Calibración conforme efectiva en los 40 controles negativos del benchmark (FP rate observada 0.00%). |
 | **Casos ambiguos (contradictorios)** | **6 casos (2 con cobertura parcial)** | Evaluados por separado del Recall global; 2 casos no cubren al menos una de las etiquetas contradictorias. |
-| **Pruebas unitarias de la candidata v36.0** | **852 passed · 18 skipped** | `PYTHONHASHSEED=0 python -m pytest tests/` en copia aislada (870 recopilados; 240.19 s; Python 3.11.2). Resultado actual del gate, no cifra histórica. |
+| **Pruebas unitarias de v36.0** | **852 passed · 18 skipped** | `PYTHONHASHSEED=0 python -m pytest tests/` en copia aislada (870 recopilados; 240.19 s; Python 3.11.2). Resultado registrado para el cierre. |
 | **Suite Concept Hub** | **5/5 TOP-1 (100.00%)** | Precisión perfecta en los 5 casos de prueba de puentes asociativos registrados. |
 | **Abismo léxico (EXP-Q)** | **3/3 Pool · 2/3 Top-5 · 1/3 Top-1** | 3/3 descubiertos en pool de grafo; 2/3 en Top-5 (pos #1 y #4) y 1/3 en Top-1 (pos #1). |
 | **Sinónimos · Recall@5 / Recall@1** | **100% (55/55) / 56.36%** | Cobertura total en Top-5; el 43.64% restante queda entre Top-2 y Top-5. |
@@ -53,8 +53,10 @@ Evaluación sobre el snapshot congelado oficial canónico (**921 casos totales e
 
 ---
 
-## 🛡️ Candidato v36.0 — Ruta de datos, configuración MCP y control del daemon
+## 🛡️ v36.0 — Ruta de datos, configuración MCP y control del daemon
 
+> **Resumen del cierre y estado para integración:** [Cierre técnico de v36.0](docs/CIERRE_VERSION_36.md).
+>
 > **En una frase:** El destino canónico de una instalación nueva es `~/.biorag/memory_biorag.db`, fuera del repositorio. La resolución sigue respetando argumentos y `BIORAG_PATH` explícitos, además del fallback legacy documentado. El instalador automatiza la configuración de clientes compatibles; el daemon de mantenimiento es opt-in y su parada solicita un cierre ordenado, con timeout y fallback forzado.
 
 | Pieza | Estado en v36.0 |
@@ -62,10 +64,12 @@ Evaluación sobre el snapshot congelado oficial canónico (**921 casos totales e
 | **Cortex desacoplado (`~/.biorag/`)** | Ruta canónica de usuario fuera del repo; el instalador intenta migrar la base legacy y, si ya existe destino, crea copias de respaldo antes de resolver el conflicto. `BIORAG_PATH` y el fallback legacy siguen aplicando. |
 | **Instalador (`install.py`)** | Automatiza la detección y escritura de configuración para clientes compatibles; el resultado depende del entorno y debe validarse en cada plataforma. |
 | **Detección de API OpenCode** | Comprueba los paquetes locales y el schema disponible; si no hay evidencia, usa el fallback definido en código. |
+| **QA de neurona de ranking** | `--con-neurona` compara el orden de la fórmula y el de la neurona; si la copia no tiene neurona, pregunta antes de entrenarla sobre esa copia. `--si` permite confirmarlo de forma no interactiva. No entrena en la base original. |
+| **Compatibilidad Python** | El paquete requiere Python `>=3.11`; CI contempla Python 3.11 y 3.12. |
 | **Transporte Antigravity** | La configuración MCP generada usa `stdio`; esta versión no instala un servicio SSE de systemd. |
 | **Control del daemon (`La Hormiguita`)** | `BIORAG_DAEMON_ENABLED=0` por defecto; el servidor MCP solo intenta iniciarlo si se habilita explícitamente. |
 | **Comando de parada (`--stop`)** | Solicita `SIGTERM`, espera hasta 30 s y puede recurrir a `SIGKILL` si el proceso no termina. No es una garantía de cierre limpio en todos los casos. |
-| **Pruebas unitarias y QA** | Gate local ejecutado el 2026-10-21 en copias aisladas: pytest 852 passed/18 skipped; QA oficial de 921 casos con `[GATE] OK` (R@5 100.00%, R@1 93.03%, MRR 0.9566, FP 0/40). La candidata sigue sin publicar; esto no es aprobación de release. |
+| **Pruebas unitarias y QA** | Validación registrada el 2026-10-21 en copias aisladas: pytest 852 passed/18 skipped; QA oficial de 921 casos con `[GATE] OK` (R@5 100.00%, R@1 93.03%, MRR 0.9566, FP 0/40). Las corridas no usaron la DB viva; la integración/tag de v36.0 en `master` aún está pendiente. |
 
 ---
 
@@ -110,6 +114,22 @@ En lugar de parsear la salida de texto de `opencode --version` (que puede cambia
   ```
 * **Parada solicitada con límite:**
   Si el demonio se encuentra a mitad de una transacción reflexiva o podado de sinapsis en SQLite (`self.en_ciclo = True`), la señal `SIGTERM` solicita el cierre ordenado, pero no garantiza que el ciclo termine dentro del timeout. El ciclo en curso puede concluir antes de que venza la espera; si el proceso sigue vivo a los 30 segundos, el código intenta `SIGKILL`, por lo que no se garantiza un cierre limpio en todos los casos. Durante la espera, el comando imprime avisos periódicos.
+
+---
+
+## 🧭 Recorrido de mejora y numeración vigente
+
+El README conserva más abajo el detalle histórico de cada etapa. Este resumen ubica la versión que se cierra y separa lo ya implementado de lo que sigue como plan:
+
+| Versión | Recorrido | Estado |
+|---|---|---|
+| **v34.0–v34.1** | Se incorporó la neurona que reordena resultados con un piso en la fórmula manual; después se aceleró su aprendizaje en memorias nuevas. | Implementado y descrito en la sección v34. |
+| **v35.0** | Se construyó y evaluó por separado la neurona asociativa; no se conectó al ranking. También se protegieron los enlaces hechos por el agente. | Cerrado con los límites y experimentos descritos en la sección v35. |
+| **v36.0** | Cierre técnico actual: ruta de datos de usuario, instalador MCP, control explícito del daemon, herramientas de QA para comparar la neurona y compatibilidad Python `>=3.11`. La validación registrada se hizo en copias aisladas. | **La versión que estamos cerrando y la última base antes de las etapas v37 y v38.** La integración y el tag en `master` siguen pendientes. |
+| **v37 — plan** | Memoria episódica + recuperación por intención (el plan que antes llevaba el número v36). | Propuesta futura, no parte de v36 ni una capacidad ya implementada como episodios persistentes. BioRAG ya tiene señales y heurísticas temporales; la propuesta debe demostrar qué mejora adicional aporta y preservar el ranking en consultas sin intención temporal. |
+| **v38 — etapa posterior** | Trabajo neuronal que anteriormente se había rotulado v37. | Etapa posterior; no forma parte del cierre v36 ni se presenta aquí como implementada. |
+
+**En resumen:** la numeración vigente es **v36.0 (cierre actual) → v37 (plan episódico/intencional) → v38 (trabajo neuronal posterior)**. Los números y planes no equivalen por sí solos a una publicación ni a implementación.
 
 ---
 
