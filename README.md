@@ -15,11 +15,11 @@
 >
 > **v35.0:** la QA oficial sale **idéntica** antes y después de todos los cambios de la v35 (Recall@5 100.00 % · Recall@1 91.89 % · MRR 0.950 · FP 0/40, misma máquina y semilla). Detalle en [La Neurona Asociativa](#-novedades-de-la-versión-v350--la-neurona-asociativa-sináptica).
 >
-> **Validación registrada para v36.0 (2026-10-21; copias temporales):** se ejecutó sobre copias aisladas del árbol de trabajo y del snapshot oficial; no se usó la DB viva.
-> - **Pruebas unitarias:** `PYTHONHASHSEED=0 python -m pytest tests/` — 852 passed, 18 skipped (870 recopilados; 240.19 s), Python 3.11.2.
-> - **QA oficial:** `bash scripts/run_qa_suite.sh --qa-only`, con `BIORAG_QA_GATE=1` y `PYTHONHASHSEED` sin fijar — 921 casos (875 de recuperación, 40 negativos y 6 ambiguos fuera del denominador global). R@5 **100.00% (875/875)**, R@1 **93.03% (814/875)**, MRR **0.9566**, FP **0/40**; `[GATE] OK` (997.17 s).
-> - La copia medida no tenía un campeón de la neurona de ranking, así que esta no actuó. El archivo aislado de casos fallidos contiene dos entradas de categoría `ambiguo`, aparte de las métricas globales de recuperación.
-> - El snapshot original conservó SHA-256 `104dd2902aaf24c3ce93624492ea95a719acbdcca50f4f6bc123ac8317749796` antes y después; la copia usada para QA coincidió. La tabla siguiente conserva métricas históricas del baseline v33.0, no resultados de v36.0. La integración y el tag de v36.0 en `master` siguen pendientes.
+> **Validación de v36.0 en copias temporales:** no se usó la DB viva. El recuento de pytest procede de una corrida aislada registrada previamente; la QA oficial se repitió sobre una copia fresca del snapshot durante esta revisión.
+> - **Pruebas unitarias (registro previo):** `PYTHONHASHSEED=0 python -m pytest tests/` — 852 passed, 18 skipped (870 recopilados; 240.19 s), Python 3.11.2.
+> - **QA oficial (re-ejecución aislada):** `bash scripts/run_qa_suite.sh --qa-only`, con `BIORAG_QA_GATE=1` y `PYTHONHASHSEED` sin fijar — 921 casos (875 de recuperación, 40 negativos y 6 ambiguos fuera del denominador global). R@5 **100.00% (875/875)**, R@1 **93.03% (814/875)**, MRR **0.9566**, FP **0/40**; `[GATE] OK` (719.53 s). El artefacto de esta corrida está en `scripts/qa_metrics.json`.
+> - La copia medida no tenía un campeón de la neurona de ranking, así que esta no actuó. El archivo aislado `scripts/casos_fallidos.jsonl` contiene dos entradas de categoría `ambiguo`, aparte de las métricas globales de recuperación.
+> - El snapshot de referencia es `snapshots/qa_escape_qcr_20260811.db` (SHA-256 `104dd2902aaf24c3ce93624492ea95a719acbdcca50f4f6bc123ac8317749796`); la QA se ejecutó sobre una copia temporal. La tabla siguiente conserva métricas históricas del baseline v33.0, no resultados de v36.0. La integración y el tag de v36.0 en `master` siguen pendientes.
 >
 > **Cada base tiene su propia neurona.** La neurona aprende con los recuerdos de la base donde vive y se guarda dentro de ella. Esta tabla mide una copia del snapshot oficial, que no trae neurona entrenada: por eso muestra la fórmula a mano sola (el piso), aunque tu neurona esté trabajando en tu DB viva. La QA ahora lo dice antes de medir y nombra el parámetro para verla: `python scripts/evaluar_qa.py --con-neurona`. Detalle en [La neurona en la QA](#la-neurona-en-la-qa-cada-base-tiene-la-suya).
 
@@ -36,7 +36,7 @@ Evaluación sobre el snapshot congelado oficial canónico (**921 casos totales e
 | **Falsos positivos** | **0/40 (0.00%)** | Calibración conforme efectiva en los 40 controles negativos del benchmark (FP rate observada 0.00%). |
 | **Casos ambiguos (contradictorios)** | **6 casos (2 con cobertura parcial)** | Evaluados por separado del Recall global; 2 casos no cubren al menos una de las etiquetas contradictorias. |
 | **Pruebas unitarias de v36.0** | **852 passed · 18 skipped** | `PYTHONHASHSEED=0 python -m pytest tests/` en copia aislada (870 recopilados; 240.19 s; Python 3.11.2). Resultado registrado para el cierre. |
-| **Suite Concept Hub** | **5/5 TOP-1 (100.00%)** | Precisión perfecta en los 5 casos de prueba de puentes asociativos registrados. |
+| **Smoke de Concept Hub (5 paráfrasis)** | **5/5 TOP-1** | Repetido sobre una copia aislada del snapshot oficial (851 nodos activos, 6 hubs y 30 puentes); evidencia focal, no sustituto de las pruebas de escala. |
 | **Abismo léxico (EXP-Q)** | **3/3 Pool · 2/3 Top-5 · 1/3 Top-1** | 3/3 descubiertos en pool de grafo; 2/3 en Top-5 (pos #1 y #4) y 1/3 en Top-1 (pos #1). |
 | **Sinónimos · Recall@5 / Recall@1** | **100% (55/55) / 56.36%** | Cobertura total en Top-5; el 43.64% restante queda entre Top-2 y Top-5. |
 | **Por tema · Recall@5 / Recall@1** | **100% (65/65) / 63.08%** | Cobertura total en Top-5; ordenamiento Top-1 guiado por Jaccard y PPMI-SVD (MRR: 0.772). |
@@ -53,23 +53,51 @@ Evaluación sobre el snapshot congelado oficial canónico (**921 casos totales e
 
 ---
 
-## 🛡️ v36.0 — Ruta de datos, configuración MCP y control del daemon
+## 🛡️ v36.0 — Motor robusto, operación y evaluación
 
 > **Resumen del cierre y estado para integración:** [Cierre técnico de v36.0](docs/CIERRE_VERSION_36.md).
 >
-> **En una frase:** El destino canónico de una instalación nueva es `~/.biorag/memory_biorag.db`, fuera del repositorio. La resolución sigue respetando argumentos y `BIORAG_PATH` explícitos, además del fallback legacy documentado. El instalador automatiza la configuración de clientes compatibles; el daemon de mantenimiento es opt-in y su parada solicita un cierre ordenado, con timeout y fallback forzado.
+> **En una frase:** v36 reúne correcciones acotadas de escala para la búsqueda y los Concept Hubs, herramientas de evaluación y cambios operativos: destino canónico en `~/.biorag/memory_biorag.db`, configuración MCP y daemon opt-in. v35.1, v35.2 y v35.3 no fueron releases publicadas; los rótulos que aún aparezcan en algunos artefactos son referencias de trabajo. Los cambios aceptados se documentan juntos aquí bajo v36.0. Las mediciones se limitan a sus copias y benchmarks; no prometen invariancia universal ni equivalencia literal con un cerebro.
 
 | Pieza | Estado en v36.0 |
 |---|---|
+| **Recuperación a escala** | Cuatro correcciones para casos concretos de crecimiento: fallback guiado por términos desconocidos, ventanas de candidatos por parecido trigram, límite al escape de dimensiones inferidas y protección de palabras reales contra falsos matches difusos. `BIORAG_ESCALA=1` por defecto; límites y benchmark debajo. |
+| **BM25 de referencia** | Cuando las tablas FTS de referencia están disponibles, la expresión BM25 se conserva con independencia de `BIORAG_ESCALA`; ese interruptor apaga solo las ayudas de escala, no todo el ranking ni la búsqueda textual. |
+| **Concept Hubs a escala** | Motor `escala` e índice invertido por defecto; pondera la frecuencia de los puentes y compite por recuerdo. Las palabras de función aportan como máximo 1 bit, no abren candidaturas por sí solas y el ángulo `ingenuo` no penaliza. `BIORAG_HUB_ESCALA=0` es una ablación. |
+| **Diagnósticos de QA y hub** | `scripts/diagnostico_fallos.py` y `scripts/diagnostico_hub.py` copian la base de entrada a un directorio temporal; no escriben en la base fuente. Pueden generar archivos de informe, así que su salida también debe dirigirse a una ubicación elegida. |
+| **QA clásica y honesta** | La QA clásica conserva el gate; el análisis honesto separa etiquetas obsoletas/ambiguas y sus métricas suplementarias. La medición con ruido es una línea distinta y no forma parte de la QA normal registrada aquí. E2c/E2e fueron rechazadas/revertidas, no son funciones activas de v36. |
 | **Cortex desacoplado (`~/.biorag/`)** | Ruta canónica de usuario fuera del repo; el instalador intenta migrar la base legacy y, si ya existe destino, crea copias de respaldo antes de resolver el conflicto. `BIORAG_PATH` y el fallback legacy siguen aplicando. |
 | **Instalador (`install.py`)** | Automatiza la detección y escritura de configuración para clientes compatibles; el resultado depende del entorno y debe validarse en cada plataforma. |
 | **Detección de API OpenCode** | Comprueba los paquetes locales y el schema disponible; si no hay evidencia, usa el fallback definido en código. |
 | **QA de neurona de ranking** | `--con-neurona` compara el orden de la fórmula y el de la neurona; si la copia no tiene neurona, pregunta antes de entrenarla sobre esa copia. `--si` permite confirmarlo de forma no interactiva. No entrena en la base original. |
 | **Compatibilidad Python** | El paquete requiere Python `>=3.11`; CI contempla Python 3.11 y 3.12. |
 | **Transporte Antigravity** | La configuración MCP generada usa `stdio`; esta versión no instala un servicio SSE de systemd. |
-| **Control del daemon (`La Hormiguita`)** | `BIORAG_DAEMON_ENABLED=0` por defecto; el servidor MCP solo intenta iniciarlo si se habilita explícitamente. |
+| **Control del daemon (`La Hormiguita`)** | `BIORAG_DAEMON_ENABLED=0` por defecto; el servidor MCP solo intenta iniciarlo si se habilita explícitamente. Esto controla el proceso de mantenimiento; no implica borrar asociaciones, apagar SDM ni cambiar su fallback predeterminado. |
 | **Comando de parada (`--stop`)** | Solicita `SIGTERM`, espera hasta 30 s y puede recurrir a `SIGKILL` si el proceso no termina. No es una garantía de cierre limpio en todos los casos. |
-| **Pruebas unitarias y QA** | Validación registrada el 2026-10-21 en copias aisladas: pytest 852 passed/18 skipped; QA oficial de 921 casos con `[GATE] OK` (R@5 100.00%, R@1 93.03%, MRR 0.9566, FP 0/40). Las corridas no usaron la DB viva; la integración/tag de v36.0 en `master` aún está pendiente. |
+| **Pruebas unitarias y QA** | Pytest registrado en copia aislada: 852 passed/18 skipped. QA oficial re-ejecutada en copia fresca del snapshot: 921 casos, `[GATE] OK` (R@5 100.00%, R@1 93.03%, MRR 0.9566, FP 0/40); resultados en `scripts/qa_metrics.json`. Ninguna corrida usó la DB viva; el match/tag final queda a cargo del usuario. |
+
+### Evidencia de escala en copias controladas
+
+**Buscador (`BIORAG_NEURONA=0`, `PYTHONHASHSEED=1`, QA de 921 casos).** La comparación emparejada de cada copia, antes y después de las cuatro correcciones, no encontró categorías que bajaran frente a su propio control sin arreglos. Estos son los resultados posteriores a las correcciones:
+
+| Copia | Recuerdos | R@1 | R@5 | MRR | FP |
+|---|---:|---:|---:|---:|---:|
+| S0 | 866 | 92.57% | 100.00% | 0.954 | 0/40 |
+| A640 | 1506 | 93.03% | 99.77% | 0.956 | 0/40 |
+| T1000r | 1866 | 92.80% | 99.89% | 0.955 | 0/40 |
+| T3000r | ~3866 | 92.57% | 99.54% | 0.953 | 0/40 |
+
+El relleno temático no copiaba las preguntas de la QA. El resultado no garantiza invariancia para toda memoria: siguen documentados empates en consultas de una palabra y dos fallos de ranking en T3000r donde un recuerdo que repite una palabra vence al que cubre todas las palabras de la pregunta. Ver [informe](scripts/experimentos/escala_recall_20261025/README.md), [tabla completa](scripts/experimentos/escala_recall_20261025/tabla_final.txt) y pruebas [`test_escala.py`](tests/test_escala.py) / [`test_escala_motor.py`](tests/test_escala_motor.py).
+
+**Concept Hubs (`BIORAG_NEURONA=0`, `PYTHONHASHSEED=1`, misma QA).** H-mitad y H-todos se construyeron en copias con puentes derivados heurísticamente del contenido, no de paráfrasis redactadas por un agente. La tabla recoge la configuración final, después de neutralizar el multiplicador del ángulo `ingenuo` en 1.0:
+
+| Copia | Hubs | R@1 | R@5 | MRR | Fallos | FP |
+|---|---:|---:|---:|---:|---:|---:|
+| S0 | 6 | 93.14% | 100.00% | 0.9573 | 0 | 0/40 |
+| H-mitad | 436 | 93.03% | 100.00% | 0.9569 | 0 | 0/40 |
+| H-todos | 866 | 93.83% | 100.00% | 0.9619 | 0 | 0/40 |
+
+En el diagnóstico de **hub solo** sobre 921 consultas, los errores con confianza ≥0.8 bajaron de 255 a 3 en H-todos y de 216 a 11 en H-mitad; el tiempo medido por consulta pasó de ~593 a ~8 ms y de ~284 a ~4 ms, respectivamente. Es una prueba acotada a esas copias, no una latencia de producción. Límite importante: en H-todos la categoría `sinonimo` bajó en R@1 de 65.45% a 58.18% aunque R@5 subió de 98.18% a 100%; el informe atribuye los casos perdidos a empates que antes se resolvían por orden alfabético. No se oculta esa diferencia. Ver [informe](scripts/experimentos/hub_escala_20261025/README.md) y [resultado final](scripts/experimentos/hub_escala_20261025/tabla_final.txt); las pruebas [`test_hub_escala.py`](tests/test_hub_escala.py) ejercitan competencia sintética de hasta 3.000 hubs.
 
 ---
 
@@ -125,7 +153,7 @@ El README conserva más abajo el detalle histórico de cada etapa. Este resumen 
 |---|---|---|
 | **v34.0–v34.1** | Se incorporó la neurona que reordena resultados con un piso en la fórmula manual; después se aceleró su aprendizaje en memorias nuevas. | Implementado y descrito en la sección v34. |
 | **v35.0** | Se construyó y evaluó por separado la neurona asociativa; no se conectó al ranking. También se protegieron los enlaces hechos por el agente. | Cerrado con los límites y experimentos descritos en la sección v35. |
-| **v36.0** | Cierre técnico actual: ruta de datos de usuario, instalador MCP, control explícito del daemon, herramientas de QA para comparar la neurona y compatibilidad Python `>=3.11`. La validación registrada se hizo en copias aisladas. | **La versión que estamos cerrando y la última base antes de las etapas v37 y v38.** La integración y el tag en `master` siguen pendientes. |
+| **v36.0** | Cierre técnico declarado: correcciones acotadas de escala en búsqueda y Concept Hubs, diagnósticos y QA, ruta de datos de usuario, instalador MCP, control explícito del daemon y compatibilidad Python `>=3.11`. La evidencia se separa por benchmark y se obtuvo en copias aisladas. | **Base previa a v37/v38.** E3 sigue abierta; E4 y modularización fase 2 no están verificadas. Estos pendientes no se presentan como completados. El usuario hará el match y gestionará el tag; no se hizo merge ni publicación en `master`. |
 | **v37 — plan** | Memoria episódica + recuperación por intención (el plan que antes llevaba el número v36). | Propuesta futura, no parte de v36 ni una capacidad ya implementada como episodios persistentes. BioRAG ya tiene señales y heurísticas temporales; la propuesta debe demostrar qué mejora adicional aporta y preservar el ranking en consultas sin intención temporal. |
 | **v38 — etapa posterior** | Trabajo neuronal que anteriormente se había rotulado v37. | Etapa posterior; no forma parte del cierre v36 ni se presenta aquí como implementada. |
 
