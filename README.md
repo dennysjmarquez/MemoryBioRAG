@@ -7,6 +7,8 @@
 
 **BioRAG** es una memoria simbólica persistente para agentes de IA que aborda la pérdida de contexto entre sesiones mediante recuperación híbrida. “Biomimética” describe una inspiración de diseño; no significa que el motor simule literalmente un cerebro humano. Los resultados de rendimiento se limitan a los benchmarks y snapshots indicados.
 
+> **Repositorio de desarrollo (DEV):** `MemoryBioRAG` es el repositorio principal de desarrollo. La versión de trabajo y sus características vigentes se resumen al inicio de este README; pueden incluir cambios aún en curso y no constituyen por sí solos una publicación estable. Para consultar o descargar la distribución estable, visita el [repositorio MemoryBioRAG-Stable](https://github.com/dennysjmarquez/MemoryBioRAG-Stable).
+
 ---
 
 ## 📊 Resultados históricos de la suite oficial (baseline v33.0 · 2026-10-14)

@@ -22,6 +22,13 @@ El costo computacional es un requisito separado: cada algoritmo debe declarar y 
 >
 > Read this document completely before touching any code. It is designed so that you can achieve 100% operational mastery from your very first step.
 
+## Regla obligatoria: identidad DEV y cabecera de README
+
+- `dennysjmarquez/MemoryBioRAG` es el repositorio principal de desarrollo (DEV); no debe presentarse como el canal de distribución estable.
+- En el `README.md` raíz, mantener inmediatamente después del título la versión de trabajo vigente y un resumen breve y preciso de sus características. Ese bloque debe permanecer por encima de benchmarks, resultados históricos y detalles de versiones anteriores; actualizarlo cuando cambie la versión o el alcance real del código.
+- Mantener visible, junto a la introducción, un aviso profesional en español que identifique este repositorio como DEV y enlace al repositorio estable canónico: `https://github.com/dennysjmarquez/MemoryBioRAG-Stable`.
+- Al actualizar versiones, distinguir claramente la versión de desarrollo de versiones estables publicadas. Actualizar las referencias que describan el estado actual, pero conservar los resultados históricos con la versión, corpus, entorno y fecha realmente medidos. Nunca trasladar métricas antiguas a la versión actual ni dar a entender que una candidata local ya fue publicada.
+
 ---
 
 ## 0. The Inventor's Attitude (guiding principle)
