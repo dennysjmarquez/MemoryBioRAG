@@ -27,19 +27,29 @@ import subprocess
 import sys
 import time
 
+from core.paths import (
+    project_root,
+    resolve_estado_hormiga_path,
+    resolve_hormiguita_lock_path,
+    resolve_hormiguita_pid_path,
+)
+
 logger = logging.getLogger(__name__)
 
 # --- Paths -------------------------------------------------------------------
 
-PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-PID_PATH = os.path.join(PROJECT_ROOT, ".hormiguita.pid")
+PROJECT_ROOT = project_root()
 DAEMON_SCRIPT = os.path.join(PROJECT_ROOT, "graph_maintenance_daemon.py")
+
+
+def _pid_path() -> str:
+    return resolve_hormiguita_pid_path()
 
 
 def _leer_pid() -> int | None:
     """Lee el PID del archivo. Retorna None si no existe o es inválido."""
     try:
-        with open(PID_PATH, "r") as f:
+        with open(_pid_path(), "r") as f:
             return int(f.read().strip())
     except (FileNotFoundError, ValueError):
         return None
@@ -47,14 +57,16 @@ def _leer_pid() -> int | None:
 
 def _escribir_pid(pid: int) -> None:
     """Escribe el PID al archivo."""
-    with open(PID_PATH, "w") as f:
+    path = _pid_path()
+    os.makedirs(os.path.dirname(os.path.abspath(path)), exist_ok=True)
+    with open(path, "w") as f:
         f.write(str(pid))
 
 
 def _borrar_pid() -> None:
     """Borra el archivo PID si existe."""
     try:
-        os.remove(PID_PATH)
+        os.remove(_pid_path())
     except FileNotFoundError:
         pass
 
@@ -111,10 +123,10 @@ def spawn_daemon_detached(
     
     env = os.environ.copy()
     env["BIORAG_DAEMON_SPAWNED_FROM_MCP"] = "1"
-    # Forzar el estado canónico: el daemon SIEMPRE escribe en la raíz del proyecto.
+    # Forzar el estado canónico: el daemon SIEMPRE escribe en la ruta canónica (~/.biorag).
     # No debe heredar un BIORAG_DMN_ESTADO_PATH mutado por tools on-demand
     # (mcp_server/server.py lo setean por llamada para procesar_nodo_unico).
-    env["BIORAG_DMN_ESTADO_PATH"] = os.path.join(PROJECT_ROOT, "estado_hormiga.json")
+    env["BIORAG_DMN_ESTADO_PATH"] = resolve_estado_hormiga_path()
     
     try:
         if sys.platform == "win32":
@@ -183,7 +195,8 @@ def ensure_daemon_alive(
         logger.info("Daemon ya vivo (PID %s)", pid)
         return True
     
-    lock_file = os.path.join(PROJECT_ROOT, ".hormiguita.lock")
+    lock_file = resolve_hormiguita_lock_path()
+    os.makedirs(os.path.dirname(os.path.abspath(lock_file)), exist_ok=True)
     try:
         if sys.platform != "win32":
             import fcntl

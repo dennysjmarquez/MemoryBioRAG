@@ -11,6 +11,7 @@ import re
 import sys
 import os
 import time
+from pathlib import Path
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -152,7 +153,7 @@ if __name__ == '__main__':
     import argparse
     parser = argparse.ArgumentParser(description='Backfill predicados SRL')
     parser.add_argument('--dry-run', action='store_true', help='Solo mostrar, no insertar')
-    parser.add_argument('--db', default='MemoryBioRAG_Data/memory_biorag.db', help='Path a la DB')
+    parser.add_argument('--db', default=os.environ.get("BIORAG_PATH") or str(Path.home() / ".biorag" / "memory_biorag.db"), help='Path a la DB')
     args = parser.parse_args()
     
     backfill_predicados(args.db, dry_run=args.dry_run)

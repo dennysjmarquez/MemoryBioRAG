@@ -1,11 +1,15 @@
 # BioRAG — Memoria Cognitiva Biomimética y Simbólica para Agentes de IA
 
-> **Versión del código en esta rama:** v36.0 (cierre técnico). La integración/publicación en `master` y el tag aún están pendientes.
+> [!IMPORTANT]
+> **Repositorio de desarrollo (DEV):** `MemoryBioRAG` es el repositorio principal de desarrollo activo. La versión de trabajo y sus características vigentes pueden incluir cambios aún en curso y no constituyen por sí solos una publicación estable.  
+> Para consultar o descargar la distribución estable, visita el **[repositorio MemoryBioRAG-Stable ↗](https://github.com/dennysjmarquez/MemoryBioRAG-Stable)**.
+
+**BioRAG** es una memoria simbólica persistente para agentes de IA que aborda la pérdida de contexto entre sesiones mediante recuperación híbrida. “Biomimética” describe una inspiración de diseño; no significa que el motor simule literalmente un cerebro humano. Los resultados de rendimiento se limitan a los benchmarks y snapshots indicados.
+
+> **Versión del código:** v36.0 (cierre técnico en `master`, tag `v36.0`). La publicación a `MemoryBioRAG-Stable` se gestiona mediante el pipeline de staging y release.
 > **Paradigma:** Motor Python + SQLite FTS5. **Sin embeddings densos, GPU ni llamadas a APIs externas** en el path de búsqueda.
 > **Motor:** Arquitectura modularizada (18 submódulos `core/memory/` + 15 submódulos `core/mcp_server/` + fachada delgada) + SQLite FTS5 WAL + PPMI-SVD (100 dimensiones) + espacio semántico de 13 ejes + grafo sináptico Hebbiano + SDM (2048 bits) + calibración conforme + activación ACT-R + Concept Hubs + validación simétrica fail-fast de sustantivos clave + **neurona de reordenamiento que aprende sola** (29 señales → 6 ocultas → 1 corrección, con piso en la fórmula a mano) + **neurona asociativa cerrada de fábrica** (5 agujas → fuerza 0–1: ¿dos recuerdos tienen que ver?; examinada, aún no decide en el motor) + enlaces del agente intocables + **destino canónico del córtex en `~/.biorag/`** + **instalador de configuración MCP para clientes compatibles**.
 > **Idiomas:** Español e inglés (stemming bilingüe, expansión simbólica con WordNet, Concept Hubs de 5 ángulos y Domain Dict).
-
-**BioRAG** es una memoria simbólica persistente para agentes de IA que aborda la pérdida de contexto entre sesiones mediante recuperación híbrida. “Biomimética” describe una inspiración de diseño; no significa que el motor simule literalmente un cerebro humano. Los resultados de rendimiento se limitan a los benchmarks y snapshots indicados.
 
 ---
 
@@ -1548,6 +1552,63 @@ python3 install.py
 # Alternativa: instalación manual de paquetes
 pip install numpy nltk fastapi uvicorn pytest mcp
 python3 -c "import nltk; nltk.download('wordnet'); nltk.download('omw-1.4')"
+```
+
+### Avisos de versiones estables en MCP
+
+El servidor consulta en segundo plano la política `update_policy.json` del canal estable. Solo anuncia una versión recomendada después de comprobar que el tag es estable, existe en el repositorio de código y no está bloqueado; no escoge automáticamente el tag más reciente. Si la política no está publicada (HTTP 404), `biorag://version` informa `sin_politica` sin recomendar ninguna versión. `update_policy.example.json` es una plantilla sin tag recomendado: la aprobación debe hacerse explícitamente en el repositorio Stable.
+
+La consulta se repite cada 24 horas, no transmite recuerdos ni bloquea el uso de memoria, y nunca instala automáticamente. Define `BIORAG_UPDATE_CHECK=0` para desactivarla.
+
+### Para publicar en MemoryBioRAG-Stable
+
+> **Leer antes de cada publicación.** Estos pasos son la secuencia completa y en orden estricto.  
+> **No se salta ninguno. El agente prepara y verifica localmente; solo el dueño autoriza y ejecuta el push.**
+
+```text
+Paso 1 — Semáforo de Calidad y Regresión Biológica (Innegociable)
+  ./scripts/run_qa_suite.sh
+  → Ejecuta la batería de verificación integral en 5 fases sobre copia aislada en memoria:
+      [1/5] Tests Unitarios (Pytest: contratos de interfaz, excepciones y schemas)
+      [2/5] Invariantes de Scoring Híbrido (Monotonía y normalización de pesos)
+      [3/5] Suite Concept Hub (Recuperación semántica pura sin overlap léxico)
+      [4/5] Suite Abismo Léxico (EXP-Q: Rescate topológico por grafo sináptico y PPMI)
+      [5/5] Evaluación Global QA (921 casos canónicos de regresión contra snapshot congelado)
+  → Criterio de aceptación: «SUITE DE EVALUACIÓN BIORAG FINALIZADA CON ÉXITO» (Recall@5 >= 97.0%, <= 24 fallos, <= 15% FP).
+  → Si algo falla, el release queda BLOQUEADO: se corrige el motor en DEV; jamás el test o el caso QA.
+  → Durante desarrollo iterativo rápido en DEV: usar «./scripts/run_qa_suite.sh --unit» para validar fases [1/5] a [4/5].
+
+Paso 2 — Staging local (generar el espejo limpio desacoplado)
+  python3 scripts/stage_stable.py --version v1.0
+  → La versión indicada en --version es la versión pública oficial que tú eliges para MemoryBioRAG-Stable (desacoplada del ciclo interno de DEV).
+  → Debe terminar con «Stage status: READY» y «Blockers: 0».
+  → Genera en .staging/stable/preview/tree/ el árbol limpio con VERSION=v1.0, pyproject.toml=1.0.0 y update_policy.json apuntando a v1.0.
+
+Paso 3 — Preparar el archivo de release
+  Crear: docs/releases/RELEASE-v1.0.md   (en inglés pulcro; título, resumen y qué cambió, sin jergas de DEV)
+
+Paso 4 — Verificación en seco (Dry-run de publicación con blindaje de autor)
+  python3 scripts/publish_stable.py --version v1.0 --message-file docs/releases/RELEASE-v1.0.md --dry-run
+  → Audita que el autor sea ÚNICAMENTE Dennys José Márquez Reyes, sin co-autores ni firmas de bots o agentes.
+  → Debe terminar con «✓ [DRY RUN OK]».
+
+Paso 5 — Publicar en el repositorio público (MemoryBioRAG-Stable)
+  python3 scripts/publish_stable.py --version v1.0 --message-file docs/releases/RELEASE-v1.0.md
+  → Este paso NUNCA lo ejecuta un agente en automático sin tu confirmación.
+  → Sincroniza el código fuente limpio (cero .zips), crea el commit firmado por ti, crea el tag anotado v1.0 y hace el push atómico a origin main.
+
+Paso 6 (Opcional) — Crear la Release en la web de GitHub
+  gh release create v1.0 \
+    --repo dennysjmarquez/MemoryBioRAG-Stable \
+    --title "MemoryBioRAG-Stable v1.0" \
+    --notes-file docs/releases/RELEASE-v1.0.md
+
+Paso de emergencia — Retirar o corregir una versión con fallo crítico
+  1. Inmutabilidad de tags: Nunca borres ni reescribas tags públicos ya publicados.
+  2. Si hubo un error funcional en el código:
+     Corrige el bug en DEV, incrementa a v36.0.1 y publica el parche correctivo de inmediato.
+  3. Si hubo exposición accidental de una credencial privada:
+     Revoca la credencial de inmediato en el proveedor y contacta soporte para purga de commit.
 ```
 
 ### Snapshot de Base de Datos para Pruebas

@@ -199,3 +199,39 @@ def test_daemon_stop_command():
     assert isinstance(stop_daemon(), bool)
 
 
+def test_resolve_hormiguita_paths_canonical(monkeypatch):
+    from core.paths import (
+        resolve_estado_hormiga_path,
+        resolve_hormiguita_lock_path,
+        resolve_hormiguita_pid_path,
+        resolve_hormiguita_log_dir,
+    )
+    monkeypatch.delenv("BIORAG_DMN_ESTADO_PATH", raising=False)
+    monkeypatch.delenv("BIORAG_DAEMON_LOCK_PATH", raising=False)
+    monkeypatch.delenv("BIORAG_DAEMON_PID_PATH", raising=False)
+    monkeypatch.delenv("BIORAG_DAEMON_LOG_PATH", raising=False)
+
+    estado = resolve_estado_hormiga_path()
+    assert ".biorag" in estado
+    assert estado.endswith("estado_hormiga.json")
+
+    lock = resolve_hormiguita_lock_path()
+    assert ".biorag" in lock
+    assert lock.endswith(".hormiguita.lock")
+
+    pid = resolve_hormiguita_pid_path()
+    assert ".biorag" in pid
+    assert pid.endswith(".hormiguita.pid")
+
+    log_dir = resolve_hormiguita_log_dir()
+    assert ".biorag" in log_dir
+    assert log_dir.endswith("logs")
+
+
+def test_resolve_estado_hormiga_env_override(monkeypatch, tmp_path):
+    from core.paths import resolve_estado_hormiga_path
+    custom = str(tmp_path / "custom_hormiga.json")
+    monkeypatch.setenv("BIORAG_DMN_ESTADO_PATH", custom)
+    assert resolve_estado_hormiga_path() == custom
+
+

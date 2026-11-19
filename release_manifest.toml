@@ -1,0 +1,243 @@
+schema_version = 1
+project_name = "MemoryBioRAG-Stable"
+repository_url = "https://github.com/dennysjmarquez/MemoryBioRAG-Stable"
+source_version_file = "VERSION"
+source_project_file = "pyproject.toml"
+stable_tag_pattern = "^v(?:0|[1-9][0-9]*)\\.(?:0|[1-9][0-9]*)$"
+max_source_file_bytes = 5000000
+strict_directories = ["core", "config", "middleware", "db", "plugin"]
+strict_root_file_patterns = ["*"]
+required_source_paths = [
+  "LICENSE",
+  "VERSION",
+  "pyproject.toml",
+  "biorag.py",
+  "mcp_server.py",
+  "install.py",
+  "graph_maintenance_daemon.py",
+  "core/__init__.py",
+  "core/memory_store.py",
+  "core/mcp_server/server.py",
+  "core/mcp_server/update_checker.py",
+  "core/memory/umbral.py",
+  "core/paths.py",
+  "config/__init__.py",
+  "middleware/__init__.py",
+  "plugin/opencode-biorag-remember-plugin.ts",
+  "plugin/opencode-2-biorag-remember-plugin.ts",
+]
+
+[output]
+# A single replaceable preview; every stage run refreshes this exact candidate.
+staging_directory = ".staging/stable/preview"
+# Built release artifacts live outside .staging so it contains only the preview.
+release_directory = ".stable-release/stable/releases"
+source_archive_prefix = "MemoryBioRAG-Stable"
+
+[dependencies]
+optional_module_distributions = { deep_translator = "deep-translator" }
+
+[privacy]
+# Contact details are private by default; add an address only after explicit review.
+allowed_emails = ["noreply@github.com"]
+scan_absolute_user_paths = true
+
+[language]
+# Stable-facing prose is checked; implementation files may retain the source language.
+# The Markdown README, changelog, skill, and human-readable text templates remain English.
+scan_python_comments_and_strings = false
+scan_python_identifiers = false
+english_exceptions = ["Dennys José Márquez Reyes"]
+spanish_markers = [
+  "á", "é", "í", "ó", "ú", "ñ", "ü", "¿", "¡",
+  "configuración", "búsqueda", "busqueda", "versión", "usuario", "recuerdo",
+  "sesión", "instalación", "predeterminado", "ejecución", "no existe",
+  "se encontró", "no se pudo", "sin datos", "archivo", "carpeta",
+  "prueba", "por qué", "qué cambia", "se activa", "se usa",
+  "memoria", "calibración", "calibracion", "umbral", "temática", "tematica",
+  "clasificador", "similitud", "inferencia", "reflexión", "reflexion",
+  "consolidación", "consolidacion", "neurona", "ráfaga", "rafaga",
+  "generar", "calcular", "actualizar", "agregar", "eliminar", "limpiar",
+  "inicializar", "cargar", "guardar", "obtener", "buscar", "crear", "leer",
+  "escribir", "detectar", "resolver", "validar", "explicar", "aplicar",
+  "evaluar", "construir", "identificar", "configurar", "definir", "cambiar",
+  "mostrar", "analizar", "transformar", "devolver", "recordar", "recuperar",
+]
+
+[[include]]
+id = "python-runtime-entrypoints"
+patterns = [
+  "biorag.py",
+  "mcp_server.py",
+  "install.py",
+  "graph_maintenance_daemon.py",
+]
+reason = "Required Stable CLI, MCP server, installer, and maintenance entry points."
+
+[[include]]
+id = "python-runtime-packages"
+patterns = [
+  "core/**/*.py",
+  "config/**/*.py",
+  "middleware/**/*.py",
+]
+reason = "Runtime Python packages declared by the project metadata."
+
+[[include]]
+id = "opencode-reminder-plugins"
+patterns = [
+  "plugin/opencode-biorag-remember-plugin.ts",
+  "plugin/opencode-2-biorag-remember-plugin.ts",
+]
+reason = "Bundle both supported OpenCode reminder plugin APIs so install.py can select the matching version."
+
+[[include]]
+id = "project-license-and-metadata"
+patterns = ["LICENSE", "VERSION", "pyproject.toml"]
+reason = "License, canonical source version, and Python package metadata."
+
+[[exclude]]
+id = "security-private-and-generated-paths"
+patterns = [
+  ".git/**",
+  ".staging/**",
+  ".private_evidence/**",
+  "google_drive/**",
+  "MemoryBioRAG_Data/**",
+  "snapshots/**",
+  "**/__pycache__/**",
+  "**/.venv/**",
+  "**/node_modules/**",
+  "**/dist/**",
+  "**/build/**",
+  "**/coverage/**",
+  "**/.pytest_cache/**",
+  "**/.mypy_cache/**",
+  "**/.ruff_cache/**",
+  "**/.cache/**",
+  "**/estado_hormiga.json",
+  "**/.hormiguita.lock",
+  ".hormiguita.lock",
+  "**/.kilo/**",
+]
+reason = "Private, generated, or local runtime data is never part of Stable."
+
+[[exclude]]
+id = "security-secrets-and-local-data"
+patterns = [
+  "**/.env",
+  "**/.env.*",
+  "**/*.db",
+  "**/*.db-*",
+  "**/*.sqlite",
+  "**/*.sqlite3",
+  "**/*.sqlite-*",
+  "**/*.sql",
+  "**/*.pem",
+  "**/*.key",
+  "**/*.p12",
+  "**/*.pfx",
+  "**/id_rsa",
+  "**/id_rsa.*",
+  "**/id_ed25519",
+  "**/id_ed25519.*",
+  "**/.ssh/**",
+  "**/.netrc",
+  "**/.npmrc",
+  "**/.pypirc",
+  "**/.aws/**",
+  "**/*credentials*",
+  "**/*secret*",
+  "**/*token*",
+  "**/*.jsonl",
+  "**/*.csv",
+  "**/*.tar",
+  "**/*.tar.gz",
+  "**/*.tgz",
+  "**/*.zip",
+]
+reason = "Secrets, databases, private datasets, backups, and benchmark outputs are excluded."
+
+[[exclude]]
+id = "research-and-qa-material"
+patterns = [
+  "docs/**",
+  "tests/**",
+  "scripts/**",
+  "specs/**",
+  "sessions/**",
+  "scratch/**",
+  "benchmark*",
+  "baseline*",
+  "post_qa*",
+  "legacy_hubs_para_convertir.json",
+  "vocabulario_inicial.json",
+  "db/**",
+]
+reason = "Internal research, QA fixtures, derived data, and experiment artifacts are not Stable inputs."
+
+[[exclude]]
+id = "dashboard-and-development-skills"
+patterns = [
+  "dashboard-neuro-visor/**",
+  "dashboard/**",
+  "dashboard_back/**",
+  "dashboard*.py",
+  "dashboard_img/**",
+  "res_img/**",
+  "base de datos semanticas INFO/**",
+  "skills/**",
+]
+reason = "The dashboard UI, backend, and Node assets plus development-only skills, including the private NotebookLM sync skill, are not copied. Stable disables the dashboard help and CLI registration while retaining its handler as dormant code, and generates a separate English BioRAG memory skill. The development source remains intact."
+
+[[exclude]]
+id = "source-documentation-replaced"
+patterns = [
+  "README.md",
+  "CHANGELOG.md",
+  "core/**/*.md",
+  "core/README.md",
+  "core/memory/README.md",
+  "core/mcp_server/README.md",
+  "*.md",
+  ".gitignore",
+  ".env.example",
+  "requirements.txt",
+  "update_policy.example.json",
+  "AGENTS.md",
+  "CONSTITUTION.md",
+  "EXPERIMENTS.md",
+  "INFORME_COMPARATIVO.md",
+]
+reason = "Source documentation and environment examples are Spanish/internal; Stable equivalents are generated from reviewed English templates."
+
+[[exclude]]
+id = "repository-local-and-legacy-files"
+patterns = [
+  ".agents/**",
+  ".kilo/**",
+  ".vscode/**",
+  ".idea/**",
+  "memory_biorag.egg-info/**",
+  "release/**",
+  "release_manifest.toml",
+  ".gitattributes",
+  ".hormiguita*",
+  "estado_hormiga.json",
+  "contrato_compraventa_vehiculo.txt",
+  "sleep_cycle.py",
+  "uv.lock",
+  "auto_save_plugin.py",
+  "benchmark.py",
+  "benchmark_*.py",
+  "probar_*.py",
+  "prototipo_*.py",
+  "scratch_*.py",
+  "test_*.py",
+  "Building Human-Like Persistent Memory.md",
+  "README_SESION_*.md",
+  "db_architecture_export.txt",
+  "session-*.md",
+  "base de datos semanticas INFO/**",
+]
+reason = "Legacy tooling, generated metadata, and workspace-only files are not part of the Stable product profile."

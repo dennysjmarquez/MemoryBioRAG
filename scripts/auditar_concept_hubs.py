@@ -5,6 +5,7 @@ import sqlite3
 import json
 import os
 import sys
+from pathlib import Path
 
 def auditar_base_datos(db_path: str) -> dict:
     conn = sqlite3.connect(db_path)
@@ -150,7 +151,7 @@ def auditar_base_datos(db_path: str) -> dict:
     return reporte
 
 if __name__ == "__main__":
-    db_target = sys.argv[1] if len(sys.argv) > 1 else os.environ.get("BIORAG_PATH", "MemoryBioRAG_Data/memory_biorag.db")
+    db_target = sys.argv[1] if len(sys.argv) > 1 else os.environ.get("BIORAG_PATH") or str(Path.home() / ".biorag" / "memory_biorag.db")
     resultado = auditar_base_datos(db_target)
     print(json.dumps(resultado, indent=2, ensure_ascii=False))
     
