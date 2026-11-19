@@ -84,3 +84,9 @@ google_drive/
 
 # Private blind-review crosswalks (never commit source label mappings)
 .private_evidence/
+
+# Generated local preview for the Stable distribution (never commit)
+/.staging/
+
+# Release archives and wheels are local outputs, separate from the preview
+/.stable-release/

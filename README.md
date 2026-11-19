@@ -1566,25 +1566,47 @@ La consulta se repite cada 24 horas, no transmite recuerdos ni bloquea el uso de
 
 1. **Confirmar versión y QA.** Usa únicamente una versión aprobada en formato `vX.Y`; `VERSION` debe coincidir exactamente y `pyproject.toml` debe declarar `X.Y.0`. No incrementes la versión automáticamente. Ejecuta las pruebas y la QA oficial en copias temporales del snapshot, nunca sobre la base viva. Si una prueba o gate falla, detén el proceso y corrige el código fuente; no cambies pruebas ni saltes verificaciones para obtener un resultado verde.
 
-2. **Crear y revisar el stage local.** Usa un entorno Python aislado con `setuptools>=77` y `wheel`, y sustituye `v36.1` por el valor exacto de `VERSION`:
+2. **Crear y revisar la vista previa local.** Usa Python 3.11 o posterior y un entorno aislado con `setuptools>=77` y `wheel`. Sustituye `v36.1` por el valor exacto de `VERSION`; debe coincidir con `pyproject.toml` como `36.1.0`:
 
    ```bash
    python -m pip install --upgrade "setuptools>=77" wheel
    python scripts/stage_stable.py --version v36.1
    ```
 
-   Continúa únicamente si el estado es `READY` y no hay bloqueos. Revisa el `report.md`, el `manifest.json` y todo el `tree/`; confirma el idioma del README generado, los plugins OpenCode y sus hooks, la ausencia de la interfaz del dashboard, y que no se copiaron bases de datos, credenciales ni datos privados. `READY` no equivale a aprobación para publicar.
+   Para consultar las opciones sin iniciar una ejecución, usa `python scripts/stage_stable.py --help` o `python scripts/release_stable.py --help`.
 
-3. **Preparar artefactos locales desde ese stage exacto.** Copia la ruta del stage y su SHA-256 del informe; reemplaza los marcadores del ejemplo:
+   `--version` es obligatorio: el script no infiere ni incrementa versiones. La vista previa se genera desde el árbol de trabajo actual, aplicando la allowlist y las transformaciones Stable; no es una copia de todo el repositorio DEV. No modifica las fuentes, el índice de Git ni la base de datos, y no publica nada. El resumen imprime el estado, la ruta, el SHA-256, los conteos y los bloqueos/avisos. `READY` termina con código 0; `BLOCKED` o un error, con código 2. No continúes si hay bloqueos y revisa también todos los avisos: `READY` no equivale a aprobación para publicar.
+
+   Revisa estos elementos del candidato:
+
+   - `.staging/stable/preview/report.md`: resumen de gates, bloqueos, avisos y decisiones de inclusión/exclusión.
+   - `.staging/stable/preview/manifest.json`: versión, inventario, procedencia y hashes.
+   - `.staging/stable/preview/TREE_SHA256`: SHA-256 que confirma el árbol candidato.
+   - `.staging/stable/preview/tree/`: contenido completo que se empaquetaría. Confirma, entre otras cosas, el README Stable, los plugins OpenCode y sus hooks, la ausencia del dashboard y la exclusión de bases de datos, credenciales y datos privados.
+
+   **Dónde va cada README:** el `README.md` de la raíz de este checkout documenta el repositorio DEV. No se copia como README de Stable. La fuente del README Stable es `release/README.template.md`; el empaquetador la renderiza como `README.md` en la raíz del candidato, es decir, `.staging/stable/preview/tree/README.md`. En los artefactos, queda como `.stable-release/stable/releases/<candidato>/tree/README.md` y en la raíz del ZIP como `MemoryBioRAG-Stable-v36.1/README.md`. Para cambiar el README de Stable, edita la plantilla, vuelve a generar la vista previa y revisa el nuevo resultado; no reemplaces el README DEV.
+
+   **`tree/` es el candidato autoritativo y completo para Stable.** Solo se conserva una vista previa en `.staging/stable/preview/`; cada ejecución completa la reemplaza y no mantiene historial. Las stages antiguas solo se eliminan si sus manifiestos y SHA-256 se verifican; los releases locales antiguos verificados se trasladan intactos fuera de `.staging/`. Si aparece contenido no reconocible, el empaquetador se detiene para inspección manual en vez de borrarlo o moverlo a ciegas. Si cambias código o la plantilla después de revisar, vuelve a crear y revisar la vista previa: cambiará el árbol/hash vigente.
+
+3. **Preparar artefactos locales desde esa misma vista previa.** Hazlo solo después de revisar el `tree/`; usa la misma versión, la ruta fija de la vista previa y el SHA-256 vigente. En Bash, macOS o Linux, pásalo directamente desde el archivo generado:
 
    ```bash
    python scripts/release_stable.py \
      --version v36.1 \
-     --stage-dir ".staging/stable/stages/<stage-id>" \
-     --confirm-tree-sha256 "<sha256-del-tree>"
+     --stage-dir .staging/stable/preview \
+     --confirm-tree-sha256 "$(cat .staging/stable/preview/TREE_SHA256)"
    ```
 
-   El resultado se guarda bajo `.staging/stable/releases/` e incluye el ZIP fuente, el wheel y `release-manifest.json`. Comprueba sus hashes y la validación local del wheel. **El ZIP fuente es la distribución completa** con la skill y los plugins OpenCode V1/V2; el wheel actual no incluye esos recursos. No presentes el wheel como instalador completo ni lo subas a PyPI hasta resolver esa inclusión y volver a validar la instalación.
+   En PowerShell, lee el mismo SHA-256 y elimina el salto de línea final:
+
+   ```powershell
+   $sha = (Get-Content .staging/stable/preview/TREE_SHA256 -Raw).Trim()
+   python scripts/release_stable.py --version v36.1 --stage-dir .staging/stable/preview --confirm-tree-sha256 $sha
+   ```
+
+   `--version` debe ser el mismo tag usado para crear la vista previa; `--stage-dir` solo admite `.staging/stable/preview`; y `--confirm-tree-sha256` debe ser el hash exacto revisado. El script vuelve a comprobar la integridad y las validaciones, pero no vuelve a seleccionar ni leer archivos del árbol DEV. Si la vista previa cambió o se regeneró, el hash anterior no sirve: inspecciona el nuevo candidato antes de continuar.
+
+   Una ejecución correcta termina con código 0 e informa la carpeta de salida bajo `.stable-release/stable/releases/<versión>-<fecha>-<id>/`. Allí quedan `tree/`, el ZIP fuente, el wheel, `release-manifest.json` con hashes y un informe. El ZIP fuente contiene el candidato completo, incluida la skill y los plugins OpenCode V1/V2. El wheel actual no incluye esos recursos; no lo presentes como instalador completo ni lo subas a PyPI hasta resolverlo y volver a validar la instalación. Un error termina con código 2. El comando prepara archivos locales únicamente: no crea commits ni tags, no hace push, no sube archivos y no publica.
 
 4. **Inicializar o actualizar el repositorio Stable.** En un clon limpio de `MemoryBioRAG-Stable`, coloca únicamente el contenido del `tree/` revisado y elimina archivos de producto que ya no pertenezcan al candidato; no copies el repositorio DEV, `.staging/`, snapshots, bases de datos ni otros artefactos locales. Si sigue vacío, crea la rama inicial `main`; para versiones posteriores, parte de la rama `main` existente. Nunca ejecutes estos comandos desde el checkout DEV:
 
