@@ -7,7 +7,7 @@
 
 **BioRAG** es una memoria simbólica persistente para agentes de IA que aborda la pérdida de contexto entre sesiones mediante recuperación híbrida. “Biomimética” describe una inspiración de diseño; no significa que el motor simule literalmente un cerebro humano. Los resultados de rendimiento se limitan a los benchmarks y snapshots indicados.
 
-> **Repositorio de desarrollo (DEV):** `MemoryBioRAG` es el repositorio principal de desarrollo. La versión de trabajo y sus características vigentes se resumen al inicio de este README; pueden incluir cambios aún en curso y no constituyen por sí solos una publicación estable. Para consultar o descargar la distribución estable, visita el [repositorio MemoryBioRAG-Stable](https://github.com/dennysjmarquez/MemoryBioRAG-Stable).
+> **Repositorio de desarrollo (DEV):** `MemoryBioRAG` es el repositorio principal de desarrollo. La versión de trabajo y sus características vigentes se resumen al inicio de este README; pueden incluir cambios aún en curso y no constituyen por sí solos una publicación estable. Para consultar o descargar la distribución estable, visita el [repositorio MemoryBioRAG-Stable](https://github.com/dennysjmarquez/MemoryBioRAG-Stable). El flujo de preparación y publicación está en [Publicar en MemoryBioRAG-Stable](#publicar-en-memorybiorag-stable).
 
 ---
 
@@ -1557,6 +1557,72 @@ python3 -c "import nltk; nltk.download('wordnet'); nltk.download('omw-1.4')"
 El servidor consulta en segundo plano la política `update_policy.json` del canal estable. Solo anuncia una versión recomendada después de comprobar que el tag es estable, existe en el repositorio de código y no está bloqueado; no escoge automáticamente el tag más reciente. Si la política no está publicada (HTTP 404), `biorag://version` informa `sin_politica` sin recomendar ninguna versión. `update_policy.example.json` es una plantilla sin tag recomendado: la aprobación debe hacerse explícitamente en el repositorio Stable.
 
 La consulta se repite cada 24 horas, no transmite recuerdos ni bloquea el uso de memoria, y nunca instala automáticamente. Define `BIORAG_UPDATE_CHECK=0` para desactivarla.
+
+### Publicar en MemoryBioRAG-Stable
+
+> **Flujo manual y con aprobación explícita.** `MemoryBioRAG` es el repositorio DEV; no se publica directamente como Stable. Los comandos `stage_stable.py` y `release_stable.py` solo preparan candidatos locales: no hacen `git push`, no crean tags y no suben archivos. Un agente puede ejecutar QA y preparar artefactos, pero debe detenerse antes de cualquier publicación remota hasta recibir autorización explícita del dueño del proyecto.
+>
+> **Estado del destino:** al verificarlo el 2026-10-21, `dennysjmarquez/MemoryBioRAG-Stable` era público pero estaba vacío, sin rama predeterminada ni releases. Comprueba el estado actual antes de cada publicación. La primera publicación requiere inicializar `main` con un candidato revisado.
+
+1. **Confirmar versión y QA.** Usa únicamente una versión aprobada en formato `vX.Y`; `VERSION` debe coincidir exactamente y `pyproject.toml` debe declarar `X.Y.0`. No incrementes la versión automáticamente. Ejecuta las pruebas y la QA oficial en copias temporales del snapshot, nunca sobre la base viva. Si una prueba o gate falla, detén el proceso y corrige el código fuente; no cambies pruebas ni saltes verificaciones para obtener un resultado verde.
+
+2. **Crear y revisar el stage local.** Usa un entorno Python aislado con `setuptools>=77` y `wheel`, y sustituye `v36.1` por el valor exacto de `VERSION`:
+
+   ```bash
+   python -m pip install --upgrade "setuptools>=77" wheel
+   python scripts/stage_stable.py --version v36.1
+   ```
+
+   Continúa únicamente si el estado es `READY` y no hay bloqueos. Revisa el `report.md`, el `manifest.json` y todo el `tree/`; confirma el idioma del README generado, los plugins OpenCode y sus hooks, la ausencia de la interfaz del dashboard, y que no se copiaron bases de datos, credenciales ni datos privados. `READY` no equivale a aprobación para publicar.
+
+3. **Preparar artefactos locales desde ese stage exacto.** Copia la ruta del stage y su SHA-256 del informe; reemplaza los marcadores del ejemplo:
+
+   ```bash
+   python scripts/release_stable.py \
+     --version v36.1 \
+     --stage-dir ".staging/stable/stages/<stage-id>" \
+     --confirm-tree-sha256 "<sha256-del-tree>"
+   ```
+
+   El resultado se guarda bajo `.staging/stable/releases/` e incluye el ZIP fuente, el wheel y `release-manifest.json`. Comprueba sus hashes y la validación local del wheel. **El ZIP fuente es la distribución completa** con la skill y los plugins OpenCode V1/V2; el wheel actual no incluye esos recursos. No presentes el wheel como instalador completo ni lo subas a PyPI hasta resolver esa inclusión y volver a validar la instalación.
+
+4. **Inicializar o actualizar el repositorio Stable.** En un clon limpio de `MemoryBioRAG-Stable`, coloca únicamente el contenido del `tree/` revisado y elimina archivos de producto que ya no pertenezcan al candidato; no copies el repositorio DEV, `.staging/`, snapshots, bases de datos ni otros artefactos locales. Si sigue vacío, crea la rama inicial `main`; para versiones posteriores, parte de la rama `main` existente. Nunca ejecutes estos comandos desde el checkout DEV:
+
+   ```bash
+   git remote -v
+   git status --short
+   git add --all
+   git diff --cached --check
+   git diff --cached --stat
+   git commit -m "release: MemoryBioRAG-Stable v36.1"
+   ```
+
+   `git add --all` es válido aquí solo porque el clon Stable debe contener exclusivamente el candidato revisado. Revisa el diff y pide aprobación explícita del dueño antes de publicar la rama:
+
+   ```bash
+   git push -u origin main
+   ```
+
+5. **Crear el tag y el GitHub Release, solo después de aprobar el commit de `main`.** Usa el mismo tag `vX.Y` y no reutilices tags publicados. Desde el clon Stable:
+
+   ```bash
+   git tag -a v36.1 -m "MemoryBioRAG-Stable v36.1"
+   git push origin v36.1
+   ```
+
+   Luego, con las notas en inglés ya revisadas y las rutas reales de los artefactos:
+
+   ```bash
+   gh release create v36.1 --verify-tag \
+     --repo dennysjmarquez/MemoryBioRAG-Stable \
+     --title "MemoryBioRAG-Stable v36.1" \
+     --notes-file "<notas-aprobadas.md>" \
+     "<ruta-al-ZIP-fuente>" "<ruta-al-wheel>"
+   ```
+
+   Verifica el resultado con `gh release view v36.1 --repo dennysjmarquez/MemoryBioRAG-Stable` y coteja el tag, los adjuntos y sus SHA-256 con el manifiesto local. Confirma también que `update_policy.json` recomienda ese mismo tag. `--verify-tag` evita que `gh` cree un tag implícitamente.
+
+**Versiones con defectos.** No borres ni muevas un tag o release publicado para corregir un fallo ordinario; prepara una nueva versión aprobada y enlázala como corrección. Ante una exposición crítica de credenciales o un artefacto inutilizable, detén el proceso, avisa al dueño y sigue su decisión explícita de respuesta. Esta guía no autoriza a un agente a ejecutar ninguna acción remota.
 
 ### Snapshot de Base de Datos para Pruebas
 
