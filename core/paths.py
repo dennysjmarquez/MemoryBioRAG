@@ -18,13 +18,20 @@ from pathlib import Path
 
 _PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 _LEGACY_DB = os.path.join(_PROJECT_ROOT, "MemoryBioRAG_Data", "memory_biorag.db")
-_USER_HOME_DB = os.path.join(str(Path.home()), ".biorag", "memory_biorag.db")
+_USER_HOME_DIR = os.path.join(str(Path.home()), ".biorag")
+_USER_HOME_DB = os.path.join(_USER_HOME_DIR, "memory_biorag.db")
 DEFAULT_DB = _USER_HOME_DB
 
 
 def project_root() -> str:
     """Raíz del repositorio (padre de core/)."""
     return _PROJECT_ROOT
+
+
+def user_biorag_dir() -> str:
+    """Ruta canónica del directorio de datos de usuario (~/.biorag/)."""
+    os.makedirs(_USER_HOME_DIR, exist_ok=True)
+    return _USER_HOME_DIR
 
 
 def legacy_db_path() -> str:
@@ -35,6 +42,54 @@ def legacy_db_path() -> str:
 def user_db_path() -> str:
     """Ruta canónica de la base de datos viva del usuario en ~/.biorag/."""
     return _USER_HOME_DB
+
+
+def resolve_estado_hormiga_path(explicit: str | None = None) -> str:
+    """Devuelve la ruta efectiva para estado_hormiga.json.
+
+    Orden de prioridad:
+      1. Argumento explícito si se provee.
+      2. Variable de entorno BIORAG_DMN_ESTADO_PATH.
+      3. Base en ~/.biorag/estado_hormiga.json si existe.
+      4. Fallback legacy en PROJECT_ROOT/estado_hormiga.json si existe.
+      5. DEFAULT canónico en ~/.biorag/estado_hormiga.json.
+    """
+    if explicit:
+        return explicit
+    env = os.environ.get("BIORAG_DMN_ESTADO_PATH")
+    if env:
+        return env
+    canonical = os.path.join(_USER_HOME_DIR, "estado_hormiga.json")
+    if os.path.exists(canonical):
+        return canonical
+    legacy = os.path.join(_PROJECT_ROOT, "estado_hormiga.json")
+    if os.path.exists(legacy):
+        return legacy
+    return canonical
+
+
+def resolve_hormiguita_lock_path() -> str:
+    """Ruta canónica del lock file del daemon de la hormiguita."""
+    env = os.environ.get("BIORAG_DAEMON_LOCK_PATH")
+    if env:
+        return env
+    return os.path.join(user_biorag_dir(), ".hormiguita.lock")
+
+
+def resolve_hormiguita_pid_path() -> str:
+    """Ruta canónica del PID file del daemon de la hormiguita."""
+    env = os.environ.get("BIORAG_DAEMON_PID_PATH")
+    if env:
+        return env
+    return os.path.join(user_biorag_dir(), ".hormiguita.pid")
+
+
+def resolve_hormiguita_log_dir() -> str:
+    """Ruta canónica del directorio de logs de la hormiguita."""
+    env = os.environ.get("BIORAG_DAEMON_LOG_PATH")
+    if env:
+        return env
+    return os.path.join(user_biorag_dir(), "logs")
 
 
 def resolve_db_path(explicit: str | None = None) -> str:

@@ -60,18 +60,19 @@ except ImportError:
 
 from core.memory_store import SQLiteMemoryBioRAG
 from core.dmn_reflexion import ejecutar_ciclo_reflexivo, _cargar_estado, _guardar_estado
+from core.paths import (
+    resolve_hormiguita_lock_path,
+    resolve_hormiguita_pid_path,
+    resolve_hormiguita_log_dir,
+)
 
 # --- Configuración -----------------------------------------------------------
 
 INTERVALO_HORAS = float(os.environ.get("BIORAG_DAEMON_INTERVALO_HORAS", "1"))
 MAX_NODOS_POR_CICLO = int(os.environ.get("BIORAG_DAEMON_MAX_NODOS", "10"))
-_PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
-_LOCK_DEFAULT = os.path.join(_PROJECT_ROOT, ".hormiguita.lock")
-_PID_DEFAULT = os.path.join(_PROJECT_ROOT, ".hormiguita.pid")
-_LOG_DEFAULT = os.path.join(_PROJECT_ROOT, "logs")
-LOCK_PATH = os.environ.get("BIORAG_DAEMON_LOCK_PATH", _LOCK_DEFAULT)
-PID_PATH = os.environ.get("BIORAG_DAEMON_PID_PATH", _PID_DEFAULT)
-LOG_DIR = os.environ.get("BIORAG_DAEMON_LOG_PATH", _LOG_DEFAULT)
+LOCK_PATH = resolve_hormiguita_lock_path()
+PID_PATH = resolve_hormiguita_pid_path()
+LOG_DIR = resolve_hormiguita_log_dir()
 
 # --- Logging -----------------------------------------------------------------
 
@@ -137,6 +138,7 @@ class DaemonLock:
     def adquirir(self):
         """Adquiere el lock. Retorna True si éxito, False si ya está tomado."""
         try:
+            os.makedirs(os.path.dirname(os.path.abspath(self.lock_path)), exist_ok=True)
             self.lock_file = open(self.lock_path, "w")
             fcntl.flock(self.lock_file, fcntl.LOCK_EX | fcntl.LOCK_NB)
             self.lock_file.write(str(os.getpid()))
@@ -162,6 +164,7 @@ class DaemonLock:
 def _escribir_pid():
     """Escribe el PID actual al archivo PID."""
     try:
+        os.makedirs(os.path.dirname(os.path.abspath(PID_PATH)), exist_ok=True)
         with open(PID_PATH, "w") as f:
             f.write(str(os.getpid()))
     except OSError as e:

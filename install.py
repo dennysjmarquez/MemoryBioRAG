@@ -1742,6 +1742,31 @@ def _migrate_legacy_database() -> bool:
     return True
 
 
+def _migrate_legacy_hormiguita_state() -> bool:
+    """Detecta si hay estado_hormiga.json legacy dentro del repo y lo mueve a ~/.biorag/."""
+    legacy = INSTALL_DIR / "estado_hormiga.json"
+    target = Path.home() / ".biorag" / "estado_hormiga.json"
+
+    if not legacy.exists():
+        return False
+
+    target.parent.mkdir(parents=True, exist_ok=True)
+    try:
+        if not target.exists():
+            shutil.move(str(legacy), str(target))
+            _ok(f"Estado de la hormiguita movido exitosamente a: {_bold(str(target))}")
+        else:
+            # Si target ya existe, respaldas legacy por seguridad
+            BACKUPS_DIR.mkdir(parents=True, exist_ok=True)
+            ts = time.strftime("%Y%m%d_%H%M%S")
+            backup_legacy = BACKUPS_DIR / f"estado_hormiga_legacy_{ts}.json"
+            shutil.move(str(legacy), str(backup_legacy))
+            _info(f"Estado de la hormiguita ya existía en destino; legacy respaldado en: {_dim(str(backup_legacy))}")
+    except Exception as exc:
+        _warn(f"Migración estado hormiguita: {exc}")
+    return True
+
+
 # ── Main flow ───────────────────────────────────────────────────────────────
 
 def install() -> None:
@@ -1760,8 +1785,9 @@ def install() -> None:
     # 1b. Detener procesos en ejecución que bloqueen la base de datos o el puerto
     _stop_running_biorag_processes()
 
-    # 1c. Migración de base de datos legacy a ~/.biorag/
+    # 1c. Migración de base de datos y estado legacy a ~/.biorag/
     _migrate_legacy_database()
+    _migrate_legacy_hormiguita_state()
 
     # 2. Download
     _download_repo()
