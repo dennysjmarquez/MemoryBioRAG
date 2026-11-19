@@ -18,7 +18,7 @@ description: |-
 | Notebook ID | `b2645e9b-8bce-4067-841a-7796af4a14f0` |
 | Notebook URL | https://notebooklm.google.com/notebook/b2645e9b-8bce-4067-841a-7796af4a14f0 |
 | Config | `config.json` (dentro del proyecto) |
-| DB BioRAG | `/mnt/recursos_compartidos_y_otros/MemoryBioRAG/MemoryBioRAG_Data/memory_biorag.db` |
+| DB BioRAG | `~/.biorag/memory_biorag.db` (ruta canónica del usuario) |
 | Script export incremental | `scripts/export_pending.py` |
 | Script export completo | `scripts/export_full.py` |
 | Skill Athena | `/home/dennys/.claude/skills/biorag-sync/SKILL.md` (este archivo) |
@@ -475,7 +475,8 @@ por duplicacion cuando se llama `aprender` + `consolidar` repetidamente.
 
 ```python
 import sqlite3
-db = '/mnt/recursos_compartidos_y_otros/MemoryBioRAG/MemoryBioRAG_Data/memory_biorag.db'
+from pathlib import Path
+db = str(Path.home() / '.biorag' / 'memory_biorag.db')
 conn = sqlite3.connect(db, timeout=5)
 cur = conn.cursor()
 cur.execute('SELECT concepto, length(contenido) FROM largo_plazo WHERE contenido LIKE "%Actualizacion%" OR contenido LIKE "%Actualización%"')
@@ -487,7 +488,8 @@ for r in cur.fetchall():
 
 ```python
 import sqlite3, time
-db = '/mnt/recursos_compartidos_y_otros/MemoryBioRAG/MemoryBioRAG_Data/memory_biorag.db'
+from pathlib import Path
+db = str(Path.home() / '.biorag' / 'memory_biorag.db')
 conn = sqlite3.connect(db, timeout=5)
 cur = conn.cursor()
 cur.execute('UPDATE largo_plazo SET contenido = ?, ultimo_acceso = ? WHERE concepto = ?',

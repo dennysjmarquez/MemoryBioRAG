@@ -1,13 +1,15 @@
 # BioRAG — Memoria Cognitiva Biomimética y Simbólica para Agentes de IA
 
-> **Versión del código en esta rama:** v36.0 (cierre técnico). La integración/publicación en `master` y el tag aún están pendientes.
-> **Paradigma:** Motor Python + SQLite FTS5. **Sin embeddings densos, GPU ni llamadas a APIs externas** en el path de búsqueda.
-> **Motor:** Arquitectura modularizada (18 submódulos `core/memory/` + 15 submódulos `core/mcp_server/` + fachada delgada) + SQLite FTS5 WAL + PPMI-SVD (100 dimensiones) + espacio semántico de 13 ejes + grafo sináptico Hebbiano + SDM (2048 bits) + calibración conforme + activación ACT-R + Concept Hubs + validación simétrica fail-fast de sustantivos clave + **neurona de reordenamiento que aprende sola** (29 señales → 6 ocultas → 1 corrección, con piso en la fórmula a mano) + **neurona asociativa cerrada de fábrica** (5 agujas → fuerza 0–1: ¿dos recuerdos tienen que ver?; examinada, aún no decide en el motor) + enlaces del agente intocables + **destino canónico del córtex en `~/.biorag/`** + **instalador de configuración MCP para clientes compatibles**.
-> **Idiomas:** Español e inglés (stemming bilingüe, expansión simbólica con WordNet, Concept Hubs de 5 ángulos y Domain Dict).
+> [!IMPORTANT]
+> **Repositorio de desarrollo (DEV):** `MemoryBioRAG` es el repositorio principal de desarrollo activo. La versión de trabajo y sus características vigentes pueden incluir cambios aún en curso y no constituyen por sí solos una publicación estable.  
+> Para consultar o descargar la distribución estable, visita el **[repositorio MemoryBioRAG-Stable ↗](https://github.com/dennysjmarquez/MemoryBioRAG-Stable)**.
 
 **BioRAG** es una memoria simbólica persistente para agentes de IA que aborda la pérdida de contexto entre sesiones mediante recuperación híbrida. “Biomimética” describe una inspiración de diseño; no significa que el motor simule literalmente un cerebro humano. Los resultados de rendimiento se limitan a los benchmarks y snapshots indicados.
 
-> **Repositorio de desarrollo (DEV):** `MemoryBioRAG` es el repositorio principal de desarrollo. La versión de trabajo y sus características vigentes se resumen al inicio de este README; pueden incluir cambios aún en curso y no constituyen por sí solos una publicación estable. Para consultar o descargar la distribución estable, visita el [repositorio MemoryBioRAG-Stable](https://github.com/dennysjmarquez/MemoryBioRAG-Stable). El flujo de preparación y publicación está en [Publicar en MemoryBioRAG-Stable](#publicar-en-memorybiorag-stable).
+> **Versión del código:** v36.0 (cierre técnico en `master`, tag `v36.0`). La publicación a `MemoryBioRAG-Stable` se gestiona mediante el pipeline de staging y release.
+> **Paradigma:** Motor Python + SQLite FTS5. **Sin embeddings densos, GPU ni llamadas a APIs externas** en el path de búsqueda.
+> **Motor:** Arquitectura modularizada (18 submódulos `core/memory/` + 15 submódulos `core/mcp_server/` + fachada delgada) + SQLite FTS5 WAL + PPMI-SVD (100 dimensiones) + espacio semántico de 13 ejes + grafo sináptico Hebbiano + SDM (2048 bits) + calibración conforme + activación ACT-R + Concept Hubs + validación simétrica fail-fast de sustantivos clave + **neurona de reordenamiento que aprende sola** (29 señales → 6 ocultas → 1 corrección, con piso en la fórmula a mano) + **neurona asociativa cerrada de fábrica** (5 agujas → fuerza 0–1: ¿dos recuerdos tienen que ver?; examinada, aún no decide en el motor) + enlaces del agente intocables + **destino canónico del córtex en `~/.biorag/`** + **instalador de configuración MCP para clientes compatibles**.
+> **Idiomas:** Español e inglés (stemming bilingüe, expansión simbólica con WordNet, Concept Hubs de 5 ángulos y Domain Dict).
 
 ---
 
@@ -1558,93 +1560,56 @@ El servidor consulta en segundo plano la política `update_policy.json` del cana
 
 La consulta se repite cada 24 horas, no transmite recuerdos ni bloquea el uso de memoria, y nunca instala automáticamente. Define `BIORAG_UPDATE_CHECK=0` para desactivarla.
 
-### Publicar en MemoryBioRAG-Stable
+### Para publicar en MemoryBioRAG-Stable
 
-> **Flujo manual y con aprobación explícita.** `MemoryBioRAG` es el repositorio DEV; no se publica directamente como Stable. Los comandos `stage_stable.py` y `release_stable.py` solo preparan candidatos locales: no hacen `git push`, no crean tags y no suben archivos. Un agente puede ejecutar QA y preparar artefactos, pero debe detenerse antes de cualquier publicación remota hasta recibir autorización explícita del dueño del proyecto.
->
-> **Estado del destino:** al verificarlo el 2026-10-21, `dennysjmarquez/MemoryBioRAG-Stable` era público pero estaba vacío, sin rama predeterminada ni releases. Comprueba el estado actual antes de cada publicación. La primera publicación requiere inicializar `main` con un candidato revisado.
+> **Leer antes de cada publicación.** Estos pasos son la secuencia completa y en orden estricto.  
+> **No se salta ninguno. El agente prepara y verifica localmente; solo el dueño autoriza y ejecuta el push.**
 
-1. **Confirmar versión y QA.** Usa únicamente una versión aprobada en formato `vX.Y`; `VERSION` debe coincidir exactamente y `pyproject.toml` debe declarar `X.Y.0`. No incrementes la versión automáticamente. Ejecuta las pruebas y la QA oficial en copias temporales del snapshot, nunca sobre la base viva. Si una prueba o gate falla, detén el proceso y corrige el código fuente; no cambies pruebas ni saltes verificaciones para obtener un resultado verde.
+```text
+Paso 1 — Semáforo de Calidad y Regresión Biológica (Innegociable)
+  ./scripts/run_qa_suite.sh
+  → Ejecuta la batería de verificación integral en 5 fases sobre copia aislada en memoria:
+      [1/5] Tests Unitarios (Pytest: contratos de interfaz, excepciones y schemas)
+      [2/5] Invariantes de Scoring Híbrido (Monotonía y normalización de pesos)
+      [3/5] Suite Concept Hub (Recuperación semántica pura sin overlap léxico)
+      [4/5] Suite Abismo Léxico (EXP-Q: Rescate topológico por grafo sináptico y PPMI)
+      [5/5] Evaluación Global QA (921 casos canónicos de regresión contra snapshot congelado)
+  → Criterio de aceptación: «SUITE DE EVALUACIÓN BIORAG FINALIZADA CON ÉXITO» (Recall@5 >= 97.0%, <= 24 fallos, <= 15% FP).
+  → Si algo falla, el release queda BLOQUEADO: se corrige el motor en DEV; jamás el test o el caso QA.
+  → Durante desarrollo iterativo rápido en DEV: usar «./scripts/run_qa_suite.sh --unit» para validar fases [1/5] a [4/5].
 
-2. **Crear y revisar la vista previa local.** Usa Python 3.11 o posterior y un entorno aislado con `setuptools>=77` y `wheel`. Sustituye `v36.1` por el valor exacto de `VERSION`; debe coincidir con `pyproject.toml` como `36.1.0`:
+Paso 2 — Staging local (generar el espejo limpio desacoplado)
+  python3 scripts/stage_stable.py --version v1.0
+  → La versión indicada en --version es la versión pública oficial que tú eliges para MemoryBioRAG-Stable (desacoplada del ciclo interno de DEV).
+  → Debe terminar con «Stage status: READY» y «Blockers: 0».
+  → Genera en .staging/stable/preview/tree/ el árbol limpio con VERSION=v1.0, pyproject.toml=1.0.0 y update_policy.json apuntando a v1.0.
 
-   ```bash
-   python -m pip install --upgrade "setuptools>=77" wheel
-   python scripts/stage_stable.py --version v36.1
-   ```
+Paso 3 — Preparar el archivo de release
+  Crear: docs/releases/RELEASE-v1.0.md   (en inglés pulcro; título, resumen y qué cambió, sin jergas de DEV)
 
-   Para consultar las opciones sin iniciar una ejecución, usa `python scripts/stage_stable.py --help` o `python scripts/release_stable.py --help`.
+Paso 4 — Verificación en seco (Dry-run de publicación con blindaje de autor)
+  python3 scripts/publish_stable.py --version v1.0 --message-file docs/releases/RELEASE-v1.0.md --dry-run
+  → Audita que el autor sea ÚNICAMENTE Dennys José Márquez Reyes, sin co-autores ni firmas de bots o agentes.
+  → Debe terminar con «✓ [DRY RUN OK]».
 
-   `--version` es obligatorio: el script no infiere ni incrementa versiones. La vista previa se genera desde el árbol de trabajo actual, aplicando la allowlist y las transformaciones Stable; no es una copia de todo el repositorio DEV. No modifica las fuentes, el índice de Git ni la base de datos, y no publica nada. El resumen imprime el estado, la ruta, el SHA-256, los conteos y los bloqueos/avisos. `READY` termina con código 0; `BLOCKED` o un error, con código 2. No continúes si hay bloqueos y revisa también todos los avisos: `READY` no equivale a aprobación para publicar.
+Paso 5 — Publicar en el repositorio público (MemoryBioRAG-Stable)
+  python3 scripts/publish_stable.py --version v1.0 --message-file docs/releases/RELEASE-v1.0.md
+  → Este paso NUNCA lo ejecuta un agente en automático sin tu confirmación.
+  → Sincroniza el código fuente limpio (cero .zips), crea el commit firmado por ti, crea el tag anotado v1.0 y hace el push atómico a origin main.
 
-   Revisa estos elementos del candidato:
+Paso 6 (Opcional) — Crear la Release en la web de GitHub
+  gh release create v1.0 \
+    --repo dennysjmarquez/MemoryBioRAG-Stable \
+    --title "MemoryBioRAG-Stable v1.0" \
+    --notes-file docs/releases/RELEASE-v1.0.md
 
-   - `.staging/stable/preview/report.md`: resumen de gates, bloqueos, avisos y decisiones de inclusión/exclusión.
-   - `.staging/stable/preview/manifest.json`: versión, inventario, procedencia y hashes.
-   - `.staging/stable/preview/TREE_SHA256`: SHA-256 que confirma el árbol candidato.
-   - `.staging/stable/preview/tree/`: contenido completo que se empaquetaría. Confirma, entre otras cosas, el README Stable, los plugins OpenCode y sus hooks, la ausencia del dashboard y la exclusión de bases de datos, credenciales y datos privados.
-
-   **Dónde va cada README:** el `README.md` de la raíz de este checkout documenta el repositorio DEV. No se copia como README de Stable. La fuente del README Stable es `release/README.template.md`; el empaquetador la renderiza como `README.md` en la raíz del candidato, es decir, `.staging/stable/preview/tree/README.md`. En los artefactos, queda como `.stable-release/stable/releases/<candidato>/tree/README.md` y en la raíz del ZIP como `MemoryBioRAG-Stable-v36.1/README.md`. Para cambiar el README de Stable, edita la plantilla, vuelve a generar la vista previa y revisa el nuevo resultado; no reemplaces el README DEV.
-
-   **`tree/` es el candidato autoritativo y completo para Stable.** Solo se conserva una vista previa en `.staging/stable/preview/`; cada ejecución completa la reemplaza y no mantiene historial. Las stages antiguas solo se eliminan si sus manifiestos y SHA-256 se verifican; los releases locales antiguos verificados se trasladan intactos fuera de `.staging/`. Si aparece contenido no reconocible, el empaquetador se detiene para inspección manual en vez de borrarlo o moverlo a ciegas. Si cambias código o la plantilla después de revisar, vuelve a crear y revisar la vista previa: cambiará el árbol/hash vigente.
-
-3. **Preparar artefactos locales desde esa misma vista previa.** Hazlo solo después de revisar el `tree/`; usa la misma versión, la ruta fija de la vista previa y el SHA-256 vigente. En Bash, macOS o Linux, pásalo directamente desde el archivo generado:
-
-   ```bash
-   python scripts/release_stable.py \
-     --version v36.1 \
-     --stage-dir .staging/stable/preview \
-     --confirm-tree-sha256 "$(cat .staging/stable/preview/TREE_SHA256)"
-   ```
-
-   En PowerShell, lee el mismo SHA-256 y elimina el salto de línea final:
-
-   ```powershell
-   $sha = (Get-Content .staging/stable/preview/TREE_SHA256 -Raw).Trim()
-   python scripts/release_stable.py --version v36.1 --stage-dir .staging/stable/preview --confirm-tree-sha256 $sha
-   ```
-
-   `--version` debe ser el mismo tag usado para crear la vista previa; `--stage-dir` solo admite `.staging/stable/preview`; y `--confirm-tree-sha256` debe ser el hash exacto revisado. El script vuelve a comprobar la integridad y las validaciones, pero no vuelve a seleccionar ni leer archivos del árbol DEV. Si la vista previa cambió o se regeneró, el hash anterior no sirve: inspecciona el nuevo candidato antes de continuar.
-
-   Una ejecución correcta termina con código 0 e informa la carpeta de salida bajo `.stable-release/stable/releases/<versión>-<fecha>-<id>/`. Allí quedan `tree/`, el ZIP fuente, el wheel, `release-manifest.json` con hashes y un informe. El ZIP fuente contiene el candidato completo, incluida la skill y los plugins OpenCode V1/V2. El wheel actual no incluye esos recursos; no lo presentes como instalador completo ni lo subas a PyPI hasta resolverlo y volver a validar la instalación. Un error termina con código 2. El comando prepara archivos locales únicamente: no crea commits ni tags, no hace push, no sube archivos y no publica.
-
-4. **Inicializar o actualizar el repositorio Stable.** En un clon limpio de `MemoryBioRAG-Stable`, coloca únicamente el contenido del `tree/` revisado y elimina archivos de producto que ya no pertenezcan al candidato; no copies el repositorio DEV, `.staging/`, snapshots, bases de datos ni otros artefactos locales. Si sigue vacío, crea la rama inicial `main`; para versiones posteriores, parte de la rama `main` existente. Nunca ejecutes estos comandos desde el checkout DEV:
-
-   ```bash
-   git remote -v
-   git status --short
-   git add --all
-   git diff --cached --check
-   git diff --cached --stat
-   git commit -m "release: MemoryBioRAG-Stable v36.1"
-   ```
-
-   `git add --all` es válido aquí solo porque el clon Stable debe contener exclusivamente el candidato revisado. Revisa el diff y pide aprobación explícita del dueño antes de publicar la rama:
-
-   ```bash
-   git push -u origin main
-   ```
-
-5. **Crear el tag y el GitHub Release, solo después de aprobar el commit de `main`.** Usa el mismo tag `vX.Y` y no reutilices tags publicados. Desde el clon Stable:
-
-   ```bash
-   git tag -a v36.1 -m "MemoryBioRAG-Stable v36.1"
-   git push origin v36.1
-   ```
-
-   Luego, con las notas en inglés ya revisadas y las rutas reales de los artefactos:
-
-   ```bash
-   gh release create v36.1 --verify-tag \
-     --repo dennysjmarquez/MemoryBioRAG-Stable \
-     --title "MemoryBioRAG-Stable v36.1" \
-     --notes-file "<notas-aprobadas.md>" \
-     "<ruta-al-ZIP-fuente>" "<ruta-al-wheel>"
-   ```
-
-   Verifica el resultado con `gh release view v36.1 --repo dennysjmarquez/MemoryBioRAG-Stable` y coteja el tag, los adjuntos y sus SHA-256 con el manifiesto local. Confirma también que `update_policy.json` recomienda ese mismo tag. `--verify-tag` evita que `gh` cree un tag implícitamente.
-
-**Versiones con defectos.** No borres ni muevas un tag o release publicado para corregir un fallo ordinario; prepara una nueva versión aprobada y enlázala como corrección. Ante una exposición crítica de credenciales o un artefacto inutilizable, detén el proceso, avisa al dueño y sigue su decisión explícita de respuesta. Esta guía no autoriza a un agente a ejecutar ninguna acción remota.
+Paso de emergencia — Retirar o corregir una versión con fallo crítico
+  1. Inmutabilidad de tags: Nunca borres ni reescribas tags públicos ya publicados.
+  2. Si hubo un error funcional en el código:
+     Corrige el bug en DEV, incrementa a v36.0.1 y publica el parche correctivo de inmediato.
+  3. Si hubo exposición accidental de una credencial privada:
+     Revoca la credencial de inmediato en el proveedor y contacta soporte para purga de commit.
+```
 
 ### Snapshot de Base de Datos para Pruebas
 

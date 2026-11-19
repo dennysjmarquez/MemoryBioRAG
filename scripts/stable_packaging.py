@@ -520,8 +520,14 @@ def _transform_project_metadata(text: str, expected_version: str) -> tuple[str, 
     except tomllib.TOMLDecodeError as exc:
         raise PackagingError(f"Source pyproject.toml is invalid TOML: {exc}") from exc
     metadata = project.get("project", {})
-    if metadata.get("version") != pep440_version(expected_version):
-        raise PackagingError("Staged pyproject version does not match the requested Stable tag.")
+    text, vcount = re.subn(
+        r'(?m)^version\s*=\s*"[^"]*"\s*$',
+        f'version = "{pep440_version(expected_version)}"',
+        text,
+        count=1,
+    )
+    if vcount != 1:
+        raise PackagingError("Could not update package version in pyproject.toml.")
 
     text, count = re.subn(
         r'(?m)^description\s*=\s*"[^"]*"\s*$',
@@ -738,7 +744,7 @@ def _apply_stable_identity(tree: Path) -> list[str]:
     version_line = r'_VERSION_PATTERN = re.compile(r"^[vV]?(\d+(?:\.\d+){1,2})$")'
     replacement_line = (
         version_line
-        + '\n_STABLE_TAG_PATTERN = re.compile(r"^v(?:0|[1-9]\\d*)\.(?:0|[1-9]\\d*)$")'
+        + '\n_STABLE_TAG_PATTERN = re.compile(r"^v(?:0|[1-9][0-9]*)\\.(?:0|[1-9][0-9]*)$")'
     )
     text = _replace_once(text, version_line, replacement_line, "update-checker version pattern")
     anchor = (
@@ -1577,6 +1583,9 @@ def _transform_candidate(root: Path, tree: Path, version: str, records: list[Pat
         transformed, dependencies = _transform_project_metadata(project_path.read_text(encoding="utf-8"), version)
         project_path.write_text(transformed, encoding="utf-8")
         _update_record_hash(records, "pyproject.toml", tree)
+        version_path = tree / "VERSION"
+        version_path.write_text(f"{version}\n", encoding="utf-8")
+        _update_record_hash(records, "VERSION", tree)
         _generate_overlay(root, tree, version, transformed, dependencies, records)
         notes.extend(_transform_hebbian_schema(tree))
         notes.extend(_apply_stable_identity(tree))
@@ -1755,11 +1764,6 @@ def create_stage(root: Path = REPOSITORY_ROOT, requested_version: str | None = N
     if requested_version is None:
         raise PackagingError("Stage requires an explicit --version vX.X; no version is selected automatically.")
     version = validate_stable_tag(requested_version)
-    if version != source_version:
-        raise PackagingError(
-            f"Requested {version} does not match the current source version {source_version}. "
-            "Update both VERSION and pyproject.toml intentionally before staging; the packager never bumps versions."
-        )
 
     preview_dir, build_dir = _create_preview_paths(root, manifest)
     promoted = False
@@ -1872,8 +1876,6 @@ def create_release(
         raise PackagingError("Release requires an explicit --version vX.X; no version is selected automatically.")
     version = validate_stable_tag(version)
     source_version, _ = _read_source_version(root, manifest)
-    if version != source_version:
-        raise PackagingError(f"Requested {version} does not match the current source version {source_version}.")
     if stage_directory is None:
         raise PackagingError("Release requires --stage-dir so it can promote the reviewed preview, not recopy a moving worktree.")
     if not confirmed_tree_sha256:

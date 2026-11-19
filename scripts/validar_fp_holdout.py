@@ -19,12 +19,13 @@ import math
 import os
 import random
 import sys
+from pathlib import Path
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from core.calibracion import UmbralConforme
 
-DB = os.environ.get("BIORAG_PATH", "MemoryBioRAG_Data/memory_biorag.db")
+DB = os.environ.get("BIORAG_PATH") or str(Path.home() / ".biorag" / "memory_biorag.db")
 
 
 def wilson_95(positivos: int, n: int) -> tuple:

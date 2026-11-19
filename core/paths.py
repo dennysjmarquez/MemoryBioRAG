@@ -56,6 +56,8 @@ def resolve_db_path(explicit: str | None = None) -> str:
         return env
     if os.path.exists(_USER_HOME_DB):
         return _USER_HOME_DB
+    # Fallback legacy: solo se activa si existe físicamente (instalaciones previas a v36).
+    # No se crea nunca; es de solo lectura histórico.
     if os.path.exists(_LEGACY_DB):
         return _LEGACY_DB
     return DEFAULT_DB
