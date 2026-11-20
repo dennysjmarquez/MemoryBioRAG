@@ -62,7 +62,7 @@ def _resolve_install_dir() -> Path:
 
 
 INSTALL_DIR = _resolve_install_dir()
-BACKUPS_DIR = Path.home() / ".biorag" / "backups"
+BACKUPS_DIR = Path(os.environ.get("BIORAG_BACKUPS_DIR", str(Path.home() / ".biorag" / "backups")))
 OPENCODE_PLUGIN_NAME = "opencode-biorag-remember-plugin"
 # Nombre del plugin para OpenCode V2 (API @opencode/plugin ≥ 2.x)
 OPENCODE_PLUGIN_NAME_V2 = "opencode-2-biorag-remember-plugin"
@@ -676,6 +676,25 @@ def _nested_delete(root: dict, key_path: list[str]) -> bool:
 
 # ── Backup ──────────────────────────────────────────────────────────────────
 
+def _prune_old_backups(prefix: str, max_keep: int = 5) -> None:
+    """Keep only the most recent N backups matching prefix to prevent disk bloat."""
+    try:
+        if not BACKUPS_DIR.exists():
+            return
+        matches = sorted(
+            BACKUPS_DIR.glob(f"{prefix}-*"),
+            key=lambda p: p.stat().st_mtime,
+            reverse=True,
+        )
+        for old in matches[max_keep:]:
+            try:
+                old.unlink()
+            except OSError:
+                pass
+    except Exception:
+        pass
+
+
 def _backup_file(path: Path) -> Path | None:
     """Copy file to backups folder with timestamp. Return backup path or None."""
     if not path.exists():
@@ -685,6 +704,7 @@ def _backup_file(path: Path) -> Path | None:
     safe = path.name.replace(".json", "").replace(".", "_")
     dest = BACKUPS_DIR / f"{safe}-{ts}.json"
     shutil.copy2(path, dest)
+    _prune_old_backups(safe, max_keep=5)
     return dest
 
 
