@@ -33,16 +33,23 @@ graph LR
 ## Quick Demonstration
 
 ```bash
-# 1. Ingest a decision with conceptual keywords (--sustantivos-clave defines the thematic core)
+# 1. Ingest a memory with thematic keywords (--sustantivos-clave anchors the conceptual core)
 $ python biorag.py guardar arch_decision "Adopted Angular 19 signals and TailwindCSS for the client portal." \
     --sustantivos-clave "frontend,angular,arquitectura"
+'arch_decision' guardado en corto plazo.
 
-# 2. Search using different vocabulary (no literal overlap with "client portal" or "Adopted")
-$ python biorag.py buscar "how are we building the user interface"
-[1] arch_decision (Score: 0.884 | Certeza: Evidencia directa)
-    "Adopted Angular 19 signals and TailwindCSS for the client portal."
-    Asociaciones: frontend, angular, arquitectura
+# 2. Consolidate working memory into the long-term connectome
+$ python biorag.py sueno
+[MemoryBioRAG] Proceso de consolidación y equilibrio sináptico completado con éxito.
+
+# 3. Search memory across active nodes
+$ python biorag.py buscar "client portal"
+[MemoryBioRAG] 1 coincidencias encontradas:
+--- #1: arch_decision (peso:0.98, estado:activo) ---
+Adopted Angular 19 signals and TailwindCSS for the client portal.
 ```
+
+When connected to an AI agent via MCP, the agent queries memory programmatically via `recordar` and receives epistemic certainty classifications (`evidencia_directa`, `relacionado_confianza_media`, `sin_evidencia_directa`).
 
 ---
 
@@ -51,7 +58,7 @@ $ python biorag.py buscar "how are we building the user interface"
 | Capability | Description |
 |---|---|
 | **Associative Connectome** | Memories link to each other via Hebbian synaptic weights that strengthen through activation (LTP) and decay over time (LTD). |
-| **Epistemic Conformal Certainty** | Mathematical split conformal prediction establishes dynamic false-positive boundaries—preventing spurious matches and distinguishing direct facts from low-confidence associations. |
+| **Epistemic Conformal Certainty** | Mathematical split conformal prediction establishes dynamic false-positive boundaries—bounding spurious retrievals and distinguishing direct facts from low-confidence associations. |
 | **Local Multi-Signal Retrieval** | Multi-channel retrieval combining SQLite FTS5 BM25, 100-dim corpus-derived PPMI+SVD latent space, and 13 topological semantic dimensions. Zero GPUs or external API calls required. |
 | **Autonomous Sleep Cycle & DMN** | Background daemons consolidate working memory into long-term structures, prune spurious connections, and detect cognitive gaps during idle periods. |
 | **Fail-Fast Concept Hubs** | Multi-angle semantic bridge expansion resolving the "lexical abyss" problem where queries share zero literal tokens with stored knowledge. |
@@ -75,12 +82,12 @@ $ python biorag.py buscar "how are we building the user interface"
 
 ## Benchmarked Performance (Internal Evaluation Suite)
 
-Evaluated on the frozen 921-case BioRAG evaluation suite (available in the research repository):
+Evaluated on the frozen 921-case BioRAG evaluation suite (875 gold retrieval queries, 40 negative controls for false-positive validation, and 6 ambiguous edge cases analyzed separately outside the global retrieval denominator):
 
 | Metric | Result | Meaning |
 |---|---|---|
 | **Recall@5 (Global)** | **100.0% (875/875)** | 100% gold-memory retrieval rate within the agent's top-5 working window. |
-| **Recall@1 (Top-1)** | **91.8% – 93.0%** | Over 9 de cada 10 queries surface the exact target memory in first place. |
+| **Recall@1 (Top-1)** | **91.8% – 93.0%** | Over 9 out of 10 queries surface the exact target memory in first place. |
 | **MRR (Mean Reciprocal Rank)** | **0.950 – 0.956** | High confidence density at the top of the ranked list. |
 | **False Positive Rate** | **0.0% (0/40)** | Conformal prediction threshold successfully suppresses negative controls. |
 
@@ -172,134 +179,6 @@ python biorag.py buscar "project decision" --todos
 python biorag.py buscar "architecture refactoring" --deep
 
 # Store a durable memory with conceptual keywords (--sustantivos-clave defines thematic anchor)
-python biorag.py guardar release_policy "Stable releases require verified test gates." --sustantivos-clave "stable,release,policy"
-
-# Create a synaptic link between two concepts
-python biorag.py asociar release_policy versioning_policy --tipo asociativa
-
-# Inspect cortex health and statistics
-python biorag.py estado
-
-# Trigger a background consolidation cycle
-python biorag.py sueno
-```
-
-Run `python biorag.py help` for the complete command reference.
-
----
-
-## Bundled agent skill
-
-The distribution bundles the `biorag-memory` skill at `skills/biorag-memory/SKILL.md`. The installer automatically deploys it to supported agent skill directories:
-* `~/.claude/skills/biorag-memory/SKILL.md`
-* `~/.config/opencode/skills/biorag-memory/SKILL.md`
-* `~/.agents/skills/biorag-memory/SKILL.md`
-
----
-
-## Data, configuration, and privacy
-
-- **Default Storage:** SQLite database stored outside the repository at `~/.biorag/memory_biorag.db` (`%USERPROFILE%\.biorag\` on Windows).
-- **Custom Location:** Set `BIORAG_PATH` to override the database path.
-- **Privacy:** Core retrieval and storage are 100% local. BioRAG does not upload your database, memory contents, or telemetry.
-- **Update Checker:** Checks public GitHub release tags every 24 hours (non-blocking). Disable anytime with `BIORAG_UPDATE_CHECK=0`.
-- **Optional External Maintenance:** Background DMN reflection can optionally use Gemini API keys if explicitly configured; core search never requires external APIs.
-
----
-
-## Repository Structure & Channels
-
-* **Production / Distribution (`MemoryBioRAG-Stable`):** Official stable release channel. Contains clean, production-ready code, automated installer, and packaging metadata.
-* **Research / Development (`MemoryBioRAG`):** Active research laboratory, historical benchmarks (921 QA suite), experimental scripts, and architectural exploration.
-
----
-
-## License
-
-Apache License 2.0. See [`LICENSE`](LICENSE).
-
-### Requirements
-
-- Python 3.11 or 3.12
-- SQLite built with FTS5 support (standard in official Python distributions)
-- Git (or download source ZIP directly from GitHub Releases)
-
-### Clone and install
-
-```bash
-git clone https://github.com/dennysjmarquez/MemoryBioRAG-Stable.git
-cd MemoryBioRAG-Stable
-python3 -m venv .venv
-```
-
-Activate the virtual environment and run the automated installer:
-
-**Linux or macOS**
-
-```bash
-. .venv/bin/activate
-python -m pip install --upgrade pip
-python -m pip install -r requirements.txt
-python install.py
-```
-
-**Windows PowerShell**
-
-```powershell
-.\.venv\Scripts\Activate.ps1
-python -m pip install --upgrade pip
-python -m pip install -r requirements.txt
-python install.py
-```
-
-The installer verifies environment prerequisites, configures detected MCP clients (OpenCode, Claude Desktop, Cursor, Claude Code, Cline, etc.), and sets up canonical storage at `~/.biorag/`.
-
-After installation, inspect your configuration with:
-
-```bash
-python install.py --status
-python biorag.py help
-```
-
-To display configuration snippets for manual client setup, run `python install.py --show-config`.
-
----
-
-## Connect an MCP client
-
-BioRAG communicates with agents via the standard input/output (`stdio`) transport. The automated installer detects and patches client configuration files automatically.
-
-### Supported Clients
-
-* **Claude Code / Claude Desktop:** Configured via `claude_desktop_config.json` or `.claude/`
-* **OpenCode:** Native MCP configuration + bundled reminder plugin
-* **Cursor / VS Code:** Configured in `settings.json` / `cursor.mcp.json`
-* **Cline / Windsurf / Custom Agents:** Standard `stdio` server entry point: `python path/to/mcp_server.py`
-
-### Exposed MCP Tools
-
-| Tool | Purpose |
-|---|---|
-| `recordar` | High-level recall with epistemic certainty classification and paraphrase expansion. |
-| `buscar` | Multi-signal semantic search across active and dormant memories. |
-| `aprender` | Durable memory ingestion with pre-flight search verification. |
-| `vincular` | Explicit Hebbian synaptic association between two conceptual nodes. |
-| `estado` | Health status, node count, and synaptic density diagnostics. |
-
----
-
-## Command-line interface
-
-BioRAG includes a full-featured CLI (`biorag.py`) for direct inspection and management from your terminal.
-
-```bash
-# Search memory across all active nodes
-python biorag.py buscar "project decision" --todos
-
-# Search including dormant memories (deep search)
-python biorag.py buscar "architecture refactoring" --deep
-
-# Store a durable memory with conceptual keywords
 python biorag.py guardar release_policy "Stable releases require verified test gates." --sustantivos-clave "stable,release,policy"
 
 # Create a synaptic link between two concepts
