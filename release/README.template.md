@@ -77,7 +77,7 @@ When connected to an AI agent via MCP, the agent queries memory programmatically
 |---|---|---|
 | **Hardware Requirements** | GPU / Cloud Inference API | 100% Local CPU (ARM64 / x86_64) |
 | **Embedding Cost** | Per-token API fees or massive model weights | Zero API calls in core retrieval path; internal corpus-derived PPMI+SVD |
-| **Retrieval Mechanism** | Approximate Nearest Neighbors (ANN) cosine distance | Seven-signal hybrid retrieval: FTS5 BM25 + SVD + 13 Semantic Axes + Hebbian Graph |
+| **Retrieval Mechanism** | Approximate Nearest Neighbors (ANN) cosine distance | Multi-signal hybrid retrieval: FTS5 BM25 + SVD + 13 Semantic Axes + Hebbian Graph |
 | **Memory Relationships** | Unlinked points in embedding space | Explicit Hebbian synaptic connectome (LTP/LTD) |
 | **Certainty Calibration** | Arbitrary similarity thresholds (e.g. `score > 0.75`) | Calibrated conformal prediction thresholds |
 | **Memory Lifecycle** | Static records until manually reindexed | Sleep consolidation and associative pruning (opt-in DMN) |
@@ -86,14 +86,14 @@ When connected to an AI agent via MCP, the agent queries memory programmatically
 
 ## Benchmarked Performance (Internal Evaluation Suite)
 
-Evaluated on the frozen 921-case BioRAG evaluation suite (875 gold retrieval queries, 40 negative controls for false-positive validation, and 6 ambiguous edge cases analyzed separately outside the global retrieval denominator):
+Evaluated on the frozen 921-case MemoryBioRAG evaluation suite (875 gold retrieval queries, 40 negative controls for false-positive validation, and 6 ambiguous edge cases analyzed separately outside the global retrieval denominator):
 
 | Metric | Result | Meaning |
 |---|---|---|
 | **Recall@5 (Global)** | **100.0% (875/875)** | 100% gold-memory retrieval rate within the agent's top-5 working window. |
 | **Recall@1 (Top-1)** | **91.8% – 93.0%** | Over 9 out of 10 queries surface the exact target memory in first place. |
 | **MRR (Mean Reciprocal Rank)** | **0.950 – 0.956** | High confidence density at the top of the ranked list. |
-| **False Positive Rate** | **0.0% (0/40)** | Conformal prediction threshold successfully suppresses negative controls. |
+| **False Positive Rate** | **0.0% (0/40)** | Conformal prediction threshold successfully suppresses negative controls on this frozen control set. |
 
 *Note: Benchmarks measured on frozen reference snapshots under deterministic conditions. To inspect or run the complete evaluation suite, visit the [research repository](https://github.com/dennysjmarquez/MemoryBioRAG).*
 
