@@ -1,26 +1,35 @@
-# Estado de ejecución — fase aprobación/búsqueda/QA
+# Estado final del hito experimental — aprobación/búsqueda/QA
 
-## Hecho
-- Diseño del contrato MCP documentado en PLAN_APROBACION_QA.md. Todavía no hay herramienta de aprobación publicada ni escritura aprobada a grafo/core.
-- Adaptador search_adapter.py implementado fuera de core. Soporta shadow/apply experimental, conserva tuplas y scores; fallback visible ante error. Necesita puerto explícito de resolución contextual.
-- Test del adaptador: shadow, promoción estable, passthrough y fallback. Suite experimental total 41/41 PASS.
-- Código efectivo de core/config/middleware y scripts oficiales copiados a /tmp/biorag-phase3/code, sin .env.local ni DB viva.
-- Snapshot oficial snapshots/qa_escape_qcr_20260811.db copiado por backup SQLite. Quick check OK. Casos oficiales contados: 921.
-- QA oficial lanzada en proceso background (baseline primero, selector después); seed/configuración constantes. No se cambiaron gates ni casos. Logs, trazas y métricas en /tmp/biorag-phase3/results.
+Informe de referencia: [INFORME_APROBACION_QA.md](INFORME_APROBACION_QA.md). Sustituye los estados intermedios anteriores de este archivo. No es aprobación de release v36.2.
 
-## Pendiente: no declarar resultado todavía
-La baseline seguía en ejecución en el último control, con 662 llamadas de búsqueda trazadas. No equivalen necesariamente a 216 casos completados. No se conoce aún el gate ni el recall final. La variante selector se ejecutará después de la baseline, incluso si el gate devuelve fallo, para poder comparar honestamente.
+## Completado
 
-Proceso Arena: qa-aislada-de-921-casos-baseline-410e19d4
+- Servidor MCP stdio de laboratorio: registrar/revisar/confirmar corrección y buscar_contextual. Fuera de core/MCP productivo.
+- Transacción SQLite local ledger + grafo tipado, con digest, contexto delegado, revalidación, recibos idempotentes, concurrencia, rollback y recuperación tras muerte de proceso.
+- Proyección sinapsis_sustitucion en copia del grafo; preserva asociaciones manuales del esquema sinapsis actual, cuya PK solo admite un tipo por par.
+- E2E cliente MCP real + motor real + snapshot suministrado en backup temporal: canónico Top-1, histórico y cinco candidatos conservados, scores intactos, digest inválido rechazado, fuente intacta. Datos de interacción/antecedente son fixtures, contexto explícito.
+- 59 tests de laboratorio PASS, incluyendo crecimiento con 10.000 afirmaciones ajenas.
+- Suite global efectiva en copia con recursos completos: 879 PASS, 18 SKIP por ausencia de DB viva, 2 subtests PASS, 0 FAIL. No se relajaron ni editaron tests/core.
+- QA oficial 921 casos, baseline y adaptador: ambas terminadas y gate OK. Con recursos completos, R@5=100%, R@1=93.03%, MRR=0.9566, FP=0/40 en ambos brazos. 921 salidas idénticas en orden y scores; categorías/globales iguales.
+- QA usa ledger vacío/resolver ausente: valida no interferencia de conexión, no eficacia de aprobaciones sobre 921 contextos.
 
-El worker ejecuta scripts/evaluar_qa.py mediante runpy, envolviendo buscar_por_frase solo en su proceso. Baseline registra sin alterar; variante conecta adaptador apply con ledger vacío y resolución contextual ausente. Esto mide conexión sin interferencia, NO generalización de correcciones aprobadas. Ambas condiciones deben exponerse en el informe final.
+## Evidencia persistida
 
-## Reanudación
-1. Consultar proceso background con get_process_output wait_for=exit; evitar lanzar duplicados.
-2. Revisar baseline/selector-exit.txt, *-metrics.json, *-failed.jsonl y trazas. Si hay error de ejecución, diagnosticar antes de medir.
-3. Comparar orden, scores y membresía de cada llamada, fallos y recalls global/por categoría. Separar gate absoluto de diferencia emparejada. Informar cualquier baseline que ya falle sin relajar umbrales.
-4. Persistir informe resumido y manifest de entradas; no incluir DB, trazas privadas ni logs con recuerdos.
-5. Ejecutar caso dirigido con contexto confirmado por el adaptador y comparación contra snapshot suministrado. Probar invariancia del adaptador con crecimiento antes de aprobarlo (la invariancia del selector anterior ya tiene tests; no sustituye medición de esta fase).
-6. Diseñar e implementar unidad transaccional experimental para aprobación y outbox con tests de concurrencia/fallos antes de exponer MCP.
+- resultados_qa_aprobacion.json: comparación final con recurso Hebbiano, hashes de fuente/script/casos/trazas, gates y denominadores.
+- resultados_qa_piloto.json: ensayo previo con recursos reducidos, marcado explícitamente; no mezclar con validación final.
+- resultados_suite_global.json: resumen de suite global y errores de preparación ya corregidos.
+- resultados_e2e_aprobacion.json: interacción MCP, recibo, arista y búsqueda.
+- manifest_aprobacion.json: hashes de implementación medida.
 
-Estos archivos de estado, contrato y adaptador se incluyen para revisión en el mismo commit de la biblioteca de investigación. No hay cambios a master/core por estas acciones. Los temporales y procesos pueden no sobrevivir a otra sesión; si faltan, no asumir que acabaron exitosamente. Los archivos nuevos del laboratorio sí quedan en el workspace.
+## Temporales de esta sesión (pueden no persistir)
+
+- /tmp/biorag-phase3/results: piloto emparejado terminado.
+- /tmp/biorag-phase5/results: pareja final completa, trazas y métricas oficiales.
+- /tmp/biorag-phase4-global-complete.xml y .log: suite global con recursos correctos.
+- /tmp/biorag-approval-tests-final.txt y /tmp/biorag-approval-e2e-final.log: tests/E2E.
+
+No hay que relanzar procesos terminados por no encontrar estos temporales en otra sesión. Usar resúmenes persistidos y comandos reproducibles; no inventar nuevos resultados.
+
+## Pendiente antes de producción
+
+Seguridad/delegación productiva, migración del grafo contextualizado y consumidores, corpus independiente de correcciones, resolución de intención/contexto, casos multivalor/revocación/bitemporalidad avanzada y doble verificación con copia actual autorizada. No hubo cambios a master/VERSION/core ni DB viva por este hito. Revisar diff aislado del directorio experimental, preservando el worktree preexistente.

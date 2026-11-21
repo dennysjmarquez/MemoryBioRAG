@@ -1,0 +1,196 @@
+{
+  "mode": "real MCP stdio + real engine on supplied snapshot copy",
+  "seeded_predecessor": true,
+  "synthetic_message": true,
+  "context_explicit": true,
+  "tools": [
+    "registrar_correccion",
+    "revisar_correccion",
+    "confirmar_correccion",
+    "buscar_contextual"
+  ],
+  "proposal_status": "pending_confirmation",
+  "receipt": {
+    "status": "approved_projected",
+    "proposal_id": "e2e-1",
+    "request_id": "e2e-confirm-1",
+    "claim_id": "approved:c0d13d10a4389635e66c66db37b4305fefe2d3badedd01851cad376156913ddc",
+    "approver": "fixture-owner",
+    "source": "approval:e2e-confirm-1",
+    "graph_edge": [
+      "version_actual_biorag",
+      "version_actual_biorag_v32_4_20261007",
+      "sustituye"
+    ],
+    "scope": "dev"
+  },
+  "before": {
+    "resultados": [
+      {
+        "concepto": "version_actual_biorag_v32_4_20261007",
+        "score": 0.8342
+      },
+      {
+        "concepto": "ultima_version_biorag",
+        "score": 0.9885
+      },
+      {
+        "concepto": "version_actual_biorag",
+        "score": 0.8
+      },
+      {
+        "concepto": "biorag_v14_0_estado",
+        "score": 0.426
+      },
+      {
+        "concepto": "version_actual_biorag_v32_3_20261003",
+        "score": 0.3893
+      }
+    ],
+    "total": 724,
+    "trace": [
+      {
+        "status": "resolved",
+        "shadow": false,
+        "before": [
+          [
+            "ultima_version_biorag",
+            0.9885
+          ],
+          [
+            "version_actual_biorag_v32_4_20261007",
+            0.8342
+          ],
+          [
+            "version_actual_biorag",
+            0.8
+          ],
+          [
+            "biorag_v14_0_estado",
+            0.426
+          ],
+          [
+            "version_actual_biorag_v32_3_20261003",
+            0.3893
+          ]
+        ],
+        "after": [
+          [
+            "version_actual_biorag_v32_4_20261007",
+            0.8342
+          ],
+          [
+            "ultima_version_biorag",
+            0.9885
+          ],
+          [
+            "version_actual_biorag",
+            0.8
+          ],
+          [
+            "biorag_v14_0_estado",
+            0.426
+          ],
+          [
+            "version_actual_biorag_v32_3_20261003",
+            0.3893
+          ]
+        ],
+        "proposed_winner": "version_actual_biorag_v32_4_20261007"
+      }
+    ]
+  },
+  "after": {
+    "resultados": [
+      {
+        "concepto": "version_actual_biorag",
+        "score": 0.8
+      },
+      {
+        "concepto": "ultima_version_biorag",
+        "score": 0.9885
+      },
+      {
+        "concepto": "version_actual_biorag_v32_4_20261007",
+        "score": 0.8342
+      },
+      {
+        "concepto": "biorag_v14_0_estado",
+        "score": 0.426
+      },
+      {
+        "concepto": "version_actual_biorag_v32_3_20261003",
+        "score": 0.3893
+      }
+    ],
+    "total": 724,
+    "trace": [
+      {
+        "status": "resolved",
+        "shadow": false,
+        "before": [
+          [
+            "ultima_version_biorag",
+            0.9885
+          ],
+          [
+            "version_actual_biorag_v32_4_20261007",
+            0.8342
+          ],
+          [
+            "version_actual_biorag",
+            0.8
+          ],
+          [
+            "biorag_v14_0_estado",
+            0.426
+          ],
+          [
+            "version_actual_biorag_v32_3_20261003",
+            0.3893
+          ]
+        ],
+        "after": [
+          [
+            "version_actual_biorag",
+            0.8
+          ],
+          [
+            "ultima_version_biorag",
+            0.9885
+          ],
+          [
+            "version_actual_biorag_v32_4_20261007",
+            0.8342
+          ],
+          [
+            "biorag_v14_0_estado",
+            0.426
+          ],
+          [
+            "version_actual_biorag_v32_3_20261003",
+            0.3893
+          ]
+        ],
+        "proposed_winner": "version_actual_biorag"
+      }
+    ]
+  },
+  "typed_edges": [
+    [
+      "version_actual_biorag",
+      "version_actual_biorag_v32_4_20261007",
+      "sustituye",
+      "dev"
+    ]
+  ],
+  "legacy_edge_preserved": true,
+  "old_content_preserved": true,
+  "old_row_equal_to_pre_search": true,
+  "idempotent_receipt": true,
+  "reregister_reports_approved": true,
+  "stale_digest_rejected_by_mcp": true,
+  "candidates_and_scores_preserved": true,
+  "source_sha256": "07a77c801eaa56750627e1c831de91a65e6448da25e4803b86d3ae4e2446c55e",
+  "source_unchanged": true
+}

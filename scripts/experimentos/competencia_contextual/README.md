@@ -31,6 +31,14 @@ Este laboratorio NO es v36.2 publicada ni un fix del motor, ni un router de leng
 
 No se aprueba integración sin QA 921 emparejada sobre copias, pruebas de regresión del motor, comparación con baseline en copia de DB actual y revisión del usuario. Esta fase no modifica VERSION, core ni el modelo de 29 señales. No se infiere vida o consciencia de este comportamiento.
 
+## Avance: aprobación MCP y búsqueda en copia
+
+Se implementó un servidor MCP stdio exclusivo de laboratorio con `registrar_correccion`, `revisar_correccion`, `confirmar_correccion` y `buscar_contextual`. Ver [MCP_LAB.md](MCP_LAB.md) para garantías, ejecución y límites. La aprobación escribe ledger + proyección `sinapsis_sustitucion` en una transacción SQLite multiarchivo con rollback journals. No sobrescribe las asociaciones existentes ni registra herramientas en el MCP productivo.
+
+El E2E usa cliente MCP real y motor real sobre backup temporal del snapshot suministrado. `resultados_e2e_aprobacion.json` documenta promoción, conservación de histórico, idempotencia y rechazo de digest inválido. Mensaje y antecedente son fixtures explícitos. Las intenciones/contextos de búsqueda siguen siendo estructurados.
+
+La QA emparejada mide aparte el adaptador sin contexto/ledger vacío: no interferencia de conexión, NO eficacia general de correcciones. `run_qa_pair.py` y `comparar_qa_selector.py` reproducen y comparan métricas/trazas sin cambiar el evaluador oficial. No se aprueba release v36.2 por estos ensayos solos.
+
 ## Avance: interacción en observación
 
 El primer puente de correcciones está documentado en [OBSERVACION_INFORME.md](OBSERVACION_INFORME.md), con contrato previo en [OBSERVACION_SPEC.md](OBSERVACION_SPEC.md). Reconoce dos familias completas de corrección/actualización en español; registra propuestas con evidencia y simula condicionalmente en una copia en RAM. No comprende lenguaje abierto, no confirma automáticamente y no modifica ranking ni ledger productivos.
