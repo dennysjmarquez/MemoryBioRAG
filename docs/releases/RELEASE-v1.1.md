@@ -10,6 +10,8 @@ Highlights of 1.1.0
 - Installer Safety & Backup Deduplication: Hardened local configuration backup routines in `install.py`, preventing redundant backup file proliferation under `~/.biorag/backups/`.
 - Unified Documentation Taxonomy: Normalized all references to use the official canonical name `MemoryBioRAG` across all guides, diagrams, and client integration instructions.
 - Multi-Signal Hybrid Retrieval Clarification: Cleanly documented the multi-channel scoring balance across SQLite FTS5 BM25, 100-dimensional PPMI+SVD latent space, 13 semantic topological dimensions, and Hebbian synaptic graph activation.
+- Synaptic Link Pre-Flight Validation: Hardened the `vincular` MCP tool to enforce existing node verification before creating associations, preventing dangling or orphan synapses in the connectome.
+- Cross-Platform Daemon Hardening: Guarded `fcntl` file-locking mechanisms in `graph_maintenance_daemon.py` to prevent import crashes and ensure clean execution on Windows platforms.
 
 Requirements
 
@@ -50,3 +52,4 @@ Adopted Angular 19 signals and TailwindCSS for the client portal.
 Distribution Note
 
 This release is published under the stable distribution channel: tag `v1.1` on `https://github.com/dennysjmarquez/MemoryBioRAG-Stable`.
+
