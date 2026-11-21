@@ -255,11 +255,32 @@ def publish(
             print(f"  ✓ ZERO private git history attached.")
             print(f"  ✓ Pure source code staged (no .zip archives).")
             pushed = False
+            gh_release_url = None
         else:
             print(f"  • Performing atomic push of branch '{branch}' and tag '{tag}'...")
             run_git(pub_dir, ["push", "--atomic", "origin", f"refs/heads/{branch}:refs/heads/{branch}", f"refs/tags/{tag}:refs/tags/{tag}"])
             print(f"\n  ✓ PUBLISHED {tag} successfully! Commit: {commit_sha[:10]}")
             pushed = True
+
+            # 6. Create GitHub Release (same flow, not optional — a tag without a Release is incomplete)
+            gh_release_url = None
+            repo_slug = CANONICAL_PUBLIC_REPO_URL.rstrip(".git").split("github.com/")[-1]
+            msg_tmp = work / "release_notes.md"
+            msg_tmp.write_text(clean_msg, encoding="utf-8")
+            gh_cmd = ["gh", "release", "create", tag,
+                      "-R", repo_slug,
+                      "--title", f"MemoryBioRAG-Stable {tag}",
+                      "--notes-file", str(msg_tmp)]
+            print(f"  • Creating GitHub Release for {tag} in {repo_slug}...")
+            gh_result = subprocess.run(gh_cmd, capture_output=True, text=True)
+            if gh_result.returncode == 0:
+                gh_release_url = gh_result.stdout.strip().split("\n")[-1]
+                print(f"  ✓ GitHub Release created: {gh_release_url}")
+            else:
+                # Non-fatal: push succeeded; warn and show manual command
+                print(f"  ⚠ GitHub Release could not be created automatically:", file=sys.stderr)
+                print(f"    {(gh_result.stderr or gh_result.stdout).splitlines()[0]}", file=sys.stderr)
+                print(f"  → Run manually: gh release create {tag} -R {repo_slug} --title 'MemoryBioRAG-Stable {tag}' --notes-file <message-file>", file=sys.stderr)
 
         return {
             "version": version,
@@ -268,6 +289,7 @@ def publish(
             "target": target_repo,
             "pushed": pushed,
             "author": f"{PUBLIC_AUTHOR_NAME} <{PUBLIC_AUTHOR_EMAIL}>",
+            "gh_release_url": gh_release_url,
         }
 
 
