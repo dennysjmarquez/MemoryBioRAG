@@ -39,7 +39,10 @@ import time
 import signal
 import logging
 import argparse
-import fcntl
+try:
+    import fcntl
+except ImportError:
+    fcntl = None
 from datetime import datetime
 
 # Asegurar que el path incluya el directorio actual
@@ -140,7 +143,8 @@ class DaemonLock:
         try:
             os.makedirs(os.path.dirname(os.path.abspath(self.lock_path)), exist_ok=True)
             self.lock_file = open(self.lock_path, "w")
-            fcntl.flock(self.lock_file, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            if fcntl:
+                fcntl.flock(self.lock_file, fcntl.LOCK_EX | fcntl.LOCK_NB)
             self.lock_file.write(str(os.getpid()))
             self.lock_file.flush()
             return True
@@ -153,7 +157,8 @@ class DaemonLock:
         sobre un inode distinto (causa raíz del doble daemon)."""
         if self.lock_file:
             try:
-                fcntl.flock(self.lock_file, fcntl.LOCK_UN)
+                if fcntl:
+                    fcntl.flock(self.lock_file, fcntl.LOCK_UN)
                 self.lock_file.close()
             except (IOError, OSError):
                 pass
