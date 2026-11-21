@@ -1595,13 +1595,7 @@ Paso 4 — Verificación en seco (Dry-run de publicación con blindaje de autor)
 Paso 5 — Publicar en el repositorio público (MemoryBioRAG-Stable)
   python3 scripts/publish_stable.py --version v1.0 --message-file docs/releases/RELEASE-v1.0.md
   → Este paso NUNCA lo ejecuta un agente en automático sin tu confirmación.
-  → Sincroniza el código fuente limpio (cero .zips), crea el commit firmado por ti, crea el tag anotado v1.0 y hace el push atómico a origin main.
-
-Paso 6 (Opcional) — Crear la Release en la web de GitHub
-  gh release create v1.0 \
-    --repo dennysjmarquez/MemoryBioRAG-Stable \
-    --title "MemoryBioRAG-Stable v1.0" \
-    --notes-file docs/releases/RELEASE-v1.0.md
+  → Sincroniza el código fuente limpio (cero .zips), crea el commit firmado por ti, crea el tag anotado v1.0, hace el push atómico a origin main y crea automáticamente la GitHub Release oficial en un solo comando integrado.
 
 Paso de emergencia — Retirar o corregir una versión con fallo crítico
   1. Inmutabilidad de tags: Nunca borres ni reescribas tags públicos ya publicados.
