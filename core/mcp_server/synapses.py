@@ -60,6 +60,26 @@ def register(mcp: Any) -> None:
     ) -> str:
         cerebro = _get_cerebro()
         try:
+            a_norm, b_norm = a.lower().strip(), b.lower().strip()
+
+            def _existe(nodo: str) -> bool:
+                c = cerebro.cursor.execute("SELECT 1 FROM largo_plazo WHERE concepto = ?", (nodo,)).fetchone()
+                if c:
+                    return True
+                return bool(cerebro.cursor.execute("SELECT 1 FROM corto_plazo WHERE concepto = ?", (nodo,)).fetchone())
+
+            faltantes = []
+            if not _existe(a_norm):
+                faltantes.append(f"'{a}'")
+            if not _existe(b_norm):
+                faltantes.append(f"'{b}'")
+
+            if faltantes:
+                return json.dumps({
+                    "status": "error",
+                    "mensaje": f"No se pueden vincular: nodo(s) {', '.join(faltantes)} no existen en la memoria. Deben existir previamente (guardados con 'aprender' o 'guardar').",
+                }, ensure_ascii=False)
+
             cerebro.establecer_asociacion(a, b)
             _interceptar("vincular", f"{a} <--> {b}", cerebro)
             return json.dumps({
