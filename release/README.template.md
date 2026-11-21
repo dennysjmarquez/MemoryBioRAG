@@ -10,24 +10,28 @@
 
 MemoryBioRAG is a persistent memory engine that provides AI agents with durable episodic context, evolving associative knowledge graphs, and cross-session continuity—without hosted vector databases, without cloud embeddings APIs, and running 100% locally on CPU.
 
-Rather than treating memory as flat text buffers or rigid vector lookups, BioRAG implements an engineering model inspired by neocortical memory dynamics: memories form synaptic associations through co-activation, consolidate during background rest cycles, and maintain bounded false-positive guarantees via conformal prediction.
+Rather than treating memory as flat text buffers or rigid vector lookups, MemoryBioRAG implements an engineering model inspired by neocortical memory dynamics: memories form synaptic associations through co-activation, consolidate during background rest cycles, and apply conformal prediction calibration to reduce false positives on evaluated benchmarks.
 
 > **Language Note:** CLI commands (`buscar`, `guardar`, `asociar`, `estado`, `sueno`) and MCP tool names (`recordar`, `aprender`, `vincular`) use Spanish terminology reflecting the project's foundational cognitive taxonomy.
 
-Interact with BioRAG through:
+Interact with MemoryBioRAG through:
 * **Model Context Protocol (MCP):** Connect any MCP-compatible agent (Claude Code, OpenCode, Cursor, Cline, Windsurf, or custom agent harnesses).
 * **Local CLI (`biorag.py`):** Inspect, query, link, and awaken memories directly from your terminal.
-* **Autonomous Daemons:** Background consolidation and Default Mode Network (DMN) reflection.
+* **Autonomous Daemons (opt-in):** Background consolidation and Default Mode Network (DMN) reflection.
 
 ```mermaid
-graph LR
-    Agent["🤖 AI Agent (Claude / OpenCode / Cursor)"] -- "MCP stdio" --> Engine["🧠 MemoryBioRAG Engine"]
+flowchart LR
+    Agent["🤖 AI Agent (Claude / OpenCode / Cursor)"] -->|MCP stdio| Engine["🧠 MemoryBioRAG Engine"]
     CLI["💻 Local CLI (biorag.py)"] --> Engine
     Engine --> FTS["⚡ SQLite FTS5 (Exact / BM25)"]
-    Engine --> Graph["🕸️ Synaptic Connectome (Hebbian Graph)"]
-    Engine --> Latent["🧬 100-dim PPMI+SVD & 13 Semantic Axes"]
-    Engine --> Conformal["🎯 Epistemic Conformal Predictor"]
-    Engine --> DMN["🌙 Background Sleep & Consolidation (DMN)"]
+    Engine --> QCR["🔁 QCR Escape (zero-hit fallback & OR relaxation)"]
+    Engine --> SYM["🔤 WordNet + Concept Hubs (symbolic expansion)"]
+    Engine --> HEB["🕸️ Synaptic Connectome (Hebbian Graph)"]
+    Engine --> PPMI["🧬 100-dim PPMI+SVD & 13 Semantic Axes"]
+    Engine --> SDM["💠 SDM 2048-bit (HDC)"]
+    Engine --> NEU["🎛️ Guarded Ranking Neuron (learns at consolidation)"]
+    Engine --> CONF["🎯 Conformal Calibration"]
+    Engine --> SLEEP["🌙 Sleep & Consolidation (opt-in)"]
 ```
 
 ## Quick Demonstration
@@ -58,38 +62,38 @@ When connected to an AI agent via MCP, the agent queries memory programmatically
 | Capability | Description |
 |---|---|
 | **Associative Connectome** | Memories link to each other via Hebbian synaptic weights that strengthen through activation (LTP) and decay over time (LTD). |
-| **Epistemic Conformal Certainty** | Mathematical split conformal prediction establishes dynamic false-positive boundaries—bounding spurious retrievals and distinguishing direct facts from low-confidence associations. |
-| **Local Multi-Signal Retrieval** | Multi-channel retrieval combining SQLite FTS5 BM25, 100-dim corpus-derived PPMI+SVD latent space, and 13 topological semantic dimensions. Zero GPUs or external API calls required. |
-| **Autonomous Sleep Cycle & DMN** | Background daemons consolidate working memory into long-term structures, prune spurious connections, and detect cognitive gaps during idle periods. |
+| **Epistemic Conformal Certainty** | Split conformal prediction dynamically suppresses false positives—distinguishing direct evidence from lower-confidence associations on evaluated benchmarks. |
+| **Local Multi-Signal Retrieval** | Multi-channel retrieval combining SQLite FTS5 BM25, 100-dim corpus-derived PPMI+SVD latent space, and 13 topological semantic dimensions. Zero GPUs and zero external API calls in the retrieval path. |
+| **Autonomous Sleep Cycle & DMN (opt-in)** | Background daemons consolidate working memory into long-term structures, prune spurious connections, and detect cognitive gaps during idle periods. |
 | **Fail-Fast Concept Hubs** | Multi-angle semantic bridge expansion resolving the "lexical abyss" problem where queries share zero literal tokens with stored knowledge. |
 | **Zero-Touch Local Storage** | Pure local SQLite database at `~/.biorag/memory_biorag.db` (multiplatform). Zero telemetry, no external accounts, zero cloud lock-in. |
 | **Universal MCP Interoperability** | Standard input/output (`stdio`) Model Context Protocol server compatible with Claude Code, OpenCode, Cursor, Cline, and any modern agent framework. |
 
 ---
 
-## How BioRAG Compares to Vector Databases
+## How MemoryBioRAG Compares to Traditional Vector RAG
 
 | Dimension | Traditional Vector RAG | MemoryBioRAG |
 |---|---|---|
 | **Hardware Requirements** | GPU / Cloud Inference API | 100% Local CPU (ARM64 / x86_64) |
-| **Embedding Cost** | Per-token API fees or massive model weights | Zero API calls; internal corpus-derived PPMI+SVD |
-| **Retrieval Mechanism** | Approximate Nearest Neighbors (ANN) cosine distance | Heptadic multi-signal: FTS5 BM25 + SVD + 13 Semantic Axes + Hebbian Graph |
+| **Embedding Cost** | Per-token API fees or massive model weights | Zero API calls in core retrieval path; internal corpus-derived PPMI+SVD |
+| **Retrieval Mechanism** | Approximate Nearest Neighbors (ANN) cosine distance | Multi-signal hybrid retrieval: FTS5 BM25 + SVD + 13 Semantic Axes + Hebbian Graph |
 | **Memory Relationships** | Unlinked points in embedding space | Explicit Hebbian synaptic connectome (LTP/LTD) |
-| **Certainty Calibration** | Arbitrary similarity thresholds (e.g. `score > 0.75`) | Statistically calibrated conformal prediction bounds |
-| **Memory Lifecycle** | Static records until manually reindexed | Autonomous sleep consolidation and associative pruning (DMN) |
+| **Certainty Calibration** | Arbitrary similarity thresholds (e.g. `score > 0.75`) | Calibrated conformal prediction thresholds |
+| **Memory Lifecycle** | Static records until manually reindexed | Sleep consolidation and associative pruning (opt-in DMN) |
 
 ---
 
 ## Benchmarked Performance (Internal Evaluation Suite)
 
-Evaluated on the frozen 921-case BioRAG evaluation suite (875 gold retrieval queries, 40 negative controls for false-positive validation, and 6 ambiguous edge cases analyzed separately outside the global retrieval denominator):
+Evaluated on the frozen 921-case MemoryBioRAG evaluation suite (875 gold retrieval queries, 40 negative controls for false-positive validation, and 6 ambiguous edge cases analyzed separately outside the global retrieval denominator):
 
 | Metric | Result | Meaning |
 |---|---|---|
 | **Recall@5 (Global)** | **100.0% (875/875)** | 100% gold-memory retrieval rate within the agent's top-5 working window. |
 | **Recall@1 (Top-1)** | **91.8% – 93.0%** | Over 9 out of 10 queries surface the exact target memory in first place. |
 | **MRR (Mean Reciprocal Rank)** | **0.950 – 0.956** | High confidence density at the top of the ranked list. |
-| **False Positive Rate** | **0.0% (0/40)** | Conformal prediction threshold successfully suppresses negative controls. |
+| **False Positive Rate** | **0.0% (0/40)** | Conformal prediction threshold successfully suppresses negative controls on this frozen control set. |
 
 *Note: Benchmarks measured on frozen reference snapshots under deterministic conditions. To inspect or run the complete evaluation suite, visit the [research repository](https://github.com/dennysjmarquez/MemoryBioRAG).*
 
@@ -145,7 +149,7 @@ To display configuration snippets for manual client setup, run `python install.p
 
 ## Connect an MCP client
 
-BioRAG communicates with agents via the standard input/output (`stdio`) transport. The automated installer detects and patches client configuration files automatically.
+MemoryBioRAG communicates with agents via the standard input/output (`stdio`) transport. The automated installer detects and patches client configuration files automatically.
 
 ### Supported Clients
 
@@ -169,7 +173,7 @@ BioRAG communicates with agents via the standard input/output (`stdio`) transpor
 
 ## Command-line interface
 
-BioRAG includes a full-featured CLI (`biorag.py`) for direct inspection and management from your terminal.
+MemoryBioRAG includes a full-featured CLI (`biorag.py`) for direct inspection and management from your terminal.
 
 ```bash
 # Search memory across all active nodes
@@ -208,7 +212,7 @@ The distribution bundles the `biorag-memory` skill at `skills/biorag-memory/SKIL
 
 - **Default Storage:** SQLite database stored outside the repository at `~/.biorag/memory_biorag.db` (`%USERPROFILE%\.biorag\` on Windows).
 - **Custom Location:** Set `BIORAG_PATH` to override the database path.
-- **Privacy:** Core retrieval and storage are 100% local. BioRAG does not upload your database, memory contents, or telemetry.
+- **Privacy:** Core retrieval and storage are 100% local. MemoryBioRAG does not upload your database, memory contents, or telemetry.
 - **Update Checker:** Checks public GitHub release tags every 24 hours (non-blocking). Disable anytime with `BIORAG_UPDATE_CHECK=0`.
 - **Optional External Maintenance:** Background DMN reflection can optionally use Gemini API keys if explicitly configured; core search never requires external APIs.
 
