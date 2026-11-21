@@ -112,7 +112,8 @@ def test_patch_hermes_yaml_update_existing(tmp_path):
     assert "other-mcp" in result
 
 
-def test_remove_hermes_yaml(tmp_path):
+def test_remove_hermes_yaml(tmp_path, monkeypatch):
+    monkeypatch.setattr(install, "BACKUPS_DIR", tmp_path / "backups")
     cfg_file = tmp_path / "config.yaml"
     initial_content = """mcp_servers:
   biorag:
