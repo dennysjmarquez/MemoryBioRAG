@@ -48,3 +48,4 @@ Adopted Angular 19 signals and TailwindCSS for the client portal.
 Distribution Note
 
 This release is published under the stable distribution channel: tag `v1.2` on `https://github.com/dennysjmarquez/MemoryBioRAG-Stable`.
+
