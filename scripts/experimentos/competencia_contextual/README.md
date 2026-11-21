@@ -31,6 +31,14 @@ Este laboratorio NO es v36.2 publicada ni un fix del motor, ni un router de leng
 
 No se aprueba integración sin QA 921 emparejada sobre copias, pruebas de regresión del motor, comparación con baseline en copia de DB actual y revisión del usuario. Esta fase no modifica VERSION, core ni el modelo de 29 señales. No se infiere vida o consciencia de este comportamiento.
 
+## Avance: interacción en observación
+
+El primer puente de correcciones está documentado en [OBSERVACION_INFORME.md](OBSERVACION_INFORME.md), con contrato previo en [OBSERVACION_SPEC.md](OBSERVACION_SPEC.md). Reconoce dos familias completas de corrección/actualización en español; registra propuestas con evidencia y simula condicionalmente en una copia en RAM. No comprende lenguaje abierto, no confirma automáticamente y no modifica ranking ni ledger productivos.
+
+```bash
+python scripts/experimentos/competencia_contextual/demo_observation.py
+```
+
 ## Ejecutar
 
 ```bash
