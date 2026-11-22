@@ -188,13 +188,14 @@ def apply(root, *, channel='dev', database, runner=subprocess.run):
 
 def main(argv=None):
     from core.cli_notes import usage_note, command_examples
-    parser=argparse.ArgumentParser(description=__doc__,
+    parser=argparse.ArgumentParser(prog='biorag update',
+        description='Plan or apply a conservative Git-based program update without switching branches.',
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog=usage_note('update') + '\n\n' + command_examples('update'))
-    parser.add_argument('--channel',choices=('dev','stable'),default='dev')
-    parser.add_argument('--dry-run',action='store_true',help='Planificación sin aplicar; equivalente al modo por defecto')
-    parser.add_argument('--yes',action='store_true',help='autorizar actualización; sin esta opción solo planifica')
-    parser.add_argument('--db',help='DB externa; por defecto resolución de rutas del core')
+    parser.add_argument('--channel',choices=('dev','stable'),default='dev', help='dev: upstream of the installed branch; stable: policy-approved official tag; both require fast-forward')
+    parser.add_argument('--dry-run',action='store_true',help='Plan without applying; equivalent to the default mode')
+    parser.add_argument('--yes',action='store_true',help='Authorize applying the update; otherwise only plan')
+    parser.add_argument('--db',help='Database outside the checkout; defaults to BIORAG_PATH or the canonical path')
     args=parser.parse_args(argv)
     if args.dry_run and args.yes:
         parser.error('--dry-run y --yes son incompatibles')

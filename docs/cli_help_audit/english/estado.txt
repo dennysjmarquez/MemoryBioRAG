@@ -1,0 +1,10 @@
+biorag estado
+    Show active/dormant counts, working memory size, energy and keyword coverage.
+    Options:
+    No additional options.
+
+Why use it? Check memory counts and activity without listing every memory. This is a
+summary, not an integrity test.
+
+Examples:
+  biorag estado

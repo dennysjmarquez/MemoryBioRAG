@@ -1,0 +1,13 @@
+python3 biorag.py estado
+    Muestra estadisticas de la corteza: nodos activos, dormidos,
+    items en memoria de trabajo, energia sinaptica y porcentaje de nodos con sustantivos clave.
+    Ej: biorag.py estado
+
+¿Para qué me sirve? Úsalo para obtener un resumen de la memoria y su actividad, sin
+listar cada recuerdo. Sirve como primera comprobación, no como certificación de
+integridad.
+
+Ejemplos:
+  Puedes sustituir «biorag» por «python3 biorag.py».
+  Adapta conceptos y rutas a tus datos; los nodos referidos deben existir.
+  biorag estado

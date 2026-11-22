@@ -1,0 +1,40 @@
+BioRAG — memoria local para agentes
+
+Uso: biorag <comando> [opciones]
+     python biorag.py <comando> [opciones]
+
+Consultar memoria:
+  buscar                 Buscar recuerdos; ver opciones con buscar --help
+  listar                 Listar conceptos con paginación
+  corteza                Mostrar nodos de memoria permanente
+  estado                 Mostrar estadísticas de memoria
+  familiaridad           Reconocer conceptos en un texto
+  sustantivos            Consultar el núcleo temático de un nodo
+
+Escribir y organizar memoria:
+  guardar                Guardar un recuerdo con sustantivos clave
+  correcciones           Registrar, revisar y confirmar sustituciones explícitas
+  agregar_sustantivos    Asignar o actualizar sustantivos clave
+  asociar                Vincular dos conceptos
+  sueno                  Consolidar memoria; modifica datos
+
+Comunicación e interfaces:
+  comunicar              Enviar un mensaje a otro agente
+  leer_mensajes          Consultar mensajes entre agentes
+  dashboard              Abrir la interfaz local, si está disponible
+
+Actualizar y recuperar el sistema:
+  update                 Planificar actualización; --yes autoriza aplicarla
+  recovery               Planificar recuperación; --stage crea copias separadas
+
+Ayuda: biorag help <comando>  |  biorag <comando> --help
+Ejemplos:
+  biorag update --dry-run
+  biorag update --yes --db /ruta/externa/memory_biorag.db
+  biorag recovery --receipt /ruta/recibo.json
+
+Seguridad: detener MCP/daemon antes de aplicar update; usar el mismo Python.
+Update requiere checkout Git limpio y DB externa; el plan puede consultar red.
+Recovery --stage NO sobrescribe la DB actual ni revierte Git/pip.
+Los seis modos de contexto_vigencia pertenecen al MCP recordar/buscar;
+no son opciones del comando buscar de este CLI.

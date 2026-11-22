@@ -1,0 +1,26 @@
+python3 biorag.py guardar <clave> <contenido> --sustantivos-clave "s1,s2,s3" [--syn "sinonimo1,sinonimo2"] [--cat tipo]
+    Almacena informacion en la memoria de corto plazo (memoria de trabajo).
+    Usar 'sueno' para consolidar a largo plazo (corteza permanente).
+    --sustantivos-clave (OBLIGATORIO, alias: --sustantivos)
+                        Define el núcleo temático: 1 a 5 sustantivos (2-15 chars cada uno,
+                        alfanuméricos y guion bajo) que identifican de qué TRATA el recuerdo.
+    --syn               Lista de terminos alternativos separados por comas para busqueda.
+                        Estos sinonimos se indexan en FTS5 y permiten encontrar el caso
+                        aunque el usuario use palabras diferentes.
+    --cat               Categoria explicita (proyecto, leccion, solucion, arquitectura,
+                        metacognicion, protocolo). Si no se especifica, se infiere del
+                        contenido automaticamente via categorizador.
+    NOTA: Al guardar, BioRAG auto-vincula el nuevo concepto con nodos existentes
+    de tema similar (sinapsis por solapamiento de tokens en tabla sinapsis).
+    La clave se normaliza a minusculas y guiones bajos.
+    Ej: biorag.py guardar relatividad "Einstein demostro la equivalencia masa-energia" --sustantivos-clave "relatividad,energia,masa"
+
+¿Para qué me sirve? Úsalo para incorporar información nueva que quieras recuperar
+después. Busca primero para evitar duplicados. Se guarda en memoria de trabajo; sueno
+permite consolidarla en memoria permanente.
+
+Ejemplos:
+  Puedes sustituir «biorag» por «python3 biorag.py».
+  Adapta conceptos y rutas a tus datos; los nodos referidos deben existir.
+  Estas operaciones pueden modificar memoria o estado; prueba primero en una copia.
+  biorag guardar nota_servicio "El servicio de prueba utiliza el puerto 8443" --sustantivos-clave "servicio,puerto"

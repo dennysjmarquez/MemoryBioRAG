@@ -46,7 +46,7 @@ socket.create_connection=forbidden
                 with self.subTest(entry=entry, args=args):
                     result=self.run_cli(args,entry)
                     self.assertEqual(result.returncode,0,result.stderr)
-                    for word in ('update','recovery','--dry-run','--stage','Consultar memoria'):
+                    for word in ('update','recovery','--dry-run','--stage','Read and search memory'):
                         self.assertIn(word,result.stdout)
 
     def test_each_memory_command_and_alias_has_safe_help(self):
@@ -54,7 +54,7 @@ socket.create_connection=forbidden
             with self.subTest(command=command):
                 result=self.run_cli([command,'--help'])
                 self.assertEqual(result.returncode,0,result.stderr)
-                self.assertIn('biorag.py',result.stdout)
+                self.assertIn('biorag ',result.stdout)
                 self.assertNotIn('Consulta el manual',result.stdout)
 
     def test_maintenance_help_uses_real_parsers(self):
@@ -81,8 +81,8 @@ socket.create_connection=forbidden
                 with self.subTest(entry=entry, args=args):
                     result = self.run_cli(args, entry)
                     self.assertEqual(result.returncode, 0, result.stderr)
-                    self.assertIn('¿Para qué me sirve?', ' '.join(result.stdout.split()))
-                    self.assertIn('Ejemplos:', result.stdout)
+                    self.assertIn('Why use it?', ' '.join(result.stdout.split()))
+                    self.assertIn('Examples:', result.stdout)
                     self.assertIn('biorag ', result.stdout)
 
     def test_corrections_help_distinguishes_editing_from_contextual_replacement(self):
@@ -90,10 +90,10 @@ socket.create_connection=forbidden
             result = self.run_cli(['correcciones', '--help'], entry)
             self.assertEqual(result.returncode, 0, result.stderr)
             text = ' '.join(result.stdout.split())
-            for phrase in ('Diferencia con actualizar un nodo:', 'Actualizar cambia el contenido',
-                           'no borra ni reescribe', '8080', '8443',
-                           'Ambos recuerdos deben existir', 'búsquedas MCP',
-                           'ni garantiza'):
+            for phrase in ('How is this different from updating a node?', 'Updating a node changes its text',
+                           'does not delete or rewrite', '8080', '8443',
+                           'Both memories must already exist', 'MCP recordar/buscar',
+                           'or guarantee'):
                 self.assertIn(phrase, text)
 
     def test_unknown_command_fails_without_engine(self):

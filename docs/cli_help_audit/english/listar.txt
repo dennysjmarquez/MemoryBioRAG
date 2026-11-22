@@ -1,0 +1,11 @@
+biorag listar [--pagina N]
+    List permanent concepts in pages of 10 with content previews.
+    Options:
+    --pagina N              Page number, starting at 1.
+
+Why use it? Browse permanent concepts page by page when you do not yet know what to
+search for.
+
+Examples:
+  biorag listar
+  biorag listar --pagina 2

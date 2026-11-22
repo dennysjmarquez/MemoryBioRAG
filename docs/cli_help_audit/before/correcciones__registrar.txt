@@ -1,0 +1,48 @@
+usage: biorag correcciones registrar [-h] [--db DB] --id ID --mensaje MENSAJE
+                                     --nodo-anterior NODO_ANTERIOR
+                                     --nodo-sucesor NODO_SUCESOR --entidad
+                                     ENTIDAD --atributo ATRIBUTO --ambito
+                                     AMBITO --valor-anterior VALOR_ANTERIOR
+                                     --valor-nuevo VALOR_NUEVO --observado-en
+                                     OBSERVADO_EN --efectivo-desde
+                                     EFECTIVO_DESDE
+                                     [--anterior-desde ANTERIOR_DESDE]
+
+¿Para qué me sirve? Úsalo para proponer que un dato sustituye a otro, indicando
+contexto, valores, nodos y fechas. Los dos recuerdos deben existir. El resultado queda
+pendiente: todavía no es una corrección aprobada.
+
+options:
+  -h, --help            show this help message and exit
+  --db DB               DB existente; por defecto BIORAG_PATH o ruta canónica
+  --id ID               Identificador estable de la propuesta
+  --mensaje MENSAJE     Evidencia original, en cualquier idioma
+  --nodo-anterior NODO_ANTERIOR
+                        Concepto existente que queda como antecedente
+  --nodo-sucesor NODO_SUCESOR
+                        Concepto existente que lo sustituye
+  --entidad ENTIDAD     Identificador exacto entity del contexto
+  --atributo ATRIBUTO   Identificador exacto attribute del contexto
+  --ambito AMBITO       Identificador exacto scope del contexto
+  --valor-anterior VALOR_ANTERIOR
+                        Valor anterior explícito
+  --valor-nuevo VALOR_NUEVO
+                        Valor nuevo explícito
+  --observado-en OBSERVADO_EN
+                        Instante de observación UNIX
+  --efectivo-desde EFECTIVO_DESDE
+                        Inicio de vigencia UNIX
+  --anterior-desde ANTERIOR_DESDE
+                        Inicio del antecedente; necesario sin ledger previo
+
+Ejemplos:
+  Puedes sustituir «biorag» por «python3 biorag.py».
+  Adapta conceptos y rutas a tus datos; los nodos referidos deben existir.
+  Usa una copia de prueba. Fechas UNIX ilustrativas: no inventes fechas reales.
+  DIGEST_DE_LA_REVISION se reemplaza por el digest de revisar.
+  biorag correcciones registrar --db /ruta/copia_prueba.db \
+    --id cambio-puerto-001 --mensaje "El puerto cambió de 8080 a 8443" \
+    --nodo-anterior servicio_puerto_anterior --nodo-sucesor servicio_puerto_actual \
+    --entidad servicio --atributo puerto --ambito pruebas \
+    --valor-anterior 8080 --valor-nuevo 8443 \
+    --observado-en 1767225600 --efectivo-desde 1767225600 --anterior-desde 1735689600

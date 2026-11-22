@@ -1,0 +1,13 @@
+python3 biorag.py listar [--pagina N]
+    Lista los conceptos con snippet, metadatos y sustantivos clave, paginado de a 10.
+    Ej: biorag.py listar
+        biorag.py listar --pagina 2
+
+¿Para qué me sirve? Úsalo para explorar qué conceptos tienes guardados, página por
+página, cuando todavía no sabes qué término buscar.
+
+Ejemplos:
+  Puedes sustituir «biorag» por «python3 biorag.py».
+  Adapta conceptos y rutas a tus datos; los nodos referidos deben existir.
+  biorag listar
+  biorag listar --pagina 2

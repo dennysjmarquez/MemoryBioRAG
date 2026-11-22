@@ -11,41 +11,41 @@ def main(argv=None):
     parser = argparse.ArgumentParser(
         prog='biorag correcciones',
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        description='Registrar propuestas, revisar evidencia y confirmar sin borrar historia.\n\n'
+        description='Propose, review and approve fact replacements without deleting history.\n\n'
                     + usage_note('correcciones'),
-        epilog='Flujo: registrar → revisar → confirmar con el digest revisado. '
-               '\nFechas en segundos UNIX. BIORAG_CORRECTIONS=0 deshabilita operaciones.\n'
-               'Salida JSON; errores en stderr. No se interpreta el idioma del mensaje.\n\n'
+        epilog='Workflow: registrar → revisar → confirmar with the reviewed digest.'
+               '\nDates use UNIX seconds. BIORAG_CORRECTIONS=0 disables operations.\n'
+               'JSON output; errors go to stderr. Message language is not interpreted.\n\n'
                + command_examples('correcciones'))
     subs = parser.add_subparsers(dest='operation')
-    register = subs.add_parser('registrar', help='Crear propuesta; NO aprueba ni sustituye recuerdos',
+    register = subs.add_parser('registrar', help='Create a proposal; does NOT approve it or edit memories',
                                description=usage_note('correcciones registrar'))
-    review = subs.add_parser('revisar', help='Mostrar evidencia completa y digest para revisión',
+    review = subs.add_parser('revisar', help='Inspect full evidence and its digest',
                              description=usage_note('correcciones revisar'))
-    confirm = subs.add_parser('confirmar', help='Aprobar explícitamente la evidencia revisada',
+    confirm = subs.add_parser('confirmar', help='Explicitly approve the reviewed relationship',
                               description=usage_note('correcciones confirmar'))
     for sub, name in ((register, 'registrar'), (review, 'revisar'), (confirm, 'confirmar')):
         sub.formatter_class = argparse.RawDescriptionHelpFormatter
         sub.epilog = command_examples('correcciones ' + name)
     for sub in (register, review, confirm):
-        sub.add_argument('--db', help='DB existente; por defecto BIORAG_PATH o ruta canónica')
-        sub.add_argument('--id', required=True, help='Identificador estable de la propuesta')
+        sub.add_argument('--db', help='Existing database; defaults to BIORAG_PATH or the canonical path')
+        sub.add_argument('--id', required=True, help='Stable proposal identifier')
     for flag, help_text in (
-        ('mensaje', 'Evidencia original, en cualquier idioma'),
-        ('nodo-anterior', 'Concepto existente que queda como antecedente'),
-        ('nodo-sucesor', 'Concepto existente que lo sustituye'),
-        ('entidad', 'Identificador exacto entity del contexto'),
-        ('atributo', 'Identificador exacto attribute del contexto'),
-        ('ambito', 'Identificador exacto scope del contexto'),
-        ('valor-anterior', 'Valor anterior explícito'),
-        ('valor-nuevo', 'Valor nuevo explícito'),
+        ('mensaje', 'Original evidence message, in any language'),
+        ('nodo-anterior', 'Existing concept containing the earlier fact'),
+        ('nodo-sucesor', 'Existing concept containing its replacement'),
+        ('entidad', 'Exact context entity identifier'),
+        ('atributo', 'Exact context attribute identifier'),
+        ('ambito', 'Exact context scope identifier'),
+        ('valor-anterior', 'Explicit earlier value'),
+        ('valor-nuevo', 'Explicit replacement value'),
     ):
         register.add_argument('--'+flag, required=True, help=help_text)
-    register.add_argument('--observado-en', type=float, required=True, help='Instante de observación UNIX')
-    register.add_argument('--efectivo-desde', type=float, required=True, help='Inicio de vigencia UNIX')
-    register.add_argument('--anterior-desde', type=float, help='Inicio del antecedente; necesario sin ledger previo')
-    confirm.add_argument('--digest', required=True, help='Digest obtenido al revisar; no inventarlo')
-    confirm.add_argument('--request-id', required=True, help='ID de confirmación; reutilizarlo para reintento idéntico')
+    register.add_argument('--observado-en', type=float, required=True, help='Observation time in UNIX seconds')
+    register.add_argument('--efectivo-desde', type=float, required=True, help='Effective start in UNIX seconds')
+    register.add_argument('--anterior-desde', type=float, help='Earlier fact start; required if no prior approved context exists')
+    confirm.add_argument('--digest', required=True, help='Digest returned by revisar; do not invent one')
+    confirm.add_argument('--request-id', required=True, help='Confirmation request ID; reuse for an identical retry')
     args = parser.parse_args(argv)
     if args.operation is None:
         parser.print_help()

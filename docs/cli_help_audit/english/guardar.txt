@@ -1,0 +1,17 @@
+biorag guardar <concept> <content> --sustantivos-clave "a,b" [options]
+    Save a memory in working memory. Consolidate it with sueno before searching.
+    Options:
+    --sustantivos-clave "a,b"  Required: 1–5 topic keywords, each 2–15 characters.
+    --sustantivos           Alias of --sustantivos-clave.
+    --syn "a,b"             Search synonyms.
+    --cat TYPE              Explicit category; otherwise inferred from content.
+
+Why use it? Save information in working memory. Search first to avoid duplicates; then
+run biorag sueno to consolidate it so buscar can retrieve it.
+
+Changes memory or state. To test on a disposable copy, use: BIORAG_PATH=/path/copy.db
+biorag guardar ...
+
+Examples:
+  biorag guardar service_note "The test service uses port 8443" --sustantivos-clave "service,port"
+  biorag sueno

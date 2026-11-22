@@ -1,0 +1,16 @@
+python3 biorag.py dashboard
+    Lanza el Neuro-Visor: interfaz web de administración para explorar y visualizar
+    la corteza cerebral de BioRAG (nodos, sinapsis, dimensiones, actividad, comunidades).
+    Incluye: backend API (puerto 8001) + frontend React (puerto 3000).
+    Abre el navegador en http://localhost:3000.
+    Instala dependencias Python (uv/pip) y Node (npm) si faltan.
+    Ctrl+C detiene ambos procesos limpiamente.
+    Ej: biorag.py dashboard
+
+¿Para qué me sirve? Úsalo para abrir las interfaces locales de inspección de memoria, si
+tu instalación las incluye. Arranca procesos; no es necesario para usar el CLI o MCP.
+
+Ejemplos:
+  Puedes sustituir «biorag» por «python3 biorag.py».
+  Adapta conceptos y rutas a tus datos; los nodos referidos deben existir.
+  biorag dashboard

@@ -1,0 +1,15 @@
+python3 biorag.py comunicar <destino> <mensaje>
+    Envia un mensaje a otro agente OEC a traves de la corteza compartida.
+    Destino: athena, artemis, hermes, todos.
+    Identificate con variable de entorno AGENT_NAME.
+    Ej: AGENT_NAME=athena biorag.py comunicar artemis "Mensaje para ti"
+
+¿Para qué me sirve? Úsalo para dejar un mensaje a otro agente mediante la memoria
+compartida. El destinatario debe consultarlo; no equivale a una notificación externa
+inmediata.
+
+Ejemplos:
+  Puedes sustituir «biorag» por «python3 biorag.py».
+  Adapta conceptos y rutas a tus datos; los nodos referidos deben existir.
+  Estas operaciones pueden modificar memoria o estado; prueba primero en una copia.
+  biorag comunicar hermes "Revisa la configuración del servicio de prueba"

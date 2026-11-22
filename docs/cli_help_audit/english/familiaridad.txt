@@ -1,0 +1,10 @@
+biorag familiaridad <text>
+    Find active permanent concepts mentioned in text.
+    Options:
+    No additional options.
+
+Why use it? Find concepts from permanent memory mentioned in a text, to decide what to
+search next. This does not verify the text.
+
+Examples:
+  biorag familiaridad "Check the service configuration"

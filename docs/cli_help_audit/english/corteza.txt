@@ -1,0 +1,10 @@
+biorag corteza
+    List permanent memory nodes, including active and dormant nodes.
+    Options:
+    No additional options.
+
+Why use it? Inspect permanent memory nodes, including their state. This can print a
+large list.
+
+Examples:
+  biorag corteza

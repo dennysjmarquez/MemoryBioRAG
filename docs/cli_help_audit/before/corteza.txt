@@ -1,0 +1,12 @@
+python3 biorag.py corteza
+    Lista todos los nodos de la corteza permanente (activos y dormidos)
+    mostrando concepto, categoria, peso sinaptico, estado, sustantivos clave y asociaciones.
+    Ej: biorag.py corteza
+
+¿Para qué me sirve? Úsalo para inspeccionar los nodos de memoria permanente y su estado.
+Te ayuda a revisar la organización de la memoria; puede producir mucha salida.
+
+Ejemplos:
+  Puedes sustituir «biorag» por «python3 biorag.py».
+  Adapta conceptos y rutas a tus datos; los nodos referidos deben existir.
+  biorag corteza

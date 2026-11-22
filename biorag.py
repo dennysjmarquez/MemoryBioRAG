@@ -1,234 +1,93 @@
 #!/usr/bin/env python3
-"""BioRAG CLI — Puente para que los agentes OEC (Athena, Artemis, Hermes)
-interactúen con la corteza cerebral compartida desde la terminal.
+"""BioRAG CLI — local memory tools. Command names and flags are preserved for compatibility.
 
-SISTEMA DE MEMORIA BIOMIMETICA
-Basado en principios biologicos: potenciacion a largo plazo (LTP) para recuerdos
-frecuentes, depresion a largo plazo (LTD) para olvido pasivo, inhibicion lateral
-para control de saturacion, y nodos dormidos que se despiertan con busqueda profunda.
+Topic keywords describe what a memory is about, not every name or detail it mentions.
 
-CONCEPTO FUNDAMENTAL: NÚCLEO TEMÁTICO (--sustantivos-clave)
-  El Núcleo Temático define de qué TRATA un recuerdo (su centro de gravedad conceptual),
-  no lo que meramente menciona.
-  Regla rápida: ¿De qué trata? ≠ ¿Qué palabras aparecen en el texto?
-  Ejemplo:
-    Texto: "Einstein demostró que E=mc² en 1905 en Berlín"
-    TRATA de: relatividad, energia, masa (1 a 5 sustantivos nucleares)
-    MENCIONA: Berlín, 1905 (fechas y ciudades son contexto circunstancial)
+  python3 biorag.py buscar <query> [options]
+    Search permanent memory using textual, semantic and associative signals.
+    Options:
+    --sustantivos-clave "a,b"  Topic keywords; alias: --sustantivos.
+    --deep                  Include dormant memories and wake retrieved dormant nodes.
+    --todos                 Request up to 100 results.
+    --tokens "root1,root2"   Search stemmed tokens instead of a phrase.
+    --modo strict|relaxed   Token matching; default: relaxed.
+    --frase                 Explicit phrase search (the default route).
+    --pagina N              Results page, starting at 1.
+    --cat TYPE              Filter by category.
+    --completo              Show full content rather than a preview.
+    --asociados             Show associated concepts and topic keywords.
 
-ACTUALIZACIÓN:
-  python3 biorag.py update                       # planificar desde upstream actual (dev)
-  python3 biorag.py update --yes                 # actualizar y preparar componentes
-  python3 biorag.py update --channel stable --yes # solo tag aprobado, sin cambiar rama
-  Alternativa mínima si fallan imports: python3 -m core.updater
+  python3 biorag.py guardar <concept> <content> --sustantivos-clave "a,b" [options]
+    Save a memory in working memory. Consolidate it with sueno before searching.
+    Options:
+    --sustantivos-clave "a,b"  Required: 1–5 topic keywords, each 2–15 characters.
+    --sustantivos           Alias of --sustantivos-clave.
+    --syn "a,b"             Search synonyms.
+    --cat TYPE              Explicit category; otherwise inferred from content.
 
-USO DESDE EL AGENTE (cada comando explicado):
+  python3 biorag.py sustantivos <concept>
+    Inspect topic keywords in permanent or working memory. Alias: sustantivo.
+    Options:
+    No additional options.
 
-  python3 biorag.py buscar <concepto> [--sustantivos-clave "s1,s2"] [--deep] [--todos] [--tokens "raiz1,raiz2"] [--pagina N] [--modo strict|relaxed] [--cat tipo] [--completo] [--asociados]
-    Busca un recuerdo en la corteza. Por defecto usa busqueda hibrida:
-      - FTS5 con trigram tokenizer: tolera typos y variaciones morfologicas
-        automaticamente. "formulariox" encuentra "formularios".
-      - 60% calidad textual BM25 + 25% peso sinaptico + 15% riqueza de asociaciones
-      - Los sinonimos del nodo (definidos en guardar --syn) se indexan y buscan tambien
-    --sustantivos-clave Lista de 1-5 sustantivos nucleares para sesgar y focalizar
-                        la búsqueda hacia el centro de gravedad deseado (alias: --sustantivos).
-    --deep              Busca tambien en nodos dormidos. Si encuentra uno, lo despierta.
-    --todos             Devuelve TODAS las coincidencias ordenadas por relevancia.
-    --tokens            Lista de raices stemmeadas separadas por comas (busqueda multi-token).
-                        Activa Soft AND: deben coincidir todas en el mismo recuerdo (strict)
-                        o al menos una (relaxed). Ej: "puert,marron" para buscar "puerta marroncita".
-    --pagina N          Pagina de resultados 1-indexada (defecto: 1).
-    --modo M            strict | relaxed. strict solo devuelve recuerdos que matchean TODOS
-                        los tokens. relaxed devuelve cualquier match parcial. Defecto: relaxed.
-    --completo          Muestra el contenido completo sin truncar y sus sustantivos clave.
-    --asociados         Muestra los nodos asociados y sus sustantivos clave.
-    --cat T             Filtrar por categoria (ej: --cat proyecto, --cat leccion).
-    Ej: biorag.py buscar formularios --sustantivos-clave "angular,formularios"
-        biorag.py buscar angular --deep
-        biorag.py buscar agente --todos
-        biorag.py buscar "formularios con tabs" --completo --asociados
+  python3 biorag.py agregar_sustantivos <concept> "keyword1,keyword2"
+    Assign topic keywords in permanent or working memory.
+    Options:
+    --sustantivos-clave "a,b"  Alternative to the positional keyword list.
+    --sustantivos           Alias of --sustantivos-clave.
+    Aliases: agregar-sustantivos, asignar_sustantivos, asignar-sustantivos.
 
-  python3 biorag.py guardar <clave> <contenido> --sustantivos-clave "s1,s2,s3" [--syn "sinonimo1,sinonimo2"] [--cat tipo]
-    Almacena informacion en la memoria de corto plazo (memoria de trabajo).
-    Usar 'sueno' para consolidar a largo plazo (corteza permanente).
-    --sustantivos-clave (OBLIGATORIO, alias: --sustantivos)
-                        Define el núcleo temático: 1 a 5 sustantivos (2-15 chars cada uno,
-                        alfanuméricos y guion bajo) que identifican de qué TRATA el recuerdo.
-    --syn               Lista de terminos alternativos separados por comas para busqueda.
-                        Estos sinonimos se indexan en FTS5 y permiten encontrar el caso
-                        aunque el usuario use palabras diferentes.
-    --cat               Categoria explicita (proyecto, leccion, solucion, arquitectura,
-                        metacognicion, protocolo). Si no se especifica, se infiere del
-                        contenido automaticamente via categorizador.
-    NOTA: Al guardar, BioRAG auto-vincula el nuevo concepto con nodos existentes
-    de tema similar (sinapsis por solapamiento de tokens en tabla sinapsis).
-    La clave se normaliza a minusculas y guiones bajos.
-    Ej: biorag.py guardar relatividad "Einstein demostro la equivalencia masa-energia" --sustantivos-clave "relatividad,energia,masa"
+  python3 biorag.py asociar <concept_a> <concept_b>
+    Create a bidirectional association between related concepts.
+    Options:
+    No additional options.
 
-  python3 biorag.py sustantivos <concepto>
-    Consulta los sustantivos clave asignados a un nodo de la corteza (alias: sustantivo).
-    Ej: biorag.py sustantivos relatividad
+  python3 biorag.py comunicar <destination> <message>
+    Store an inter-agent message. AGENT_NAME identifies the sender.
+    Options:
+    Use todos for an explicit shared broadcast.
+    Recipient routing is currently restricted: an unknown ID becomes todos.
+    Arbitrary private destinations are not supported by the current engine.
 
-  python3 biorag.py agregar_sustantivos <concepto> "sustantivo1,sustantivo2"
-    Asigna o actualiza los sustantivos clave de un nodo existente en la corteza
-    (aliases: agregar-sustantivos, asignar_sustantivos).
-    Ej: biorag.py agregar_sustantivos relatividad "relatividad,energia,masa"
+  python3 biorag.py leer_mensajes [options]
+    Display messages and mark displayed unread messages as read.
+    Options:
+    --no-leidos             Show unread messages only.
+    --ultimos N             Show up to N recent messages; default: 10.
+    --para ID               Destination filter; unsupported IDs are ignored.
+    AGENT_NAME identifies the reader.
 
-  python3 biorag.py asociar <concepto_a> <concepto_b>
-    Crea un enlace sinaptico bidireccional entre dos conceptos en el grafo.
-    Al evocar uno, el peso del otro tambien se refuerza (propagacion).
-    Ej: biorag.py asociar formularios_angular data_context_service
-
-  python3 biorag.py comunicar <destino> <mensaje>
-    Envia un mensaje a otro agente OEC a traves de la corteza compartida.
-    Destino: athena, artemis, hermes, todos.
-    Identificate con variable de entorno AGENT_NAME.
-    Ej: AGENT_NAME=athena biorag.py comunicar artemis "Mensaje para ti"
-
-  python3 biorag.py leer_mensajes [--no-leidos] [--ultimos N] [--para <agente>]
-    Lee mensajes del canal compartido entre agentes.
-    --no-leidos  Solo muestra mensajes no leidos.
-    --ultimos N  Muestra los ultimos N mensajes (defecto: 10).
-    --para X     Filtra mensajes para el agente X.
-    Ej: biorag.py leer_mensajes --no-leidos
-
-  python3 biorag.py sueno [limite_energia]
-    Consolida la memoria de corto plazo a largo plazo (corteza permanente).
-    Aplica LTP a recuerdos consolidados, LTD (decaimiento) a no usados,
-    duerme nodos debiles (peso <= 0.05), y aplica inhibicion lateral si
-    la energia sinaptica supera el limite (defecto: n_activos * 1.6, min 10.0).
-    Ej: biorag.py sueno
-        biorag.py sueno 15.0  (limite de energia manual)
+  python3 biorag.py sueno [energy_limit]
+    Consolidate working memory and apply memory maintenance.
+    Options:
+    energy_limit           Optional numerical energy limit.
 
   python3 biorag.py corteza
-    Lista todos los nodos de la corteza permanente (activos y dormidos)
-    mostrando concepto, categoria, peso sinaptico, estado, sustantivos clave y asociaciones.
-    Ej: biorag.py corteza
+    List permanent memory nodes, including active and dormant nodes.
+    Options:
+    No additional options.
 
   python3 biorag.py listar [--pagina N]
-    Lista los conceptos con snippet, metadatos y sustantivos clave, paginado de a 10.
-    Ej: biorag.py listar
-        biorag.py listar --pagina 2
+    List permanent concepts in pages of 10 with content previews.
+    Options:
+    --pagina N              Page number, starting at 1.
 
-  python3 biorag.py familiaridad <texto>
-    Escanea un texto en busca de conceptos familiares en la corteza.
-    Busca en clave, contenido y sustantivos clave de los recuerdos activos.
-    Ej: biorag.py familiaridad "necesito ayuda con formularios Angular"
+  python3 biorag.py familiaridad <text>
+    Find active permanent concepts mentioned in text.
+    Options:
+    No additional options.
 
   python3 biorag.py estado
-    Muestra estadisticas de la corteza: nodos activos, dormidos,
-    items en memoria de trabajo, energia sinaptica y porcentaje de nodos con sustantivos clave.
-    Ej: biorag.py estado
+    Show active/dormant counts, working memory size, energy and keyword coverage.
+    Options:
+    No additional options.
 
   python3 biorag.py dashboard
-    Lanza el Neuro-Visor: interfaz web de administración para explorar y visualizar
-    la corteza cerebral de BioRAG (nodos, sinapsis, dimensiones, actividad, comunidades).
-    Incluye: backend API (puerto 8001) + frontend React (puerto 3000).
-    Abre el navegador en http://localhost:3000.
-    Instala dependencias Python (uv/pip) y Node (npm) si faltan.
-    Ctrl+C detiene ambos procesos limpiamente.
-    Ej: biorag.py dashboard
+    Launch the optional local dashboard. May install dependencies and start servers.
+    Options:
+    No additional options. Use --help to inspect this command without launching it.
 
-PROTOCOLO PARA EL AGENTE (CUANDO USAR CADA COMANDO):
-
-  Regla #1 (BUSCAR):
-    IF el usuario menciona algo QUE YA HEMOS VISTO antes (un proyecto, una persona,
-    un concepto, una leccion, una historia) THEN
-      Si la busqueda es por frase natural: python3 biorag.py buscar "frase" --frase [--sustantivos-clave "s1,s2"]
-      Si la busqueda es por raices (stemming): python3 biorag.py buscar "texto" --tokens "raiz1,raiz2"
-      Si no sabes las raices exactas: usar --frase primero, fallback a --tokens
-      --completo para ver contenido sin truncar y sus sustantivos clave
-      --asociados para ver nodos relacionados
-    Ej: usuario dice "acuerdate del proyecto ese de Angular" -> buscar "Angular formularios tabs" --frase --sustantivos-clave "angular,formularios"
-        usuario dice "que paso con lo de DeepSeek" -> buscar "analisis DeepSeek BioRAG" --frase
-
-  Regla #2 (GUARDAR):
-    IF el usuario te ENSENA algo nuevo, comparte una leccion, o da una instruccion
-    que DEBE RECORDAR en futuras sesiones THEN
-      python3 biorag.py guardar <clave> "texto completo" --sustantivos-clave "termino1,termino2"
-    Ej: usuario explica por que no usar NgRx -> guardar leccion_ngrx "texto..." --sustantivos-clave "ngrx,estado,arquitectura"
-    IMPORTANTE: Despues de guardar, ejecuta 'sueno' para que no se pierda.
-
-  Regla #3 (ASOCIAR):
-    IF el usuario menciona DOS COSAS que estan RELACIONADAS y quieres que al
-    recordar una, tambien aparezca la otra THEN
-      python3 biorag.py asociar <concepto_a> <concepto_b>
-    Ej: usuario dice "el patron de formularios ese usa DataContextService"
-        -> asociar formularios_angular data_context_service
-        (Ahora, al buscar "formularios", tambien se refuerza "data_context_service")
-
-  Regla #4 (COMUNICAR):
-    IF necesitas DEJAR UN MENSAJE a tu hermana (Artemis, Hermes) o a todas THEN
-      AGENT_NAME=tu_nombre python3 biorag.py comunicar <destino> "mensaje"
-    Ej: quieres avisar a Artemis que ya terminaste una tarea
-        -> AGENT_NAME=athena comunicar artemis "ya termine la tarea X"
-
-  Regla #5 (LEER MENSAJES):
-    IF al iniciar una sesion, quieres ver si tus hermanas te dejaron mensajes THEN
-      python3 biorag.py leer_mensajes --no-leidos
-
-  Regla #6 (SUENO - IMPORTANTE):
-    IF acabas de guardar uno o varios recuerdos con GUARDAR y quieres que
-    se CONSOLIDEN en la memoria permanente (para no perderlos al cerrar) THEN
-      python3 biorag.py sueno
-    Ej: despues de guardar 3 lecciones, ejecuta sueno para fijarlas.
-
-  Regla #7 (CORTEZA):
-    IF quieres VER que recuerdos tienes disponibles, o explorar lo que sabes THEN
-      python3 biorag.py corteza
-
-  Regla #8 (FAMILIARIDAD):
-    IF quieres saber si el usuario esta hablando de algo que ya conoces THEN
-      python3 biorag.py familiaridad "texto del usuario"
-    Ej: el usuario escribe "el sistema de tabs ese" -> familiaridad "tabs formularios"
-
-  Regla #9 (FAMILIARIDAD):
-    IF el usuario menciona algo y quieres saber si ya esta en la corteza THEN
-      python3 biorag.py familiaridad "texto del usuario"
-    Escanea tokens en claves y contenido de nodos activos.
-    Retorna lista de conceptos familiares si encuentra coincidencia.
-
-  Regla #10 (ESTADO):
-    IF quieres saber cuanta memoria te queda, cuantos recuerdos tienes activos THEN
-      python3 biorag.py estado
-
-  Regla #11 (LIMITE DE BUSQUEDA):
-    IF despues de 2 busquedas a BioRAG no encuentras lo que buscas
-    O el usuario dice "no es eso" / "era otro caso" ENTONCES:
-      STOP. No sigas buscando ni hagas mas consultas.
-      Pregunta al usuario directamente que concepto tiene en mente.
-      Una pregunta evita 10 busquedas ciegas.
-    Ej: usuario dice "no era ese caso" -> preguntar "cual tienes en mente?"
-        en lugar de lanzar --tokens, --todos, listar, --deep, etc.
-
-RESUMEN PARA EL AGENTE (lo minimo que debes recordar):
-  - Algo NUEVO -> guardar + sueno (auto-vincula sinapsis, auto-categoriza)
-  - Algo que ya SABEMOS -> buscar o familiaridad
-  - Dos cosas RELACIONADAS -> asociar
-  - Mensaje a hermana -> comunicar
-  - Empezar sesion -> leer_mensajes --no-leidos
-  - Ver estado de memoria -> estado
-
-NOTA DE DISENO - TAMANO IDEAL DE CADA CASO:
-
-  Cada caso en BioRAG es un concepto unico, no un documento extenso.
-  Objetivo: ~1200-1500 chars por entrada. Suficiente para:
-    - Describir el problema
-    - Exponer la solucion
-    - Extraer la regla aplicable
-
-  El preview por defecto (1500 chars) debe cubrir el nucleo completo.
-  Si un caso necesita mas contexto, usar --completo para la expansion.
-  Esto evita chunking innecesario: BioRAG no parte documentos,
-  cada entrada es completa por diseno.
-
-  Para el agente: un caso bien escrito se lee en 1 sola llamada.
-  Si necesitas --completo, el caso probablemente deberia dividirse
-  en dos conceptos mas pequenos.
-
-MAS INFORMACION:
-  Repositorio: https://github.com/dennysjmarquez/MemoryBioRAG
-  Creado por Dennys J Marquez — Sistema de memoria para agentes OEC.
+Project: https://github.com/dennysjmarquez/MemoryBioRAG
 """
 import sys
 

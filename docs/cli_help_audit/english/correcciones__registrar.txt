@@ -1,0 +1,50 @@
+usage: biorag correcciones registrar [-h] [--db DB] --id ID --mensaje MENSAJE
+                                     --nodo-anterior NODO_ANTERIOR
+                                     --nodo-sucesor NODO_SUCESOR --entidad
+                                     ENTIDAD --atributo ATRIBUTO --ambito
+                                     AMBITO --valor-anterior VALOR_ANTERIOR
+                                     --valor-nuevo VALOR_NUEVO --observado-en
+                                     OBSERVADO_EN --efectivo-desde
+                                     EFECTIVO_DESDE
+                                     [--anterior-desde ANTERIOR_DESDE]
+
+Why use it? Propose that one fact replaces another, providing context, values, existing
+nodes and dates. This creates a pending proposal, not an approved correction.
+
+Database: --db overrides BIORAG_PATH. Use an existing disposable copy.
+
+options:
+  -h, --help            show this help message and exit
+  --db DB               Existing database; defaults to BIORAG_PATH or the
+                        canonical path
+  --id ID               Stable proposal identifier
+  --mensaje MENSAJE     Original evidence message, in any language
+  --nodo-anterior NODO_ANTERIOR
+                        Existing concept containing the earlier fact
+  --nodo-sucesor NODO_SUCESOR
+                        Existing concept containing its replacement
+  --entidad ENTIDAD     Exact context entity identifier
+  --atributo ATRIBUTO   Exact context attribute identifier
+  --ambito AMBITO       Exact context scope identifier
+  --valor-anterior VALOR_ANTERIOR
+                        Explicit earlier value
+  --valor-nuevo VALOR_NUEVO
+                        Explicit replacement value
+  --observado-en OBSERVADO_EN
+                        Observation time in UNIX seconds
+  --efectivo-desde EFECTIVO_DESDE
+                        Effective start in UNIX seconds
+  --anterior-desde ANTERIOR_DESDE
+                        Earlier fact start; required if no prior approved
+                        context exists
+
+Examples:
+  Use an existing test copy; replace the illustrative paths and node IDs.
+  UNIX dates are illustrative; never invent actual effective dates.
+  Replace DIGEST_DE_LA_REVISION with the digest returned by revisar.
+  biorag correcciones registrar --db /ruta/copia_prueba.db \
+    --id cambio-puerto-001 --mensaje "The service port changed from 8080 to 8443" \
+    --nodo-anterior servicio_puerto_anterior --nodo-sucesor servicio_puerto_actual \
+    --entidad service --atributo port --ambito test \
+    --valor-anterior 8080 --valor-nuevo 8443 \
+    --observado-en 1767225600 --efectivo-desde 1767225600 --anterior-desde 1735689600

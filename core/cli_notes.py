@@ -1,122 +1,119 @@
-"""Notas de uso del CLI; texto únicamente, sin imports del motor ni efectos."""
+"""User-facing CLI explanations. Text only: no engine imports or side effects."""
 from textwrap import fill
 
 NOTES = {
-    'buscar': 'Úsalo para recuperar un recuerdo sin recorrer toda la memoria. Por ejemplo, '
-              'busca cómo resolviste un problema antes de guardar otra solución. Encontrar '
-              'un resultado no demuestra que siga vigente; revisa su contenido.',
-    'listar': 'Úsalo para explorar qué conceptos tienes guardados, página por página, '
-              'cuando todavía no sabes qué término buscar.',
-    'corteza': 'Úsalo para inspeccionar los nodos de memoria permanente y su estado. '
-               'Te ayuda a revisar la organización de la memoria; puede producir mucha salida.',
-    'estado': 'Úsalo para obtener un resumen de la memoria y su actividad, sin listar '
-              'cada recuerdo. Sirve como primera comprobación, no como certificación de integridad.',
-    'familiaridad': 'Úsalo para detectar qué conceptos de un texto ya conoce la memoria. '
-                    'Te orienta sobre qué buscar después; no verifica que el texto sea verdadero.',
-    'sustantivos': 'Úsalo para ver de qué tema trata un nodo según sus sustantivos clave. '
-                   'Ayuda a diagnosticar por qué se encuentra, o no, en una búsqueda.',
-    'guardar': 'Úsalo para incorporar información nueva que quieras recuperar después. '
-               'Busca primero para evitar duplicados. Se guarda en memoria de trabajo; '
-               'sueno permite consolidarla en memoria permanente.',
-    'agregar_sustantivos': 'Úsalo cuando un recuerdo existente necesita un núcleo temático '
-                           'mejor definido para encontrarlo. Asigna o actualiza sus sustantivos '
-                           'clave; no es el comando para corregir la vigencia de un hecho.',
-    'asociar': 'Úsalo para conectar dos conceptos relacionados y facilitar su recuperación '
-               'asociativa. Una asociación no declara que un dato sustituya a otro.',
-    'sueno': 'Úsalo para consolidar lo aprendido en memoria permanente y ejecutar ajustes '
-             'de mantenimiento. Modifica la memoria; no es una vista previa ni solo una consulta.',
-    'comunicar': 'Úsalo para dejar un mensaje a otro agente mediante la memoria compartida. '
-                 'El destinatario debe consultarlo; no equivale a una notificación externa inmediata.',
-    'leer_mensajes': 'Úsalo para consultar los mensajes que otros agentes dejaron en la memoria '
-                     'compartida y retomar coordinación pendiente.',
-    'dashboard': 'Úsalo para abrir las interfaces locales de inspección de memoria, si tu '
-                 'instalación las incluye. Arranca procesos; no es necesario para usar el CLI o MCP.',
-    'update': 'Úsalo para poner al día el programa y preparar sus componentes sin ejecutar '
-              'git, pip y migraciones por separado. Sin --yes solo planifica; puede consultar '
-              'la red. Antes de aplicar, detén MCP/daemon y usa una DB externa al checkout.',
-    'recovery': 'Úsalo después de una actualización fallida para evaluar el respaldo indicado '
-                'en su recibo. Con --stage conserva una copia del presente y restaura el '
-                'respaldo en otro archivo: no sobrescribe tu memoria ni activa una versión anterior.',
-    'correcciones': 'Úsalo cuando necesitas conservar un dato anterior y dejar establecido '
-                    'qué dato lo sustituye, para distinguirlos en consultas de vigencia. '
-                    'No sirve para editar el texto de un recuerdo.',
-    'correcciones registrar': 'Úsalo para proponer que un dato sustituye a otro, indicando '
-                              'contexto, valores, nodos y fechas. Los dos recuerdos deben existir. '
-                              'El resultado queda pendiente: todavía no es una corrección aprobada.',
-    'correcciones revisar': 'Úsalo antes de aprobar para comprobar el mensaje, contexto, '
-                            'valores, fechas y recuerdos implicados. Obtienes el digest '
-                            'de esa evidencia; revisarla no la aprueba.',
-    'correcciones confirmar': 'Úsalo solo después de revisar y decidir que la sustitución '
-                              'es correcta. Registra la aprobación usando el digest revisado '
-                              'y un request-id para reintentos sin duplicados. Conserva el '
-                              'historial; no verifica por sí solo la verdad de la evidencia.',
+    'buscar': 'Retrieve a permanent memory before saving a duplicate. Newly saved working '
+              'memories become searchable after biorag sueno. Results are not proof that a fact is current.',
+    'listar': 'Browse permanent concepts page by page when you do not yet know what to search for.',
+    'corteza': 'Inspect permanent memory nodes, including their state. This can print a large list.',
+    'estado': 'Check memory counts and activity without listing every memory. This is a summary, not an integrity test.',
+    'familiaridad': 'Find concepts from permanent memory mentioned in a text, to decide what to search next. This does not verify the text.',
+    'sustantivos': 'Inspect the topic keywords assigned to an existing permanent or working-memory node when diagnosing retrieval.',
+    'guardar': 'Save information in working memory. Search first to avoid duplicates; then run biorag sueno '
+               'to consolidate it so buscar can retrieve it.',
+    'agregar_sustantivos': 'Assign or update topic keywords on an existing permanent or working memory to improve retrieval. '
+                           'This does not establish which version of a fact is current.',
+    'asociar': 'Connect related concepts for associative retrieval. An association does not mean one fact replaces another.',
+    'sueno': 'Consolidate working memories into permanent memory and run maintenance adjustments. This changes stored data; it is not a preview.',
+    'comunicar': 'Leave a message in the shared memory database. The recipient must read it; there is no immediate external notification. '
+                 'AGENT_NAME identifies the sender. Current routing restricts recipient IDs: unknown IDs are broadcast to todos, '
+                 'not delivered privately. Use todos for an explicit broadcast.',
+    'leer_mensajes': 'Read shared messages and mark displayed unread messages as read for the current AGENT_NAME. '
+                     'This changes read status. Unsupported destination filters are ignored by the current engine.',
+    'dashboard': 'Start the local inspection interfaces, if included. This can install Python and Node dependencies, '
+                 'start servers on ports 8001 and 3000, and open a browser. It is not required for CLI or MCP use.',
+    'update': 'Update the program and prepare its components in one command. Without --yes this only plans and may access the network. '
+              'Stop the MCP server (the process connecting your agent to memory tools) and background maintenance daemon before applying. '
+              'A clean Git checkout has no local changes; an external database is stored outside that checkout.',
+    'recovery': 'After an update failure, inspect the backup referenced by its update receipt. With --stage, '
+                'preserve a snapshot of the present and restore the old backup to a separate file. '
+                'This never overwrites live memory or activates an older program version.',
+    'correcciones': 'Keep an earlier fact and record which fact replaces it for a specific context and effective date. '
+                    'This is not a command for editing memory text.',
+    'correcciones registrar': 'Propose that one fact replaces another, providing context, values, existing nodes and dates. '
+                              'This creates a pending proposal, not an approved correction.',
+    'correcciones revisar': 'Before approving, inspect the original message, context, values, dates and referenced memories. '
+                            'Obtain the digest identifying that evidence. Reviewing does not approve it.',
+    'correcciones confirmar': 'After reviewing and deciding the replacement is correct, approve it with the reviewed digest '
+                              'and a request ID for duplicate-free retries. History is preserved; the command does not establish that the evidence is true.',
 }
+
+# Commands whose handlers write memory or state; initialization may also prepare schema.
+WRITES = {'buscar', 'guardar', 'agregar_sustantivos', 'asociar', 'sueno', 'comunicar', 'leer_mensajes'}
+REQUIRES_NODES = {'asociar', 'agregar_sustantivos', 'sustantivos', 'correcciones'}
 
 
 def usage_note(command):
-    note = fill('¿Para qué me sirve? ' + NOTES[command], width=88)
+    note = fill('Why use it? ' + NOTES[command], width=88)
     if command == 'correcciones':
         sections = (
-            ('Diferencia con actualizar un nodo:',
-             'Actualizar cambia el contenido de ese recuerdo. Una corrección contextual '
-             'conserva dos recuerdos y registra que un dato sustituye a otro para un '
-             'contexto y desde una fecha; no borra ni reescribe sus textos.'),
-            ('Ejemplo concreto:',
-             'Un recuerdo dice «el servicio usa el puerto 8080» y otro dice «ahora usa '
-             'el 8443». Aquí puedes dejar aprobada la relación: para ese servicio y '
-             'entorno, desde la fecha indicada, el 8443 sustituye al 8080. El recuerdo '
-             'del 8080 se conserva como antecedente.'),
-            ('Antes de empezar:',
-             'Ambos recuerdos deben existir. Registrar crea una propuesta; revisar '
-             'permite comprobarla; confirmar aprueba la relación, no la verdad del dato.'),
-            ('Dónde tiene efecto:',
-             'Sirve como evidencia en las búsquedas MCP recordar/buscar con el contexto '
-             'correspondiente y mode vigente, historico o ambos. No modifica todas las '
-             'búsquedas ni garantiza que el dato nuevo siempre aparezca primero.'),
+            ('How is this different from updating a node?',
+             'Updating a node changes its text. A contextual correction keeps two memories '
+             'and records that one fact replaces another in a context from a given date. '
+             'It does not delete or rewrite either memory.'),
+            ('Concrete example:',
+             'One memory says the service uses port 8080; another says it now uses 8443. '
+             'Approve the relationship: for this service and environment, from the specified '
+             'date, 8443 replaces 8080. The earlier memory remains available as history.'),
+            ('Before you start:',
+             'Both memories must already exist. Register proposes, review checks the evidence, '
+             'and confirm approves the relationship, not the truth of the fact.'),
+            ('Where does it apply?',
+             'It supplies evidence to MCP recordar/buscar with the matching context and mode '
+             'vigente, historico or ambos. It does not change every search or guarantee '
+             'that the newer fact always ranks first. These modes are not CLI buscar options.'),
         )
-        note += ''.join('\n\n' + title + '\n' + fill(text, width=88)
-                        for title, text in sections)
+        note += ''.join('\n\n' + title + '\n' + fill(text, width=88) for title, text in sections)
+    if command == 'buscar':
+        note += '\n\n' + fill('Side effects: --deep wakes retrieved dormant nodes and changes their weight. '
+                               'Search may also write search logs and learning state; it is not a read-only audit.', width=88)
+    if command in REQUIRES_NODES:
+        note += '\n\nBefore you start: referenced nodes must already exist.'
+    if command in WRITES:
+        note += '\n\n' + fill('Changes memory or state. To test on a disposable copy, use: '
+                               'BIORAG_PATH=/path/copy.db biorag ' + command + ' ...', width=88)
+    if command.startswith('correcciones'):
+        note += '\n\nDatabase: --db overrides BIORAG_PATH. Use an existing disposable copy.'
     return note
 
 
-# Ejemplos orientativos, no se ejecutan al imprimir ayuda.
 EXAMPLES = {
-    'buscar': ('biorag buscar "configuración del servicio" --sustantivos-clave "servicio,configuracion"',
-               'biorag buscar servicio --completo --asociados'),
+    'buscar': ('biorag buscar "service configuration" --sustantivos-clave "service,config"',
+               'biorag buscar service --completo --asociados'),
     'listar': ('biorag listar', 'biorag listar --pagina 2'),
     'corteza': ('biorag corteza',),
     'estado': ('biorag estado',),
-    'familiaridad': ('biorag familiaridad "Necesito revisar la configuración del servicio"',),
+    'familiaridad': ('biorag familiaridad "Check the service configuration"',),
     'sustantivos': ('biorag sustantivos servicio_puerto_actual',),
-    'guardar': ('biorag guardar nota_servicio "El servicio de prueba utiliza el puerto 8443" --sustantivos-clave "servicio,puerto"',),
-    'agregar_sustantivos': ('biorag agregar_sustantivos servicio_puerto_actual "servicio,puerto"',),
-    'asociar': ('biorag asociar servicio_configuracion servicio_despliegue',),
+    'guardar': ('biorag guardar service_note "The test service uses port 8443" --sustantivos-clave "service,port"',
+                'biorag sueno'),
+    'agregar_sustantivos': ('biorag agregar_sustantivos servicio_puerto_actual "service,port"',),
+    'asociar': ('biorag asociar service_configuration service_deployment',),
     'sueno': ('biorag sueno',),
-    'comunicar': ('biorag comunicar hermes "Revisa la configuración del servicio de prueba"',),
-    'leer_mensajes': ('biorag leer_mensajes --no-leidos', 'biorag leer_mensajes --ultimos 5'),
-    'dashboard': ('biorag dashboard',),
-    'update': ('biorag update --dry-run', 'biorag update --yes --db /ruta/copia_prueba.db'),
-    'recovery': ('biorag recovery --receipt /ruta/update-receipts/recibo.json',
-                 'biorag recovery --receipt /ruta/update-receipts/recibo.json --stage'),
+    'comunicar': ('AGENT_NAME=agent_a biorag comunicar todos "Please review the test service"',),
+    'leer_mensajes': ('AGENT_NAME=agent_b biorag leer_mensajes --no-leidos',
+                      'biorag leer_mensajes --ultimos 5'),
+    'dashboard': ('biorag dashboard --help',),
+    'update': ('biorag update --dry-run', 'biorag update --yes --db /path/copy.db'),
+    'recovery': ('biorag recovery --receipt /path/update-receipts/receipt.json',
+                 'biorag recovery --receipt /path/update-receipts/receipt.json --stage'),
     'correcciones': ('biorag correcciones registrar --help',
                      'biorag correcciones revisar --db /ruta/copia_prueba.db --id cambio-puerto-001',
                      'biorag correcciones confirmar --help'),
     'correcciones registrar': (
-        'biorag correcciones registrar --db /ruta/copia_prueba.db \\\n    --id cambio-puerto-001 --mensaje "El puerto cambió de 8080 a 8443" \\\n    --nodo-anterior servicio_puerto_anterior --nodo-sucesor servicio_puerto_actual \\\n    --entidad servicio --atributo puerto --ambito pruebas \\\n    --valor-anterior 8080 --valor-nuevo 8443 \\\n    --observado-en 1767225600 --efectivo-desde 1767225600 --anterior-desde 1735689600',),
-    'correcciones revisar': (
-        'biorag correcciones revisar --db /ruta/copia_prueba.db --id cambio-puerto-001',),
+        'biorag correcciones registrar --db /ruta/copia_prueba.db \\\n    --id cambio-puerto-001 --mensaje "The service port changed from 8080 to 8443" \\\n    --nodo-anterior servicio_puerto_anterior --nodo-sucesor servicio_puerto_actual \\\n    --entidad service --atributo port --ambito test \\\n    --valor-anterior 8080 --valor-nuevo 8443 \\\n    --observado-en 1767225600 --efectivo-desde 1767225600 --anterior-desde 1735689600',),
+    'correcciones revisar': ('biorag correcciones revisar --db /ruta/copia_prueba.db --id cambio-puerto-001',),
     'correcciones confirmar': (
         'biorag correcciones confirmar --db /ruta/copia_prueba.db \\\n    --id cambio-puerto-001 --digest DIGEST_DE_LA_REVISION --request-id aprobacion-001',),
 }
 
 
 def command_examples(command):
-    header = ('Ejemplos:\n'
-              '  Puedes sustituir «biorag» por «python3 biorag.py».\n'
-              '  Adapta conceptos y rutas a tus datos; los nodos referidos deben existir.\n')
+    header = 'Examples:\n'
     if command.startswith('correcciones'):
-        header += ('  Usa una copia de prueba. Fechas UNIX ilustrativas: no inventes fechas reales.\n'
-                   '  DIGEST_DE_LA_REVISION se reemplaza por el digest de revisar.\n')
-    elif command in ('guardar', 'agregar_sustantivos', 'asociar', 'sueno', 'comunicar', 'leer_mensajes'):
-        header += '  Estas operaciones pueden modificar memoria o estado; prueba primero en una copia.\n'
+        header += ('  Use an existing test copy; replace the illustrative paths and node IDs.\n'
+                   '  UNIX dates are illustrative; never invent actual effective dates.\n'
+                   '  Replace DIGEST_DE_LA_REVISION with the digest returned by revisar.\n')
+    if command == 'dashboard':
+        header += '  Help is safe; running dashboard without --help can install dependencies and start services.\n'
     return header + '\n'.join('  ' + example for example in EXAMPLES[command])

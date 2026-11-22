@@ -1,0 +1,18 @@
+usage: biorag correcciones revisar [-h] [--db DB] --id ID
+
+Why use it? Before approving, inspect the original message, context, values, dates and
+referenced memories. Obtain the digest identifying that evidence. Reviewing does not
+approve it.
+
+Database: --db overrides BIORAG_PATH. Use an existing disposable copy.
+
+options:
+  -h, --help  show this help message and exit
+  --db DB     Existing database; defaults to BIORAG_PATH or the canonical path
+  --id ID     Stable proposal identifier
+
+Examples:
+  Use an existing test copy; replace the illustrative paths and node IDs.
+  UNIX dates are illustrative; never invent actual effective dates.
+  Replace DIGEST_DE_LA_REVISION with the digest returned by revisar.
+  biorag correcciones revisar --db /ruta/copia_prueba.db --id cambio-puerto-001

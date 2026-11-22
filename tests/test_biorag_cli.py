@@ -453,7 +453,7 @@ class TestCmdVisibilidadYAyuda:
         assert "--sustantivos-clave" in doc
         assert "sustantivos" in doc
         assert "agregar_sustantivos" in doc
-        assert "núcleo temático" in doc.lower() or "nucleo tematico" in doc.lower() or "trata" in doc.lower()
+        assert "topic keywords describe what a memory is about" in doc.lower()
 
 
 # ─── T6: Integración E2E, casos límite y verificación global ────────────────

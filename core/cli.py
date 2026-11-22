@@ -5,29 +5,29 @@ import sys
 
 # Nombres públicos y aliases del despachador de memoria en biorag.py.
 GROUPS = (
-    ('Consultar memoria', (
-        ('buscar', 'Buscar recuerdos; ver opciones con buscar --help'),
-        ('listar', 'Listar conceptos con paginación'),
-        ('corteza', 'Mostrar nodos de memoria permanente'),
-        ('estado', 'Mostrar estadísticas de memoria'),
-        ('familiaridad', 'Reconocer conceptos en un texto'),
-        ('sustantivos', 'Consultar el núcleo temático de un nodo'),
+    ('Read and search memory', (
+        ('buscar', 'Retrieve memories; see buscar --help'),
+        ('listar', 'Browse concepts page by page'),
+        ('corteza', 'Inspect permanent nodes'),
+        ('estado', 'Show memory statistics'),
+        ('familiaridad', 'Recognize concepts in text'),
+        ('sustantivos', 'Inspect a node\'s topic keywords'),
     )),
-    ('Escribir y organizar memoria', (
-        ('guardar', 'Guardar un recuerdo con sustantivos clave'),
-        ('correcciones', 'Registrar, revisar y confirmar sustituciones explícitas'),
-        ('agregar_sustantivos', 'Asignar o actualizar sustantivos clave'),
-        ('asociar', 'Vincular dos conceptos'),
-        ('sueno', 'Consolidar memoria; modifica datos'),
+    ('Write and organize memory', (
+        ('guardar', 'Save a memory with topic keywords'),
+        ('correcciones', 'Propose, review and approve fact replacements'),
+        ('agregar_sustantivos', 'Assign or update topic keywords'),
+        ('asociar', 'Associate two concepts'),
+        ('sueno', 'Consolidate memory; changes data'),
     )),
-    ('Comunicación e interfaces', (
-        ('comunicar', 'Enviar un mensaje a otro agente'),
-        ('leer_mensajes', 'Consultar mensajes entre agentes'),
-        ('dashboard', 'Abrir la interfaz local, si está disponible'),
+    ('Communication and interfaces', (
+        ('comunicar', 'Leave a shared message'),
+        ('leer_mensajes', 'Read shared messages'),
+        ('dashboard', 'Start the local interface, if installed'),
     )),
-    ('Actualizar y recuperar el sistema', (
-        ('update', 'Planificar actualización; --yes autoriza aplicarla'),
-        ('recovery', 'Planificar recuperación; --stage crea copias separadas'),
+    ('Update and recover the system', (
+        ('update', 'Plan an update; --yes authorizes applying it'),
+        ('recovery', 'Plan recovery; --stage creates separate copies'),
     )),
 )
 ALIASES = {'sustantivo': 'sustantivos', 'agregar-sustantivos': 'agregar_sustantivos',
@@ -43,24 +43,35 @@ def can_handle_early(argv):
 
 
 def _overview():
-    print('BioRAG — memoria local para agentes\n')
-    print('Uso: biorag <comando> [opciones]')
-    print('     python biorag.py <comando> [opciones]\n')
+    print('BioRAG — local memory for agents\n')
+    print('Usage: biorag <command> [options]')
+    print('       python3 biorag.py <command> [options]\n')
+    print('Why use it? Store, retrieve and maintain memory shared by your local agents.\n')
     for group, entries in GROUPS:
         print(group + ':')
         for name, description in entries:
             print(f'  {name:22} {description}')
         print()
-    print('Ayuda: biorag help <comando>  |  biorag <comando> --help')
-    print('Ejemplos:')
+    print('Help: biorag help <command>  |  biorag <command> --help')
+    print('You can replace biorag with python3 biorag.py in the examples.\n')
+    print('Key concepts:')
+    print('  Working memory: guardar stores new memories here; run sueno before buscar.')
+    print('  Cortex (permanent memory): consolidated memories used by buscar/listar/corteza.')
+    print('  Dormant node: an inactive memory; buscar --deep can wake a retrieved node.\n')
+    print('Database: BIORAG_PATH selects your database; use a disposable copy for testing.')
+    print('  Example: BIORAG_PATH=/path/copy.db biorag estado')
+    print('  Commands may initialize or prepare schema when opening a database; help does not.\n')
+    print('Examples:')
+    print('  biorag guardar --help')
+    print('  biorag buscar --help')
     print('  biorag update --dry-run')
-    print('  biorag update --yes --db /ruta/externa/memory_biorag.db')
-    print('  biorag recovery --receipt /ruta/recibo.json')
-    print('\nSeguridad: detener MCP/daemon antes de aplicar update; usar el mismo Python.')
-    print('Update requiere checkout Git limpio y DB externa; el plan puede consultar red.')
-    print('Recovery --stage NO sobrescribe la DB actual ni revierte Git/pip.')
-    print('Los seis modos de contexto_vigencia pertenecen al MCP recordar/buscar;')
-    print('no son opciones del comando buscar de este CLI.')
+    print('  biorag recovery --help')
+    print('\nBefore applying update, stop the MCP server (agent-to-memory tools process)')
+    print('and the daemon (background maintenance process). Use the same Python environment.')
+    print('Update requires a clean Git checkout (no local changes) and an external database')
+    print('(outside the checkout). Planning may access the network.')
+    print('Recovery --stage never overwrites live memory or rolls back Git/pip.')
+    print('The six contexto_vigencia modes belong to MCP recordar/buscar, not CLI buscar.')
 
 
 def _memory_help(command):
@@ -76,7 +87,7 @@ def _memory_help(command):
                 if lines[end].startswith('  python3 biorag.py '):
                     break
                 end += 1
-            print('\n'.join(lines[index:end]).strip())
+            print('\n'.join(lines[index:end]).strip().replace('python3 biorag.py', 'biorag'))
             from core.cli_notes import usage_note, command_examples
             print('\n' + usage_note(command))
             print('\n' + command_examples(command))

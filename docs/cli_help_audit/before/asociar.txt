@@ -1,0 +1,13 @@
+python3 biorag.py asociar <concepto_a> <concepto_b>
+    Crea un enlace sinaptico bidireccional entre dos conceptos en el grafo.
+    Al evocar uno, el peso del otro tambien se refuerza (propagacion).
+    Ej: biorag.py asociar formularios_angular data_context_service
+
+¿Para qué me sirve? Úsalo para conectar dos conceptos relacionados y facilitar su
+recuperación asociativa. Una asociación no declara que un dato sustituya a otro.
+
+Ejemplos:
+  Puedes sustituir «biorag» por «python3 biorag.py».
+  Adapta conceptos y rutas a tus datos; los nodos referidos deben existir.
+  Estas operaciones pueden modificar memoria o estado; prueba primero en una copia.
+  biorag asociar servicio_configuracion servicio_despliegue

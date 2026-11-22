@@ -1,0 +1,25 @@
+usage: biorag.py [-h] [--channel {dev,stable}] [--dry-run] [--yes] [--db DB]
+
+Actualizador Git conservador. CLI: python -m core.updater [--yes].
+
+Actualiza solo el checkout donde está instalado este módulo, sin cambiar de rama.
+No restaura código/DB automáticamente ni convierte una instalación ajena en Git.
+
+options:
+  -h, --help            show this help message and exit
+  --channel {dev,stable}
+  --dry-run             Planificación sin aplicar; equivalente al modo por
+                        defecto
+  --yes                 autorizar actualización; sin esta opción solo
+                        planifica
+  --db DB               DB externa; por defecto resolución de rutas del core
+
+¿Para qué me sirve? Úsalo para poner al día el programa y preparar sus componentes sin
+ejecutar git, pip y migraciones por separado. Sin --yes solo planifica; puede consultar
+la red. Antes de aplicar, detén MCP/daemon y usa una DB externa al checkout.
+
+Ejemplos:
+  Puedes sustituir «biorag» por «python3 biorag.py».
+  Adapta conceptos y rutas a tus datos; los nodos referidos deben existir.
+  biorag update --dry-run
+  biorag update --yes --db /ruta/copia_prueba.db

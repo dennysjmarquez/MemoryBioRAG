@@ -1,0 +1,23 @@
+usage: biorag.py [-h] --receipt RECEIPT [--stage]
+
+Recuperación asistida sin sobrescribir memoria: python -m core.recovery.
+
+Planifica y restaura el backup en OTRO archivo. Nunca restaura encima de la DB
+actual ni revierte Git/pip. Conserva una copia del estado actual, incluidos datos
+posteriores al backup. Compatibilidad código-datos requiere verificación aparte.
+
+options:
+  -h, --help         show this help message and exit
+  --receipt RECEIPT
+  --stage            Autorizar copias de recuperación, nunca reemplazo de DB
+                     viva
+
+¿Para qué me sirve? Úsalo después de una actualización fallida para evaluar el respaldo
+indicado en su recibo. Con --stage conserva una copia del presente y restaura el
+respaldo en otro archivo: no sobrescribe tu memoria ni activa una versión anterior.
+
+Ejemplos:
+  Puedes sustituir «biorag» por «python3 biorag.py».
+  Adapta conceptos y rutas a tus datos; los nodos referidos deben existir.
+  biorag recovery --receipt /ruta/update-receipts/recibo.json
+  biorag recovery --receipt /ruta/update-receipts/recibo.json --stage

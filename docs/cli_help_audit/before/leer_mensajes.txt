@@ -1,0 +1,16 @@
+python3 biorag.py leer_mensajes [--no-leidos] [--ultimos N] [--para <agente>]
+    Lee mensajes del canal compartido entre agentes.
+    --no-leidos  Solo muestra mensajes no leidos.
+    --ultimos N  Muestra los ultimos N mensajes (defecto: 10).
+    --para X     Filtra mensajes para el agente X.
+    Ej: biorag.py leer_mensajes --no-leidos
+
+¿Para qué me sirve? Úsalo para consultar los mensajes que otros agentes dejaron en la
+memoria compartida y retomar coordinación pendiente.
+
+Ejemplos:
+  Puedes sustituir «biorag» por «python3 biorag.py».
+  Adapta conceptos y rutas a tus datos; los nodos referidos deben existir.
+  Estas operaciones pueden modificar memoria o estado; prueba primero en una copia.
+  biorag leer_mensajes --no-leidos
+  biorag leer_mensajes --ultimos 5
