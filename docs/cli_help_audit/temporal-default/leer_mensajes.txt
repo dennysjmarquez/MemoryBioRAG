@@ -1,0 +1,30 @@
+usage: biorag leer_mensajes [options]
+
+Summary:
+Display messages and mark displayed unread messages as read.
+
+What is it for?
+Read shared messages and mark displayed unread messages as read for the current
+AGENT_NAME. This changes read status. Unsupported destination filters are ignored by the
+current engine.
+
+Before you start:
+Changes memory or state. To test on a disposable copy, use: BIORAG_PATH=/path/copy.db
+biorag leer_mensajes ...
+
+Options:
+  --no-leidos             Show unread messages only.
+  --ultimos N             Show up to N recent messages; default: 10.
+  --para ID               Destination filter; unsupported IDs are ignored.
+  AGENT_NAME identifies the reader.
+
+Examples:
+  AGENT_NAME=agent_b biorag leer_mensajes --no-leidos
+  biorag leer_mensajes --ultimos 5
+
+Expected output:
+Message IDs, read status, timestamps, sender, destination and message text.
+Runtime messages retain their existing language (often Spanish); JSON keys are unchanged.
+
+See also:
+  biorag comunicar --help

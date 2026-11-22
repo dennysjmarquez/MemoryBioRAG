@@ -1,0 +1,22 @@
+usage: biorag estado
+
+Summary:
+Show active/dormant counts, working memory size, energy and keyword coverage.
+
+What is it for?
+Check memory counts and activity without listing every memory. This is a summary, not an
+integrity test.
+
+Options:
+  No additional options.
+
+Examples:
+  biorag estado
+
+Expected output:
+Active and dormant counts, working-memory count, energy and keyword coverage.
+Runtime messages retain their existing language (often Spanish); JSON keys are unchanged.
+
+See also:
+  biorag buscar --help
+  biorag estado --help

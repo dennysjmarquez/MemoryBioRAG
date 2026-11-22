@@ -34,6 +34,13 @@ from core.sinapsis import _tokenizar
 
 logger = logging.getLogger("mcp_server")
 
+_PERSPECTIVE_DISABLED_DESCRIPTION = (
+    "Prototipo temporal desactivado por defecto. contexto_vigencia se ignora mientras "
+    "BIORAG_TEMPORAL_PROTOTYPE=0. Para activarlo, define BIORAG_TEMPORAL_PROTOTYPE=1 "
+    "y reinicia "
+    "el servidor; entonces recordar y buscar exigirán contexto_vigencia.mode explícito."
+)
+
 
 def _serializar_asociaciones(asociaciones, asociados, max_items) -> dict:
     """Serializa el campo `asociaciones` de un resultado como objeto compacto.
@@ -137,7 +144,7 @@ def _recordar_impl(
     contexto_vigencia: Optional[dict] = None,
 ) -> str:
     # Gate experimental: mismo servidor real, sin cambiar el contrato estable.
-    temporal_prototype = os.environ.get('BIORAG_TEMPORAL_PROTOTYPE', '1') == '1'
+    temporal_prototype = os.environ.get('BIORAG_TEMPORAL_PROTOTYPE', '0') == '1'
     if temporal_prototype:
         from core.contextual.perspective import validate, PerspectiveError
         try:
@@ -1447,7 +1454,7 @@ def register(mcp: Any) -> None:
             description=SUSTANTIVOS_CLAVE_BUSQUEDA_DESCRIPTION
         )] = None,
         contexto_vigencia: Annotated[Optional[dict], Field(
-            description=(PERSPECTIVE_DESCRIPTION if os.environ.get('BIORAG_TEMPORAL_PROTOTYPE', '1') == '1' else 'JSON {entity,attribute,scope,at,intent}: evidencia aprobada sin eliminar históricos. Omitir si el contexto es desconocido. No verifica verdad por recencia.')
+            description=(PERSPECTIVE_DESCRIPTION if os.environ.get('BIORAG_TEMPORAL_PROTOTYPE', '0') == '1' else _PERSPECTIVE_DISABLED_DESCRIPTION)
         )] = None,
     ) -> str:
         return _recordar_impl(
@@ -1486,7 +1493,7 @@ def register(mcp: Any) -> None:
             description=SUSTANTIVOS_CLAVE_BUSQUEDA_DESCRIPTION
         )] = None,
         contexto_vigencia: Annotated[Optional[dict], Field(
-            description=(PERSPECTIVE_DESCRIPTION if os.environ.get('BIORAG_TEMPORAL_PROTOTYPE', '1') == '1' else 'JSON {entity,attribute,scope,at,intent}: evidencia aprobada sin eliminar históricos. Omitir si el contexto es desconocido. No verifica verdad por recencia.')
+            description=(PERSPECTIVE_DESCRIPTION if os.environ.get('BIORAG_TEMPORAL_PROTOTYPE', '0') == '1' else _PERSPECTIVE_DISABLED_DESCRIPTION)
         )] = None,
         dimensiones: Annotated[Any, Field(
             description=(

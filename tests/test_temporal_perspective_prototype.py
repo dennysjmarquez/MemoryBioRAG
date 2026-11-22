@@ -119,20 +119,26 @@ def test_previous_receipt_replays_without_old_identity_configuration(memory):
     assert service.confirm('p',request[1],'r')==json.loads(receipt)
 
 
-def test_default_on_and_explicit_zero_description(monkeypatch):
+def test_default_off_and_explicit_one_description(monkeypatch):
     from core.mcp_server import search
     from core.mcp_server.server import _build_server
     monkeypatch.delenv('BIORAG_TEMPORAL_PROTOTYPE',raising=False)
-    def forbidden():raise AssertionError('No debe abrir DB')
-    monkeypatch.setattr(search,'_get_cerebro',forbidden)
-    result=json.loads(search._recordar_impl(query='recuerdos',sustantivos_clave='recuerdos'))
-    assert result['status']=='error'
-    assert result['codigo']=='CONTEXTO_VIGENCIA_REQUERIDO'
-    assert result['parametro_faltante']=='contexto_vigencia.mode'
-    assert result['busqueda_ejecutada'] is False
-    for flag,expected in [('1',True),('0',False)]:
+
+    # Without configuration, omission must not be rejected by the prototype gate.
+    def reached_database(): raise AssertionError('La búsqueda llegó al acceso de DB')
+    monkeypatch.setattr(search,'_get_cerebro',reached_database)
+    with pytest.raises(AssertionError,match='llegó al acceso de DB'):
+        search._recordar_impl(query='recuerdos',sustantivos_clave='recuerdos')
+
+    tools={tool.name:tool for tool in _build_server()._tool_manager.list_tools()}
+    for name in ('recordar','buscar'):
+        description=tools[name].parameters['properties']['contexto_vigencia']['description']
+        assert 'desactivado por defecto' in description
+        assert 'BIORAG_TEMPORAL_PROTOTYPE=1' in description
+
+    for flag,expected in [('0',False),('1',True)]:
         monkeypatch.setenv('BIORAG_TEMPORAL_PROTOTYPE',flag)
         tools={tool.name:tool for tool in _build_server()._tool_manager.list_tools()}
         for name in ('recordar','buscar'):
             description=tools[name].parameters['properties']['contexto_vigencia']['description']
-            assert ('mode' in description)==expected
+            assert ('Sin elección:' in description)==expected

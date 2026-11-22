@@ -9,10 +9,12 @@
 > [language/compatibility review](docs/cli_help_audit/LANGUAGE_REVIEW.md).
 
 
-> **Versión de trabajo en esta rama:** v36.2 — correcciones MCP estructuradas, seis perspectivas explícitas y actualización con preparación modular y recuperación asistida. Candidata hasta completar los gates de integración; sin tag ni publicación.
+> **Versión de trabajo en esta rama:** v36.2 — correcciones MCP estructuradas, prototipo MCP opt-in de seis perspectivas y actualización con preparación modular y recuperación asistida. Candidata hasta completar los gates de integración; sin tag ni publicación.
 > **Paradigma:** Motor Python + SQLite FTS5. **Sin embeddings densos, GPU ni llamadas a APIs externas** en el path de búsqueda.
 > **Motor:** Arquitectura modularizada (18 submódulos `core/memory/` + 15 submódulos `core/mcp_server/` + fachada delgada) + SQLite FTS5 WAL + PPMI-SVD (100 dimensiones) + espacio semántico de 13 ejes + grafo sináptico Hebbiano + SDM (2048 bits) + calibración conforme + activación ACT-R + Concept Hubs + validación simétrica fail-fast de sustantivos clave + **neurona de reordenamiento que aprende sola** (29 señales → 6 ocultas → 1 corrección, con piso en la fórmula a mano) + **neurona asociativa cerrada de fábrica** (5 agujas → fuerza 0–1: ¿dos recuerdos tienen que ver?; examinada, aún no decide en el motor) + enlaces del agente intocables + **destino canónico del córtex en `~/.biorag/`** + **instalador de configuración MCP para clientes compatibles**.
 > **Idiomas:** Español e inglés (stemming bilingüe, expansión simbólica con WordNet, Concept Hubs de 5 ángulos y Domain Dict).
+>
+> **Perspectiva temporal MCP (experimental):** desactivada por defecto; `recordar` y `buscar` conservan el contrato previo y no exigen `contexto_vigencia`. Para probar el prototipo de seis modos, configura `BIORAG_TEMPORAL_PROTOTYPE=1` en el entorno del servidor MCP y reinícialo. Al activarlo, ambas herramientas requieren un `contexto_vigencia.mode` explícito; no infieren intención. Consulta el [contrato y sus límites](docs/PROTOTIPO_PERSPECTIVA_TEMPORAL.md).
 
 **BioRAG** es una memoria simbólica persistente para agentes de IA que aborda la pérdida de contexto entre sesiones mediante recuperación híbrida. “Biomimética” describe una inspiración de diseño; no significa que el motor simule literalmente un cerebro humano. Los resultados de rendimiento se limitan a los benchmarks y snapshots indicados.
 
