@@ -1,0 +1,22 @@
+usage: biorag familiaridad <text>
+
+Summary:
+Find active permanent concepts mentioned in text.
+
+What is it for?
+Find concepts from permanent memory mentioned in a text, to decide what to search next.
+This does not verify the text.
+
+Options:
+  No additional options.
+
+Examples:
+  biorag familiaridad "Check the service configuration"
+
+Expected output:
+Recognized concepts or a no-match notice.
+Runtime messages retain their existing language (often Spanish); JSON keys are unchanged.
+
+See also:
+  biorag buscar --help
+  biorag estado --help

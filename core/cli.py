@@ -1,6 +1,7 @@
 """Entrada CLI ligera: ayuda y mantenimiento sin importar el motor ni abrir DB."""
 import ast
 from pathlib import Path
+from textwrap import dedent, indent
 import sys
 
 # Nombres públicos y aliases del despachador de memoria en biorag.py.
@@ -44,7 +45,7 @@ def can_handle_early(argv):
 
 def _overview():
     print('BioRAG — local memory for agents\n')
-    print('Usage: biorag <command> [options]')
+    print('usage: biorag <command> [options]')
     print('       python3 biorag.py <command> [options]\n')
     print('Summary:\nLocal memory tools for agents.\n')
     print('What is it for?\nStore, retrieve and maintain memory shared by your local agents.\n')
@@ -64,14 +65,19 @@ def _overview():
     print('Before you start:\nDatabase: BIORAG_PATH selects your database; use a disposable copy for testing.')
     print('  Example: BIORAG_PATH=/path/copy.db biorag estado')
     print('  Commands may initialize or prepare schema when opening a database; help does not.\n')
-    print('\nBefore applying update, stop the MCP server (agent-to-memory tools process)')
+    print('Updates and recovery:\nBefore applying update, stop the MCP server (agent-to-memory tools process)')
     print('and the daemon (background maintenance process). Use the same Python environment.')
     print('Update requires a clean Git checkout (no local changes) and an external database')
     print('(outside the checkout). Planning may access the network.')
     print('Recovery --stage never overwrites live memory or rolls back Git/pip.')
     print('The six `contexto_vigencia` modes belong to MCP `recordar`/`buscar`, not CLI `buscar`.')
-    print('Options:\n  -h, --help  Show help without opening a database.\n')
+    print('\nOptions:\n  -h, --help  Show help without opening a database.\n')
     print('Examples:')
+    print('  Quick start (writes to your selected database; choose a disposable copy first):')
+    print('  biorag guardar service_note \"The test service uses port 8443\" --sustantivos-clave \"service,port\"')
+    print('  biorag sueno')
+    print('  biorag buscar service_note')
+    print('\n  More help:')
     print('  biorag guardar --help')
     print('  biorag buscar --help')
     print('  biorag update --dry-run')
@@ -97,9 +103,9 @@ def _memory_help(command):
             detail = '\n'.join(lines[index:end]).strip().replace('python3 biorag.py', 'biorag')
             usage, _, body = detail.partition('\n')
             summary, _, options = body.partition('Options:')
-            print('Usage: ' + usage)
+            print('usage: ' + usage)
             print('\n' + help_intro(command, summary))
-            print('\nOptions:\n' + options.strip())
+            print('\nOptions:\n' + indent(dedent(options).strip(), '  '))
             print('\n' + help_end(command))
             return 0
     # Nunca afirmar que un comando inexistente está implementado.

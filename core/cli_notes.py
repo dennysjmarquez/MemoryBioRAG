@@ -116,8 +116,6 @@ def command_examples(command):
         header += ('  Use an existing test copy; replace the illustrative paths and node IDs.\n'
                    '  UNIX dates are illustrative; never invent actual effective dates.\n'
                    '  Replace REVIEW_DIGEST with the digest returned by revisar.\n')
-    if command == 'dashboard':
-        header += '  Help is safe; running dashboard without --help can install dependencies and start services.\n'
     return header + '\n'.join('  ' + example for example in EXAMPLES[command])
 
 
@@ -167,7 +165,7 @@ def help_intro(command, summary):
     if command in ('sustantivos', 'agregar_sustantivos'):
         terms = ['sustantivos']
     if terms:
-        result += '\n\n' + '; '.join(GLOSSARY[t] for t in terms) + '.'
+        result += '\n\n' + '\n'.join('  - ' + GLOSSARY[t] for t in terms)
     if separator:
         result += '\n\nBefore you start:\n' + rest.replace('Before you start:', '').strip()
     if command == 'recovery':

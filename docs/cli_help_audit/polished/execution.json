@@ -1,0 +1,82 @@
+{
+  "quick_start": [
+    {
+      "args": [
+        "guardar",
+        "service_note",
+        "The test service uses port 8443",
+        "--sustantivos-clave",
+        "service,port"
+      ],
+      "exit_code": 0,
+      "stdout": "[PMI] Corpus recalculado: 0 nodos, 0 pares, 0.0ms\n[PMI] Corpus recalculado: 0 nodos, 0 pares, 0.0ms\n[PMI] Corpus recalculado: 0 nodos, 0 pares, 0.0ms\n[PMI] Corpus recalculado: 0 nodos, 0 pares, 0.0ms\n'service_note' guardado en corto plazo.\nSustantivos clave: [service, port] (2/5)\nCategoria: General.\nConsolidalo con 'sueno' para hacerlo permanente.\n",
+      "stderr": ""
+    },
+    {
+      "args": [
+        "sueno"
+      ],
+      "exit_code": 0,
+      "stdout": "\n--- Iniciando Ciclo de Consolidación (Sueño) ---\n[PMI] Corpus recalculado: 1 nodos, 0 pares, 0.1ms\n[SDM] 1 vectores reindexados (full periódico).\n[PPMI] 1 nodos reindexados con PPMI+SVD+Retrofitting (full periódico).\n[MemoryBioRAG] Proceso de consolidación y equilibrio sináptico completado con éxito.\n[TRACE] 1.8 Snap: 1 → ['service_note']\n[TRACE] 1.8 Snap: 1 → ['service_note']\n",
+      "stderr": ""
+    },
+    {
+      "args": [
+        "buscar",
+        "service_note"
+      ],
+      "exit_code": 0,
+      "stdout": "[TRACE] 1.8 Snap: 1 → ['service_note']\n[MemoryBioRAG] 1 coincidencias encontradas (pagina 1/1)\n  (frase: service_note)\n============================================================\n\n--- #1: service_note (peso:0.98, estado:activo, score:0.77) ---\nThe test service uses port 8443\n\n============================================================\n",
+      "stderr": ""
+    }
+  ],
+  "routing_argument_probe": [
+    {
+      "args": [
+        "service_note",
+        "--todos"
+      ],
+      "exit_code": 1,
+      "route": "phrase",
+      "kwargs": {
+        "profundidad": "activos",
+        "pagina": 1,
+        "limite": 100,
+        "categoria": null,
+        "preview_chars": null,
+        "sustantivos_clave_boost": null
+      }
+    },
+    {
+      "args": [
+        "service_note",
+        "--todos",
+        "--frase"
+      ],
+      "exit_code": 1,
+      "route": "phrase",
+      "kwargs": {
+        "profundidad": "activos",
+        "pagina": 1,
+        "categoria": null,
+        "preview_chars": null,
+        "sustantivos_clave_boost": null
+      }
+    },
+    {
+      "args": [
+        "service_note",
+        "--todos",
+        "--tokens",
+        "service"
+      ],
+      "exit_code": 1,
+      "route": "tokens",
+      "kwargs": {
+        "modo": "relaxed",
+        "profundidad": "activos",
+        "pagina": 1
+      }
+    }
+  ]
+}

@@ -8,7 +8,8 @@ Topic keywords describe what a memory is about, not every name or detail it ment
     Options:
     --sustantivos-clave "a,b"  Topic keywords; alias: --sustantivos.
     --deep                  Include dormant memories and wake retrieved dormant nodes.
-    --todos                 Request up to 100 results.
+    --todos                 Request up to 100 results, unless --frase or --tokens
+                            selects another search route.
     --tokens "root1,root2"   Search stemmed tokens instead of a phrase.
     --modo strict|relaxed   Token matching; default: relaxed.
     --frase                 Explicit phrase search (the default route).
@@ -44,10 +45,11 @@ Topic keywords describe what a memory is about, not every name or detail it ment
 
   python3 biorag.py comunicar <destination> <message>
     Store an inter-agent message. AGENT_NAME identifies the sender.
-    Options:
     Use todos for an explicit shared broadcast.
     Recipient routing is currently restricted: an unknown ID becomes todos.
     Arbitrary private destinations are not supported by the current engine.
+    Options:
+    No additional options.
 
   python3 biorag.py leer_mensajes [options]
     Display messages and mark displayed unread messages as read.

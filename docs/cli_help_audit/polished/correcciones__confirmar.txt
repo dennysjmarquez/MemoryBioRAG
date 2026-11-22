@@ -1,0 +1,40 @@
+usage: biorag correcciones confirmar [-h] [--db DB] --id ID --digest DIGEST
+                                     --request-id REQUEST_ID
+
+Summary:
+After reviewing and deciding the replacement is correct, approve it with the reviewed digest and a request ID for duplicate-free retries.
+
+What is it for?
+After reviewing and deciding the replacement is correct, approve it with the reviewed
+digest and a request ID for duplicate-free retries. History is preserved; the command
+does not establish that the evidence is true.
+
+Before you start:
+referenced nodes must already exist.
+
+Dates are Unix seconds. BIORAG_CORRECTIONS=0 disables operations. Message language is not interpreted.
+
+Database: --db overrides BIORAG_PATH. Use an existing disposable copy.
+
+options:
+  -h, --help            show this help message and exit
+  --db DB               Existing database; defaults to BIORAG_PATH or the
+                        canonical path
+  --id ID               Stable proposal identifier
+  --digest DIGEST       Digest returned by revisar; do not invent one
+  --request-id REQUEST_ID
+                        Confirmation request ID; reuse for an identical retry
+
+Examples:
+  Use an existing test copy; replace the illustrative paths and node IDs.
+  UNIX dates are illustrative; never invent actual effective dates.
+  Replace REVIEW_DIGEST with the digest returned by revisar.
+  biorag correcciones confirmar --db /path/test-copy.db \
+    --id cambio-puerto-001 --digest REVIEW_DIGEST --request-id aprobacion-001
+
+Expected output:
+JSON confirmation result; the original memories remain intact.
+Runtime messages retain their existing language (often Spanish); JSON keys are unchanged.
+
+See also:
+  biorag correcciones --help

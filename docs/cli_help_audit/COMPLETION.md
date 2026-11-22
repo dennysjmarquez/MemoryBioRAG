@@ -1,5 +1,8 @@
 # Completed English CLI help audit
 
+> Subsequent formatting/quick-start polish and fresh validation:
+> [final polish report](polished/REPORT.md).
+
 This report supersedes the remaining-work list in REPORT.md for CLI presentation.
 REPORT.md and its captures/logs remain the historical record of the first pass.
 

@@ -48,6 +48,12 @@ socket.create_connection=forbidden
                     self.assertEqual(result.returncode,0,result.stderr)
                     for word in ('update','recovery','--dry-run','--stage','Read and search memory'):
                         self.assertIn(word,result.stdout)
+                    self.assertIn('Quick start', result.stdout)
+                    steps = ('biorag guardar service_note', 'biorag sueno', 'biorag buscar service_note')
+                    positions = [result.stdout.index(step, result.stdout.index('Quick start')) for step in steps]
+                    self.assertEqual(positions, sorted(positions))
+                    self.assertIn('\nUpdates and recovery:\n', result.stdout)
+                    self.assertIn('\n\nOptions:\n', result.stdout)
 
     def test_each_memory_command_and_alias_has_safe_help(self):
         for command in sorted(COMMANDS-{'update','recovery','correcciones'}):
@@ -94,6 +100,16 @@ socket.create_connection=forbidden
                     self.assertTrue(language_hits('No se pudo cargar archivo de configuración', markers))
                     self.assertIn('Examples:', result.stdout)
                     self.assertIn('biorag ', result.stdout)
+                    if args[0] in ('buscar', 'guardar', 'sueno'):
+                        options = result.stdout.split('Options:\n', 1)[1].split('\n\nExamples:', 1)[0]
+                        self.assertTrue(all(not line or line.startswith('  ') for line in options.splitlines()))
+                        self.assertIn('  - `corteza`', result.stdout)
+                        self.assertIn('  - `sueno`', result.stdout)
+                        self.assertIn('  - `sustantivos clave`', result.stdout)
+                    if args[0] == 'dashboard':
+                        self.assertTrue(result.stdout.split('Examples:\n')[1].startswith('  biorag dashboard --help'))
+                    if args[0] == 'comunicar':
+                        self.assertIn('Options:\n  No additional options.', result.stdout)
 
     def test_corrections_help_distinguishes_editing_from_contextual_replacement(self):
         for entry in ('script', 'installed'):
