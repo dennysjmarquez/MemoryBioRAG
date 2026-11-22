@@ -631,3 +631,12 @@ de aprobación. BIORAG_CORRECTIONS=0 bloquea ambos. local-cli/local-mcp son proc
 técnicas, no ACL ni identidad autenticada. Confirmar es acción explícita con digest
 y request-id, nunca aprobación por leer/registrar. Probar ambos entry points y
 preservación del historial con tests/test_corrections_cli.py.
+
+### Nota de utilidad en la ayuda CLI
+
+Cada comando y subcomando público debe añadir una explicación breve de cuándo
+usarlo, qué problema resuelve y qué resultado esperar, sin reemplazar flags ni
+saturar la ayuda general. Fuente textual: core/cli_notes.py; aliases comparten
+la nota del comando canónico. No prometer capacidades inexistentes ni aprobación
+automática. tests/test_cli_help.py verifica cobertura del catálogo y las notas
+en ambos entry points sin cargar motor, abrir DB ni consultar red.

@@ -77,6 +77,8 @@ def _memory_help(command):
                     break
                 end += 1
             print('\n'.join(lines[index:end]).strip())
+            from core.cli_notes import usage_note
+            print('\n' + usage_note(command))
             return 0
     # Nunca afirmar que un comando inexistente está implementado.
     print(f'Consulta el manual biorag.py para el comando {command}.')

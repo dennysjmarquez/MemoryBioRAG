@@ -187,7 +187,8 @@ def apply(root, *, channel='dev', database, runner=subprocess.run):
 
 
 def main(argv=None):
-    parser=argparse.ArgumentParser(description=__doc__)
+    from core.cli_notes import usage_note
+    parser=argparse.ArgumentParser(description=__doc__, epilog=usage_note('update'))
     parser.add_argument('--channel',choices=('dev','stable'),default='dev')
     parser.add_argument('--dry-run',action='store_true',help='Planificación sin aplicar; equivalente al modo por defecto')
     parser.add_argument('--yes',action='store_true',help='autorizar actualización; sin esta opción solo planifica')

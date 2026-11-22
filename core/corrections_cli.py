@@ -4,19 +4,24 @@ import json
 import os
 import sqlite3
 import sys
+from core.cli_notes import usage_note
 
 
 def main(argv=None):
     parser = argparse.ArgumentParser(
         prog='biorag correcciones',
-        description='Registrar propuestas, revisar evidencia y confirmar sin borrar historia.',
+        description='Registrar propuestas, revisar evidencia y confirmar sin borrar historia. '
+                    + usage_note('correcciones'),
         epilog='Flujo: registrar → revisar → confirmar con el digest revisado. '
                'Fechas en segundos UNIX. BIORAG_CORRECTIONS=0 deshabilita operaciones. '
                'Salida JSON; errores en stderr. No se interpreta el idioma del mensaje.')
     subs = parser.add_subparsers(dest='operation')
-    register = subs.add_parser('registrar', help='Crear propuesta; NO aprueba ni sustituye recuerdos')
-    review = subs.add_parser('revisar', help='Mostrar evidencia completa y digest para revisión')
-    confirm = subs.add_parser('confirmar', help='Aprobar explícitamente la evidencia revisada')
+    register = subs.add_parser('registrar', help='Crear propuesta; NO aprueba ni sustituye recuerdos',
+                               description=usage_note('correcciones registrar'))
+    review = subs.add_parser('revisar', help='Mostrar evidencia completa y digest para revisión',
+                             description=usage_note('correcciones revisar'))
+    confirm = subs.add_parser('confirmar', help='Aprobar explícitamente la evidencia revisada',
+                              description=usage_note('correcciones confirmar'))
     for sub in (register, review, confirm):
         sub.add_argument('--db', help='DB existente; por defecto BIORAG_PATH o ruta canónica')
         sub.add_argument('--id', required=True, help='Identificador estable de la propuesta')

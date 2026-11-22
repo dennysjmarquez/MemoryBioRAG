@@ -65,6 +65,22 @@ socket.create_connection=forbidden
                     self.assertEqual(result.returncode,0,result.stderr)
                     self.assertIn(option,result.stdout)
 
+    def test_each_command_explains_its_purpose_without_side_effects(self):
+        from core.cli import ALIASES
+        from core.cli_notes import NOTES
+        canonical = COMMANDS-set(ALIASES)
+        self.assertEqual(set(NOTES), canonical | {
+            'correcciones registrar', 'correcciones revisar', 'correcciones confirmar'})
+        requests = [[name, '--help'] for name in sorted(COMMANDS)]
+        requests += [['correcciones', name, '--help']
+                     for name in ('registrar', 'revisar', 'confirmar')]
+        for entry in ('script', 'installed'):
+            for args in requests:
+                with self.subTest(entry=entry, args=args):
+                    result = self.run_cli(args, entry)
+                    self.assertEqual(result.returncode, 0, result.stderr)
+                    self.assertIn('¿Para qué me sirve?', ' '.join(result.stdout.split()))
+
     def test_unknown_command_fails_without_engine(self):
         for args in (['does-not-exist'],['help','does-not-exist'],['help','update','extra']):
             result=self.run_cli(args)
