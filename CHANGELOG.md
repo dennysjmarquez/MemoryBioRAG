@@ -1,5 +1,18 @@
 # BioRAG Changelog
 
+## [v36.2] — Correcciones contextuales en core/MCP (candidata)
+
+### Added
+- Puerto `core/contextual`: extracción conservadora, ledger namespaced, selector por evidencia y aprobación atómica en la misma DB, compatible con WAL.
+- MCP stdio real: registrar/revisar/confirmar corrección; permisos explícitos por contexto configurados por el propietario. Desactivado por defecto y denegado sobre SSE.
+- `contexto_vigencia` en `recordar`/`buscar`: conserva históricos y scores; sin contexto no cambia el flujo anterior.
+- Bootstrap explícito y revisable de antecedente: no requiere sembrar fixtures ni confirma al registrar; exige nodo y fecha previos explícitos.
+
+### Safety / Validation
+- No sobrescribe contenido, asociaciones, vectores ni pesos; claims, revisión, arista tipada y recibo comparten transacción. Digest controla cambios, no autentica identidades.
+- Guía de configuración y límites en `docs/CORE_V36_2.md`. La validación integrada se documenta por separado del laboratorio. No se declara release estable ni ejecución sobre DB viva.
+
+
 ## [v36.1] — Canal Stable: pipeline de empaquetado y publicación
 
 **Estado:** v36.1 es la versión del repositorio de desarrollo que corresponde al trabajo del canal estable (`MemoryBioRAG-Stable`, releases v1.0–v1.2). No cambia el ranking de búsqueda respecto a v36.0: es una línea de infraestructura de publicación y endurecimiento operativo. `VERSION` y `pyproject.toml` se alinean a 36.1.0 con esta entrada.

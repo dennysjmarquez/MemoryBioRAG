@@ -133,6 +133,7 @@ def _recordar_impl(
     ordenar_por: str = "relevancia",
     asociaciones_max: Optional[int] = None,
     sustantivos_clave: Optional[str] = None,
+    contexto_vigencia: Optional[dict] = None,
 ) -> str:
     if limite is None:
         limite = LIMITE_MCP
@@ -716,6 +717,11 @@ def _recordar_impl(
                     )
                 resultados = resultados_filtrados
 
+        competencia_contextual = None
+        if contexto_vigencia is not None:
+            from core.contextual.search import reorder
+            resultados, competencia_contextual = reorder(cerebro.conn, resultados, contexto_vigencia)
+
         # Canal 2 — Asociaciones enriquecidas (grafo sináptico real, con fuerza de arista).
         # NO toca score_hibrido ni el ranking: es campo aparte, adjunto a cada resultado.
         # Si asociados=true, se consulta la tabla sinapsis con filtro de peso/tipo.
@@ -859,6 +865,7 @@ def _recordar_impl(
             "profundidad": profundidad,
             "trazabilidad": trazabilidad,
             "advertencia_temporal": ordenar_por in ("recencia", "antiguedad"),
+            **({"competencia_contextual": competencia_contextual} if contexto_vigencia is not None else {}),
         }, ensure_ascii=False)
 
         # Guardar params completos de la búsqueda en log_busquedas
@@ -1418,6 +1425,9 @@ def register(mcp: Any) -> None:
         sustantivos_clave: Annotated[Optional[str], Field(
             description=SUSTANTIVOS_CLAVE_BUSQUEDA_DESCRIPTION
         )] = None,
+        contexto_vigencia: Annotated[Optional[dict], Field(
+            description='JSON {entity,attribute,scope,at,intent}: evidencia aprobada sin eliminar históricos. Omitir si el contexto es desconocido. No verifica verdad por recencia.'
+        )] = None,
     ) -> str:
         return _recordar_impl(
             query, deep, cat, completo, asociados, limite, preview_chars,
@@ -1425,6 +1435,7 @@ def register(mcp: Any) -> None:
             dimensiones, dias, desde, hasta, autor, modo_estricto,
             buscar_por_rol=buscar_por_rol, usar_inferencia=usar_inferencia,
             ordenar_por=ordenar_por, sustantivos_clave=sustantivos_clave,
+            contexto_vigencia=contexto_vigencia,
         )
 
     @mcp.tool(
@@ -1452,6 +1463,9 @@ def register(mcp: Any) -> None:
         )],
         sustantivos_clave: Annotated[Optional[str], Field(
             description=SUSTANTIVOS_CLAVE_BUSQUEDA_DESCRIPTION
+        )] = None,
+        contexto_vigencia: Annotated[Optional[dict], Field(
+            description='JSON {entity,attribute,scope,at,intent}: evidencia aprobada sin eliminar históricos. Omitir si el contexto es desconocido. No verifica verdad por recencia.'
         )] = None,
         dimensiones: Annotated[Any, Field(
             description=(
@@ -1526,4 +1540,5 @@ def register(mcp: Any) -> None:
             buscar_por_rol=buscar_por_rol, usar_inferencia=usar_inferencia,
             asociaciones_max=asociaciones_max,
             sustantivos_clave=sustantivos_clave,
+            contexto_vigencia=contexto_vigencia,
         )

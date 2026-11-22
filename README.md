@@ -1,5 +1,13 @@
 # BioRAG — Memoria Cognitiva Biomimética y Simbólica para Agentes de IA
 
+> **Versión de trabajo en esta rama:** v36.2 — correcciones contextuales aprobadas integradas en core/MCP, activación explícita por propietario. Candidata hasta completar los gates de integración; sin tag ni publicación.
+
+## Correcciones contextuales — v36.2
+
+El MCP real incorpora `registrar_correccion`, `revisar_correccion` y `confirmar_correccion`. `recordar` y `buscar` aceptan `contexto_vigencia` explícito: priorizan evidencia aprobada sin quitar históricos ni alterar scores. La escritura está deshabilitada por defecto y requiere delegación del host stdio; no se habilita sobre SSE. Ledger y aristas `ctx_*` se confirman en una transacción de la misma DB (compatible con WAL), sin sobrescribir `largo_plazo` ni `sinapsis`.
+
+Configuración, seguridad, bootstrap sin fixtures y límites: [Guía v36.2](docs/CORE_V36_2.md). No se infiere intención libre ni se aprueba por mera lectura. La QA del laboratorio es antecedente, no una certificación automática de esta integración.
+
 > [!IMPORTANT]
 > **Repositorio de desarrollo (DEV):** `MemoryBioRAG` es el repositorio principal de desarrollo activo. La versión de trabajo y sus características vigentes pueden incluir cambios aún en curso y no constituyen por sí solos una publicación estable.  
 > Para consultar o descargar la distribución estable, visita el **[repositorio MemoryBioRAG-Stable ↗](https://github.com/dennysjmarquez/MemoryBioRAG-Stable)**.

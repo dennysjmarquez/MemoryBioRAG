@@ -68,7 +68,7 @@ from core.mcp_server import search as _mcp_search
 from core.mcp_server.prompt import ORACLE_PROMPT
 
 
-def _build_server():
+def _build_server(*, corrections_stdio=False):
     try:
         from mcp.server.fastmcp import FastMCP
     except ImportError as exc:
@@ -113,6 +113,8 @@ def _build_server():
     _mcp_prompt.register(mcp)
     _mcp_write.register(mcp)
     _mcp_search.register(mcp)
+    from core.mcp_server import corrections as _mcp_corrections
+    _mcp_corrections.register(mcp, stdio=corrections_stdio)
 
     return mcp
 
@@ -179,7 +181,7 @@ def main(argv: Optional[list[str]] = None) -> int:
                 pass
 
     try:
-        server = _build_server()
+        server = _build_server(corrections_stdio=not use_sse)
     except ImportError as exc:
         sys.stderr.write(f"BioRAG MCP: {exc}\n")
         return 2
