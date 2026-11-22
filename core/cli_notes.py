@@ -37,11 +37,9 @@ NOTES = {
     'recovery': 'Úsalo después de una actualización fallida para evaluar el respaldo indicado '
                 'en su recibo. Con --stage conserva una copia del presente y restaura el '
                 'respaldo en otro archivo: no sobrescribe tu memoria ni activa una versión anterior.',
-    'correcciones': 'Úsalo cuando un dato recordado cambió y necesitas distinguir el antecedente '
-                    'del dato que lo sustituye sin perder historia. Por ejemplo, un puerto '
-                    'pasó de 8080 a 8443. Registrar propone, revisar muestra evidencia y '
-                    'confirmar aprueba la relación; no reescribe el contenido de los recuerdos '
-                    'ni adivina cuál dato es correcto.',
+    'correcciones': 'Úsalo cuando necesitas conservar un dato anterior y dejar establecido '
+                    'qué dato lo sustituye, para distinguirlos en consultas de vigencia. '
+                    'No sirve para editar el texto de un recuerdo.',
     'correcciones registrar': 'Úsalo para proponer que un dato sustituye a otro, indicando '
                               'contexto, valores, nodos y fechas. Los dos recuerdos deben existir. '
                               'El resultado queda pendiente: todavía no es una corrección aprobada.',
@@ -56,7 +54,29 @@ NOTES = {
 
 
 def usage_note(command):
-    return fill('¿Para qué me sirve? ' + NOTES[command], width=88)
+    note = fill('¿Para qué me sirve? ' + NOTES[command], width=88)
+    if command == 'correcciones':
+        sections = (
+            ('Diferencia con actualizar un nodo:',
+             'Actualizar cambia el contenido de ese recuerdo. Una corrección contextual '
+             'conserva dos recuerdos y registra que un dato sustituye a otro para un '
+             'contexto y desde una fecha; no borra ni reescribe sus textos.'),
+            ('Ejemplo concreto:',
+             'Un recuerdo dice «el servicio usa el puerto 8080» y otro dice «ahora usa '
+             'el 8443». Aquí puedes dejar aprobada la relación: para ese servicio y '
+             'entorno, desde la fecha indicada, el 8443 sustituye al 8080. El recuerdo '
+             'del 8080 se conserva como antecedente.'),
+            ('Antes de empezar:',
+             'Ambos recuerdos deben existir. Registrar crea una propuesta; revisar '
+             'permite comprobarla; confirmar aprueba la relación, no la verdad del dato.'),
+            ('Dónde tiene efecto:',
+             'Sirve como evidencia en las búsquedas MCP recordar/buscar con el contexto '
+             'correspondiente y mode vigente, historico o ambos. No modifica todas las '
+             'búsquedas ni garantiza que el dato nuevo siempre aparezca primero.'),
+        )
+        note += ''.join('\n\n' + title + '\n' + fill(text, width=88)
+                        for title, text in sections)
+    return note
 
 
 # Ejemplos orientativos, no se ejecutan al imprimir ayuda.

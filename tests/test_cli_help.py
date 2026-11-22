@@ -85,6 +85,17 @@ socket.create_connection=forbidden
                     self.assertIn('Ejemplos:', result.stdout)
                     self.assertIn('biorag ', result.stdout)
 
+    def test_corrections_help_distinguishes_editing_from_contextual_replacement(self):
+        for entry in ('script', 'installed'):
+            result = self.run_cli(['correcciones', '--help'], entry)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            text = ' '.join(result.stdout.split())
+            for phrase in ('Diferencia con actualizar un nodo:', 'Actualizar cambia el contenido',
+                           'no borra ni reescribe', '8080', '8443',
+                           'Ambos recuerdos deben existir', 'búsquedas MCP',
+                           'ni garantiza'):
+                self.assertIn(phrase, text)
+
     def test_unknown_command_fails_without_engine(self):
         for args in (['does-not-exist'],['help','does-not-exist'],['help','update','extra']):
             result=self.run_cli(args)

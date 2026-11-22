@@ -22,6 +22,22 @@ Sin subcomando muestra ayuda, sin abrir la memoria. Las operaciones imprimen JSO
 en stdout; errores operativos JSON en stderr y exit code 1. Argumentos inválidos
 usan la ayuda de argparse en stderr y exit code 2. Ayuda/éxito: exit code 0.
 
+## ¿Editar un recuerdo o registrar una sustitución?
+
+**Actualizar un nodo** cambia el texto de ese recuerdo. **Una corrección contextual**
+conserva dos recuerdos existentes y registra qué dato sustituye a cuál, para un
+contexto y desde una fecha. No borra ni reescribe sus contenidos.
+
+Ejemplo: un recuerdo dice «el servicio usa el puerto 8080» y otro «ahora usa el
+8443». Registrar, revisar y confirmar deja aprobada la relación de sustitución:
+para ese servicio y entorno, desde la fecha indicada, 8443 sustituye a 8080. El
+recuerdo del 8080 permanece como antecedente. El comando no determina por sí solo
+si la afirmación es verdadera; debes aportar y revisar la evidencia.
+
+Esta relación puede usarse en búsquedas MCP recordar/buscar con el contexto y los
+modos vigente, historico o ambos. No cambia todas las búsquedas ni garantiza que
+el dato nuevo siempre salga primero. No añade esos modos al buscar del CLI.
+
 ## Flujo: registrar → revisar → confirmar
 
 Usa primero una copia de prueba de tu DB existente. Los dos nodos deben existir:
