@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
   "channel": "stable",
-  "recommended_tag": "v36.0",
+  "recommended_tag": null,
   "blocked_tags": []
 }

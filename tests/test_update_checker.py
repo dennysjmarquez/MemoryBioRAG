@@ -46,15 +46,14 @@ def _checker(
     )
 
 
-def test_manifiesto_ejemplo_tiene_esquema_y_recomendacion_estables():
+def test_manifiesto_ejemplo_no_recomienda_tag_sin_aprobacion():
     example_path = Path(__file__).resolve().parents[1] / "update_policy.example.json"
     policy = json.loads(example_path.read_text(encoding="utf-8"))
 
     assert policy["schema_version"] == 1
     assert policy["channel"] == "stable"
-    assert policy["recommended_tag"] == "v36.0"
+    assert policy["recommended_tag"] is None
     assert policy["blocked_tags"] == []
-    assert update_checker._version_key(policy["recommended_tag"]) is not None
 
 
 def test_versiones_estables_se_comparan_numericamente():

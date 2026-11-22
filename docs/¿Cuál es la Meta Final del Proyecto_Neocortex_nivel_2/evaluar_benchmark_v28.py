@@ -17,7 +17,9 @@ def ejecutar_benchmark():
     print("BENCHMARK DE VALIDACIÓN V28.0 — CORPUS REAL Y MÉTRICAS EPISTÉMICAS")
     print("=" * 80)
 
-    db_path = "/home/ubuntu/MemoryBioRAG/MemoryBioRAG_Data/memory_biorag.db"
+    db_path = os.environ.get("BIORAG_PATH") or str(
+        __import__("pathlib").Path.home() / ".biorag" / "memory_biorag.db"
+    )
     if not os.path.exists(db_path):
         db_path = "/tmp/memory_biorag_benchmark.db"
         if os.path.exists(db_path):

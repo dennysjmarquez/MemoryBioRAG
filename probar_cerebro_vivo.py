@@ -1,9 +1,11 @@
+import os
 import sqlite3
 import numpy as np
+from pathlib import Path
 from core.ppmi_hybrid_search import IndicesBioRAG, _tokenizar, _coseno
 
 print("Iniciando prototipo de Cerebro Vivo (Resonancia Dimensional)...")
-DB_PATH = 'MemoryBioRAG_Data/memory_biorag.db'
+DB_PATH = os.environ.get("BIORAG_PATH") or str(Path.home() / ".biorag" / "memory_biorag.db")
 
 # 1. Cargar el índice PPMI+SVD real
 print("Cargando índices PPMI+SVD...")

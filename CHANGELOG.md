@@ -23,6 +23,31 @@
 
 **Validación local aislada (Linux, Python 3.11.2):** instalación limpia de `requirements.txt`, `pip install .`, `pip check` sin conflictos, smoke MCP por `stdio` con enumeración de herramientas, recurso y versión MCP, escritura, consolidación, reinicio, búsqueda y persistencia de contenido/categoría/asociación; `pip install -e .` y pruebas del instalador/empaquetado/avisos de versión: **866 passed, 18 skipped, 2 subtests passed** (230.15 s). Se usaron una copia temporal del repositorio, un entorno virtual y una DB temporal; no se tocó la DB viva. La resolución de solo wheels de `requirements.txt` también pasó para Windows x64 y macOS Intel/ARM con Python 3.11/3.12; esto verifica disponibilidad de artefactos, no ejecución en esos sistemas. La corrida QA de ranking no se repitió. La ejecución real en Windows y macOS queda pendiente de CI; esta entrada no afirma publicación ni etiqueta.
 
+## Historial remoto [v36.1] — Canal Stable: pipeline de empaquetado y publicación
+
+**Estado:** v36.1 es la versión del repositorio de desarrollo que corresponde al trabajo del canal estable (`MemoryBioRAG-Stable`, releases v1.0–v1.2). No cambia el ranking de búsqueda respecto a v36.0: es una línea de infraestructura de publicación y endurecimiento operativo. `VERSION` y `pyproject.toml` se alinean a 36.1.0 con esta entrada.
+
+### Pipeline de empaquetado Stable (nuevo)
+- `scripts/stable_packaging.py` + `scripts/stage_stable.py` + `scripts/release_stable.py` + `scripts/publish_stable.py`: staging local auditado (reporte, manifiesto, TREE_SHA256), artefactos de release locales y publicación atómica (rama `main` + tag) al repo `MemoryBioRAG-Stable`. Nada se publica sin revisión del preview.
+- `release_manifest.toml` y plantillas en `release/` (README, CHANGELOG, SKILL, env, gitignore) para el árbol limpio del canal estable.
+- Notas de release versionadas en `docs/releases/` (RELEASE-v1.0/1.1/1.2 del canal Stable; RELEASE-v36.0 del dev).
+- Pruebas: `tests/test_stable_packaging.py`.
+
+### Update checker (nuevo)
+- `core/mcp_server/update_checker.py`: consulta no bloqueante de tags de release en GitHub cada 24 h; si hay versión nueva, el servidor MCP lo notifica al agente para que se lo comunique al usuario. Nunca actualiza ni instala solo. Desactivable con `BIORAG_UPDATE_CHECK=0`. Política de ejemplo en `update_policy.example.json`. Pruebas: `tests/test_update_checker.py`.
+
+### Validación de `vincular`
+- `core/mcp_server/synapses.py`: `vincular` ahora verifica que ambos nodos existan antes de crear la sinapsis; si falta alguno, devuelve error sin crear enlaces colgantes. Pruebas: `tests/test_vincular_validacion.py`.
+
+### Windows y rutas de estado
+- `graph_maintenance_daemon.py`, `core/daemon_lifecycle.py`, `core/dmn_reflexion.py`: `fcntl` protegido con try/except (en Windows el daemon opt-in ya no crashea al importar).
+- `core/paths.py`: `user_biorag_dir()` y `resolve_estado_hormiga_path()` — `estado_hormiga.json` se resuelve primero en `~/.biorag/`; `core/mcp_server/daemon.py` lo usa.
+- `install.py`: `BIORAG_BACKUPS_DIR` configurable, poda de backups viejos (máx. 5 por prefijo) y migración del estado legacy de la hormiguita a `~/.biorag/`.
+
+### Documentación y métricas
+- `docs/CIERRE_VERSION_36.md`, `docs/organismo_de_silicio_memoria_asociativa.md`, `AGENTS.md`; refresco de `scripts/qa_metrics.json` y casos fallidos.
+- Sin cambios en el motor de búsqueda ni en el ranking respecto a v36.0; E3, E4 y modularización fase 2 siguen pendientes (ver v36.0).
+
 ## [v36.0] — Cierre técnico (integración y publicación en `master` pendientes)
 
 **Estado:** v36.0 se declara cerrada técnicamente para esta rama. Esta entrada consolida las correcciones aceptadas de escala, la instrumentación de QA y las capacidades de instalación, rutas de datos y ciclo de vida. No hubo releases intermedias v35.1–v35.3; sus cambios aceptados se agrupan aquí. La auditoría del plan deja E3 abierta y E4/modularización fase 2 sin verificar: no se presentan como completadas. El match y la etiqueta final quedan a cargo del usuario; esta entrada no afirma que la rama ya se haya integrado, etiquetado o publicado.

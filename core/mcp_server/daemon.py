@@ -44,7 +44,8 @@ def register(mcp: Any) -> None:
             }, ensure_ascii=False, default=str)
 
         # Guard visitados_hoy: si ya se procesó hoy, no llamar a Gemini
-        ESTADO_HORMIGA_PATH = os.path.join(project_root(), "estado_hormiga.json")
+        from core.paths import resolve_estado_hormiga_path
+        ESTADO_HORMIGA_PATH = resolve_estado_hormiga_path()
         os.environ["BIORAG_DMN_ESTADO_PATH"] = ESTADO_HORMIGA_PATH
         estado = _cargar_estado()
         if not force and nodo_especifico in estado.get("visitados_hoy", []):

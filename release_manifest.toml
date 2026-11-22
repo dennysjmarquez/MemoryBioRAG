@@ -116,6 +116,9 @@ patterns = [
   "**/.ruff_cache/**",
   "**/.cache/**",
   "**/estado_hormiga.json",
+  "**/.hormiguita.lock",
+  ".hormiguita.lock",
+  "**/.kilo/**",
 ]
 reason = "Private, generated, or local runtime data is never part of Stable."
 
@@ -177,6 +180,12 @@ reason = "Internal research, QA fixtures, derived data, and experiment artifacts
 id = "dashboard-and-development-skills"
 patterns = [
   "dashboard-neuro-visor/**",
+  "dashboard/**",
+  "dashboard_back/**",
+  "dashboard*.py",
+  "dashboard_img/**",
+  "res_img/**",
+  "base de datos semanticas INFO/**",
   "skills/**",
 ]
 reason = "The dashboard UI, backend, and Node assets plus development-only skills, including the private NotebookLM sync skill, are not copied. Stable disables the dashboard help and CLI registration while retaining its handler as dormant code, and generates a separate English BioRAG memory skill. The development source remains intact."
@@ -213,7 +222,9 @@ patterns = [
   "release/**",
   "release_manifest.toml",
   ".gitattributes",
-  ".hormiguita.spawn.lock",
+  ".hormiguita*",
+  "estado_hormiga.json",
+  "contrato_compraventa_vehiculo.txt",
   "sleep_cycle.py",
   "uv.lock",
   "auto_save_plugin.py",

@@ -21,9 +21,11 @@ def _aislar_base_datos_para_tests():
     created_tmp = None
     orig_biorag_path = os.environ.get("BIORAG_PATH")
     orig_dmn_path = os.environ.get("BIORAG_DMN_ESTADO_PATH")
+    orig_backups_path = os.environ.get("BIORAG_BACKUPS_DIR")
 
     tmp_dir = tempfile.mkdtemp(prefix="biorag_pytest_")
     created_tmp = tmp_dir
+    os.environ["BIORAG_BACKUPS_DIR"] = os.path.join(tmp_dir, "backups")
 
     if "BIORAG_PATH" not in os.environ:
         if os.path.exists(_SNAPSHOT):
@@ -48,6 +50,11 @@ def _aislar_base_datos_para_tests():
         os.environ["BIORAG_DMN_ESTADO_PATH"] = orig_dmn_path
     else:
         os.environ.pop("BIORAG_DMN_ESTADO_PATH", None)
+
+    if orig_backups_path is not None:
+        os.environ["BIORAG_BACKUPS_DIR"] = orig_backups_path
+    else:
+        os.environ.pop("BIORAG_BACKUPS_DIR", None)
 
     if created_tmp and os.path.exists(created_tmp):
         try:

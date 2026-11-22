@@ -22,7 +22,7 @@ set -e
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 PARENT_DIR="$(dirname "$DIR")"
 
-DEFAULT_DB="$PARENT_DIR/MemoryBioRAG_Data/memory_biorag.db"
+DEFAULT_DB="${HOME}/.biorag/memory_biorag.db"
 DB_PATH="${BIORAG_PATH:-$DEFAULT_DB}"
 if [ -n "$1" ] && [ "${1#-}" = "$1" ]; then
     DB_PATH="$1"

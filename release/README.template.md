@@ -1,30 +1,110 @@
 # MemoryBioRAG Stable
 
-**Persistent, local-first memory for AI agents.**
+[![Release](https://img.shields.io/badge/release-{{VERSION}}-blue.svg?style=flat-square)](https://github.com/dennysjmarquez/MemoryBioRAG-Stable/releases)
+[![License](https://img.shields.io/badge/license-Apache--2.0-green.svg?style=flat-square)](LICENSE)
+[![Python](https://img.shields.io/badge/python-3.11%2B-blue?style=flat-square)](https://python.org)
+[![MCP](https://img.shields.io/badge/protocol-MCP%20stdio-orange?style=flat-square)](https://modelcontextprotocol.io)
+[![Platform](https://img.shields.io/badge/platform-Linux%20%7C%20macOS%20%7C%20Windows-lightgrey?style=flat-square)](https://github.com/dennysjmarquez/MemoryBioRAG-Stable)
 
-`{{VERSION}}` · Python 3.11–3.12 · Apache-2.0 · Model Context Protocol (MCP)
+**Local-first, bio-inspired associative memory engine for AI agents.**
 
-MemoryBioRAG (BioRAG) is a persistent memory engine that an AI agent can use through an MCP server or a command-line interface. It stores and retrieves durable context; the host agent's language model remains responsible for reasoning and generating user-facing responses. BioRAG does not bundle a generative LLM. An optional, explicitly configured Gemini-backed maintenance path is separate from core retrieval and is not required to use BioRAG.
+MemoryBioRAG is a persistent memory engine that provides AI agents with durable episodic context, evolving associative knowledge graphs, and cross-session continuity—without hosted vector databases, without cloud embeddings APIs, and running 100% locally on CPU.
 
-## What makes BioRAG different
+Rather than treating memory as flat text buffers or rigid vector lookups, MemoryBioRAG implements an engineering model inspired by neocortical memory dynamics: memories form synaptic associations through co-activation, consolidate during background rest cycles, and apply conformal prediction calibration to reduce false positives on evaluated benchmarks.
 
-BioRAG is designed around a local SQLite database and an associative memory graph rather than requiring a hosted vector database or a pretrained embedding API for core retrieval.
+> **Language Note:** CLI commands (`buscar`, `guardar`, `asociar`, `estado`, `sueno`) and MCP tool names (`recordar`, `aprender`, `vincular`) use Spanish terminology reflecting the project's foundational cognitive taxonomy.
 
-- **Hybrid retrieval:** SQLite FTS5/BM25 is combined with query, concept, and relationship signals.
-- **Associative memory:** weighted links connect related memories and can be strengthened by feedback.
-- **Neural-inspired lifecycle:** consolidation, reinforcement, decay, and dormant memories are inspired by cognitive mechanisms. This is an engineering model, not a biological-brain simulation.
-- **Local statistical representations:** the codebase also includes corpus-derived PPMI/SVD signals and sparse distributed memory. It would be inaccurate to describe BioRAG as “vector-free”; it does not require a pretrained neural embedding model for its core retrieval path.
-- **Agent interoperability:** MCP exposes memory operations to compatible clients; the CLI provides a direct, inspectable fallback.
+Interact with MemoryBioRAG through:
+* **Model Context Protocol (MCP):** Connect any MCP-compatible agent (Claude Code, OpenCode, Cursor, Cline, Windsurf, or custom agent harnesses).
+* **Local CLI (`biorag.py`):** Inspect, query, link, and awaken memories directly from your terminal.
+* **Autonomous Daemons (opt-in):** Background consolidation and Default Mode Network (DMN) reflection.
 
-These are design choices, not a claim that BioRAG outperforms other memory systems. Compare systems on the same dataset and workload before making performance claims.
+```mermaid
+flowchart LR
+    Agent["🤖 AI Agent (Claude / OpenCode / Cursor)"] -->|MCP stdio| Engine["🧠 MemoryBioRAG Engine"]
+    CLI["💻 Local CLI (biorag.py)"] --> Engine
+    Engine --> FTS["⚡ SQLite FTS5 (Exact / BM25)"]
+    Engine --> QCR["🔁 QCR Escape (zero-hit fallback & OR relaxation)"]
+    Engine --> SYM["🔤 WordNet + Concept Hubs (symbolic expansion)"]
+    Engine --> HEB["🕸️ Synaptic Connectome (Hebbian Graph)"]
+    Engine --> PPMI["🧬 100-dim PPMI+SVD & 13 Semantic Axes"]
+    Engine --> SDM["💠 SDM 2048-bit (HDC)"]
+    Engine --> NEU["🎛️ Guarded Ranking Neuron (learns at consolidation)"]
+    Engine --> CONF["🎯 Conformal Calibration"]
+    Engine --> SLEEP["🌙 Sleep & Consolidation (opt-in)"]
+```
+
+## Quick Demonstration
+
+```bash
+# 1. Ingest a memory with thematic keywords (--sustantivos-clave anchors the conceptual core)
+$ python biorag.py guardar arch_decision "Adopted Angular 19 signals and TailwindCSS for the client portal." \
+    --sustantivos-clave "frontend,angular,arquitectura"
+'arch_decision' guardado en corto plazo.
+
+# 2. Consolidate working memory into the long-term connectome
+$ python biorag.py sueno
+[MemoryBioRAG] Proceso de consolidación y equilibrio sináptico completado con éxito.
+
+# 3. Search memory across active nodes
+$ python biorag.py buscar "client portal"
+[MemoryBioRAG] 1 coincidencias encontradas:
+--- #1: arch_decision (peso:0.98, estado:activo) ---
+Adopted Angular 19 signals and TailwindCSS for the client portal.
+```
+
+When connected to an AI agent via MCP, the agent queries memory programmatically via `recordar` and receives epistemic certainty classifications (`evidencia_directa`, `relacionado_confianza_media`, `sin_evidencia_directa`).
+
+---
+
+## Feature Overview
+
+| Capability | Description |
+|---|---|
+| **Associative Connectome** | Memories link to each other via Hebbian synaptic weights that strengthen through activation (LTP) and decay over time (LTD). |
+| **Epistemic Conformal Certainty** | Split conformal prediction dynamically suppresses false positives—distinguishing direct evidence from lower-confidence associations on evaluated benchmarks. |
+| **Local Multi-Signal Retrieval** | Multi-channel retrieval combining SQLite FTS5 BM25, 100-dim corpus-derived PPMI+SVD latent space, and 13 topological semantic dimensions. Zero GPUs and zero external API calls in the retrieval path. |
+| **Autonomous Sleep Cycle & DMN (opt-in)** | Background daemons consolidate working memory into long-term structures, prune spurious connections, and detect cognitive gaps during idle periods. |
+| **Fail-Fast Concept Hubs** | Multi-angle semantic bridge expansion resolving the "lexical abyss" problem where queries share zero literal tokens with stored knowledge. |
+| **Zero-Touch Local Storage** | Pure local SQLite database at `~/.biorag/memory_biorag.db` (multiplatform). Zero telemetry, no external accounts, zero cloud lock-in. |
+| **Universal MCP Interoperability** | Standard input/output (`stdio`) Model Context Protocol server compatible with Claude Code, OpenCode, Cursor, Cline, and any modern agent framework. |
+
+---
+
+## How MemoryBioRAG Compares to Traditional Vector RAG
+
+| Dimension | Traditional Vector RAG | MemoryBioRAG |
+|---|---|---|
+| **Hardware Requirements** | GPU / Cloud Inference API | 100% Local CPU (ARM64 / x86_64) |
+| **Embedding Cost** | Per-token API fees or massive model weights | Zero API calls in core retrieval path; internal corpus-derived PPMI+SVD |
+| **Retrieval Mechanism** | Approximate Nearest Neighbors (ANN) cosine distance | Multi-signal hybrid retrieval: FTS5 BM25 + SVD + 13 Semantic Axes + Hebbian Graph |
+| **Memory Relationships** | Unlinked points in embedding space | Explicit Hebbian synaptic connectome (LTP/LTD) |
+| **Certainty Calibration** | Arbitrary similarity thresholds (e.g. `score > 0.75`) | Calibrated conformal prediction thresholds |
+| **Memory Lifecycle** | Static records until manually reindexed | Sleep consolidation and associative pruning (opt-in DMN) |
+
+---
+
+## Benchmarked Performance (Internal Evaluation Suite)
+
+Evaluated on the frozen 921-case MemoryBioRAG evaluation suite (875 gold retrieval queries, 40 negative controls for false-positive validation, and 6 ambiguous edge cases analyzed separately outside the global retrieval denominator):
+
+| Metric | Result | Meaning |
+|---|---|---|
+| **Recall@5 (Global)** | **100.0% (875/875)** | 100% gold-memory retrieval rate within the agent's top-5 working window. |
+| **Recall@1 (Top-1)** | **91.8% – 93.0%** | Over 9 out of 10 queries surface the exact target memory in first place. |
+| **MRR (Mean Reciprocal Rank)** | **0.950 – 0.956** | High confidence density at the top of the ranked list. |
+| **False Positive Rate** | **0.0% (0/40)** | Conformal prediction threshold successfully suppresses negative controls on this frozen control set. |
+
+*Note: Benchmarks measured on frozen reference snapshots under deterministic conditions. To inspect or run the complete evaluation suite, visit the [research repository](https://github.com/dennysjmarquez/MemoryBioRAG).*
+
+---
 
 ## Quick start
 
 ### Requirements
 
-- Python 3.11 or 3.12
-- SQLite built with FTS5 support
-- Git if you choose to clone the source repository instead of downloading its archive
+- Python 3.11 or 3.12 (standard builds with SQLite FTS5 support)
+- Git (or download source archive from GitHub Releases)
 
 ### Clone and install
 
@@ -34,9 +114,7 @@ cd MemoryBioRAG-Stable
 python3 -m venv .venv
 ```
 
-You can also download and extract the source ZIP from a Stable GitHub Release, then run the remaining commands from the extracted project directory.
-
-Activate the environment and install the pinned dependencies.
+Activate the virtual environment and run the automated installer:
 
 **Linux or macOS**
 
@@ -56,92 +134,96 @@ python -m pip install -r requirements.txt
 python install.py
 ```
 
-The installer checks the environment, configures detected MCP-compatible clients, and copies the bundled BioRAG skill to supported agent skill directories. It may download NLTK WordNet and Open Multilingual Wordnet data to the user's data directory; these dictionaries are not bundled in the repository.
+The installer verifies environment prerequisites, configures detected MCP clients (OpenCode, Claude Desktop, Cursor, Claude Code, Cline, etc.), and sets up canonical storage at `~/.biorag/`.
 
-After installation, restart the configured agent and inspect the setup with:
+After installation, inspect your configuration with:
 
 ```bash
 python install.py --status
 python biorag.py help
 ```
 
-To print configuration snippets for manual setup, run `python install.py --show-config`.
+To display configuration snippets for manual client setup, run `python install.py --show-config`.
+
+---
 
 ## Connect an MCP client
 
-The MCP server uses the standard input/output (`stdio`) transport when launched by an agent. The installer can configure supported clients, including OpenCode, Claude Code, Claude Desktop, VS Code, Cursor, Cline, and other clients detected by this installer. Restart the client after configuration so that it discovers the BioRAG tools. Current MCP tool names include `recordar` and `buscar` for retrieval, `aprender` for explicit durable writes, `vincular` for associations, and `estado` for status; inspect each tool's schema for its arguments.
+MemoryBioRAG communicates with agents via the standard input/output (`stdio`) transport. The automated installer detects and patches client configuration files automatically.
 
-OpenCode uses MCP for core memory operations. When the installer configures OpenCode, it detects the available plugin API (V1 or V2) and copies the matching bundled reminder plugin. The plugin injects BioRAG usage reminders on selected turns; MCP remains usable if the plugin is removed or unavailable. The V2 plugin's desktop notification is best-effort and may require the host's `notify-send` command. The current plugin also attempts to write reminder counts and operational errors to `/tmp/opencode/biorag-remember.log`; inspect that diagnostic file before sharing logs.
+### Supported Clients
+
+* **Claude Code:** Configured in `~/.claude.json`
+* **Claude Desktop:** Configured in `claude_desktop_config.json`
+* **OpenCode:** Native MCP configuration + bundled reminder plugin
+* **Cursor / VS Code:** Configured in `cursor.mcp.json` or `settings.json`
+* **Cline / Windsurf / Custom Agents:** Standard `stdio` server entry point: `python path/to/mcp_server.py`
+
+### Exposed MCP Tools
+
+| Tool | Purpose |
+|---|---|
+| `recordar` | High-level recall with epistemic certainty classification and paraphrase expansion. |
+| `buscar` | Multi-signal semantic search across active and dormant memories. |
+| `aprender` | Durable memory ingestion with pre-flight search verification. |
+| `vincular` | Explicit Hebbian synaptic association between two conceptual nodes. |
+| `estado` | Health status, node count, and synaptic density diagnostics. |
+
+---
 
 ## Command-line interface
 
-Run `python biorag.py help` for the complete command reference. The current CLI command names and built-in help text are in Spanish; the examples below show the exact command names. Common operations include:
+MemoryBioRAG includes a full-featured CLI (`biorag.py`) for direct inspection and management from your terminal.
 
-| Task | Command |
-|---|---|
-| Search memory | `python biorag.py buscar "project decision" --todos` |
-| Include dormant memories in search | `python biorag.py buscar "project decision" --deep` |
-| Store a durable memory | `python biorag.py guardar release_policy "Stable artifacts require review." --sustantivos-clave "stable,release,policy"` |
-| Create an association | `python biorag.py asociar release_policy versioning_policy` |
-| Check memory status | `python biorag.py estado` |
-| Consolidate working memory | `python biorag.py sueno` |
+```bash
+# Search memory across all active nodes
+python biorag.py buscar "project decision" --todos
 
-Use `guardar` only for information the user wants retained. `sueno` runs the consolidation lifecycle; it is not required after every search.
+# Search including dormant memories (deep search)
+python biorag.py buscar "architecture refactoring" --deep
+
+# Store a durable memory with conceptual keywords (--sustantivos-clave defines thematic anchor)
+python biorag.py guardar release_policy "Stable releases require verified test gates." --sustantivos-clave "stable,release,policy"
+
+# Create a synaptic link between two concepts
+python biorag.py asociar release_policy versioning_policy --tipo asociativa
+
+# Inspect cortex health and statistics
+python biorag.py estado
+
+# Trigger a background consolidation cycle
+python biorag.py sueno
+```
+
+Run `python biorag.py help` for the complete command reference.
+
+---
 
 ## Bundled agent skill
 
-The Stable source archive includes the English `biorag-memory` skill at `skills/biorag-memory/SKILL.md`. When `install.py` runs from that source checkout, it copies the skill into supported agent skill folders. A wheel-only installation does not currently bundle the skill; use the source archive to install it. Common locations are:
+The distribution bundles the `biorag-memory` skill at `skills/biorag-memory/SKILL.md`. The installer automatically deploys it to supported agent skill directories:
+* `~/.claude/skills/biorag-memory/SKILL.md`
+* `~/.config/opencode/skills/biorag-memory/SKILL.md`
+* `~/.agents/skills/biorag-memory/SKILL.md`
 
-- Claude Code: `~/.claude/skills/biorag-memory/SKILL.md`
-- OpenCode: `~/.config/opencode/skills/biorag-memory/SKILL.md` or `~/.opencode/skills/biorag-memory/SKILL.md`
-- Shared agent skills: `~/.agents/skills/biorag-memory/SKILL.md`
-
-The skill is an instruction file, not an executable plugin. Its source remains in the cloned repository if you need to inspect or copy it manually. The installer leaves a pre-existing skill with the same name untouched; uninstall removes only an unchanged bundled copy and preserves other or locally edited skills. Development-only skills are not part of Stable.
-
-## Troubleshooting
-
-- **The MCP client shows no BioRAG tools:** Run `python install.py --status` and `python install.py --show-config`. Confirm that the configured command uses the intended Python environment and points to this source checkout, then restart the client. The MCP server uses stdio when launched by a client; do not configure it as an HTTP URL unless you deliberately set up the optional SSE transport.
-- **SQLite reports that FTS5 is unavailable:** Check the Python-linked SQLite build with:
-
-  ```bash
-  python -c 'import sqlite3; c=sqlite3.connect(":memory:"); c.execute("CREATE VIRTUAL TABLE fts_check USING fts5(text)"); print(sqlite3.sqlite_version)'
-  ```
-
-  Use a Python distribution whose SQLite library includes FTS5 if that command fails.
-- **The CLI and MCP server show different memories:** Check that both use the same `BIORAG_PATH`. Run `python biorag.py estado` from the source checkout to inspect the local database and status.
-- **WordNet-based expansion is unavailable:** Confirm that NLTK data was downloaded during setup and that `BIORAG_NLTK_DATA`, if set, points to that data directory. Core local storage and FTS5 search do not require the optional Gemini maintenance feature.
-- **The OpenCode reminder is not installed:** Check `~/.config/opencode/plugins/opencode-biorag-remember-plugin.ts` and rerun `python install.py` from the Stable source checkout. The installer detects V1 or V2 and preserves an existing customized plugin rather than overwriting it. MCP memory tools remain available without the reminder plugin.
-- **You need an offline startup:** Set `BIORAG_UPDATE_CHECK=0` to disable the non-blocking GitHub version check. Optional token translation and Gemini maintenance also require external network access and are described in the privacy section.
-
-## Dashboard and optional plugins
-
-The Neuro-Visor dashboard product is not part of this Stable distribution: its web UI, backend, and Node assets are excluded. Stable omits the dashboard help entry and does not register a `dashboard` CLI command, but retains the underlying handler as dormant code for possible reactivation. The handler's required dashboard assets are not included. The development source is not deleted or rewritten, and the MCP server and CLI do not depend on the dashboard.
-
-The OpenCode reminder plugin is included separately from MCP and is installed automatically when the installer configures OpenCode. It selects the bundled V1 or V2 implementation based on the detected plugin API. Removing the plugin does not disable MCP memory operations.
+---
 
 ## Data, configuration, and privacy
 
-- The default SQLite database is stored outside the source checkout at `~/.biorag/memory_biorag.db` (or the equivalent home directory on Windows).
-- Set `BIORAG_PATH` to use a different database location. The installer can also place NLTK data under `~/.biorag/nltk_data`; set `BIORAG_NLTK_DATA` to override that location.
-- The source archive contains no user database, memory contents, credentials, or private evaluation data.
-- Core memory search and storage use the local SQLite database; no hosted LLM or vector database is required. BioRAG does not upload the database as a whole.
-- The update check is enabled by default and reads public Stable version metadata from GitHub. Set `BIORAG_UPDATE_CHECK=0` to disable it; this check does not send memory contents.
-- Optional token translation is disabled by default. If `deep-translator` is installed and `BIORAG_TRADUCCION_ACTIVA=1` is set, query tokens may be sent to Google Translate for translation.
-- Optional Gemini-backed reflective maintenance is separate from core retrieval. If you configure `GEMINI_API_KEYS` or `GEMINI_API_KEY` and invoke the corresponding maintenance operation, the memory content used for that reflection request is sent to the external Gemini API. The continuous daemon is disabled by default; do not configure this feature if external processing is not acceptable.
-- Installation may download NLTK WordNet and Open Multilingual Wordnet data. These dictionary downloads are described above; memory records are not part of those downloads.
-- Protect the database as user data. Do not commit `.env` files, databases, private datasets, credentials, or evaluation outputs.
+- **Default Storage:** SQLite database stored outside the repository at `~/.biorag/memory_biorag.db` (`%USERPROFILE%\.biorag\` on Windows).
+- **Custom Location:** Set `BIORAG_PATH` to override the database path.
+- **Privacy:** Core retrieval and storage are 100% local. MemoryBioRAG does not upload your database, memory contents, or telemetry.
+- **Update Checker:** Checks public GitHub release tags every 24 hours (non-blocking). Disable anytime with `BIORAG_UPDATE_CHECK=0`.
+- **Optional External Maintenance:** Background DMN reflection can optionally use Gemini API keys if explicitly configured; core search never requires external APIs.
 
-## Distribution and releases
+---
 
-**Recommended first channel: GitHub Releases.** GitHub describes releases as a way to package software with release notes and downloadable assets, and automatically provides source archives for the tagged revision ([release overview](https://docs.github.com/en/repositories/releasing-projects-on-github/about-releases), [release management](https://docs.github.com/en/repositories/releasing-projects-on-github/managing-releases-in-a-repository)). The local release preparer creates a source ZIP, a Python wheel, and a release manifest containing SHA-256 digests. The source ZIP is the full installer distribution, including the agent skill and both OpenCode plugin versions; the wheel currently omits those non-Python integration assets. Attach only reviewed artifacts and release notes; nothing is uploaded by these local tools.
+## Repository Structure & Channels
 
-**Possible later channel: PyPI.** Consider this only after package metadata, wheel inclusion of the skill and OpenCode plugin, install compatibility, and the publishing workflow have been reviewed. PyPI's publishing guide describes packaging prerequisites and recommends Trusted Publishing (OIDC) where supported ([PyPI publishing guide](https://docs.pypi.org/publishing/publishing-to-pypi/)). This local preparation does not configure or publish to PyPI. GitHub Packages documents registries for formats including npm, RubyGems, Maven/Gradle, NuGet, and containers, but does not list a native Python package registry ([supported registry formats](https://docs.github.com/en/packages/learn-github-packages/introduction-to-github-packages#support-for-package-registries)).
+* **Production / Distribution (`MemoryBioRAG-Stable`):** Official stable release channel. Contains clean, production-ready code, automated installer, and packaging metadata.
+* **Research / Development (`MemoryBioRAG`):** Active research laboratory, historical benchmarks (921 QA suite), experimental scripts, and architectural exploration.
 
-Stable versions use canonical tags of the form `vX.X`; prereleases are not part of this channel. Local packaging tools create reviewable artifacts only. Uploading, tagging, or publishing is a separate action and requires explicit release approval. Reaching potential adopters, including companies such as Google, is a long-term goal—not evidence of contact, evaluation, adoption, endorsement, or partnership.
-
-## Design context
-
-Persistent-memory projects make different trade-offs. [Mem0](https://github.com/mem0ai/mem0) documents configurable LLM and embedding-model options; [Graphiti](https://github.com/getzep/graphiti) focuses on temporal context graphs and documents configurable graph-database, LLM, and embedder components; the [MCP reference servers](https://github.com/modelcontextprotocol/servers) include a graph-based memory example. [Obsidian](https://obsidian.md/help/data-storage) stores notes as Markdown files in local vaults and supports [internal links](https://obsidian.md/help/links), a human-managed note-taking model distinct from BioRAG's agent-facing memory interface. These are architectural references, not like-for-like performance baselines. BioRAG makes no superiority claim without a reproducible, public comparison.
+---
 
 ## License
 

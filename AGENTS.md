@@ -496,3 +496,110 @@ españolas. `Corrections.register_structured` es el puerto nuevo; `register` y
 No retirar el adaptador legado sin migrar scripts/pruebas/consumidores. Propuestas
 persistidas anteriores siguen revisables. No inferir intención de búsqueda por
 keywords: el agente elige contexto_vigencia.mode; default del contrato nuevo es 1.
+
+
+## 11. Publicar al Repo Público (MemoryBioRAG-Stable) — Protocolo del Agente
+
+> **Este protocolo aplica cuando el dueño del proyecto dice:**
+> *"Quiero hacer la publicación al repo público"* / *"Quiero hacer el release X.Y.Z"* / *"Prepara el release"* / *"Voy a publicar"*.
+
+### 11.1 Secuencia obligatoria (5 pasos, en este orden)
+
+> 🛑 **REGLA DE ORO DE TERRITORIALIDAD:**
+> **El agente SOLO ejecuta en consola los Pasos 1, 2 y 3 (`test`, `stage_stable` y `release_stable`).**
+> Los Pasos 4 y 5 (`git push` al repo público `MemoryBioRAG-Stable`, creación de tags remotos, GitHub Releases oficiales o publicaciones a registros) tocan repositorios y canales públicos oficiales. **El agente los redacta, los prepara, calcula sus hashes de verificación y los deja en bandeja de plata, pero JAMÁS los dispara por terminal sin autorización explícita.** El lanzamiento físico lo realiza única y exclusivamente el dueño del proyecto.
+
+```
+[EJECUTA EL AGENTE]
+Paso 1: pytest tests/ -v && BIORAG_PATH=snapshots/qa_escape_qcr_20260811.db python scripts/evaluar_qa.py
+         → Debe pasar al 100% en tests unitarios y cumplir los umbrales de QA baseline (umbrales reales de scripts/evaluar_qa.py y política aprobada; no relajarlos por esta guía).
+         Si falla algún check, se corrige el código fuente antes de continuar.
+
+Paso 2: python scripts/stage_stable.py --version <tag>
+         → Audita y genera el preview aislado en .staging/stable/preview/.
+         El resultado debe ser READY (0 blockers). Revisa el reporte en .staging/stable/preview/report.md.
+
+Paso 3: python scripts/release_stable.py --version <tag> --stage-dir .staging/stable/preview --confirm-tree-sha256 "$(cat .staging/stable/preview/TREE_SHA256)"
+         → Empaqueta los artefactos locales verificados en .stable-release/stable/releases/.
+
+[PREPARA EL AGENTE — LANZA EL USUARIO]
+Paso 4: El agente crea o actualiza docs/releases/RELEASE-<tag>.md (en inglés pulcro; ver §11.2).
+
+Paso 5: El usuario ejecuta en su terminal el script que hace el push atómico + crea la GitHub Release:
+         $ python3 scripts/publish_stable.py \
+             --version <tag> \
+             --stage-dir .staging/stable/preview \
+             --message-file docs/releases/RELEASE-<tag>.md
+         → El script: clona MemoryBioRAG-Stable, sincroniza el árbol limpio, hace commit con
+           autor canónico, crea el tag annotated, verifica identidad, hace push atómico y
+           finalmente ejecuta `gh release create` con las mismas notas. UN SOLO COMANDO.
+         → Si `gh` no está disponible o falla, el push YA se realizó y el script imprime el
+           comando manual para crear la Release en GitHub.
+         → Verificar en: https://github.com/dennysjmarquez/MemoryBioRAG-Stable/releases
+```
+
+### 11.2 Formato del archivo de release (`docs/releases/RELEASE-<tag>.md`)
+
+**Reglas invariantes:**
+- El archivo se escribe **en inglés**. Cero palabras en español (con la única excepción de nombres literales de comandos CLI o herramientas MCP como `buscar` o `recordar`, siempre en formato de código).
+- El nombre del archivo usa la versión exacta: `RELEASE-v1.0.md`, `RELEASE-1.0.0.md`, `RELEASE-v36.0.md`, etc.
+- El texto NO menciona nada interno: sin rutas privadas (`/mnt/...`, `~/.gemini/...`), sin nombres de ramas de desarrollo (`master`, `dev`), sin palabras como "taller", "arena", "privado".
+- El formato sigue el patrón: una línea de título, un párrafo de contexto, secciones cortas y concretas (`Highlights of X.Y.Z`, `Installation & Quick Start`, `Quick Verification`, `Distribution Note`).
+
+**Estructura del texto:**
+```markdown
+MemoryBioRAG X.Y.Z — [una frase que describe el cambio principal]
+
+[Párrafo de contexto: qué tiene esta versión que la anterior no tenía.
+Sin jerga interna. Como si lo leyera un desarrollador externo en GitHub.]
+
+Highlights of X.Y.Z
+
+[Lista de cambios concretos y visibles para el consumidor de la librería / MCP.
+No mencionar el proceso interno, solo el resultado: arquitectura, conectores, rendimiento, correcciones.]
+
+Installation & Quick Start
+
+[Comandos limpios de clonación e instalación automatizada sin dependencias complejas.]
+
+Quick Verification
+
+[Comandos reales de prueba básica con salida verificable.]
+
+Distribution Note
+
+[Información sobre el canal estable y el tag correspondiente en GitHub.]
+```
+
+**Ejemplos de lo que NO debe aparecer:**
+- ❌ Rutas absolutas del host (`/mnt/recursos_compartidos_y_otros/...`, `/home/dennys/...`)
+- ❌ Nombres de sesiones, agentes internos o referencias al repositorio de desarrollo (`DEV`)
+- ❌ Referencias a bases de datos de desarrollo privadas o logs de testing internos
+- ❌ Texto en español en el cuerpo principal de la documentación de release
+
+### 11.3 Invariante de Aprobación Humana
+
+**Ningún comando que modifique el repositorio público remoto o cree tags públicos se ejecuta de forma automática.**
+
+Cuando el dueño del proyecto pida publicar:
+1. El agente valida que todos los pasos locales 1, 2 y 3 hayan terminado con éxito (cero errores, cero blockers).
+2. El agente prepara el archivo `docs/releases/RELEASE-<tag>.md` y el contenido exacto para el GitHub Release.
+3. El agente presenta el resumen de los cambios, el árbol sanitizado y solicita confirmación explícita antes de ejecutar cualquier acción sobre el repositorio remoto o deja los comandos listos para ejecución por el usuario.
+
+### 11.4 Operaciones de Control y Emergencias en Git / GitHub
+
+El agente debe conocer los comandos directos para asistir al usuario ante cualquier contingencia:
+
+1. **Eliminar un tag remoto erróneo o corrupto:**
+   ```bash
+   git tag -d <tag>
+   git push origin :refs/tags/<tag>
+   ```
+
+2. **Publicar un hotfix de emergencia:**
+   - Si se detecta un problema crítico en una versión recién publicada, se corrige en el repositorio de desarrollo, se genera el preview con el nuevo tag de parche (ej. `v1.0.1`), se audita con `stage_stable.py`, y se prepara un nuevo release compatible con el validador de tags vigente; no reemplazar tags ni publicar sin autorización explícita.
+
+
+**Alcance:** este protocolo de publicación NO autoriza publicar por pedir un push a
+una rama DEV. Los ejemplos de tags deben validarse contra el formato admitido
+por el empaquetador (actualmente Stable vX.X); no asumir soporte de parches vX.X.X.

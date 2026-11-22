@@ -1,6 +1,6 @@
 # BioRAG — Memoria Cognitiva Biomimética y Simbólica para Agentes de IA
 
-> **Versión de trabajo en esta rama:** v36.2 — correcciones contextuales aprobadas integradas en core/MCP, activación explícita por propietario. Candidata hasta completar los gates de integración; sin tag ni publicación.
+> **Versión de trabajo en esta rama:** v36.2 — correcciones MCP estructuradas, seis perspectivas explícitas y actualización con preparación modular y recuperación asistida. Candidata hasta completar los gates de integración; sin tag ni publicación.
 > **Paradigma:** Motor Python + SQLite FTS5. **Sin embeddings densos, GPU ni llamadas a APIs externas** en el path de búsqueda.
 > **Motor:** Arquitectura modularizada (18 submódulos `core/memory/` + 15 submódulos `core/mcp_server/` + fachada delgada) + SQLite FTS5 WAL + PPMI-SVD (100 dimensiones) + espacio semántico de 13 ejes + grafo sináptico Hebbiano + SDM (2048 bits) + calibración conforme + activación ACT-R + Concept Hubs + validación simétrica fail-fast de sustantivos clave + **neurona de reordenamiento que aprende sola** (29 señales → 6 ocultas → 1 corrección, con piso en la fórmula a mano) + **neurona asociativa cerrada de fábrica** (5 agujas → fuerza 0–1: ¿dos recuerdos tienen que ver?; examinada, aún no decide en el motor) + enlaces del agente intocables + **destino canónico del córtex en `~/.biorag/`** + **instalador de configuración MCP para clientes compatibles**.
 > **Idiomas:** Español e inglés (stemming bilingüe, expansión simbólica con WordNet, Concept Hubs de 5 ángulos y Domain Dict).
@@ -149,7 +149,7 @@ En lugar de parsear la salida de texto de `opencode --version` (que puede cambia
 
 ## Correcciones contextuales — v36.2
 
-El MCP real incorpora `registrar_correccion`, `revisar_correccion` y `confirmar_correccion`. `recordar` y `buscar` aceptan `contexto_vigencia` explícito: priorizan evidencia aprobada sin quitar históricos ni alterar scores. La escritura está deshabilitada por defecto y requiere delegación del host stdio; no se habilita sobre SSE. Ledger y aristas `ctx_*` se confirman en una transacción de la misma DB (compatible con WAL), sin sobrescribir `largo_plazo` ni `sinapsis`.
+El MCP real incorpora `registrar_correccion`, `revisar_correccion` y `confirmar_correccion`. `recordar` y `buscar` aceptan `contexto_vigencia` explícito: priorizan evidencia aprobada sin quitar históricos ni alterar scores. Las correcciones están habilitadas por defecto únicamente en stdio local confiable (`BIORAG_CORRECTIONS=0` las desactiva); no se habilitan sobre SSE. El agente suministra contexto, valores y fechas explícitos; el motor no interpreta el idioma del mensaje. Ledger y aristas `ctx_*` se confirman en una transacción de la misma DB (compatible con WAL), sin sobrescribir `largo_plazo` ni `sinapsis`.
 
 Configuración, seguridad, bootstrap sin fixtures y límites: [Guía v36.2](docs/CORE_V36_2.md). No se infiere intención libre ni se aprueba por mera lectura. La QA del laboratorio es antecedente, no una certificación automática de esta integración.
 
@@ -1577,13 +1577,19 @@ El MCP consulta en segundo plano la política pública `update_policy.json` del 
 
 ### Publicar en MemoryBioRAG-Stable
 
+El historial remoto incorpora `scripts/publish_stable.py` para publicar el preview
+revisado con las notas en `docs/releases/`. Consultar el protocolo de aprobación en
+`AGENTS.md` §11. No ejecutarlo para probar este update DEV. El tag Stable se elige
+explícitamente y puede diferir de la versión DEV; se transforma solo el candidato,
+no las fuentes DEV. La publicación sigue requiriendo autorización separada.
+
 > **Flujo manual y con aprobación explícita.** `MemoryBioRAG` es el repositorio DEV; no se publica directamente como Stable. Los comandos `stage_stable.py` y `release_stable.py` solo preparan candidatos locales: no hacen `git push`, no crean tags y no suben archivos. Un agente puede ejecutar QA y preparar artefactos, pero debe detenerse antes de cualquier publicación remota hasta recibir autorización explícita del dueño del proyecto.
 >
 > **Estado del destino:** al verificarlo el 2026-10-21, `dennysjmarquez/MemoryBioRAG-Stable` era público pero estaba vacío, sin rama predeterminada ni releases. Comprueba el estado actual antes de cada publicación. La primera publicación requiere inicializar `main` con un candidato revisado.
 
-1. **Confirmar versión y QA.** Usa únicamente una versión aprobada en formato `vX.Y`; `VERSION` debe coincidir exactamente y `pyproject.toml` debe declarar `X.Y.0`. No incrementes la versión automáticamente. Ejecuta las pruebas y la QA oficial en copias temporales del snapshot, nunca sobre la base viva. Si una prueba o gate falla, detén el proceso y corrige el código fuente; no cambies pruebas ni saltes verificaciones para obtener un resultado verde.
+1. **Confirmar versión y QA.** Usa únicamente un tag Stable aprobado en formato `vX.Y`. Las fuentes DEV deben tener `VERSION` y `pyproject.toml` coherentes entre sí; la versión Stable elegida se escribe solo en el candidato. No elijas ni incrementes versiones sin autorización. Ejecuta las pruebas y la QA oficial en copias temporales del snapshot, nunca sobre la base viva. Si una prueba o gate falla, detén el proceso y corrige el código fuente; no cambies pruebas ni saltes verificaciones para obtener un resultado verde.
 
-2. **Crear y revisar la vista previa local.** Usa Python 3.11 o posterior y un entorno aislado con `setuptools>=77` y `wheel`. Sustituye `v36.1` por el valor exacto de `VERSION`; debe coincidir con `pyproject.toml` como `36.1.0`:
+2. **Crear y revisar la vista previa local.** Usa Python 3.11 o posterior y un entorno aislado con `setuptools>=77` y `wheel`. Elige explícitamente un tag Stable admitido (vX.X); la versión de las fuentes DEV permanece alineada entre `VERSION` y `pyproject.toml`:
 
    ```bash
    python -m pip install --upgrade "setuptools>=77" wheel
@@ -1592,7 +1598,7 @@ El MCP consulta en segundo plano la política pública `update_policy.json` del 
 
    Para consultar las opciones sin iniciar una ejecución, usa `python scripts/stage_stable.py --help` o `python scripts/release_stable.py --help`.
 
-   `--version` es obligatorio: el script no infiere ni incrementa versiones. La vista previa se genera desde el árbol de trabajo actual, aplicando la allowlist y las transformaciones Stable; no es una copia de todo el repositorio DEV. No modifica las fuentes, el índice de Git ni la base de datos, y no publica nada. El resumen imprime el estado, la ruta, el SHA-256, los conteos y los bloqueos/avisos. `READY` termina con código 0; `BLOCKED` o un error, con código 2. No continúes si hay bloqueos y revisa también todos los avisos: `READY` no equivale a aprobación para publicar.
+   `--version` es obligatorio: el script no elige el tag; la versión solicitada se aplica al candidato Stable, no a las fuentes DEV. La vista previa se genera desde el árbol de trabajo actual, aplicando la allowlist y las transformaciones Stable; no es una copia de todo el repositorio DEV. No modifica las fuentes, el índice de Git ni la base de datos, y no publica nada. El resumen imprime el estado, la ruta, el SHA-256, los conteos y los bloqueos/avisos. `READY` termina con código 0; `BLOCKED` o un error, con código 2. No continúes si hay bloqueos y revisa también todos los avisos: `READY` no equivale a aprobación para publicar.
 
    Revisa estos elementos del candidato:
 
