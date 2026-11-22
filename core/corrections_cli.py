@@ -4,17 +4,19 @@ import json
 import os
 import sqlite3
 import sys
-from core.cli_notes import usage_note
+from core.cli_notes import usage_note, command_examples
 
 
 def main(argv=None):
     parser = argparse.ArgumentParser(
         prog='biorag correcciones',
-        description='Registrar propuestas, revisar evidencia y confirmar sin borrar historia. '
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        description='Registrar propuestas, revisar evidencia y confirmar sin borrar historia.\n\n'
                     + usage_note('correcciones'),
         epilog='Flujo: registrar → revisar → confirmar con el digest revisado. '
-               'Fechas en segundos UNIX. BIORAG_CORRECTIONS=0 deshabilita operaciones. '
-               'Salida JSON; errores en stderr. No se interpreta el idioma del mensaje.')
+               '\nFechas en segundos UNIX. BIORAG_CORRECTIONS=0 deshabilita operaciones.\n'
+               'Salida JSON; errores en stderr. No se interpreta el idioma del mensaje.\n\n'
+               + command_examples('correcciones'))
     subs = parser.add_subparsers(dest='operation')
     register = subs.add_parser('registrar', help='Crear propuesta; NO aprueba ni sustituye recuerdos',
                                description=usage_note('correcciones registrar'))
@@ -22,6 +24,9 @@ def main(argv=None):
                              description=usage_note('correcciones revisar'))
     confirm = subs.add_parser('confirmar', help='Aprobar explícitamente la evidencia revisada',
                               description=usage_note('correcciones confirmar'))
+    for sub, name in ((register, 'registrar'), (review, 'revisar'), (confirm, 'confirmar')):
+        sub.formatter_class = argparse.RawDescriptionHelpFormatter
+        sub.epilog = command_examples('correcciones ' + name)
     for sub in (register, review, confirm):
         sub.add_argument('--db', help='DB existente; por defecto BIORAG_PATH o ruta canónica')
         sub.add_argument('--id', required=True, help='Identificador estable de la propuesta')

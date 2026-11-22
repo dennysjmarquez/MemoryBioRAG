@@ -14,6 +14,9 @@ biorag correcciones confirmar --help
 Cada ayuda incluye una nota «¿Para qué me sirve?» con el propósito y resultado
 del comando. La ayuda general de correcciones y las de registrar/revisar/confirmar
 conservan sus opciones, añadiendo esa orientación sin ejecutar operaciones.
+Cada una incluye además ejemplos de terminal; registrar muestra todos sus campos
+obligatorios y confirmar señala el digest que debes obtener de revisar. Los
+ejemplos usan una copia y datos ilustrativos, no se ejecutan por mostrar ayuda.
 
 Sin subcomando muestra ayuda, sin abrir la memoria. Las operaciones imprimen JSON
 en stdout; errores operativos JSON en stderr y exit code 1. Argumentos inválidos

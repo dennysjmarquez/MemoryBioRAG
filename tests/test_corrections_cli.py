@@ -3,6 +3,7 @@ import json
 import os
 from pathlib import Path
 import sqlite3
+import shlex
 import subprocess
 import sys
 import tempfile
@@ -79,6 +80,24 @@ class CorrectionsCLITests(unittest.TestCase):
             self.assertEqual(db.execute('SELECT count(*) FROM ctx_approvals').fetchone()[0],0)
         result=self.call('registrar','--id','incomplete')
         self.assertEqual(result.returncode,2)
+
+    def test_published_examples_work_with_explicit_fixture_substitutions(self):
+        from core.cli_notes import EXAMPLES
+        digest = None
+        for operation in ('registrar', 'revisar', 'confirmar'):
+            command = EXAMPLES['correcciones '+operation][0].replace('\\\n', '')
+            tokens = shlex.split(command)[2:]
+            replacements = {'/ruta/copia_prueba.db': str(self.db),
+                            'servicio_puerto_anterior': 'old', 'servicio_puerto_actual': 'new',
+                            'DIGEST_DE_LA_REVISION': digest}
+            tokens = [replacements.get(token, token) for token in tokens]
+            result = self.call(*tokens)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            payload = json.loads(result.stdout)
+            if operation == 'revisar':
+                digest = payload['digest']
+            if operation == 'confirmar':
+                self.assertEqual(payload['status'], 'approved')
 
     def test_help_without_db_and_all_subcommands(self):
         self.db.unlink()

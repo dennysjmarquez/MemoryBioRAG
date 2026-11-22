@@ -59,8 +59,10 @@ def stage(receipt):
 
 
 def main(argv=None):
-    from core.cli_notes import usage_note
-    parser=argparse.ArgumentParser(description=__doc__, epilog=usage_note('recovery'))
+    from core.cli_notes import usage_note, command_examples
+    parser=argparse.ArgumentParser(description=__doc__,
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog=usage_note('recovery') + '\n\n' + command_examples('recovery'))
     parser.add_argument('--receipt',required=True)
     parser.add_argument('--stage',action='store_true',help='Autorizar copias de recuperación, nunca reemplazo de DB viva')
     args=parser.parse_args(argv)

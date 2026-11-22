@@ -1,4 +1,5 @@
 """Notas de uso del CLI; texto únicamente, sin imports del motor ni efectos."""
+from textwrap import fill
 
 NOTES = {
     'buscar': 'Úsalo para recuperar un recuerdo sin recorrer toda la memoria. Por ejemplo, '
@@ -55,4 +56,47 @@ NOTES = {
 
 
 def usage_note(command):
-    return '¿Para qué me sirve? ' + NOTES[command]
+    return fill('¿Para qué me sirve? ' + NOTES[command], width=88)
+
+
+# Ejemplos orientativos, no se ejecutan al imprimir ayuda.
+EXAMPLES = {
+    'buscar': ('biorag buscar "configuración del servicio" --sustantivos-clave "servicio,configuracion"',
+               'biorag buscar servicio --completo --asociados'),
+    'listar': ('biorag listar', 'biorag listar --pagina 2'),
+    'corteza': ('biorag corteza',),
+    'estado': ('biorag estado',),
+    'familiaridad': ('biorag familiaridad "Necesito revisar la configuración del servicio"',),
+    'sustantivos': ('biorag sustantivos servicio_puerto_actual',),
+    'guardar': ('biorag guardar nota_servicio "El servicio de prueba utiliza el puerto 8443" --sustantivos-clave "servicio,puerto"',),
+    'agregar_sustantivos': ('biorag agregar_sustantivos servicio_puerto_actual "servicio,puerto"',),
+    'asociar': ('biorag asociar servicio_configuracion servicio_despliegue',),
+    'sueno': ('biorag sueno',),
+    'comunicar': ('biorag comunicar hermes "Revisa la configuración del servicio de prueba"',),
+    'leer_mensajes': ('biorag leer_mensajes --no-leidos', 'biorag leer_mensajes --ultimos 5'),
+    'dashboard': ('biorag dashboard',),
+    'update': ('biorag update --dry-run', 'biorag update --yes --db /ruta/copia_prueba.db'),
+    'recovery': ('biorag recovery --receipt /ruta/update-receipts/recibo.json',
+                 'biorag recovery --receipt /ruta/update-receipts/recibo.json --stage'),
+    'correcciones': ('biorag correcciones registrar --help',
+                     'biorag correcciones revisar --db /ruta/copia_prueba.db --id cambio-puerto-001',
+                     'biorag correcciones confirmar --help'),
+    'correcciones registrar': (
+        'biorag correcciones registrar --db /ruta/copia_prueba.db \\\n    --id cambio-puerto-001 --mensaje "El puerto cambió de 8080 a 8443" \\\n    --nodo-anterior servicio_puerto_anterior --nodo-sucesor servicio_puerto_actual \\\n    --entidad servicio --atributo puerto --ambito pruebas \\\n    --valor-anterior 8080 --valor-nuevo 8443 \\\n    --observado-en 1767225600 --efectivo-desde 1767225600 --anterior-desde 1735689600',),
+    'correcciones revisar': (
+        'biorag correcciones revisar --db /ruta/copia_prueba.db --id cambio-puerto-001',),
+    'correcciones confirmar': (
+        'biorag correcciones confirmar --db /ruta/copia_prueba.db \\\n    --id cambio-puerto-001 --digest DIGEST_DE_LA_REVISION --request-id aprobacion-001',),
+}
+
+
+def command_examples(command):
+    header = ('Ejemplos:\n'
+              '  Puedes sustituir «biorag» por «python3 biorag.py».\n'
+              '  Adapta conceptos y rutas a tus datos; los nodos referidos deben existir.\n')
+    if command.startswith('correcciones'):
+        header += ('  Usa una copia de prueba. Fechas UNIX ilustrativas: no inventes fechas reales.\n'
+                   '  DIGEST_DE_LA_REVISION se reemplaza por el digest de revisar.\n')
+    elif command in ('guardar', 'agregar_sustantivos', 'asociar', 'sueno', 'comunicar', 'leer_mensajes'):
+        header += '  Estas operaciones pueden modificar memoria o estado; prueba primero en una copia.\n'
+    return header + '\n'.join('  ' + example for example in EXAMPLES[command])

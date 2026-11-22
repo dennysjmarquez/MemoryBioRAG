@@ -640,3 +640,10 @@ saturar la ayuda general. Fuente textual: core/cli_notes.py; aliases comparten
 la nota del comando canónico. No prometer capacidades inexistentes ni aprobación
 automática. tests/test_cli_help.py verifica cobertura del catálogo y las notas
 en ambos entry points sin cargar motor, abrir DB ni consultar red.
+
+Cada ayuda específica también debe incluir al menos un ejemplo válido, en
+core/cli_notes.py (EXAMPLES), con conceptos/rutas ilustrativos señalados y límites
+para operaciones que escriben o arrancan servicios. Mantener NOTES y EXAMPLES
+con la misma cobertura; aliases reutilizan el comando canónico. Preservar saltos
+de línea de comandos largos en argparse. Probar los ejemplos de correcciones
+en una DB sintética con sustituciones explícitas, nunca en memoria viva.
