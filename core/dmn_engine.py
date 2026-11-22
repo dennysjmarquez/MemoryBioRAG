@@ -21,6 +21,7 @@ import re
 import json
 import random
 import sqlite3
+from core.database_access import connect as managed_connect
 
 logger = logging.getLogger("BioRAG.DMN")
 
@@ -188,7 +189,7 @@ class DMNEngine:
 
     def _crear_conexion_hilo(self):
         """Crea una conexión SQLite aislada Thread-Local con WAL mode y busy_timeout=5000."""
-        conn = sqlite3.connect(self.db_path, timeout=10.0)
+        conn = managed_connect(self.db_path, timeout=10.0)
         conn.execute("PRAGMA journal_mode = WAL")
         conn.execute("PRAGMA busy_timeout = 5000")
         conn.execute("PRAGMA foreign_keys = ON")

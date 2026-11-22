@@ -23,13 +23,15 @@ from core.sdm import (
 _RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
+from core.paths import resolve_db_path
+
 def _db_viva_o_snapshot():
     """Resuelve la DB de datos reales sin rutas atadas a la maquina.
 
     Prioriza BIORAG_PATH (la suite lo apunta al snapshot inmutable);
-    si no esta definido, usa la DB por defecto relativa al proyecto.
+    si no esta definido, usa la DB canónica resuelta por core.paths.
     """
-    return os.environ.get("BIORAG_PATH") or os.path.join(_RAIZ, "MemoryBioRAG_Data", "memory_biorag.db")
+    return resolve_db_path()
 
 
 def test_01_vectores_mismas_dimensiones():

@@ -132,6 +132,12 @@ def calibrar_umbral_conforme(self, alpha: float = None, n_negativos: int = 100) 
     qa_path = os.path.join(base_dir, "scripts", "casos_qa_baseline_v1.jsonl")
     if not os.path.exists(qa_path):
         qa_path = os.path.join(base_dir, "scripts", "casos_qa.jsonl")
+    if not os.path.exists(qa_path):
+        logger.warning(
+            "Conformal calibration is unavailable: the optional QA corpus "
+            "is not bundled. No threshold was calibrated."
+        )
+        return 0.0
 
     scores_neg = []
     with open(qa_path, 'r', encoding='utf-8') as f:

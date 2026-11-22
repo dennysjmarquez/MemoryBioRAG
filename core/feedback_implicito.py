@@ -53,6 +53,9 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 import re
 import sqlite3
 import sys
+if __package__ in (None, ""):
+    sys.path.insert(0, BASE_DIR)
+from core.database_access import connect as managed_connect
 from typing import Dict, List, Optional, Tuple
 
 # Ventanas temporales, en segundos.
@@ -309,7 +312,7 @@ def aplicar(db_path: str, inferencias: List[dict], confianza_min: float = 0.7,
         print(f"Ninguna inferencia aplicable con confianza >= {confianza_min}.")
         return 0
 
-    con = sqlite3.connect(db_path)
+    con = managed_connect(db_path)
     n = 0
     try:
         for x in aplicables:

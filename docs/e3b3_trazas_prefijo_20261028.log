@@ -1,0 +1,7 @@
+zh-01: respuesta con traza = control = referencia; 13 pasos
+zh-19: respuesta con traza = control = referencia; 14 pasos
+ja-01: respuesta con traza = control = referencia; 13 pasos
+zh-01 pool previo True score tras hub 0.3347 literal True válido prefijo False en pool después False umbral invocado False
+zh-19 pool previo False score tras hub 0.95 literal True válido prefijo False en pool después False umbral invocado False
+ja-01 pool previo True score tras hub 0.3344 literal True válido prefijo False en pool después False umbral invocado False
+Salida: docs/e3b3_trazas_prefijo_20261028.json

@@ -14,7 +14,22 @@ def test_idf_raro_mayor_que_comun(tmp_path):
         c.consolidar_concepto(f"n_comun_{i}")
     c.percibir_corto_plazo("n_raro", "xyzqwertyunico token extra largo")
     c.consolidar_concepto("n_raro")
-    m = c._idf_tokens_qcr(["memoria", "xyzqwertyunico"])
+
+    tokens = ["memoria", "xyzqwertyunico"]
+    # Sin semillas léxicas, el contrato actual es usar pesos uniformes; la
+    # búsqueda no consulta estadísticas globales de la base para calcular IDF.
+    assert c._idf_tokens_qcr(tokens) == {"memoria": 1.0, "xyzqwertyunico": 1.0}
+
+    # Simular el conjunto local de documentos candidatos que buscar_por_frase
+    # entrega a IDF (concepto, contenido, sinónimos y sustantivos clave).
+    candidate_texts = [
+        f"{concepto} {contenido or ''} {sinonimos or ''} {sustantivos or ''}"
+        for concepto, contenido, sinonimos, sustantivos in c.cursor.execute(
+            "SELECT concepto, contenido, COALESCE(sinonimos, ''), "
+            "COALESCE(sustantivos_clave, '') FROM largo_plazo"
+        ).fetchall()
+    ]
+    m = c._idf_tokens_qcr(tokens, candidate_texts)
     assert m["xyzqwertyunico"] > m["memoria"]
     c.cerrar_sistema()
 

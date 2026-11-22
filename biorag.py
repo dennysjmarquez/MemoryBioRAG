@@ -16,6 +16,12 @@ CONCEPTO FUNDAMENTAL: NÚCLEO TEMÁTICO (--sustantivos-clave)
     TRATA de: relatividad, energia, masa (1 a 5 sustantivos nucleares)
     MENCIONA: Berlín, 1905 (fechas y ciudades son contexto circunstancial)
 
+ACTUALIZACIÓN:
+  python3 biorag.py update                       # planificar desde upstream actual (dev)
+  python3 biorag.py update --yes                 # actualizar y preparar componentes
+  python3 biorag.py update --channel stable --yes # solo tag aprobado, sin cambiar rama
+  Alternativa mínima si fallan imports: python3 -m core.updater
+
 USO DESDE EL AGENTE (cada comando explicado):
 
   python3 biorag.py buscar <concepto> [--sustantivos-clave "s1,s2"] [--deep] [--todos] [--tokens "raiz1,raiz2"] [--pagina N] [--modo strict|relaxed] [--cat tipo] [--completo] [--asociados]
@@ -225,6 +231,13 @@ MAS INFORMACION:
   Creado por Dennys J Marquez — Sistema de memoria para agentes OEC.
 """
 import sys
+
+# Ayuda, errores de uso y mantenimiento sin importar NLP ni abrir memoria.
+if __name__ == '__main__':
+    from core.cli import can_handle_early, main as bootstrap_main
+    if can_handle_early(sys.argv[1:]):
+        raise SystemExit(bootstrap_main())
+
 import os
 import time
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
@@ -234,8 +247,9 @@ from core.memory_store import SQLiteMemoryBioRAG, normalizar_sustantivos_clave
 from core.sinapsis import auto_vincular, vincular_por_sinonimos, _tokenizar, _peso_similitud
 from core.categorizador import inferir_categoria
 
-_DEFAULT_DB = os.path.join(os.path.dirname(os.path.abspath(__file__)), "MemoryBioRAG_Data", "memory_biorag.db")
-DB_PATH = os.environ.get('BIORAG_PATH') or _DEFAULT_DB
+from core.paths import resolve_db_path
+
+DB_PATH = resolve_db_path()
 
 
 def _sanitizar_entrada_cli(texto: str, max_len: int = 100000, nombre_campo: str = "entrada") -> str:
@@ -1096,9 +1110,10 @@ def cmd_dashboard(cerebro, args):
 
 
 def main():
-    if len(sys.argv) < 2:
-        print(__doc__)
-        return 1
+    from core.cli import dispatch_early
+    early_result = dispatch_early(sys.argv[1:])
+    if early_result is not None:
+        return early_result
 
     comando = sys.argv[1]
     args = sys.argv[2:]

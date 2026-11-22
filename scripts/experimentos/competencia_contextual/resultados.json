@@ -1,0 +1,98 @@
+{
+  "synthetic": {
+    "cases": 100,
+    "before_current_at_1": 0,
+    "after_current_at_1": 100,
+    "history_passthrough": 100,
+    "identifier_passthrough": 100,
+    "conflicts_detected": 100,
+    "neighbors_preserved": 100
+  },
+  "incident": {
+    "mode": "replay de ranking capturado; NO nuevo E2E",
+    "metadata": "sustituciones añadidas explícitamente SOLO al ledger de prueba",
+    "snapshot": {
+      "quick_check": "ok",
+      "sha256": "07a77c801eaa56750627e1c831de91a65e6448da25e4803b86d3ae4e2446c55e",
+      "source_unchanged": true
+    },
+    "variants": {
+      "baseline": {
+        "before": [
+          {
+            "node": "ultima_version_biorag",
+            "base_score": 0.9586
+          },
+          {
+            "node": "version_actual_biorag",
+            "base_score": 0.8522
+          },
+          {
+            "node": "version_actual_biorag_v32_4_20261007",
+            "base_score": 0.8168
+          }
+        ],
+        "after": {
+          "status": "resolved",
+          "winner": "version_actual_biorag",
+          "candidates": [
+            {
+              "node": "version_actual_biorag",
+              "base_score": 0.8522
+            },
+            {
+              "node": "ultima_version_biorag",
+              "base_score": 0.9586
+            },
+            {
+              "node": "version_actual_biorag_v32_4_20261007",
+              "base_score": 0.8168
+            }
+          ],
+          "claims": [
+            "version_actual_biorag"
+          ],
+          "superseded": [
+            "ultima_version_biorag",
+            "version_actual_biorag_v32_4_20261007"
+          ],
+          "missing_nodes": []
+        }
+      },
+      "dormido": {
+        "before": [
+          {
+            "node": "version_actual_biorag_v32_4_20261007",
+            "base_score": 0.7746
+          },
+          {
+            "node": "version_actual_biorag",
+            "base_score": 0.7208
+          }
+        ],
+        "after": {
+          "status": "resolved",
+          "winner": "version_actual_biorag",
+          "candidates": [
+            {
+              "node": "version_actual_biorag",
+              "base_score": 0.7208
+            },
+            {
+              "node": "version_actual_biorag_v32_4_20261007",
+              "base_score": 0.7746
+            }
+          ],
+          "claims": [
+            "version_actual_biorag"
+          ],
+          "superseded": [
+            "ultima_version_biorag",
+            "version_actual_biorag_v32_4_20261007"
+          ],
+          "missing_nodes": []
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,739 @@
+{
+  "cumple": true,
+  "errores": [],
+  "oficial": {
+    "snapshot_normal": {
+      "r5": [
+        100.0,
+        100.0
+      ],
+      "r1": [
+        95.31,
+        95.31
+      ],
+      "fp": [
+        [
+          0,
+          40
+        ],
+        [
+          0,
+          40
+        ]
+      ],
+      "mrr": [
+        0.9718,
+        0.9718
+      ],
+      "fallos_r5_nuevos": 0,
+      "fallos_r5_recuperados": 0,
+      "categorias": {
+        "cruce_idioma": {
+          "r5": [
+            100.0,
+            100.0
+          ],
+          "r1": [
+            62.5,
+            62.5
+          ],
+          "n_r5": 8,
+          "n_r1": 8
+        },
+        "dormido": {
+          "r5": [
+            100.0,
+            100.0
+          ],
+          "r1": [
+            100.0,
+            100.0
+          ],
+          "n_r5": 65,
+          "n_r1": 65
+        },
+        "literal": {
+          "r5": [
+            100.0,
+            100.0
+          ],
+          "r1": [
+            99.59,
+            99.59
+          ],
+          "n_r5": 487,
+          "n_r1": 487
+        },
+        "por_tema": {
+          "r5": [
+            100.0,
+            100.0
+          ],
+          "r1": [
+            69.23,
+            69.23
+          ],
+          "n_r5": 65,
+          "n_r1": 65
+        },
+        "pregunta_natural": {
+          "r5": [
+            100.0,
+            100.0
+          ],
+          "r1": [
+            96.92,
+            96.92
+          ],
+          "n_r5": 65,
+          "n_r1": 65
+        },
+        "sinonimo": {
+          "r5": [
+            100.0,
+            100.0
+          ],
+          "r1": [
+            87.88,
+            87.88
+          ],
+          "n_r5": 45,
+          "n_r1": 33
+        },
+        "typo": {
+          "r5": [
+            100.0,
+            100.0
+          ],
+          "r1": [
+            92.31,
+            92.31
+          ],
+          "n_r5": 65,
+          "n_r1": 65
+        },
+        "variante_gramatical": {
+          "r5": [
+            100.0,
+            100.0
+          ],
+          "r1": [
+            93.85,
+            93.85
+          ],
+          "n_r5": 65,
+          "n_r1": 65
+        }
+      },
+      "censo_igual": true,
+      "exit_code": 0,
+      "duracion_s": 2043.32,
+      "huellas_inicio_fin_iguales": true,
+      "errores": []
+    },
+    "snapshot_ruido": {
+      "r5": [
+        97.34,
+        97.34
+      ],
+      "r1": [
+        88.63,
+        88.63
+      ],
+      "fp": [
+        [
+          0,
+          40
+        ],
+        [
+          0,
+          40
+        ]
+      ],
+      "mrr": [
+        0.9281,
+        0.9281
+      ],
+      "fallos_r5_nuevos": 0,
+      "fallos_r5_recuperados": 0,
+      "categorias": {
+        "cruce_idioma": {
+          "r5": [
+            62.5,
+            62.5
+          ],
+          "r1": [
+            50.0,
+            50.0
+          ],
+          "n_r5": 8,
+          "n_r1": 8
+        },
+        "dormido": {
+          "r5": [
+            98.46,
+            98.46
+          ],
+          "r1": [
+            95.38,
+            95.38
+          ],
+          "n_r5": 65,
+          "n_r1": 65
+        },
+        "literal": {
+          "r5": [
+            99.38,
+            99.38
+          ],
+          "r1": [
+            91.38,
+            91.38
+          ],
+          "n_r5": 487,
+          "n_r1": 487
+        },
+        "por_tema": {
+          "r5": [
+            95.38,
+            95.38
+          ],
+          "r1": [
+            67.69,
+            67.69
+          ],
+          "n_r5": 65,
+          "n_r1": 65
+        },
+        "pregunta_natural": {
+          "r5": [
+            98.46,
+            98.46
+          ],
+          "r1": [
+            93.85,
+            93.85
+          ],
+          "n_r5": 65,
+          "n_r1": 65
+        },
+        "sinonimo": {
+          "r5": [
+            88.89,
+            88.89
+          ],
+          "r1": [
+            78.79,
+            78.79
+          ],
+          "n_r5": 45,
+          "n_r1": 33
+        },
+        "typo": {
+          "r5": [
+            93.85,
+            93.85
+          ],
+          "r1": [
+            90.77,
+            90.77
+          ],
+          "n_r5": 65,
+          "n_r1": 65
+        },
+        "variante_gramatical": {
+          "r5": [
+            95.38,
+            95.38
+          ],
+          "r1": [
+            84.62,
+            84.62
+          ],
+          "n_r5": 65,
+          "n_r1": 65
+        }
+      },
+      "censo_igual": true,
+      "exit_code": 1,
+      "duracion_s": 3639.21,
+      "huellas_inicio_fin_iguales": true,
+      "errores": []
+    },
+    "viva_normal": {
+      "r5": [
+        99.88,
+        99.88
+      ],
+      "r1": [
+        93.53,
+        93.53
+      ],
+      "fp": [
+        [
+          0,
+          40
+        ],
+        [
+          0,
+          40
+        ]
+      ],
+      "mrr": [
+        0.9622,
+        0.9622
+      ],
+      "fallos_r5_nuevos": 0,
+      "fallos_r5_recuperados": 0,
+      "categorias": {
+        "cruce_idioma": {
+          "r5": [
+            100.0,
+            100.0
+          ],
+          "r1": [
+            62.5,
+            62.5
+          ],
+          "n_r5": 8,
+          "n_r1": 8
+        },
+        "dormido": {
+          "r5": [
+            100.0,
+            100.0
+          ],
+          "r1": [
+            100.0,
+            100.0
+          ],
+          "n_r5": 65,
+          "n_r1": 65
+        },
+        "literal": {
+          "r5": [
+            100.0,
+            100.0
+          ],
+          "r1": [
+            99.38,
+            99.38
+          ],
+          "n_r5": 487,
+          "n_r1": 487
+        },
+        "por_tema": {
+          "r5": [
+            98.46,
+            98.46
+          ],
+          "r1": [
+            63.08,
+            63.08
+          ],
+          "n_r5": 65,
+          "n_r1": 65
+        },
+        "pregunta_natural": {
+          "r5": [
+            100.0,
+            100.0
+          ],
+          "r1": [
+            95.38,
+            95.38
+          ],
+          "n_r5": 65,
+          "n_r1": 65
+        },
+        "sinonimo": {
+          "r5": [
+            100.0,
+            100.0
+          ],
+          "r1": [
+            90.0,
+            90.0
+          ],
+          "n_r5": 41,
+          "n_r1": 30
+        },
+        "typo": {
+          "r5": [
+            100.0,
+            100.0
+          ],
+          "r1": [
+            87.69,
+            87.69
+          ],
+          "n_r5": 65,
+          "n_r1": 65
+        },
+        "variante_gramatical": {
+          "r5": [
+            100.0,
+            100.0
+          ],
+          "r1": [
+            83.08,
+            83.08
+          ],
+          "n_r5": 65,
+          "n_r1": 65
+        }
+      },
+      "censo_igual": true,
+      "exit_code": 0,
+      "duracion_s": 2625.99,
+      "huellas_inicio_fin_iguales": true,
+      "errores": []
+    },
+    "viva_ruido": {
+      "r5": [
+        96.63,
+        96.63
+      ],
+      "r1": [
+        88.12,
+        88.12
+      ],
+      "fp": [
+        [
+          0,
+          40
+        ],
+        [
+          0,
+          40
+        ]
+      ],
+      "mrr": [
+        0.9215,
+        0.9215
+      ],
+      "fallos_r5_nuevos": 0,
+      "fallos_r5_recuperados": 0,
+      "categorias": {
+        "cruce_idioma": {
+          "r5": [
+            62.5,
+            62.5
+          ],
+          "r1": [
+            62.5,
+            62.5
+          ],
+          "n_r5": 8,
+          "n_r1": 8
+        },
+        "dormido": {
+          "r5": [
+            98.46,
+            98.46
+          ],
+          "r1": [
+            98.46,
+            98.46
+          ],
+          "n_r5": 65,
+          "n_r1": 65
+        },
+        "literal": {
+          "r5": [
+            98.56,
+            98.56
+          ],
+          "r1": [
+            91.38,
+            91.38
+          ],
+          "n_r5": 487,
+          "n_r1": 487
+        },
+        "por_tema": {
+          "r5": [
+            92.31,
+            92.31
+          ],
+          "r1": [
+            56.92,
+            56.92
+          ],
+          "n_r5": 65,
+          "n_r1": 65
+        },
+        "pregunta_natural": {
+          "r5": [
+            100.0,
+            100.0
+          ],
+          "r1": [
+            96.92,
+            96.92
+          ],
+          "n_r5": 65,
+          "n_r1": 65
+        },
+        "sinonimo": {
+          "r5": [
+            85.37,
+            85.37
+          ],
+          "r1": [
+            80.0,
+            80.0
+          ],
+          "n_r5": 41,
+          "n_r1": 30
+        },
+        "typo": {
+          "r5": [
+            96.92,
+            96.92
+          ],
+          "r1": [
+            90.77,
+            90.77
+          ],
+          "n_r5": 65,
+          "n_r1": 65
+        },
+        "variante_gramatical": {
+          "r5": [
+            92.31,
+            92.31
+          ],
+          "r1": [
+            80.0,
+            80.0
+          ],
+          "n_r5": 65,
+          "n_r1": 65
+        }
+      },
+      "censo_igual": true,
+      "exit_code": 1,
+      "duracion_s": 5014.12,
+      "huellas_inicio_fin_iguales": true,
+      "errores": []
+    }
+  },
+  "directa": {
+    "total": 132,
+    "rangos_bajaron": [],
+    "rangos_mejoraron": [],
+    "fp_nuevos": [],
+    "rechazos_nuevos": [],
+    "idiomas_antes": {
+      "zh": [
+        12,
+        12,
+        0
+      ],
+      "ja": [
+        12,
+        12,
+        0
+      ],
+      "ko": [
+        19,
+        18,
+        0
+      ],
+      "ru": [
+        20,
+        19,
+        0
+      ],
+      "en": [
+        20,
+        20,
+        2
+      ],
+      "es": [
+        20,
+        20,
+        0
+      ]
+    },
+    "idiomas_v2": {
+      "zh": [
+        12,
+        12,
+        0
+      ],
+      "ja": [
+        12,
+        12,
+        0
+      ],
+      "ko": [
+        19,
+        18,
+        0
+      ],
+      "ru": [
+        20,
+        19,
+        0
+      ],
+      "en": [
+        20,
+        20,
+        2
+      ],
+      "es": [
+        20,
+        20,
+        0
+      ]
+    },
+    "orden_inverso_diferente": 0
+  },
+  "mcp_multilingue": {
+    "total": 132,
+    "rangos_bajaron": [],
+    "rangos_mejoraron": [],
+    "fp_nuevos": [],
+    "rechazos_nuevos": [],
+    "idiomas_antes": {
+      "zh": [
+        12,
+        12,
+        0
+      ],
+      "ja": [
+        8,
+        8,
+        0
+      ],
+      "ko": [
+        16,
+        16,
+        0
+      ],
+      "ru": [
+        20,
+        19,
+        0
+      ],
+      "en": [
+        20,
+        20,
+        2
+      ],
+      "es": [
+        20,
+        20,
+        0
+      ]
+    },
+    "idiomas_v2": {
+      "zh": [
+        12,
+        12,
+        0
+      ],
+      "ja": [
+        8,
+        8,
+        0
+      ],
+      "ko": [
+        16,
+        16,
+        0
+      ],
+      "ru": [
+        20,
+        19,
+        0
+      ],
+      "en": [
+        20,
+        20,
+        2
+      ],
+      "es": [
+        20,
+        20,
+        0
+      ]
+    },
+    "orden_inverso_diferente_antes": 0,
+    "orden_inverso_diferente_v2": 0,
+    "pendiente_hueco1": [
+      14,
+      14
+    ]
+  },
+  "mcp_guardados": {
+    "intentos": 80,
+    "por_idioma_antes_v2": {
+      "zh": [
+        18,
+        18
+      ],
+      "ja": [
+        15,
+        15
+      ],
+      "ko": [
+        16,
+        16
+      ],
+      "ru": [
+        20,
+        20
+      ]
+    },
+    "guardados_perdidos": [],
+    "errores_operativos": [],
+    "misma_semilla": {
+      "consultas_base": 414,
+      "consultas_v2": 414,
+      "rangos_bajaron": [],
+      "rangos_mejoraron": []
+    },
+    "semilla_v2": {
+      "consultas_base": 414,
+      "consultas_v2": 414,
+      "rangos_bajaron": [],
+      "rangos_mejoraron": []
+    },
+    "semilla_base_sha": "70f2e7c7fc609d0e4a83e0dae4a29a66437d6dfc6606ff7c3c020fea07b3cb37",
+    "semilla_v2_sha": "d16126ed43c5114e4ce53b4376ecb2309b3a777bd62f0d34c1d144ba96fec0c2"
+  },
+  "limitacion_oficial": "La QA oficial guarda agregados por categoría y fallos R@5, no rangos individuales de todos los casos.",
+  "metadatos": {
+    "motor_commit": "c695310f84164eb2a8496fb7b9dc38f4733d8285",
+    "patch_v2_sha256": "68439804583a727fadb6cea597542e11b4e6b77339fb99cee9262ee423e54cc4",
+    "suite": {
+      "comando": "python -m pytest -q tests/",
+      "filtro": "sin filtros",
+      "python": "3.11.2",
+      "exit_code": 0,
+      "salida": "753 passed in 171.02s (0:02:51)"
+    },
+    "qa_oficial": {
+      "casos_por_ejecucion": 921,
+      "filtro_seleccion": "ninguno; aplica reglas honestas históricas",
+      "limite": 5,
+      "ignore_peso_sinaptico": true,
+      "neurona": 0,
+      "wordnet": true,
+      "hashseed": 0
+    },
+    "privacidad": "Solo métricas agregadas; no se publican consultas, títulos ni fallos de la base viva."
+  },
+  "base_mixta_sintetica": {
+    "consultas_ancha_y_estrecha_misma_lista": true,
+    "ambos_recuerdos_comparten_marcador": true,
+    "hay_gold": false,
+    "fuente_sintetica_sha256": "5d02f4821f8856970dba1dbe20bb30c143e96a2aae68c6595526876ee40ad782",
+    "profundidad": "activos",
+    "limite": 5,
+    "ignore_peso_sinaptico": true
+  }
+}

@@ -12,6 +12,7 @@ import sys
 from itertools import combinations
 
 from core.memory import constants
+from core.memory.bm25_calibration import normalizar_mapa_bm25
 
 
 def validar_rafaga(self, rafaga_palabras):
@@ -215,31 +216,14 @@ def buscar_por_rafaga(self, query, rafaga_palabras, pagina=1, limite=None, dimen
 
     total = len(todos)
 
-    # Normalización BM25 consistente con buscar_por_frase (Opción 1: Reúso y extensión de escala)
-    # Para garantizar comparabilidad cuando mcp_server combina resultados de frase + ráfaga
-    # y reordena por score (r[4]), ráfaga normaliza contra la misma escala [lo, hi] de frase.
-    # Si un candidato de ráfaga excede los límites previos, el rango se extiende sin recortar.
-    rafaga_raw_vals = [abs(r[6] if len(r) > 6 else 0.0) for r in todos]
-    if rafaga_raw_vals:
-        r_lo, r_hi = min(rafaga_raw_vals), max(rafaga_raw_vals)
-        if getattr(self, '_last_bm25_bounds', None) is not None:
-            base_lo, base_hi, _ = self._last_bm25_bounds
-            lo = min(base_lo, r_lo)
-            hi = max(base_hi, r_hi)
-        else:
-            lo, hi = r_lo, r_hi
-        rango = hi - lo if hi > lo else 1.0
-        escala = min(1.0, hi) if hi > 0 else 1.0
-        if hi > lo:
-            bm25_norm_map = {
-                r[1]: ((abs(r[6] if len(r) > 6 else 0.0) - lo) / rango) * escala for r in todos
-            }
-        elif len(todos) == 1 and hi >= 3.0:
-            bm25_norm_map = {r[1]: escala for r in todos}
-        else:
-            bm25_norm_map = {r[1]: 0.0 for r in todos}
-    else:
-        bm25_norm_map = {}
+    # Reusa el normalizador de buscar_por_frase para mantener una sola política.
+    # En relative_top1 se compara con el máximo de frase + ráfaga; el candidato
+    # más fuerte puede reescalar los demás, sin consultar el corpus completo.
+    rafaga_raw = {r[1]: (r[6] if len(r) > 6 else 0.0) for r in todos}
+    bm25_norm_map, _ = normalizar_mapa_bm25(
+        rafaga_raw,
+        base_bounds=getattr(self, "_last_bm25_bounds", None),
+    )
 
     scored = []
     for r in todos:

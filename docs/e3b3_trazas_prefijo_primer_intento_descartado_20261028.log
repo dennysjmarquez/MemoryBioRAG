@@ -1,0 +1,19 @@
+Traceback (most recent call last):
+  File "/home/user/MemoryBioRAG/docs/e3b3_traza_prefijo_20261028.py", line 220, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "/home/user/MemoryBioRAG/docs/e3b3_traza_prefijo_20261028.py", line 204, in main
+    data = asyncio.run(ejecutar(args.semilla, IDS))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.11/asyncio/runners.py", line 190, in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.11/asyncio/runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.11/asyncio/base_events.py", line 653, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "/home/user/MemoryBioRAG/docs/e3b3_traza_prefijo_20261028.py", line 181, in ejecutar
+    raise RuntimeError(f"{ident}: no se observaron las líneas {faltantes}")
+RuntimeError: zh-01: no se observaron las líneas ['despues_filtro_prefijo']

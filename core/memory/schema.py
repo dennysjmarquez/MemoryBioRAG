@@ -468,6 +468,8 @@ def _crear_estructura_cerebral(self):
     # porque las recreaciones de largo_plazo (needs_recreate) pueden haberla descartado.
     if 'sustantivos_clave' not in lp_cols_v20:
         self.cursor.execute("ALTER TABLE largo_plazo ADD COLUMN sustantivos_clave TEXT DEFAULT ''")
+    if 'sustantivos_clave_exactos' not in lp_cols_v20:
+        self.cursor.execute("ALTER TABLE largo_plazo ADD COLUMN sustantivos_clave_exactos TEXT")
 
     self.cursor.execute("PRAGMA table_info(corto_plazo)")
     cp_cols_v20 = [row[1] for row in self.cursor.fetchall()]
@@ -476,6 +478,8 @@ def _crear_estructura_cerebral(self):
     # v25: sustantivos_clave (T2 spec 001) — solo si falta; sin backfill (RF-15).
     if 'sustantivos_clave' not in cp_cols_v20:
         self.cursor.execute("ALTER TABLE corto_plazo ADD COLUMN sustantivos_clave TEXT DEFAULT ''")
+    if 'sustantivos_clave_exactos' not in cp_cols_v20:
+        self.cursor.execute("ALTER TABLE corto_plazo ADD COLUMN sustantivos_clave_exactos TEXT")
 
     # --- Migración v24.2 (Cuarentena y Prioridad para arquitectura de memoria agente) ---
     self.cursor.execute("PRAGMA table_info(largo_plazo)")
@@ -562,6 +566,8 @@ def _crear_estructura_cerebral(self):
     """)
     self.cursor.execute("CREATE INDEX IF NOT EXISTS idx_nodo_accesos_conc_ts ON nodo_accesos_historial(concepto, acceso_timestamp)")
     self._crear_tabla_data()
+    from core.contextual.schema import ensure_contextual_schema
+    ensure_contextual_schema(self.conn)
     self.conn.commit()
 
 
@@ -609,6 +615,8 @@ def _crear_tabla_data(self):
 
 def _crear_tablas_nuevas_si_faltan(self):
     """Crea tablas nuevas (Phase 2D) si no existen en esquemas existentes."""
+    from core.contextual.schema import ensure_contextual_schema
+    ensure_contextual_schema(self.conn)
     # --- Tabla de historial de accesos de nodos (ACT-R Power Law of Practice) ---
     self.cursor.execute("""
         CREATE TABLE IF NOT EXISTS nodo_accesos_historial (
@@ -646,6 +654,8 @@ def _crear_tablas_nuevas_si_faltan(self):
         self.cursor.execute("ALTER TABLE largo_plazo ADD COLUMN fallos_dopamina INTEGER DEFAULT 0")
     if 'sustantivos_clave' not in lp_cols_v20:
         self.cursor.execute("ALTER TABLE largo_plazo ADD COLUMN sustantivos_clave TEXT DEFAULT ''")
+    if 'sustantivos_clave_exactos' not in lp_cols_v20:
+        self.cursor.execute("ALTER TABLE largo_plazo ADD COLUMN sustantivos_clave_exactos TEXT")
 
     self.cursor.execute("PRAGMA table_info(corto_plazo)")
     cp_cols_v20 = [row[1] for row in self.cursor.fetchall()]
@@ -653,6 +663,8 @@ def _crear_tablas_nuevas_si_faltan(self):
         self.cursor.execute("ALTER TABLE corto_plazo ADD COLUMN valencia_somatica REAL DEFAULT 0.0")
     if 'sustantivos_clave' not in cp_cols_v20:
         self.cursor.execute("ALTER TABLE corto_plazo ADD COLUMN sustantivos_clave TEXT DEFAULT ''")
+    if 'sustantivos_clave_exactos' not in cp_cols_v20:
+        self.cursor.execute("ALTER TABLE corto_plazo ADD COLUMN sustantivos_clave_exactos TEXT")
 
     # --- Migración v24.2 (Cuarentena y Prioridad para arquitectura de memoria agente) ---
     if 'fecha_expiracion' not in lp_cols_v20:
@@ -785,6 +797,84 @@ def _crear_tablas_nuevas_si_faltan(self):
     # v25: asegurar FTS con columna sustantivos_clave en DB existentes — idempotente,
     # reconstruye solo si falta la 4ª columna (mismo check que en _crear_estructura_cerebral).
     self._crear_tabla_fts()
+
+    # Fijar una sola vez el límite de rowid del corpus de referencia. Las
+    # inserciones normales usan AUTOINCREMENT y quedan como overlay sin escanear
+    # la tabla durante cada búsqueda. El marcador vive en la tabla key/value ya
+    # existente, por lo que no se añade otro objeto de esquema.
+    try:
+        self._crear_tabla_data()
+
+        def _baseline_positivo(clave, tabla, descripcion):
+            """Carga un corte positivo o lo fija solo si ya existe una cohorte."""
+            row = self.cursor.execute(
+                "SELECT valor FROM data WHERE clave = ?", (clave,)
+            ).fetchone()
+            try:
+                cutoff = int(row[0]) if row is not None else 0
+            except (TypeError, ValueError, OverflowError):
+                cutoff = 0
+
+            if cutoff > 0:
+                return cutoff, False
+
+            # Un baseline cero es el marcador antiguo de una tabla vacía, no
+            # un prefijo válido: una vez que hay filas, reemplazarlo por el
+            # rowid real; si sigue vacía, no persistir ningún corte.
+            cutoff = int(self.cursor.execute(
+                f"SELECT COALESCE(MAX(rowid), 0) FROM {tabla}"
+            ).fetchone()[0] or 0)
+            if cutoff > 0:
+                self.cursor.execute(
+                    "INSERT OR REPLACE INTO data (clave, valor, descripcion) "
+                    "VALUES (?, ?, ?)",
+                    (clave, str(cutoff), descripcion),
+                )
+                return cutoff, True
+
+            self.cursor.execute("DELETE FROM data WHERE clave = ?", (clave,))
+            return None, True
+
+        clave_baseline = "search_baseline_rowid"
+        self._search_baseline_rowid, baseline_memoria_recalculado = _baseline_positivo(
+            clave_baseline,
+            "largo_plazo",
+            "Último rowid del corpus de referencia para búsqueda invariante al crecimiento",
+        )
+
+        # Si el corte anterior faltaba o era 0, las tablas FTS de referencia
+        # pudieron haberse creado vacías por la inicialización antigua. No se
+        # puede asumir que representen el nuevo corte: reconstruirlas.
+        if baseline_memoria_recalculado and self._search_baseline_rowid is not None:
+            from core.memory.growth_stable_fts import (
+                REFERENCE_FTS, REFERENCE_UNICODE_FTS,
+            )
+            self.cursor.execute(f"DROP TABLE IF EXISTS {REFERENCE_FTS}")
+            self.cursor.execute(f"DROP TABLE IF EXISTS {REFERENCE_UNICODE_FTS}")
+
+        # Congelar también el prefijo de aristas. Las asociaciones creadas por
+        # recuerdos añadidos después no deben alterar los scores de la cohorte
+        # histórica ni volver a hacer crecer el coste de lectura de sus hubs.
+        clave_sinapsis = "search_baseline_sinapsis_rowid"
+        self._search_baseline_sinapsis_rowid, _ = _baseline_positivo(
+            clave_sinapsis,
+            "sinapsis",
+            "Último rowid de sinapsis del cohorte de referencia para búsqueda estable",
+        )
+    except (sqlite3.Error, TypeError, ValueError, OverflowError) as exc:
+        self._search_baseline_rowid = None
+        self._search_baseline_sinapsis_rowid = None
+        logger.warning("No se pudo fijar el corpus de referencia de búsqueda: %s", exc)
+
+    self._search_baseline_fts_ready = False
+    if self._search_baseline_rowid is not None:
+        try:
+            from core.memory.growth_stable_fts import asegurar_indice_referencia
+            self._search_baseline_fts_ready = asegurar_indice_referencia(
+                self.conn, self._search_baseline_rowid
+            )
+        except Exception as exc:
+            logger.warning("No se pudo preparar el FTS de referencia: %s", exc)
 
     self.conn.commit()
 

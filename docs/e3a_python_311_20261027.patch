@@ -1,0 +1,36 @@
+diff --git a/install.py b/install.py
+index 987bf07..069da14 100644
+--- a/install.py
++++ b/install.py
+@@ -1515,8 +1515,8 @@ def install() -> None:
+ 
+     # 1. Prerequisites
+     _step("Verificando requisitos...")
+-    if sys.version_info < (3, 10):
+-        _fail("Python 3.10+ requerido")
++    if sys.version_info < (3, 11):
++        _fail("Python 3.11+ requerido")
+         _info("Descarga: https://python.org/downloads/")
+         sys.exit(1)
+     _ok(f"Python {sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}")
+diff --git a/pyproject.toml b/pyproject.toml
+index 01c8eb6..766db71 100644
+--- a/pyproject.toml
++++ b/pyproject.toml
+@@ -7,7 +7,7 @@ name = "memory-biorag"
+ version = "34.0.0"
+ description = "BioRAG — Memoria cognitiva biomimética persistente para agentes de IA"
+ readme = "README.md"
+-requires-python = ">=3.10"
++requires-python = ">=3.11"
+ license = { text = "Apache-2.0" }
+ authors = [
+     { name = "Dennys José Márquez Reyes", email = "dennysjmarquez@gmail.com" }
+@@ -28,7 +28,6 @@ classifiers = [
+     "Intended Audience :: Science/Research",
+     "License :: OSI Approved :: Apache Software License",
+     "Programming Language :: Python :: 3",
+-    "Programming Language :: Python :: 3.10",
+     "Programming Language :: Python :: 3.11",
+     "Programming Language :: Python :: 3.12",
+     "Topic :: Scientific/Engineering :: Artificial Intelligence"

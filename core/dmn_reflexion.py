@@ -92,7 +92,8 @@ def _estado_path():
     _cargar_estado/_guardar_estado SOLO tiene efecto si se evalúa acá.
     La constante a nivel de módulo congelaba el path al primer import y
     rompía la unificación del estado entre daemon, MCP y dashboard."""
-    return os.environ.get("BIORAG_DMN_ESTADO_PATH", "estado_hormiga.json")
+    from core.paths import resolve_estado_hormiga_path
+    return resolve_estado_hormiga_path()
 
 # Procesamiento por lotes dentro de cada nodo: la semilla se envía con
 # grupos de N sinapsis por llamada. El estado guarda el lote exacto para
@@ -1377,7 +1378,9 @@ def _guardar_estado(estado):
     # porque sets de Python no preservan orden de inserción (depende de PYTHONHASHSEED).
     # Se guarda completo. Si el grafo crece a >100K nodos, migrar a columna DB.
     try:
-        with open(_estado_path(), "w", encoding="utf-8") as f:
+        p = _estado_path()
+        os.makedirs(os.path.dirname(os.path.abspath(p)), exist_ok=True)
+        with open(p, "w", encoding="utf-8") as f:
             try:
                 import fcntl
                 fcntl.flock(f, fcntl.LOCK_EX)

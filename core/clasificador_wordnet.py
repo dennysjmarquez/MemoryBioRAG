@@ -1,35 +1,53 @@
 import os
+from pathlib import Path
 import nltk
 import re
 
-# Configurar ruta local de nltk_data dentro del proyecto
+# WordNet vive en el directorio del usuario: los wheels pueden instalarse en un
+# site-packages de solo lectura. Se conserva la ruta del repositorio como fallback
+# para instalaciones existentes.
 project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-local_nltk_dir = os.path.join(project_root, "MemoryBioRAG_Data", "nltk_data")
-os.makedirs(local_nltk_dir, exist_ok=True)
+local_nltk_dir = str(
+    Path(os.environ.get("BIORAG_NLTK_DATA", str(Path.home() / ".biorag" / "nltk_data")))
+    .expanduser()
+)
+legacy_nltk_dir = str(Path(project_root) / "MemoryBioRAG_Data" / "nltk_data")
 if local_nltk_dir not in nltk.data.path:
     nltk.data.path.insert(0, local_nltk_dir)
+if legacy_nltk_dir not in nltk.data.path:
+    nltk.data.path.append(legacy_nltk_dir)
 
-# Asegurar que wordnet y omw-1.4 estén disponibles de forma local y silenciosa
+_auto_download = os.environ.get("BIORAG_NLTK_AUTO_DOWNLOAD", "1").strip().lower() not in {
+    "0", "false", "no", "off"
+}
+
+# El instalador puede descargar los corpus explícitamente. La descarga automática
+# se conserva por compatibilidad, pero es desactivable para entornos aislados.
 try:
     from nltk.corpus import wordnet as wn
-    # Lookup rápido de prueba bilingüe
-    wn.synsets('error')
     try:
-        wn.synsets('error', lang='spa')
-    except (LookupError, Exception):
+        wn.synsets("error")
         try:
-            nltk.download('omw-1.4', download_dir=local_nltk_dir, quiet=True)
-            nltk.download('omw-2.0', download_dir=local_nltk_dir, quiet=True)
+            wn.synsets("error", lang="spa")
         except Exception:
-            pass
-except LookupError:
-    try:
-        nltk.download('wordnet', download_dir=local_nltk_dir, quiet=True)
-        nltk.download('omw-1.4', download_dir=local_nltk_dir, quiet=True)
-        nltk.download('omw-2.0', download_dir=local_nltk_dir, quiet=True)
-    except Exception:
-        pass
-    from nltk.corpus import wordnet as wn
+            if _auto_download:
+                try:
+                    nltk.download("omw-1.4", download_dir=local_nltk_dir, quiet=True)
+                    nltk.download("omw-2.0", download_dir=local_nltk_dir, quiet=True)
+                except Exception:
+                    pass
+    except LookupError:
+        if _auto_download:
+            try:
+                nltk.download("wordnet", download_dir=local_nltk_dir, quiet=True)
+                nltk.download("omw-1.4", download_dir=local_nltk_dir, quiet=True)
+                nltk.download("omw-2.0", download_dir=local_nltk_dir, quiet=True)
+            except Exception:
+                pass
+except ImportError:
+    # NLTK es una dependencia declarada, pero importar el motor debe seguir
+    # siendo posible si un entorno mínimo aún no la instaló.
+    wn = None
 
 
 # Cache en memoria para evitar lookups repetidos

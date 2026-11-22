@@ -1,0 +1,141 @@
+{
+  "server": "core/mcp_server via mcp_server.py",
+  "version": "v36.2",
+  "tools": [
+    "comunicar",
+    "marcar_como_leido",
+    "leer_mensajes",
+    "listar_categorias",
+    "listar_dimensiones",
+    "listar_tipos_dimension",
+    "listar_dimensiones_por_tipo",
+    "feedback",
+    "vincular",
+    "desvincular",
+    "asociar",
+    "concept_hub_crear",
+    "concept_hub_agregar_bridges",
+    "concept_hub_listar",
+    "concept_hub_buscar",
+    "concept_hub_eliminar",
+    "concept_hub_cargar_iniciales_tool",
+    "introspeccion",
+    "estado",
+    "mapear",
+    "corteza",
+    "metricas_historial",
+    "consolidar",
+    "sueno",
+    "hormiguita",
+    "hormiguita_estado",
+    "estado_dmn",
+    "contexto_inicio",
+    "contexto_fin",
+    "oraculo_inicio",
+    "oraculo_preguntar",
+    "sync_status",
+    "export_sync",
+    "export_full",
+    "calibrar",
+    "aprender",
+    "guardar",
+    "agregar_sustantivos",
+    "sustantivos",
+    "actualizar",
+    "recordar",
+    "buscar",
+    "registrar_correccion",
+    "revisar_correccion",
+    "confirmar_correccion"
+  ],
+  "synthetic_interaction": true,
+  "manually_seeded_claims": false,
+  "proposal": {
+    "status": "pending_confirmation",
+    "id": "core-e2e",
+    "confirmed": false,
+    "receipt": null
+  },
+  "receipt": {
+    "status": "approved",
+    "proposal_id": "core-e2e",
+    "request_id": "r",
+    "principal": "fixture-owner",
+    "claim_id": "ctx:90489628aa647ef499aa7c49ecc696a7828fd2e100c2f63862f804c6f956b6b6",
+    "source": "approval:r",
+    "bootstrap_predecessor": true
+  },
+  "bootstrap_explicitly_reviewed": true,
+  "invalid_digest_rejected": true,
+  "idempotent_receipt": true,
+  "old_row_unchanged_by_approval": true,
+  "manual_edge_preserved": true,
+  "typed_edges": [
+    [
+      "version_actual_biorag",
+      "version_actual_biorag_v32_4_20261007",
+      "sustituye",
+      "dev"
+    ]
+  ],
+  "before": [
+    {
+      "node": "ultima_version_biorag",
+      "score": 0.9723
+    },
+    {
+      "node": "version_actual_biorag_v32_4_20261007",
+      "score": 0.8572
+    },
+    {
+      "node": "version_actual_biorag",
+      "score": 0.8224
+    },
+    {
+      "node": "biorag_v14_0_estado",
+      "score": 0.4158
+    },
+    {
+      "node": "version_actual_biorag_v32_3_20261003",
+      "score": 0.3842
+    }
+  ],
+  "after": [
+    {
+      "node": "version_actual_biorag",
+      "score": 0.8224
+    },
+    {
+      "node": "ultima_version_biorag",
+      "score": 0.9723
+    },
+    {
+      "node": "version_actual_biorag_v32_4_20261007",
+      "score": 0.8572
+    },
+    {
+      "node": "biorag_v14_0_estado",
+      "score": 0.4158
+    },
+    {
+      "node": "version_actual_biorag_v32_3_20261003",
+      "score": 0.3842
+    }
+  ],
+  "contextual_decision": {
+    "status": "resolved",
+    "winner": "version_actual_biorag",
+    "claims": [
+      "ctx:90489628aa647ef499aa7c49ecc696a7828fd2e100c2f63862f804c6f956b6b6"
+    ],
+    "superseded": [
+      "ctx:90489628aa647ef499aa7c49ecc696a7828fd2e100c2f63862f804c6f956b6b6:previous"
+    ],
+    "missing_nodes": [],
+    "authority": "approved_context_not_universal_truth"
+  },
+  "candidates_and_scores_preserved": true,
+  "historical_order_preserved": true,
+  "source_sha256": "07a77c801eaa56750627e1c831de91a65e6448da25e4803b86d3ae4e2446c55e",
+  "source_unchanged": true
+}

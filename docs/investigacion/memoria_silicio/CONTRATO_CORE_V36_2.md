@@ -1,0 +1,15 @@
+# Contrato previo: integración core v36.2 candidata
+
+Autorización del usuario: integrar al core, manteniendo pruebas en copias, sin acceso a DB viva desde Arena. No merge/tag/release automático.
+
+Cambio respecto al laboratorio: todos los registros contextuales y la proyección tipada viven en la misma DB de BioRAG, tablas `ctx_*`. Una sola transacción SQLite funciona con WAL o rollback journal sin cambiar el modo global ni requerir /tmp en runtime. Migración aditiva, idempotente, sin modificar largo_plazo, sinapsis ni vectores.
+
+N total de claims, k/e contexto exacto, m candidatos, B bytes pertinentes: selector O(log N+k+e+m); digest O(B+k+e), presupuestos 4096 claims y 1 MiB visible. Agregar 10.000 afirmaciones ajenas debe dejar digest/decisión exactos (tolerancia cero); no atribuir esa invariancia a BM25. Contrato congelado antes de implementación de esta fase.
+
+Puertos: core/contextual (lenguaje, ledger/selector, servicio de aprobación); core/mcp_server/corrections.py adaptador MCP. No importar scripts experimentales desde core. Herramientas disponibles en servidor real, pero escritura denegada por defecto; host stdio explícitamente habilita y delega contextos exactos. No aceptar principal/grants como argumentos de herramientas. Sin autenticación remota demostrada: no habilitar sobre SSE. No autorizar por texto recuperado ni digest solo.
+
+Se registra corrección con mensaje original, fechas explícitas y nodos explícitos. Si no hay antecedente en el ledger, se puede proponer bootstrap del antecedente con fecha anterior explícita: la revisión muestra que se aprobarán ambas afirmaciones; no se crea evidencia confirmada al registrar. Si ya hay antecedentes, exigir coincidencia única de valor/nodo/contexto. Revisar digest del contexto completo y contenido de nodos; confirmar dentro BEGIN IMMEDIATE, revalidar y escribir claims/revisión/arista/recibo de forma atómica. ID de propuesta/request inmutable; repetir aprobación devuelve recibo, otra aprobación rechaza. Mantener fuente/nodos/asociaciones intactos. Revocación/multivalor fuera del alcance actual.
+
+Búsqueda MCP contextual usa el pipeline real recordar y reordena sus resultados completos, sin cambiar campos/scores ni filtrar. Contexto/intención/fecha siguen explícitos. Búsquedas existentes sin contexto permanecen idénticas y no migran DB al leer. Fallback visible ante ausencia/error; jamás declarar verdad por top-1. Las etiquetas de vigencia son relativas a evidencia aprobada.
+
+Gate: tests unitarios nuevos con WAL y rollback, concurrencia, digest obsoleto, fallos antes/después de escrituras, bootstrap sin autoconfirmación, permisos y crecimiento. MCP stdio real del core sobre copia. Suite global sobre copia con recursos completos y QA oficial; resultados anteriores del laboratorio no se presentan como validación de esta nueva integración. Identificadores activos de versión coherentes; no reescribir historia de changelogs/papers. Si no terminan todos los gates, candidata pendiente, no release aprobada.

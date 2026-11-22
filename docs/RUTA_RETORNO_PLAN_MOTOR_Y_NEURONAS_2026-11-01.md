@@ -1,0 +1,31 @@
+# Retomar la ruta: motor, cimientos y neuronas — 2026-11-01
+
+## Por qué este documento
+
+Dennys pidió que la asistente asuma operación y auditoría, avance por el plan sin trasladarle decisiones técnicas y consulte solo asuntos vitales. La revisión E1 empezó a ocupar demasiado espacio en la comunicación y quedó presentada como si todo el proyecto dependiera de contratar revisores. Esa presentación fue excesiva: E1 es una herramienta para medir un aspecto asociativo, no el objetivo final ni un bloqueo automático de todas las demás tareas. La propuesta de dos anotadores independientes y una adjudicación es un diseño exigente para una campaña confiable, no una contratación realizada ni una orden para que Dennys la organice ahora.
+
+## El rumbo acordado
+
+1. **Motor y cimientos antes de neuronas nuevas.** Investigar y medir primero; una fórmula manual, línea base y cambio aislado antes de una neurona que aprenda. Mantener memoria corta → consolidación → larga, pistas y asociaciones, funcionamiento con base vacía, seguridad de datos y costes controlados. No eliminar recuerdos, sinapsis manuales ni pistas útiles para mejorar una métrica.
+2. **Cerrar y documentar la base del motor v36.** El plan histórico `docs/plan_publicacion_v36.md` describe el cierre de limpieza, modularización gradual y documentación antes de publicar v36. Es un plan, no prueba de que cada fase terminó. No etiquetar v35.1–v35.3. Actualmente `VERSION` contiene `v35.0`; no se comprobó ninguna etiqueta local v36. La publicación, el PR y el merge no se presumen hechos.
+3. **Crear y evaluar las neuronas donde hagan falta**, como evolución posterior hacia v37, no como reemplazo indiscriminado del motor. Para cada candidata: propósito, entradas, salida, fórmula manual/piso, techo, guardianes, fallback, pruebas de base vacía, latencia/escala, procedencia y entrenamiento/calibración; medir misma base y mismas preguntas. El entrenamiento y el cableado requieren autorización específica, y ningún ranking puede convertirse en un filtro que elimine pistas.
+4. **Medir agente + BioRAG como conjunto.** E1, comparaciones fórmula/neurona, pruebas multilingües y exploración MCP en copias son instrumentos diferentes. No confundir una prueba local con neurona apagada con el comportamiento completo ni usar 95 % candidato como recall actual. Una pista indirecta puede desencadenar exploración aunque no sea respuesta directa.
+5. **Documentar y entregar** después de las mediciones y auditorías; documento maestro completo al final, no ahora. PR desde nuestra rama; merge final solo con autorización expresa de Dennys.
+
+## Estado verificable hoy
+
+- **Hay trabajo de motor ya hecho:** por ejemplo, Cambio 2 E3 opción A fue auditado en `6986ecb` y el PR #12 se fusionó en `41e1793`. Esto no prueba que todo el motor, E4 o la modularización estén terminados; falta reconciliar cada etapa y sus evidencias actuales.
+- **La neurona asociativa no parte de cero:** `core/neurona_asociativa.py` declara una versión de fábrica construida y no cableada. En la búsqueda de referencias en `core/` no se identificó una llamada del motor a `Juez`; eso no garantiza inexistencia de llamadas externas. Su documentación histórica contiene propuestas de seleccionar o podar conexiones: no son autorización actual. Previamente se detectaron pérdidas al cortar sinapsis; no se implementa ni propone cortar para obtener mejores métricas.
+- **Hay otras piezas neuronales:** `core/memory/neurona.py`, `neurona_examen.py` y `neurona_puentes.py`. La neurona de puentes tiene una llamada opcional en `core/concept_hub.py` con ruta neutra/fallback; su presencia no demuestra que esté entrenada, activa o aportando mejora en una base concreta. Examinar cada una sin imprimir pesos ni exponer datos privados.
+- **E1:** hay 33 preguntas y 156 presentaciones en el paquete de revisión, dos pasadas exploratorias no independientes y 28 desacuerdos con lectura preliminar. Dos lecturas posteriores cubren 10 preguntas/49 presentaciones, no adjudicadas. La campaña completa y W siguen pendientes; el gold no está cerrado. No se ha autorizado la campaña ni entrenamiento nuevo.
+- **Datos y seguridad:** la copia privada existe en Drive, los experimentos se hacen en copias, no en originales. El piloto FK anterior quedó inválido y no prueba un resultado; el runner se perdió. No reconstruir ni ejecutar ese piloto ciegamente.
+
+## Ruta inmediata de la operadora/auditora
+
+1. Reconstruir desde documentación, Git y código un mapa breve **etapa → evidencia → falta → siguiente acción** para la limpieza del motor y la futura v37. Distinguir el E1 de QA honesta histórica del E1 asociativo reciente: el mismo nombre no los convierte en la misma fase. No tratar un documento histórico como estado actual sin verificarlo.
+2. Auditar las piezas neuronales existentes y el diseño de la asociativa: llamadas reales, dependencias, piso/techo/fallback, origen de calibración y posibles conflictos con la regla vigente de no perder pistas. Empezar por inspección y pruebas aisladas existentes, sin entrenar, cablear, modificar motor ni abrir originales. No publicar recuerdos ni pesos.
+3. Continuar el cotejo E1 en paralelo como trabajo acotado y registrar qué permite concluir, sin elevarlo a una barrera universal. Preparar alternativas de validación independiente y explicitar qué afirmaciones puede sostener cada una; no contratar, compartir datos adicionales ni presentar una alternativa exploratoria como independencia.
+4. Elegir el siguiente cuello de botella de cimientos por evidencia y preparar una mejora aislada con baseline, diff exacto, pruebas y análisis de riesgos. Investigar FK/dimensiones sin borrar asociaciones; cualquier experimento de datos en copias debe preservar las reglas de seguridad y el alcance autorizado. No reanudar el piloto FK inválido sin reconstrucción y controles.
+5. Pedir a Dennys una sola decisión, con contexto simple, **solo** al llegar a un límite de autorización real: campaña E1, entrenamiento, cambios de motor, contratación/gasto o merge final. No preguntar decisiones técnicas que la operadora puede tomar dentro del alcance autorizado.
+
+Estos pasos son una ruta operativa, no una afirmación de que las fases estén completas ni una autorización implícita para operaciones restringidas. No hay trabajo en segundo plano después del turno.

@@ -1,0 +1,72 @@
+
+=== snapshot normal ===
+FP antes/candidato: 0/40 → 0/40; contaminados 0 → 0
+R@5 honesta global: 100.00% → 99.77%; fallos 0 → 2; n=865
+R@1 honesta global: 95.31% → 95.78%; no top-1 40 → 36; n=853
+Categoría                 R@5 honesta antes → candidato (aciertos / total)
+cruce_idioma             100.00% → 100.00% (  8 →   8 /   8)
+dormido                  100.00% → 100.00% ( 65 →  65 /  65)
+literal                  100.00% → 100.00% (487 → 487 / 487)
+por_tema                 100.00% →  98.46% ( 65 →  64 /  65) BAJA
+pregunta_natural         100.00% → 100.00% ( 65 →  65 /  65)
+sinonimo                 100.00% → 100.00% ( 45 →  45 /  45)
+typo                     100.00% → 100.00% ( 65 →  65 /  65)
+variante_gramatical      100.00% →  98.46% ( 65 →  64 /  65) BAJA
+Fallos honestos nuevos (2): [('0518', 'variante_gramatical'), ('0634', 'por_tema')]
+Fallos honestos recuperados (0): []
+
+=== snapshot ruido ===
+FP antes/candidato: 0/40 → 0/40; contaminados 0 → 0
+R@5 honesta global: 97.34% → 97.69%; fallos 23 → 20; n=865
+R@1 honesta global: 88.63% → 89.45%; no top-1 97 → 90; n=853
+Categoría                 R@5 honesta antes → candidato (aciertos / total)
+cruce_idioma              62.50% →  62.50% (  5 →   5 /   8)
+dormido                   98.46% →  98.46% ( 64 →  64 /  65)
+literal                   99.38% →  99.38% (484 → 484 / 487)
+por_tema                  95.38% →  95.38% ( 62 →  62 /  65)
+pregunta_natural          98.46% →  98.46% ( 64 →  64 /  65)
+sinonimo                  88.89% →  95.56% ( 40 →  43 /  45)
+typo                      93.85% →  93.85% ( 61 →  61 /  65)
+variante_gramatical       95.38% →  95.38% ( 62 →  62 /  65)
+Fallos honestos nuevos (0): []
+Fallos honestos recuperados (3): [('0638', 'sinonimo'), ('0650', 'sinonimo'), ('0781', 'sinonimo')]
+
+=== viva normal ===
+FP antes/candidato: 0/40 → 0/40; contaminados 0 → 0
+R@5 honesta global: 99.88% → 99.54%; fallos 1 → 4; n=861
+R@1 honesta global: 93.53% → 94.24%; no top-1 55 → 49; n=850
+Categoría                 R@5 honesta antes → candidato (aciertos / total)
+cruce_idioma             100.00% → 100.00% (  8 →   8 /   8)
+dormido                  100.00% → 100.00% ( 65 →  65 /  65)
+literal                  100.00% → 100.00% (487 → 487 / 487)
+por_tema                  98.46% →  96.92% ( 64 →  63 /  65) BAJA
+pregunta_natural         100.00% → 100.00% ( 65 →  65 /  65)
+sinonimo                 100.00% → 100.00% ( 41 →  41 /  41)
+typo                     100.00% →  98.46% ( 65 →  64 /  65) BAJA
+variante_gramatical      100.00% →  98.46% ( 65 →  64 /  65) BAJA
+Fallos honestos nuevos (4): [('0513', 'typo'), ('0516', 'por_tema'), ('0518', 'variante_gramatical'), ('0634', 'por_tema')]
+Fallos honestos recuperados (1): [('0848', 'por_tema')]
+
+=== viva ruido ===
+FP antes/candidato: 0/40 → 0/40; contaminados 0 → 0
+R@5 honesta global: 96.63% → 97.10%; fallos 29 → 25; n=861
+R@1 honesta global: 88.12% → 88.71%; no top-1 101 → 96; n=850
+Categoría                 R@5 honesta antes → candidato (aciertos / total)
+cruce_idioma              62.50% →  62.50% (  5 →   5 /   8)
+dormido                   98.46% →  98.46% ( 64 →  64 /  65)
+literal                   98.56% →  99.18% (480 → 483 / 487)
+por_tema                  92.31% →  92.31% ( 60 →  60 /  65)
+pregunta_natural         100.00% → 100.00% ( 65 →  65 /  65)
+sinonimo                  85.37% →  87.80% ( 35 →  36 /  41)
+typo                      96.92% →  96.92% ( 63 →  63 /  65)
+variante_gramatical       92.31% →  92.31% ( 60 →  60 /  65)
+Fallos honestos nuevos (1): [('0258', 'literal')]
+Fallos honestos recuperados (5): [('0043', 'literal'), ('0090', 'literal'), ('0212', 'literal'), ('0214', 'literal'), ('0587', 'sinonimo')]
+
+=== COMPARACIÓN DE MÉTRICAS (pytest se valida aparte) ===
+NO CUMPLE
+- snapshot normal: baja R@5 honesta por_tema (65→64/65)
+- snapshot normal: baja R@5 honesta variante_gramatical (65→64/65)
+- viva normal: baja R@5 honesta por_tema (64→63/65)
+- viva normal: baja R@5 honesta typo (65→64/65)
+- viva normal: baja R@5 honesta variante_gramatical (65→64/65)

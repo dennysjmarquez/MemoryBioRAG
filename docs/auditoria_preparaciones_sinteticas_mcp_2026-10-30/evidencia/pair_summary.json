@@ -1,0 +1,439 @@
+{
+  "artifact_hashes": {
+    "/tmp/biorag_synthetic_pair_xv6ml5is/build_a/fixture.sqlite.evidence/event_000001.json": "870b4e01aa3fc26af3c301f1531d09aaa356f812aaa6f901f4a9597eccd4ff98",
+    "/tmp/biorag_synthetic_pair_xv6ml5is/build_a/fixture.sqlite.evidence/event_000002.json": "e534a19b34e8263612bb5bf0be5199f935110b2bbc46231c8281c32b672a87c0",
+    "/tmp/biorag_synthetic_pair_xv6ml5is/build_a/fixture.sqlite.evidence/event_000003.json": "b739bccb9e06050448e2df980603fb58aca4a0481adec293d6073e231fc126c8",
+    "/tmp/biorag_synthetic_pair_xv6ml5is/build_a/fixture.sqlite.evidence/event_000004.json": "e262732fb827ccac3e218bb8128abb17bed97a88d3b3ba65d2e6e2d536d13b6b",
+    "/tmp/biorag_synthetic_pair_xv6ml5is/build_a/fixture.sqlite.evidence/event_000005.json": "08c2f4a78497f68e4670a2e8af5eb63230c2eee4291231d386f7ace955d7972b",
+    "/tmp/biorag_synthetic_pair_xv6ml5is/build_a/fixture.sqlite.evidence/event_000006.json": "7bc4704d3afb49cf900866ff95edaea6544eaed58abd1cd6f375fc9dc829dceb",
+    "/tmp/biorag_synthetic_pair_xv6ml5is/build_a/fixture.sqlite.evidence/event_000007.json": "f6c8b0d5cea109db7b9d501e25453ae5936595dc89188bdb2408e8fd290038a4",
+    "/tmp/biorag_synthetic_pair_xv6ml5is/build_a/fixture.sqlite.evidence/event_000008.json": "39c3397fea2d7a6644698f28a45780aea22e7725d22a03883579c9bd9b831375",
+    "/tmp/biorag_synthetic_pair_xv6ml5is/build_a/fixture.sqlite.evidence/event_000009.json": "de92f4bf1745fd05f15b30b654b413c3f3842d4e97eba8d50daca0f14651f8d7",
+    "/tmp/biorag_synthetic_pair_xv6ml5is/build_a/fixture.sqlite.evidence/preparation_report.json": "f685e390e94ca37345906ab4e33dab11e51ff19d28405ecd88fe220f9867e9a9",
+    "/tmp/biorag_synthetic_pair_xv6ml5is/build_a/fixture.sqlite.evidence/run_manifest.json": "60304bf4e95af61893db0ae6d4a648f7922f0d0188e9ff699afdf5b4f56dea77",
+    "/tmp/biorag_synthetic_pair_xv6ml5is/build_b/fixture.sqlite.evidence/event_000001.json": "5d4a125efd07f0fe5dee36eaf028e1d2cbe34a1d5ce35c0af378431c14c86932",
+    "/tmp/biorag_synthetic_pair_xv6ml5is/build_b/fixture.sqlite.evidence/event_000002.json": "8eb977dbde4bed1eacf0fc0712e2b7f5a73e33a00a879d1bd52e48994859e7e4",
+    "/tmp/biorag_synthetic_pair_xv6ml5is/build_b/fixture.sqlite.evidence/event_000003.json": "93469db354671a69bffd17f5af6dadf5c84f1f8cf06f6bc96637a0c4588ed42c",
+    "/tmp/biorag_synthetic_pair_xv6ml5is/build_b/fixture.sqlite.evidence/event_000004.json": "c8376d71c01b52e4c1f4cbd94c3e6ab83047fb7e3f42a3e3094e04c98ee40032",
+    "/tmp/biorag_synthetic_pair_xv6ml5is/build_b/fixture.sqlite.evidence/event_000005.json": "3b82fd51937ec53931d229234087694ff5276953707e9bf492a29e252a486b3e",
+    "/tmp/biorag_synthetic_pair_xv6ml5is/build_b/fixture.sqlite.evidence/event_000006.json": "38c97a259d9a1afa105e9e8446665bf3d54a934b4059bfc1446604960075b82e",
+    "/tmp/biorag_synthetic_pair_xv6ml5is/build_b/fixture.sqlite.evidence/event_000007.json": "114d6ee849b7178e63e4996d15758d045771d5228abbe3adb6608f2dd863dfd5",
+    "/tmp/biorag_synthetic_pair_xv6ml5is/build_b/fixture.sqlite.evidence/event_000008.json": "2e12907a1f130a446e78f1e82a1794f40b0f1bd85f9ee7d91b1279ddc36fc844",
+    "/tmp/biorag_synthetic_pair_xv6ml5is/build_b/fixture.sqlite.evidence/event_000009.json": "c20cdc203145c7d5b817647c79b16659025b77e5ebb5fb93a2d9313e3fe84513",
+    "/tmp/biorag_synthetic_pair_xv6ml5is/build_b/fixture.sqlite.evidence/preparation_report.json": "f80dc17e7aebaa03ef3e4e4800e114c5e7b148037a68c4a5a8f1925e62f1497b",
+    "/tmp/biorag_synthetic_pair_xv6ml5is/build_b/fixture.sqlite.evidence/run_manifest.json": "1170cb849c31a09117193efe0917da67da9d49b33dfce577f2ea7de61960c51c",
+    "/tmp/biorag_synthetic_pair_xv6ml5is/synthetic_gold.jsonl": "88c55d48a393fbc421caa455b08d92dd5c083c5e4167e31cfc229fb52397a316",
+    "/tmp/biorag_synthetic_pair_xv6ml5is/synthetic_gold_manifest.json": "b3a8cc48059889adac8e30c9dec9093b08c758bfad87dfd6093fc75b2b8b3495"
+  },
+  "audit_disposition": "STOP_BLOCKED",
+  "builds": [
+    {
+      "active_count": 3,
+      "all_nodes_active": true,
+      "build_name": "build_a",
+      "co_name_risks": [
+        {
+          "a": "synthetic_amber",
+          "b": "synthetic_cobalt",
+          "palabras_a": [
+            "synthetic",
+            "amber"
+          ],
+          "palabras_b": [
+            "synthetic",
+            "cobalt"
+          ],
+          "riesgo_co_nombre": true,
+          "solapamiento_max_aproximado": 0.5
+        },
+        {
+          "a": "synthetic_amber",
+          "b": "synthetic_ivory",
+          "palabras_a": [
+            "synthetic",
+            "amber"
+          ],
+          "palabras_b": [
+            "synthetic",
+            "ivory"
+          ],
+          "riesgo_co_nombre": true,
+          "solapamiento_max_aproximado": 0.5
+        },
+        {
+          "a": "synthetic_cobalt",
+          "b": "synthetic_ivory",
+          "palabras_a": [
+            "synthetic",
+            "cobalt"
+          ],
+          "palabras_b": [
+            "synthetic",
+            "ivory"
+          ],
+          "riesgo_co_nombre": true,
+          "solapamiento_max_aproximado": 0.5
+        }
+      ],
+      "construction_id": "320457ac34044280bc8cf2e4c9d9572f",
+      "events": 9,
+      "evidence_dir": "/tmp/biorag_synthetic_pair_xv6ml5is/build_a/fixture.sqlite.evidence",
+      "fixture_path": "/tmp/biorag_synthetic_pair_xv6ml5is/build_a/fixture.sqlite",
+      "fixture_sha256": "dae4e010d9c3af3a40533f87f24c171ad8cbb3591dc4228a928784647f24140a",
+      "graph_audit": {
+        "bloqueos_congelacion": [
+          "ruta_gold_2_saltos_no_es_unica"
+        ],
+        "congelacion_estructural_permitida": false,
+        "conteos_grafo": {
+          "aristas_directas_dirigidas": 6,
+          "nodos": 3,
+          "nodos_activos": 3,
+          "nodos_dormidos": 0,
+          "sinapsis_latentes": 0
+        },
+        "divergencias_espejo": [],
+        "gold_explicit_edges_missing": [],
+        "gold_nodes_missing": [],
+        "nota": "No se borra/ignora arista por tipo. Revisar o versionar gold antes de cualquier búsqueda de medición.",
+        "pares_riesgo_co_nombre": [
+          {
+            "a": "synthetic_amber",
+            "b": "synthetic_cobalt",
+            "palabras_a": [
+              "synthetic",
+              "amber"
+            ],
+            "palabras_b": [
+              "synthetic",
+              "cobalt"
+            ],
+            "riesgo_co_nombre": true,
+            "solapamiento_max_aproximado": 0.5
+          },
+          {
+            "a": "synthetic_amber",
+            "b": "synthetic_ivory",
+            "palabras_a": [
+              "synthetic",
+              "amber"
+            ],
+            "palabras_b": [
+              "synthetic",
+              "ivory"
+            ],
+            "riesgo_co_nombre": true,
+            "solapamiento_max_aproximado": 0.5
+          },
+          {
+            "a": "synthetic_cobalt",
+            "b": "synthetic_ivory",
+            "palabras_a": [
+              "synthetic",
+              "cobalt"
+            ],
+            "palabras_b": [
+              "synthetic",
+              "ivory"
+            ],
+            "riesgo_co_nombre": true,
+            "solapamiento_max_aproximado": 0.5
+          }
+        ],
+        "rutas_2_saltos": [
+          {
+            "aristas_ruta_declarada_presentes": true,
+            "caminos_minimos_activos": 1,
+            "distancia_minima_activa": 1,
+            "episode_id": "synthetic_pair_001",
+            "exactamente_dos_saltos_unico": false,
+            "nodos_activos": true,
+            "ruta_declarada": [
+              "synthetic_amber",
+              "synthetic_cobalt",
+              "synthetic_ivory"
+            ]
+          }
+        ]
+      },
+      "node_count": 3,
+      "observed_edges": [
+        {
+          "creado_en": 1793059200.0,
+          "destino": "synthetic_cobalt",
+          "origen": "synthetic_amber",
+          "peso": 0.65,
+          "tipo": "co_nombre",
+          "ultimo_uso": null
+        },
+        {
+          "creado_en": 1793059200.0,
+          "destino": "synthetic_ivory",
+          "origen": "synthetic_amber",
+          "peso": 0.65,
+          "tipo": "co_nombre",
+          "ultimo_uso": null
+        },
+        {
+          "creado_en": 1793059200.0,
+          "destino": "synthetic_amber",
+          "origen": "synthetic_cobalt",
+          "peso": 0.65,
+          "tipo": "co_nombre",
+          "ultimo_uso": null
+        },
+        {
+          "creado_en": 1793059200.0,
+          "destino": "synthetic_ivory",
+          "origen": "synthetic_cobalt",
+          "peso": 0.65,
+          "tipo": "co_nombre",
+          "ultimo_uso": null
+        },
+        {
+          "creado_en": 1793059200.0,
+          "destino": "synthetic_amber",
+          "origen": "synthetic_ivory",
+          "peso": 0.65,
+          "tipo": "co_nombre",
+          "ultimo_uso": null
+        },
+        {
+          "creado_en": 1793059200.0,
+          "destino": "synthetic_cobalt",
+          "origen": "synthetic_ivory",
+          "peso": 0.65,
+          "tipo": "co_nombre",
+          "ultimo_uso": null
+        }
+      ],
+      "preparation_status": "requiere_revision_gold"
+    },
+    {
+      "active_count": 3,
+      "all_nodes_active": true,
+      "build_name": "build_b",
+      "co_name_risks": [
+        {
+          "a": "synthetic_amber",
+          "b": "synthetic_cobalt",
+          "palabras_a": [
+            "synthetic",
+            "amber"
+          ],
+          "palabras_b": [
+            "synthetic",
+            "cobalt"
+          ],
+          "riesgo_co_nombre": true,
+          "solapamiento_max_aproximado": 0.5
+        },
+        {
+          "a": "synthetic_amber",
+          "b": "synthetic_ivory",
+          "palabras_a": [
+            "synthetic",
+            "amber"
+          ],
+          "palabras_b": [
+            "synthetic",
+            "ivory"
+          ],
+          "riesgo_co_nombre": true,
+          "solapamiento_max_aproximado": 0.5
+        },
+        {
+          "a": "synthetic_cobalt",
+          "b": "synthetic_ivory",
+          "palabras_a": [
+            "synthetic",
+            "cobalt"
+          ],
+          "palabras_b": [
+            "synthetic",
+            "ivory"
+          ],
+          "riesgo_co_nombre": true,
+          "solapamiento_max_aproximado": 0.5
+        }
+      ],
+      "construction_id": "9a26b91a8b29400c9a8bb0fe18327205",
+      "events": 9,
+      "evidence_dir": "/tmp/biorag_synthetic_pair_xv6ml5is/build_b/fixture.sqlite.evidence",
+      "fixture_path": "/tmp/biorag_synthetic_pair_xv6ml5is/build_b/fixture.sqlite",
+      "fixture_sha256": "de8acd58de5abd7e41713042c6ef1219dcec4af70fa65ffdd2bd8426faab5a26",
+      "graph_audit": {
+        "bloqueos_congelacion": [
+          "ruta_gold_2_saltos_no_es_unica"
+        ],
+        "congelacion_estructural_permitida": false,
+        "conteos_grafo": {
+          "aristas_directas_dirigidas": 6,
+          "nodos": 3,
+          "nodos_activos": 3,
+          "nodos_dormidos": 0,
+          "sinapsis_latentes": 0
+        },
+        "divergencias_espejo": [],
+        "gold_explicit_edges_missing": [],
+        "gold_nodes_missing": [],
+        "nota": "No se borra/ignora arista por tipo. Revisar o versionar gold antes de cualquier búsqueda de medición.",
+        "pares_riesgo_co_nombre": [
+          {
+            "a": "synthetic_amber",
+            "b": "synthetic_cobalt",
+            "palabras_a": [
+              "synthetic",
+              "amber"
+            ],
+            "palabras_b": [
+              "synthetic",
+              "cobalt"
+            ],
+            "riesgo_co_nombre": true,
+            "solapamiento_max_aproximado": 0.5
+          },
+          {
+            "a": "synthetic_amber",
+            "b": "synthetic_ivory",
+            "palabras_a": [
+              "synthetic",
+              "amber"
+            ],
+            "palabras_b": [
+              "synthetic",
+              "ivory"
+            ],
+            "riesgo_co_nombre": true,
+            "solapamiento_max_aproximado": 0.5
+          },
+          {
+            "a": "synthetic_cobalt",
+            "b": "synthetic_ivory",
+            "palabras_a": [
+              "synthetic",
+              "cobalt"
+            ],
+            "palabras_b": [
+              "synthetic",
+              "ivory"
+            ],
+            "riesgo_co_nombre": true,
+            "solapamiento_max_aproximado": 0.5
+          }
+        ],
+        "rutas_2_saltos": [
+          {
+            "aristas_ruta_declarada_presentes": true,
+            "caminos_minimos_activos": 1,
+            "distancia_minima_activa": 1,
+            "episode_id": "synthetic_pair_001",
+            "exactamente_dos_saltos_unico": false,
+            "nodos_activos": true,
+            "ruta_declarada": [
+              "synthetic_amber",
+              "synthetic_cobalt",
+              "synthetic_ivory"
+            ]
+          }
+        ]
+      },
+      "node_count": 3,
+      "observed_edges": [
+        {
+          "creado_en": 1793059200.0,
+          "destino": "synthetic_cobalt",
+          "origen": "synthetic_amber",
+          "peso": 0.65,
+          "tipo": "co_nombre",
+          "ultimo_uso": null
+        },
+        {
+          "creado_en": 1793059200.0,
+          "destino": "synthetic_ivory",
+          "origen": "synthetic_amber",
+          "peso": 0.65,
+          "tipo": "co_nombre",
+          "ultimo_uso": null
+        },
+        {
+          "creado_en": 1793059200.0,
+          "destino": "synthetic_amber",
+          "origen": "synthetic_cobalt",
+          "peso": 0.65,
+          "tipo": "co_nombre",
+          "ultimo_uso": null
+        },
+        {
+          "creado_en": 1793059200.0,
+          "destino": "synthetic_ivory",
+          "origen": "synthetic_cobalt",
+          "peso": 0.65,
+          "tipo": "co_nombre",
+          "ultimo_uso": null
+        },
+        {
+          "creado_en": 1793059200.0,
+          "destino": "synthetic_amber",
+          "origen": "synthetic_ivory",
+          "peso": 0.65,
+          "tipo": "co_nombre",
+          "ultimo_uso": null
+        },
+        {
+          "creado_en": 1793059200.0,
+          "destino": "synthetic_cobalt",
+          "origen": "synthetic_ivory",
+          "peso": 0.65,
+          "tipo": "co_nombre",
+          "ultimo_uso": null
+        }
+      ],
+      "preparation_status": "requiere_revision_gold"
+    }
+  ],
+  "date": "2026-10-30",
+  "errors": [],
+  "gold_path": "/tmp/biorag_synthetic_pair_xv6ml5is/synthetic_gold.jsonl",
+  "gold_sha256": "88c55d48a393fbc421caa455b08d92dd5c083c5e4167e31cfc229fb52397a316",
+  "manifest_path": "/tmp/biorag_synthetic_pair_xv6ml5is/synthetic_gold_manifest.json",
+  "manifest_sha256": "b3a8cc48059889adac8e30c9dec9093b08c758bfad87dfd6093fc75b2b8b3495",
+  "original_gold_read": false,
+  "repeatability": {
+    "build_evidence": [
+      {
+        "construction_id": "320457ac34044280bc8cf2e4c9d9572f",
+        "event_count": 9,
+        "events_sha256": "ec39d0e526218b3b133b3da372ea8099e5b850c646058dbcc208333f1746abf9",
+        "fixture_path": "/tmp/biorag_synthetic_pair_xv6ml5is/build_a/fixture.sqlite",
+        "gold_sha256": "88c55d48a393fbc421caa455b08d92dd5c083c5e4167e31cfc229fb52397a316",
+        "preparation_report_sha256": "f685e390e94ca37345906ab4e33dab11e51ff19d28405ecd88fe220f9867e9a9",
+        "run_manifest_sha256": "60304bf4e95af61893db0ae6d4a648f7922f0d0188e9ff699afdf5b4f56dea77"
+      },
+      {
+        "construction_id": "9a26b91a8b29400c9a8bb0fe18327205",
+        "event_count": 9,
+        "events_sha256": "d9a2333543dfe14663b47dd0b32cce6c8f33c46ec7f39c021d48e9f9da21cb86",
+        "fixture_path": "/tmp/biorag_synthetic_pair_xv6ml5is/build_b/fixture.sqlite",
+        "gold_sha256": "88c55d48a393fbc421caa455b08d92dd5c083c5e4167e31cfc229fb52397a316",
+        "preparation_report_sha256": "f80dc17e7aebaa03ef3e4e4800e114c5e7b148037a68c4a5a8f1925e62f1497b",
+        "run_manifest_sha256": "1170cb849c31a09117193efe0917da67da9d49b33dfce577f2ea7de61960c51c"
+      }
+    ],
+    "construction_ids": [
+      "320457ac34044280bc8cf2e4c9d9572f",
+      "9a26b91a8b29400c9a8bb0fe18327205"
+    ],
+    "differences": {},
+    "failure": null,
+    "fixture_1_sha256": "dae4e010d9c3af3a40533f87f24c171ad8cbb3591dc4228a928784647f24140a",
+    "fixture_2_sha256": "de8acd58de5abd7e41713042c6ef1219dcec4af70fa65ffdd2bd8426faab5a26",
+    "identical_structural": true,
+    "independent_builds_verified": true,
+    "limitation": "Solo se acepta par idéntico con dos rutas, construction_id y ledgers MCP separados del mismo gold.",
+    "mode": "REPEATABLE_PAIR",
+    "schema": "fixture_repeatability_v2"
+  },
+  "scope": "two independent real-MCP synthetic preparations only; no measurement arms",
+  "temp_root": "/tmp/biorag_synthetic_pair_xv6ml5is"
+}

@@ -1,0 +1,159 @@
+{
+  "status": "ok",
+  "transport": "real MCP stdio",
+  "synthetic_database": true,
+  "claims_seeded_by_sql": false,
+  "language_parser_required": false,
+  "missing_mode_rejected": true,
+  "no_evidence_unresolved": true,
+  "idempotent_confirmation": true,
+  "receipt": {
+    "status": "approved",
+    "proposal_id": "structured-e2e",
+    "request_id": "structured-r",
+    "principal": "local-mcp",
+    "claim_id": "ctx:97619808c5ebe54fb10c0c55b92103f475d05da58f7440f8bd2ec862dbc4e273",
+    "source": "approval:structured-r",
+    "bootstrap_predecessor": true
+  },
+  "modes": {
+    "relevancia": {
+      "nodes": [
+        "puerto_servicio_actual",
+        "puerto_servicio_antiguo"
+      ],
+      "decision": {
+        "mode": "relevancia",
+        "status": "relevance_only",
+        "coverage": "retrieved_pool_only",
+        "winner": null,
+        "groups": {},
+        "scores_unchanged": true
+      }
+    },
+    "recientes": {
+      "nodes": [
+        "puerto_servicio_actual",
+        "puerto_servicio_antiguo"
+      ],
+      "decision": {
+        "mode": "recientes",
+        "status": "resolved",
+        "coverage": "retrieved_pool_only",
+        "winner": null,
+        "groups": {},
+        "scores_unchanged": true,
+        "time_basis": "registro",
+        "dates": {
+          "puerto_servicio_actual": 20.0,
+          "puerto_servicio_antiguo": 10.0
+        },
+        "unknown_dates": []
+      }
+    },
+    "antiguos": {
+      "nodes": [
+        "puerto_servicio_antiguo",
+        "puerto_servicio_actual"
+      ],
+      "decision": {
+        "mode": "antiguos",
+        "status": "resolved",
+        "coverage": "retrieved_pool_only",
+        "winner": null,
+        "groups": {},
+        "scores_unchanged": true,
+        "time_basis": "registro",
+        "dates": {
+          "puerto_servicio_actual": 20.0,
+          "puerto_servicio_antiguo": 10.0
+        },
+        "unknown_dates": []
+      }
+    },
+    "vigente": {
+      "nodes": [
+        "puerto_servicio_actual",
+        "puerto_servicio_antiguo"
+      ],
+      "decision": {
+        "mode": "vigente",
+        "status": "resolved",
+        "coverage": "retrieved_pool_only",
+        "winner": "puerto_servicio_actual",
+        "groups": {
+          "puerto_servicio_actual": "vigente",
+          "puerto_servicio_antiguo": "historico"
+        },
+        "scores_unchanged": true,
+        "decision": {
+          "status": "resolved",
+          "winner": "puerto_servicio_actual",
+          "claims": [
+            "ctx:97619808c5ebe54fb10c0c55b92103f475d05da58f7440f8bd2ec862dbc4e273"
+          ],
+          "superseded": [
+            "ctx:97619808c5ebe54fb10c0c55b92103f475d05da58f7440f8bd2ec862dbc4e273:previous"
+          ],
+          "missing_nodes": []
+        }
+      }
+    },
+    "historico": {
+      "nodes": [
+        "puerto_servicio_antiguo",
+        "puerto_servicio_actual"
+      ],
+      "decision": {
+        "mode": "historico",
+        "status": "resolved",
+        "coverage": "retrieved_pool_only",
+        "winner": null,
+        "groups": {
+          "puerto_servicio_actual": "vigente",
+          "puerto_servicio_antiguo": "historico"
+        },
+        "scores_unchanged": true,
+        "decision": {
+          "status": "resolved",
+          "winner": "puerto_servicio_actual",
+          "claims": [
+            "ctx:97619808c5ebe54fb10c0c55b92103f475d05da58f7440f8bd2ec862dbc4e273"
+          ],
+          "superseded": [
+            "ctx:97619808c5ebe54fb10c0c55b92103f475d05da58f7440f8bd2ec862dbc4e273:previous"
+          ],
+          "missing_nodes": []
+        }
+      }
+    },
+    "ambos": {
+      "nodes": [
+        "puerto_servicio_actual",
+        "puerto_servicio_antiguo"
+      ],
+      "decision": {
+        "mode": "ambos",
+        "status": "resolved",
+        "coverage": "retrieved_pool_only",
+        "winner": "puerto_servicio_actual",
+        "groups": {
+          "puerto_servicio_actual": "vigente",
+          "puerto_servicio_antiguo": "historico"
+        },
+        "scores_unchanged": true,
+        "decision": {
+          "status": "resolved",
+          "winner": "puerto_servicio_actual",
+          "claims": [
+            "ctx:97619808c5ebe54fb10c0c55b92103f475d05da58f7440f8bd2ec862dbc4e273"
+          ],
+          "superseded": [
+            "ctx:97619808c5ebe54fb10c0c55b92103f475d05da58f7440f8bd2ec862dbc4e273:previous"
+          ],
+          "missing_nodes": []
+        }
+      }
+    }
+  }
+}

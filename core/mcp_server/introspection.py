@@ -129,10 +129,15 @@ def register(mcp: Any) -> None:
                     "total_registros": 0,
                 }, ensure_ascii=False)
 
+            # La tabla guarda la categoría como id (categoria_dominante_id, FK a
+            # categories); se muestra su nombre. Antes se pedía una columna
+            # `categoria_dominante` que no existe y la tool fallaba siempre.
             cur.execute(
-                "SELECT timestamp, nodos_consolidados, nodos_dormidos_ciclo, "
-                "sinapsis_creadas, sinapsis_podadas, categoria_dominante, ratio_consolidacion "
-                "FROM metricas_cognitivas ORDER BY timestamp DESC LIMIT ?", (n,)
+                "SELECT m.timestamp, m.nodos_consolidados, m.nodos_dormidos_ciclo, "
+                "m.sinapsis_creadas, m.sinapsis_podadas, c.name, m.ratio_consolidacion "
+                "FROM metricas_cognitivas m "
+                "LEFT JOIN categories c ON c.id = m.categoria_dominante_id "
+                "ORDER BY m.timestamp DESC LIMIT ?", (n,)
             )
             filas = cur.fetchall()
 

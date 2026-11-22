@@ -10,17 +10,34 @@ Filosofía: 100% simbólico, determinista, auditable. 0 dependencias.
 """
 
 import math
-from collections import defaultdict
+from collections import Counter, defaultdict
 
 
-def calcular_idf_dims(cerebro):
+def calcular_idf_dims(cerebro, perfiles_cache=None):
     """Calcula IDF invertido para cada dimensión semántica.
 
     IDF(dim) = log(N / n(dim))
     donde N = total nodos activos, n(dim) = nodos que SÍ tienen esa dimensión.
 
-    Retorna dict: {dim_id: idf_value}
+    Retorna dict: {dim_id: idf_value}. Cuando se suministra `perfiles_cache`,
+    calcula una IDF acotada al conjunto de candidatos ya recuperado, sin leer el
+    resto del corpus.
     """
+    if perfiles_cache is not None:
+        n_local = len(perfiles_cache)
+        if n_local == 0:
+            return {}
+        counts_local = Counter(
+            dim_id
+            for dimensiones in perfiles_cache.values()
+            for dim_id in dimensiones
+        )
+        return {
+            dim_id: math.log(n_local / count)
+            for dim_id, count in counts_local.items()
+            if count > 0
+        }
+
     cur = cerebro.cursor.execute("SELECT COUNT(*) FROM largo_plazo WHERE estado = 'activo'")
     N = cur.fetchone()[0]
     if N == 0:
@@ -39,15 +56,33 @@ def calcular_idf_dims(cerebro):
     return idf
 
 
-def calcular_perfiles_presencia(cerebro):
-    """Calcula vector de presencia para cada nodo activo.
+def calcular_perfiles_presencia(cerebro, conceptos=None):
+    """Calcula presencia dimensional, opcionalmente para una lista acotada.
+
+    Con `conceptos` solo lee las filas de dimensión asociadas a esos candidatos;
+    el camino de búsqueda en línea nunca recorre `largo_plazo_dimensiones` entero.
+    Sin argumento conserva la API de análisis offline sobre todo el corpus.
 
     Retorna dict: {concepto: set(dimension_ids)}
     """
-    cur = cerebro.cursor.execute(
-        "SELECT concepto, dimension_id FROM largo_plazo_dimensiones"
-    )
+    if conceptos is None:
+        cur = cerebro.cursor.execute(
+            "SELECT concepto, dimension_id FROM largo_plazo_dimensiones"
+        )
+    else:
+        nombres = list(dict.fromkeys(c for c in conceptos if c))
+        if not nombres:
+            return {}
+        placeholders = ",".join("?" for _ in nombres)
+        cur = cerebro.cursor.execute(
+            f"SELECT concepto, dimension_id FROM largo_plazo_dimensiones "
+            f"WHERE concepto IN ({placeholders})",
+            tuple(nombres),
+        )
     perfiles = defaultdict(set)
+    if conceptos is not None:
+        for nombre in nombres:
+            perfiles[nombre]
     for concepto, dim_id in cur.fetchall():
         perfiles[concepto].add(dim_id)
 

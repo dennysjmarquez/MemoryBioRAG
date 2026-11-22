@@ -23,8 +23,8 @@ elif [ -f "$DEFAULT_SNAPSHOT" ]; then
     SRC_DB="$DEFAULT_SNAPSHOT"
     echo "BIORAG_PATH no definido -> Usando snapshot oficial: $SRC_DB"
 else
-    SRC_DB="$PARENT_DIR/MemoryBioRAG_Data/memory_biorag.db"
-    echo "BIORAG_PATH no definido ni snapshot encontrado -> Usando DB viva del repo: $SRC_DB"
+    SRC_DB="${HOME}/.biorag/memory_biorag.db"
+    echo "BIORAG_PATH no definido ni snapshot encontrado -> Usando DB canónica del usuario: $SRC_DB"
 fi
 
 if [ ! -f "$SRC_DB" ]; then
