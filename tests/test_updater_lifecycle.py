@@ -1,5 +1,6 @@
 """Actualización en repositorios Git temporales; sin red ni DB viva."""
-from contextlib import contextmanager
+from contextlib import contextmanager, redirect_stderr, redirect_stdout
+import io
 import json
 from pathlib import Path
 import sqlite3
@@ -74,6 +75,38 @@ class GitUpdaterTests(unittest.TestCase):
         self.assertTrue(report['changed']);self.assertEqual(self.git('rev-parse','HEAD'),self.before)
         self.assertFalse((self.db.parent/'backups').exists())
 
+    def test_cli_plan_output_is_english_and_aware_of_no_update(self):
+        for changed,expected in (
+            (False, 'This checkout already matches its upstream revision.'),
+            (True, 'Stop MCP clients and services for this installation'),
+        ):
+            with self.subTest(changed=changed):
+                report=dict(status='planned',root=str(self.root),branch='current',channel='dev',
+                            source='origin/current',before=self.before,
+                            target=self.target if changed else self.before,changed=changed)
+                output=io.StringIO()
+                with (
+                    patch.object(updater,'installed_root',return_value=self.root),
+                    patch.object(updater,'plan',return_value=report),
+                    redirect_stdout(output),
+                ):
+                    self.assertEqual(updater.main(['--dry-run']),0)
+                payload=json.loads(output.getvalue())
+                self.assertIn(expected,payload['next'])
+                self.assertNotIn('Detén',payload['next'])
+                if not changed:
+                    self.assertIn('No code update is available',payload['next'])
+
+    def test_cli_local_changes_error_is_english_json(self):
+        (self.root/'uncommitted.txt').write_text('keep me')
+        output=io.StringIO()
+        with patch.object(updater,'installed_root',return_value=self.root), redirect_stderr(output):
+            self.assertEqual(updater.main(['--dry-run']),1)
+        payload=json.loads(output.getvalue())
+        self.assertEqual(payload['status'],'error')
+        self.assertIn('Preserve or commit your local changes',payload['message'])
+        self.assertNotIn('conserva',payload['message'])
+
     def test_update_runs_new_processes_preserves_branch_and_backup(self):
         calls=[]
         def runner(args,**kwargs):
@@ -111,7 +144,9 @@ class GitUpdaterTests(unittest.TestCase):
 
     def test_local_changes_refuse_without_stash_or_reset(self):
         (self.root/'local.txt').write_text('user data')
-        with self.assertRaisesRegex(updater.UpdateError,'LOCAL_CHANGES'):updater.plan(self.root)
+        with self.assertRaisesRegex(updater.UpdateError,'LOCAL_CHANGES') as caught:updater.plan(self.root)
+        self.assertIn('Preserve or commit your local changes',str(caught.exception))
+        self.assertNotIn('conserva',str(caught.exception))
         self.assertEqual((self.root/'local.txt').read_text(),'user data')
         self.assertEqual(self.git('rev-parse','HEAD'),self.before)
 

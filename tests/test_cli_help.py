@@ -70,6 +70,9 @@ socket.create_connection=forbidden
                     result=self.run_cli(args,entry)
                     self.assertEqual(result.returncode,0,result.stderr)
                     self.assertIn(option,result.stdout)
+                    if command == 'update':
+                        self.assertIn('Updater messages are in English',result.stdout)
+                        self.assertNotIn('Runtime messages retain their existing language',result.stdout)
 
     def test_each_command_explains_its_purpose_without_side_effects(self):
         from core.cli import ALIASES

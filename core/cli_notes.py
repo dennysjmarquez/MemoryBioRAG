@@ -138,7 +138,7 @@ EXPECTED = {
     'comunicar': 'A message registration confirmation including sender and destination.',
     'leer_mensajes': 'Message IDs, read status, timestamps, sender, destination and message text.',
     'dashboard': 'Without --help: service startup diagnostics; dependency installation may occur. Startup was not executed in this audit (not verified).',
-    'update': 'JSON plan or update receipt; failures report an error. Real update application was not executed (not verified).',
+    'update': 'JSON plan or update receipt; messages are in English. An unchanged target means no code update is available; a dry run never changes source files or the database.',
     'recovery': 'JSON recovery plan; --stage reports separate snapshots and live_database_unchanged. No live recovery was executed.',
     'correcciones': 'With no subcommand: this help. Operations return JSON; errors go to stderr.',
     'correcciones registrar': 'JSON pending proposal; registration is not confirmation.',
@@ -176,6 +176,9 @@ def help_intro(command, summary):
 
 def help_end(command):
     links = SEE_ALSO.get(command, ('correcciones',) if command.startswith('correcciones ') else ('buscar', 'estado'))
+    language_note = ('Updater messages are in English; machine-readable JSON keys and status codes are unchanged.'
+                     if command == 'update' else
+                     'Runtime messages retain their existing language (often Spanish); JSON keys are unchanged.')
     return (command_examples(command) + '\n\nExpected output:\n' + fill(EXPECTED[command], 88)
-            + '\nRuntime messages retain their existing language (often Spanish); JSON keys are unchanged.'
+            + '\n' + language_note
             + '\n\nSee also:\n' + '\n'.join('  biorag ' + name + ' --help' for name in links))
