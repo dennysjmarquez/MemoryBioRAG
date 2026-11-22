@@ -5,6 +5,7 @@ No restaura código/DB automáticamente ni convierte una instalación ajena en G
 """
 from __future__ import annotations
 import argparse
+from core.cli_help import HelpParser
 from contextlib import contextmanager
 from datetime import datetime, timezone
 import json
@@ -188,7 +189,7 @@ def apply(root, *, channel='dev', database, runner=subprocess.run):
 
 def main(argv=None):
     from core.cli_notes import usage_note, command_examples
-    parser=argparse.ArgumentParser(prog='biorag update',
+    parser=HelpParser(prog='biorag update',
         description='Plan or apply a conservative Git-based program update without switching branches.',
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog=usage_note('update') + '\n\n' + command_examples('update'))

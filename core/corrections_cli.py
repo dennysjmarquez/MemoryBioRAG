@@ -1,5 +1,6 @@
 """Correcciones estructuradas locales: mismo servicio y transacciones que MCP."""
 import argparse
+from core.cli_help import HelpParser
 import json
 import os
 import sqlite3
@@ -8,7 +9,7 @@ from core.cli_notes import usage_note, command_examples
 
 
 def main(argv=None):
-    parser = argparse.ArgumentParser(
+    parser = HelpParser(
         prog='biorag correcciones',
         formatter_class=argparse.RawDescriptionHelpFormatter,
         description='Propose, review and approve fact replacements without deleting history.\n\n'
@@ -40,10 +41,10 @@ def main(argv=None):
         ('valor-anterior', 'Explicit earlier value'),
         ('valor-nuevo', 'Explicit replacement value'),
     ):
-        register.add_argument('--'+flag, required=True, help=help_text)
-    register.add_argument('--observado-en', type=float, required=True, help='Observation time in UNIX seconds')
-    register.add_argument('--efectivo-desde', type=float, required=True, help='Effective start in UNIX seconds')
-    register.add_argument('--anterior-desde', type=float, help='Earlier fact start; required if no prior approved context exists')
+        register.add_argument('--'+flag, required=True, metavar='VALUE', help=help_text)
+    register.add_argument('--observado-en', type=float, required=True, metavar='SECONDS', help='Observation time in UNIX seconds')
+    register.add_argument('--efectivo-desde', type=float, required=True, metavar='SECONDS', help='Effective start in UNIX seconds')
+    register.add_argument('--anterior-desde', type=float, metavar='SECONDS', help='Earlier fact start; required if no prior approved context exists')
     confirm.add_argument('--digest', required=True, help='Digest returned by revisar; do not invent one')
     confirm.add_argument('--request-id', required=True, help='Confirmation request ID; reuse for an identical retry')
     args = parser.parse_args(argv)

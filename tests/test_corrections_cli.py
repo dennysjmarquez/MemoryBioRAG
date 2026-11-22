@@ -87,9 +87,9 @@ class CorrectionsCLITests(unittest.TestCase):
         for operation in ('registrar', 'revisar', 'confirmar'):
             command = EXAMPLES['correcciones '+operation][0].replace('\\\n', '')
             tokens = shlex.split(command)[2:]
-            replacements = {'/ruta/copia_prueba.db': str(self.db),
+            replacements = {'/path/test-copy.db': str(self.db),
                             'servicio_puerto_anterior': 'old', 'servicio_puerto_actual': 'new',
-                            'DIGEST_DE_LA_REVISION': digest}
+                            'REVIEW_DIGEST': digest}
             tokens = [replacements.get(token, token) for token in tokens]
             result = self.call(*tokens)
             self.assertEqual(result.returncode, 0, result.stderr)

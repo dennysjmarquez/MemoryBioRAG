@@ -1,5 +1,14 @@
 # BioRAG — Memoria Cognitiva Biomimética y Simbólica para Agentes de IA
 
+> **CLI help:** run `python3 biorag.py --help` or `biorag --help`. Help prose is
+> English; existing Spanish command/flag identifiers are unchanged. Runtime output
+> and MCP descriptions retain their existing language. Save with `guardar`, then
+> consolidate with `sueno` before retrieving through CLI `buscar`. For safe testing,
+> select a disposable database copy with `BIORAG_PATH`. See the
+> [CLI help audit](docs/cli_help_audit/COMPLETION.md) and
+> [language/compatibility review](docs/cli_help_audit/LANGUAGE_REVIEW.md).
+
+
 > **Versión de trabajo en esta rama:** v36.2 — correcciones MCP estructuradas, seis perspectivas explícitas y actualización con preparación modular y recuperación asistida. Candidata hasta completar los gates de integración; sin tag ni publicación.
 > **Paradigma:** Motor Python + SQLite FTS5. **Sin embeddings densos, GPU ni llamadas a APIs externas** en el path de búsqueda.
 > **Motor:** Arquitectura modularizada (18 submódulos `core/memory/` + 15 submódulos `core/mcp_server/` + fachada delgada) + SQLite FTS5 WAL + PPMI-SVD (100 dimensiones) + espacio semántico de 13 ejes + grafo sináptico Hebbiano + SDM (2048 bits) + calibración conforme + activación ACT-R + Concept Hubs + validación simétrica fail-fast de sustantivos clave + **neurona de reordenamiento que aprende sola** (29 señales → 6 ocultas → 1 corrección, con piso en la fórmula a mano) + **neurona asociativa cerrada de fábrica** (5 agujas → fuerza 0–1: ¿dos recuerdos tienen que ver?; examinada, aún no decide en el motor) + enlaces del agente intocables + **destino canónico del córtex en `~/.biorag/`** + **instalador de configuración MCP para clientes compatibles**.

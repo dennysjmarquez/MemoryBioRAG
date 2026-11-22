@@ -1,0 +1,1148 @@
+[
+  {
+    "file": "biorag.py",
+    "line": 379,
+    "kind": "print template",
+    "text": "print(f\"No se encontro '{concepto}' en la corteza.\")"
+  },
+  {
+    "file": "biorag.py",
+    "line": 380,
+    "kind": "print template",
+    "text": "print(\"\\n💡 Sugerencia: Puedes refinar la búsqueda especificando su núcleo temático con --sustantivos-clave \\\"termino1,termino2\\\"\")"
+  },
+  {
+    "file": "biorag.py",
+    "line": 518,
+    "kind": "print template",
+    "text": "print(msg)"
+  },
+  {
+    "file": "biorag.py",
+    "line": 557,
+    "kind": "print template",
+    "text": "print(_GUIA_SUSTANTIVOS_CLAVE)"
+  },
+  {
+    "file": "biorag.py",
+    "line": 598,
+    "kind": "print template",
+    "text": "print(f\"Sustantivos clave de '{clave}': [{', '.join(lista)}] ({len(lista)}/5)\")"
+  },
+  {
+    "file": "biorag.py",
+    "line": 674,
+    "kind": "print template",
+    "text": "print(f\"Error: Concepto '{clave}' no encontrado en la corteza.\")"
+  },
+  {
+    "file": "biorag.py",
+    "line": 701,
+    "kind": "print template",
+    "text": "print(f\"{'CONCEPTO':<25} {'CATEGORIA':<12} {'PESO':<6} {'ESTADO':<9} {'SUSTANTIVOS CLAVE':<25} {'ASOCIACIONES'}\")"
+  },
+  {
+    "file": "biorag.py",
+    "line": 702,
+    "kind": "print template",
+    "text": "print(\"-\" * 105)"
+  },
+  {
+    "file": "biorag.py",
+    "line": 706,
+    "kind": "print template",
+    "text": "print(\"-\" * 105)"
+  },
+  {
+    "file": "biorag.py",
+    "line": 707,
+    "kind": "print template",
+    "text": "print(f\"Total: {len(filas)} nodos corticales.\")"
+  },
+  {
+    "file": "biorag.py",
+    "line": 741,
+    "kind": "print template",
+    "text": "print(f\"[MemoryBioRAG] Corteza: {total} nodos (pagina {pagina}/{total_paginas})\")"
+  },
+  {
+    "file": "biorag.py",
+    "line": 742,
+    "kind": "print template",
+    "text": "print(\"=\" * 70)"
+  },
+  {
+    "file": "biorag.py",
+    "line": 753,
+    "kind": "print template",
+    "text": "print(\"=\" * 70)"
+  },
+  {
+    "file": "biorag.py",
+    "line": 774,
+    "kind": "print template",
+    "text": "print(f\"Nodos activos:      {activos}\")"
+  },
+  {
+    "file": "biorag.py",
+    "line": 775,
+    "kind": "print template",
+    "text": "print(f\"Nodos dormidos:     {dormidos}\")"
+  },
+  {
+    "file": "biorag.py",
+    "line": 776,
+    "kind": "print template",
+    "text": "print(f\"Memoria de trabajo: {corto} items\")"
+  },
+  {
+    "file": "biorag.py",
+    "line": 777,
+    "kind": "print template",
+    "text": "print(f\"Energia sinaptica:  {energia}\")"
+  },
+  {
+    "file": "biorag.py",
+    "line": 778,
+    "kind": "print template",
+    "text": "print(f\"Nodos con sustantivos clave: {con_sust}/{total_lp} ({pct:.1f}%)\")"
+  },
+  {
+    "file": "biorag.py",
+    "line": 846,
+    "kind": "print template",
+    "text": "print(\"Sin coincidencias de familiaridad.\")"
+  },
+  {
+    "file": "biorag.py",
+    "line": 870,
+    "kind": "print template",
+    "text": "print(\"[Dashboard] Verificando dependencias...\")"
+  },
+  {
+    "file": "biorag.py",
+    "line": 886,
+    "kind": "print template",
+    "text": "print(\"[Dashboard] Iniciando backend en http://localhost:8001 ...\")"
+  },
+  {
+    "file": "biorag.py",
+    "line": 895,
+    "kind": "print template",
+    "text": "print(\"[Dashboard] Iniciando frontend en http://localhost:3000 ...\")"
+  },
+  {
+    "file": "biorag.py",
+    "line": 917,
+    "kind": "print template",
+    "text": "print(\"[Dashboard] Esperando health-checks...\")"
+  },
+  {
+    "file": "biorag.py",
+    "line": 923,
+    "kind": "print template",
+    "text": "print(\"[OK] Backend listo\")"
+  },
+  {
+    "file": "biorag.py",
+    "line": 930,
+    "kind": "print template",
+    "text": "print(\"[OK] Frontend listo\")"
+  },
+  {
+    "file": "biorag.py",
+    "line": 933,
+    "kind": "print template",
+    "text": "print(\"[Dashboard] Abriendo navegador en http://localhost:3000 ...\")"
+  },
+  {
+    "file": "biorag.py",
+    "line": 953,
+    "kind": "print template",
+    "text": "print(\"[Dashboard] Listo. Presiona Ctrl+C para detener.\")"
+  },
+  {
+    "file": "biorag.py",
+    "line": 189,
+    "kind": "print template",
+    "text": "print(\"Especifica un concepto. Ej: biorag.py buscar san_cayetano\")"
+  },
+  {
+    "file": "biorag.py",
+    "line": 190,
+    "kind": "print template",
+    "text": "print(\"  --deep        Buscar tambien en memoria dormida (despierta el nodo)\")"
+  },
+  {
+    "file": "biorag.py",
+    "line": 191,
+    "kind": "print template",
+    "text": "print(\"  --todos       Mostrar TODOS los recuerdos relacionados, ordenados por relevancia\")"
+  },
+  {
+    "file": "biorag.py",
+    "line": 192,
+    "kind": "print template",
+    "text": "print(\"  --frase       Busqueda por frase en lenguaje natural (FTS5, no requiere stemming)\")"
+  },
+  {
+    "file": "biorag.py",
+    "line": 193,
+    "kind": "print template",
+    "text": "print(\"  --tokens      Lista de raices stemmeadas separadas por comas (busqueda multi-token)\")"
+  },
+  {
+    "file": "biorag.py",
+    "line": 194,
+    "kind": "print template",
+    "text": "print(\"  --pagina N    Pagina de resultados (defecto: 1)\")"
+  },
+  {
+    "file": "biorag.py",
+    "line": 195,
+    "kind": "print template",
+    "text": "print(\"  --modo M      strict | relaxed (defecto: relaxed)\")"
+  },
+  {
+    "file": "biorag.py",
+    "line": 196,
+    "kind": "print template",
+    "text": "print(\"  --cat T       Filtrar por categoria (ej: proyecto, leccion, hardware)\")"
+  },
+  {
+    "file": "biorag.py",
+    "line": 197,
+    "kind": "print template",
+    "text": "print(\"  --completo    Muestra el contenido completo sin truncar\")"
+  },
+  {
+    "file": "biorag.py",
+    "line": 198,
+    "kind": "print template",
+    "text": "print(\"  --asociados   Muestra nodos asociados a los resultados\")"
+  },
+  {
+    "file": "biorag.py",
+    "line": 281,
+    "kind": "print template",
+    "text": "print(\"Especifica un concepto.\")"
+  },
+  {
+    "file": "biorag.py",
+    "line": 304,
+    "kind": "print template",
+    "text": "print(f\"[MemoryBioRAG] {total} coincidencias encontradas (pagina {pagina}/{total_paginas})\")"
+  },
+  {
+    "file": "biorag.py",
+    "line": 307,
+    "kind": "print template",
+    "text": "print(\"=\" * 60)"
+  },
+  {
+    "file": "biorag.py",
+    "line": 319,
+    "kind": "print template",
+    "text": "print(\"\\n\" + \"=\" * 60)"
+  },
+  {
+    "file": "biorag.py",
+    "line": 454,
+    "kind": "print template",
+    "text": "print(\"Uso: biorag.py guardar <clave> <contenido> --sustantivos-clave \\\"s1,s2\\\"\")"
+  },
+  {
+    "file": "biorag.py",
+    "line": 467,
+    "kind": "print template",
+    "text": "print(\"Error: La clave no puede estar vacía.\")"
+  },
+  {
+    "file": "biorag.py",
+    "line": 556,
+    "kind": "print template",
+    "text": "print(f\"\\n❌ {razon}\")"
+  },
+  {
+    "file": "biorag.py",
+    "line": 567,
+    "kind": "print template",
+    "text": "print(\"Uso: biorag.py sustantivos <concepto>\")"
+  },
+  {
+    "file": "biorag.py",
+    "line": 588,
+    "kind": "print template",
+    "text": "print(f\"Error: Concepto '{clave}' no encontrado en la corteza.\")"
+  },
+  {
+    "file": "biorag.py",
+    "line": 593,
+    "kind": "print template",
+    "text": "print(f\"El concepto '{clave}' no tiene sustantivos clave asignados (nodo legado).\")"
+  },
+  {
+    "file": "biorag.py",
+    "line": 594,
+    "kind": "print template",
+    "text": "print(f\"Puedes agregarlos con: biorag.py agregar_sustantivos {clave} \\\"termino1,termino2\\\"\")"
+  },
+  {
+    "file": "biorag.py",
+    "line": 680,
+    "kind": "print template",
+    "text": "print(\"Uso: biorag.py asociar <concepto_a> <concepto_b>\")"
+  },
+  {
+    "file": "biorag.py",
+    "line": 698,
+    "kind": "print template",
+    "text": "print(\"La corteza esta vacia.\")"
+  },
+  {
+    "file": "biorag.py",
+    "line": 705,
+    "kind": "print template",
+    "text": "print(f\"{c:<25} {str(cat):<12} {peso:<6.2f} {est:<9} {sust_str:<25} {asoc or ''}\")"
+  },
+  {
+    "file": "biorag.py",
+    "line": 729,
+    "kind": "print template",
+    "text": "print(\"La corteza esta vacia.\")"
+  },
+  {
+    "file": "biorag.py",
+    "line": 747,
+    "kind": "print template",
+    "text": "print(f\"  {marca} {concepto} (peso:{peso:.2f}){sust_str}\")"
+  },
+  {
+    "file": "biorag.py",
+    "line": 751,
+    "kind": "print template",
+    "text": "print()"
+  },
+  {
+    "file": "biorag.py",
+    "line": 755,
+    "kind": "print template",
+    "text": "print(f\"Usa --pagina {pagina + 1} para mas resultados.\")"
+  },
+  {
+    "file": "biorag.py",
+    "line": 784,
+    "kind": "print template",
+    "text": "print(\"Uso: biorag.py comunicar <destino> <mensaje>\")"
+  },
+  {
+    "file": "biorag.py",
+    "line": 785,
+    "kind": "print template",
+    "text": "print(\"  destino: athena, artemis, hermes, todos\")"
+  },
+  {
+    "file": "biorag.py",
+    "line": 786,
+    "kind": "print template",
+    "text": "print(\"  Identificate con env AGENT_NAME=athena|artemis|hermes\")"
+  },
+  {
+    "file": "biorag.py",
+    "line": 812,
+    "kind": "print template",
+    "text": "print(\"No hay mensajes.\")"
+  },
+  {
+    "file": "biorag.py",
+    "line": 823,
+    "kind": "print template",
+    "text": "print(f\"{marca} #{msg_id} {fecha} | {origen} -> {dest}\")"
+  },
+  {
+    "file": "biorag.py",
+    "line": 824,
+    "kind": "print template",
+    "text": "print(f\"         {contenido}\")"
+  },
+  {
+    "file": "biorag.py",
+    "line": 827,
+    "kind": "print template",
+    "text": "print()"
+  },
+  {
+    "file": "biorag.py",
+    "line": 839,
+    "kind": "print template",
+    "text": "print(\"Uso: biorag.py familiaridad <texto a escanear>\")"
+  },
+  {
+    "file": "biorag.py",
+    "line": 864,
+    "kind": "print template",
+    "text": "print(f\"Error: No existe {dashboard_dir}\")"
+  },
+  {
+    "file": "biorag.py",
+    "line": 867,
+    "kind": "print template",
+    "text": "print(f\"Error: No existe {backend_dir}\")"
+  },
+  {
+    "file": "biorag.py",
+    "line": 919,
+    "kind": "print template",
+    "text": "print(\"[ERROR] Backend no respondió a tiempo\")"
+  },
+  {
+    "file": "biorag.py",
+    "line": 926,
+    "kind": "print template",
+    "text": "print(\"[ERROR] Frontend no respondió a tiempo\")"
+  },
+  {
+    "file": "biorag.py",
+    "line": 938,
+    "kind": "print template",
+    "text": "print(\"\\n[Dashboard] Apagando...\")"
+  },
+  {
+    "file": "biorag.py",
+    "line": 1003,
+    "kind": "print template",
+    "text": "print(__doc__)"
+  },
+  {
+    "file": "biorag.py",
+    "line": 1007,
+    "kind": "print template",
+    "text": "print(f\"Comando desconocido: {comando}. Usa 'python3 biorag.py help' para ver la ayuda completa.\")"
+  },
+  {
+    "file": "biorag.py",
+    "line": 221,
+    "kind": "print template",
+    "text": "print(f\"Error en flag de sustantivos: {e}\")"
+  },
+  {
+    "file": "biorag.py",
+    "line": 306,
+    "kind": "print template",
+    "text": "print(f\"  ({subtitulo})\")"
+  },
+  {
+    "file": "biorag.py",
+    "line": 309,
+    "kind": "print template",
+    "text": "print(f\"\\n--- #{i}: {nombre} (peso:{peso:.2f}, estado:{estado}, score:{score:.2f}) ---\")"
+  },
+  {
+    "file": "biorag.py",
+    "line": 310,
+    "kind": "print template",
+    "text": "print(contenido or \"\")"
+  },
+  {
+    "file": "biorag.py",
+    "line": 321,
+    "kind": "print template",
+    "text": "print(f\"Usa --pagina {pagina + 1} para mas resultados.\")"
+  },
+  {
+    "file": "biorag.py",
+    "line": 332,
+    "kind": "print template",
+    "text": "print(f\"No se encontraron coincidencias para la frase.\")"
+  },
+  {
+    "file": "biorag.py",
+    "line": 333,
+    "kind": "print template",
+    "text": "print(\"\\n💡 Sugerencia: Puedes refinar la búsqueda especificando su núcleo temático con --sustantivos-clave \\\"termino1,termino2\\\"\")"
+  },
+  {
+    "file": "biorag.py",
+    "line": 345,
+    "kind": "print template",
+    "text": "print(f\"No se encontraron coincidencias para los tokens especificados.\")"
+  },
+  {
+    "file": "biorag.py",
+    "line": 346,
+    "kind": "print template",
+    "text": "print(\"\\n💡 Sugerencia: Puedes refinar la búsqueda especificando su núcleo temático con --sustantivos-clave \\\"termino1,termino2\\\"\")"
+  },
+  {
+    "file": "biorag.py",
+    "line": 360,
+    "kind": "print template",
+    "text": "print(f\"No se encontro '{concepto}' en la corteza.\")"
+  },
+  {
+    "file": "biorag.py",
+    "line": 361,
+    "kind": "print template",
+    "text": "print(\"\\n💡 Sugerencia: Puedes refinar la búsqueda especificando su núcleo temático con --sustantivos-clave \\\"termino1,termino2\\\"\")"
+  },
+  {
+    "file": "biorag.py",
+    "line": 375,
+    "kind": "print template",
+    "text": "print(resultado)"
+  },
+  {
+    "file": "biorag.py",
+    "line": 377,
+    "kind": "print template",
+    "text": "print(resultado[:1500] + (\"...\" if len(resultado) > 1500 else \"\"))"
+  },
+  {
+    "file": "biorag.py",
+    "line": 428,
+    "kind": "print template",
+    "text": "print(\"Error: --syn requiere una lista de terminos. Ej: --syn \\\"angular,forms\\\"\")"
+  },
+  {
+    "file": "biorag.py",
+    "line": 435,
+    "kind": "print template",
+    "text": "print(\"Error: --cat requiere un tipo. Ej: --cat proyecto\")"
+  },
+  {
+    "file": "biorag.py",
+    "line": 463,
+    "kind": "print template",
+    "text": "print(f\"Error de validación: {e}\")"
+  },
+  {
+    "file": "biorag.py",
+    "line": 476,
+    "kind": "print template",
+    "text": "print(f\"\\n❌ Error en --sustantivos-clave: {e}\\n\")"
+  },
+  {
+    "file": "biorag.py",
+    "line": 573,
+    "kind": "print template",
+    "text": "print(f\"Error de validación: {e}\")"
+  },
+  {
+    "file": "biorag.py",
+    "line": 621,
+    "kind": "print template",
+    "text": "print(\"Uso: biorag.py agregar_sustantivos <concepto> \\\"sustantivo1,sustantivo2\\\"\")"
+  },
+  {
+    "file": "biorag.py",
+    "line": 627,
+    "kind": "print template",
+    "text": "print(\"Uso: biorag.py agregar_sustantivos <concepto> --sustantivos-clave \\\"sustantivo1,sustantivo2\\\"\")"
+  },
+  {
+    "file": "biorag.py",
+    "line": 636,
+    "kind": "print template",
+    "text": "print(f\"Error de validación: {e}\")"
+  },
+  {
+    "file": "biorag.py",
+    "line": 645,
+    "kind": "print template",
+    "text": "print(f\"\\n❌ Error en sustantivos clave: {e}\\n\")"
+  },
+  {
+    "file": "biorag.py",
+    "line": 657,
+    "kind": "print template",
+    "text": "print(f\"Sustantivos clave actualizados para '{clave}': {sustantivos_norm} (anteriores: {anterior})\")"
+  },
+  {
+    "file": "biorag.py",
+    "line": 659,
+    "kind": "print template",
+    "text": "print(f\"Sustantivos clave asignados para '{clave}': {sustantivos_norm}\")"
+  },
+  {
+    "file": "biorag.py",
+    "line": 669,
+    "kind": "print template",
+    "text": "print(f\"Sustantivos clave actualizados para '{clave}' (corto plazo): {sustantivos_norm} (anteriores: {anterior})\")"
+  },
+  {
+    "file": "biorag.py",
+    "line": 671,
+    "kind": "print template",
+    "text": "print(f\"Sustantivos clave asignados para '{clave}' (corto plazo): {sustantivos_norm}\")"
+  },
+  {
+    "file": "biorag.py",
+    "line": 750,
+    "kind": "print template",
+    "text": "print(f\"         {preview}\")"
+  },
+  {
+    "file": "biorag.py",
+    "line": 826,
+    "kind": "print template",
+    "text": "print(f\"         Leído por: {leido_por.strip(',').replace(',', ', ')}\")"
+  },
+  {
+    "file": "biorag.py",
+    "line": 844,
+    "kind": "print template",
+    "text": "print(f\"[Nota de Familiaridad: Te resulta familiar el concepto \\\"{c}\\\"]\")"
+  },
+  {
+    "file": "biorag.py",
+    "line": 882,
+    "kind": "print template",
+    "text": "print(\"[Dashboard] npm ci falló, intentando npm install...\")"
+  },
+  {
+    "file": "biorag.py",
+    "line": 1016,
+    "kind": "print template",
+    "text": "print(f\"Error: {e}\")"
+  },
+  {
+    "file": "biorag.py",
+    "line": 242,
+    "kind": "print template",
+    "text": "print(\"Error: --tokens requiere al menos un valor.\")"
+  },
+  {
+    "file": "biorag.py",
+    "line": 243,
+    "kind": "print template",
+    "text": "print(\"  Ej: --tokens \\\"raiz1,raiz2\\\"\")"
+  },
+  {
+    "file": "biorag.py",
+    "line": 246,
+    "kind": "print template",
+    "text": "print(\"Error: --tokens requiere un valor, no otro flag.\")"
+  },
+  {
+    "file": "biorag.py",
+    "line": 247,
+    "kind": "print template",
+    "text": "print(\"  Ej: --tokens \\\"raiz1,raiz2\\\"\")"
+  },
+  {
+    "file": "biorag.py",
+    "line": 252,
+    "kind": "print template",
+    "text": "print(\"Error: --tokens requiere al menos una raiz.\")"
+  },
+  {
+    "file": "biorag.py",
+    "line": 253,
+    "kind": "print template",
+    "text": "print(\"  Ej: --tokens \\\"raiz1,raiz2\\\"\")"
+  },
+  {
+    "file": "biorag.py",
+    "line": 314,
+    "kind": "print template",
+    "text": "print(f\"     Sustantivos clave: {', '.join(sk_items)}\")"
+  },
+  {
+    "file": "biorag.py",
+    "line": 318,
+    "kind": "print template",
+    "text": "print(f\"     asociaciones: {', '.join(vecinos)}\")"
+  },
+  {
+    "file": "biorag.py",
+    "line": 960,
+    "kind": "print template",
+    "text": "print(f\"[{name}] {line.decode().rstrip()}\")"
+  },
+  {
+    "file": "biorag.py",
+    "line": 963,
+    "kind": "print template",
+    "text": "print(f\"[{name} ERROR] {err.decode().rstrip()}\")"
+  },
+  {
+    "file": "core/cli.py",
+    "line": 46,
+    "kind": "print template",
+    "text": "print('BioRAG — local memory for agents\\n')"
+  },
+  {
+    "file": "core/cli.py",
+    "line": 47,
+    "kind": "print template",
+    "text": "print('Usage: biorag <command> [options]')"
+  },
+  {
+    "file": "core/cli.py",
+    "line": 48,
+    "kind": "print template",
+    "text": "print('       python3 biorag.py <command> [options]\\n')"
+  },
+  {
+    "file": "core/cli.py",
+    "line": 49,
+    "kind": "print template",
+    "text": "print('Summary:\\nLocal memory tools for agents.\\n')"
+  },
+  {
+    "file": "core/cli.py",
+    "line": 50,
+    "kind": "print template",
+    "text": "print('What is it for?\\nStore, retrieve and maintain memory shared by your local agents.\\n')"
+  },
+  {
+    "file": "core/cli.py",
+    "line": 56,
+    "kind": "print template",
+    "text": "print('Help: biorag help <command>  |  biorag <command> --help')"
+  },
+  {
+    "file": "core/cli.py",
+    "line": 57,
+    "kind": "print template",
+    "text": "print('You can replace `biorag` with `python3 biorag.py` in the examples.\\n')"
+  },
+  {
+    "file": "core/cli.py",
+    "line": 58,
+    "kind": "print template",
+    "text": "print('Key concepts:')"
+  },
+  {
+    "file": "core/cli.py",
+    "line": 59,
+    "kind": "print template",
+    "text": "print('  Working memory: guardar stores new memories here; run sueno before buscar.')"
+  },
+  {
+    "file": "core/cli.py",
+    "line": 60,
+    "kind": "print template",
+    "text": "print('  `corteza` (cortex: permanent memory): consolidated memories used by buscar/listar.')"
+  },
+  {
+    "file": "core/cli.py",
+    "line": 61,
+    "kind": "print template",
+    "text": "print('  `sueno` (sleep: consolidation): moves working memories into permanent storage.')"
+  },
+  {
+    "file": "core/cli.py",
+    "line": 62,
+    "kind": "print template",
+    "text": "print('  `sustantivos clave` (key nouns: the core topic of a memory).')"
+  },
+  {
+    "file": "core/cli.py",
+    "line": 63,
+    "kind": "print template",
+    "text": "print('  Dormant node: an inactive memory; buscar --deep can wake a retrieved node.\\n')"
+  },
+  {
+    "file": "core/cli.py",
+    "line": 64,
+    "kind": "print template",
+    "text": "print('Before you start:\\nDatabase: BIORAG_PATH selects your database; use a disposable copy for testing.')"
+  },
+  {
+    "file": "core/cli.py",
+    "line": 65,
+    "kind": "print template",
+    "text": "print('  Example: BIORAG_PATH=/path/copy.db biorag estado')"
+  },
+  {
+    "file": "core/cli.py",
+    "line": 66,
+    "kind": "print template",
+    "text": "print('  Commands may initialize or prepare schema when opening a database; help does not.\\n')"
+  },
+  {
+    "file": "core/cli.py",
+    "line": 67,
+    "kind": "print template",
+    "text": "print('\\nBefore applying update, stop the MCP server (agent-to-memory tools process)')"
+  },
+  {
+    "file": "core/cli.py",
+    "line": 68,
+    "kind": "print template",
+    "text": "print('and the daemon (background maintenance process). Use the same Python environment.')"
+  },
+  {
+    "file": "core/cli.py",
+    "line": 69,
+    "kind": "print template",
+    "text": "print('Update requires a clean Git checkout (no local changes) and an external database')"
+  },
+  {
+    "file": "core/cli.py",
+    "line": 70,
+    "kind": "print template",
+    "text": "print('(outside the checkout). Planning may access the network.')"
+  },
+  {
+    "file": "core/cli.py",
+    "line": 71,
+    "kind": "print template",
+    "text": "print('Recovery --stage never overwrites live memory or rolls back Git/pip.')"
+  },
+  {
+    "file": "core/cli.py",
+    "line": 72,
+    "kind": "print template",
+    "text": "print('The six `contexto_vigencia` modes belong to MCP `recordar`/`buscar`, not CLI `buscar`.')"
+  },
+  {
+    "file": "core/cli.py",
+    "line": 73,
+    "kind": "print template",
+    "text": "print('Options:\\n  -h, --help  Show help without opening a database.\\n')"
+  },
+  {
+    "file": "core/cli.py",
+    "line": 74,
+    "kind": "print template",
+    "text": "print('Examples:')"
+  },
+  {
+    "file": "core/cli.py",
+    "line": 75,
+    "kind": "print template",
+    "text": "print('  biorag guardar --help')"
+  },
+  {
+    "file": "core/cli.py",
+    "line": 76,
+    "kind": "print template",
+    "text": "print('  biorag buscar --help')"
+  },
+  {
+    "file": "core/cli.py",
+    "line": 77,
+    "kind": "print template",
+    "text": "print('  biorag update --dry-run')"
+  },
+  {
+    "file": "core/cli.py",
+    "line": 78,
+    "kind": "print template",
+    "text": "print('  biorag recovery --help')"
+  },
+  {
+    "file": "core/cli.py",
+    "line": 79,
+    "kind": "print template",
+    "text": "print('\\nExpected output:\\nCommand-specific text or JSON; runtime messages may remain Spanish.')"
+  },
+  {
+    "file": "core/cli.py",
+    "line": 80,
+    "kind": "print template",
+    "text": "print('\\nSee also:\\n  biorag guardar --help\\n  biorag buscar --help\\n  biorag sueno --help\\n  biorag listar --help')"
+  },
+  {
+    "file": "core/cli.py",
+    "line": 106,
+    "kind": "print template",
+    "text": "print(f'Consulta el manual biorag.py para el comando {command}.')"
+  },
+  {
+    "file": "core/cli.py",
+    "line": 52,
+    "kind": "print template",
+    "text": "print(group + ':')"
+  },
+  {
+    "file": "core/cli.py",
+    "line": 55,
+    "kind": "print template",
+    "text": "print()"
+  },
+  {
+    "file": "core/cli.py",
+    "line": 135,
+    "kind": "print template",
+    "text": "print(f'Comando desconocido: {command}. Consulta biorag --help.', file=sys.stderr)"
+  },
+  {
+    "file": "core/cli.py",
+    "line": 54,
+    "kind": "print template",
+    "text": "print(f'  {name:22} {description}')"
+  },
+  {
+    "file": "core/cli.py",
+    "line": 100,
+    "kind": "print template",
+    "text": "print('Usage: ' + usage)"
+  },
+  {
+    "file": "core/cli.py",
+    "line": 101,
+    "kind": "print template",
+    "text": "print('\\n' + help_intro(command, summary))"
+  },
+  {
+    "file": "core/cli.py",
+    "line": 102,
+    "kind": "print template",
+    "text": "print('\\nOptions:\\n' + options.strip())"
+  },
+  {
+    "file": "core/cli.py",
+    "line": 103,
+    "kind": "print template",
+    "text": "print('\\n' + help_end(command))"
+  },
+  {
+    "file": "core/cli.py",
+    "line": 122,
+    "kind": "print template",
+    "text": "print('Uso: biorag help <comando>. Consulta biorag --help.', file=sys.stderr)"
+  },
+  {
+    "file": "core/updater.py",
+    "line": 210,
+    "kind": "print template",
+    "text": "print(json.dumps(result,ensure_ascii=False,indent=2))"
+  },
+  {
+    "file": "core/updater.py",
+    "line": 212,
+    "kind": "print template",
+    "text": "print(json.dumps(dict(status='error',message=str(exc)),ensure_ascii=False),file=sys.stderr)"
+  },
+  {
+    "file": "core/recovery.py",
+    "line": 72,
+    "kind": "print template",
+    "text": "print(json.dumps(stage(args.receipt) if args.stage else plan(args.receipt),ensure_ascii=False,indent=2))"
+  },
+  {
+    "file": "core/recovery.py",
+    "line": 75,
+    "kind": "print template",
+    "text": "print(json.dumps(dict(status='error',message=str(exc)),ensure_ascii=False))"
+  },
+  {
+    "file": "core/corrections_cli.py",
+    "line": 72,
+    "kind": "print template",
+    "text": "print(json.dumps(result, ensure_ascii=False, indent=2))"
+  },
+  {
+    "file": "core/corrections_cli.py",
+    "line": 75,
+    "kind": "print template",
+    "text": "print(json.dumps(dict(status='error', error=type(exc).__name__, message=str(exc)),\n                         ensure_ascii=False), file=sys.stderr)"
+  },
+  {
+    "file": "core/mcp_server/search.py",
+    "line": 292,
+    "kind": "response/error field",
+    "text": "\"El parámetro 'limite' debe ser un entero positivo mayor a 0.\""
+  },
+  {
+    "file": "core/mcp_server/search.py",
+    "line": 303,
+    "kind": "response/error field",
+    "text": "\"El parámetro 'context_window' debe estar en el rango [0, 5].\""
+  },
+  {
+    "file": "core/mcp_server/search.py",
+    "line": 213,
+    "kind": "response/error field",
+    "text": "\"❌ SUSTANTIVOS_CLAVE_REQUERIDOS — búsqueda semántica NO ejecutada.\\n\\n\"\n                    \"El parámetro 'sustantivos_clave' es OBLIGATORIO en toda búsqueda textual.\\n\"\n                    \"Debes interpretar qué intenta recordar el usuario y extraer conceptos centrales de esa intención.\\n\\n\"\n                    \"Pauta recomendada: habitualmente entre 2 y 4 conceptos centrales (permitido de 1 a 10 términos válidos).\\n\"\n                    \"Ejemplo: query='¿qué fotos tomé en el paseo por la montaña?'\\n\"\n                    \"         sustantivos_clave='fotografia,montana,paisaje,viaje'\\n\\n\"\n                    \"Formato: minúsculas, sin tildes, separados por coma (2-15 chars por término, solo alfanuméricos y guion bajo).\""
+  },
+  {
+    "file": "core/mcp_server/search.py",
+    "line": 315,
+    "kind": "response/error field",
+    "text": "\"El parámetro 'dias' debe ser un entero positivo.\""
+  },
+  {
+    "file": "core/mcp_server/search.py",
+    "line": 396,
+    "kind": "response/error field",
+    "text": "\"forzar_rafaga=True requiere rafaga_palabras. Pasa terminos separados por coma.\""
+  },
+  {
+    "file": "core/mcp_server/search.py",
+    "line": 667,
+    "kind": "response/error field",
+    "text": "\"No se encontraron recuerdos en la corteza. Busca en tu historial de conversacion o contexto actual.\""
+  },
+  {
+    "file": "core/mcp_server/search.py",
+    "line": 237,
+    "kind": "response/error field",
+    "text": "\"❌ SUSTANTIVOS_CLAVE_REQUERIDOS — búsqueda semántica NO ejecutada.\\n\\n\"\n                        \"El parámetro 'sustantivos_clave' no contenía términos válidos tras normalizar.\\n\"\n                        \"Pauta habitual: de 2 a 4 términos centrales (permitido de 1 a 10 conceptos válidos).\""
+  },
+  {
+    "file": "core/mcp_server/search.py",
+    "line": 249,
+    "kind": "response/error field",
+    "text": "\"❌ SUSTANTIVOS_CLAVE_CANTIDAD_INVALIDA — búsqueda NO ejecutada.\\n\\n\"\n                        f\"Se recibieron {len(sk_unicos)} términos; el máximo técnico permitido es 10.\\n\"\n                        \"Pauta recomendada: habitualmente entre 2 y 4 conceptos centrales (o hasta 10 si cada uno aporta información distintiva).\""
+  },
+  {
+    "file": "core/mcp_server/search.py",
+    "line": 108,
+    "kind": "response/error field",
+    "text": "f\"Fecha 'hasta' inválida: '{hasta}'. Formato: YYYY-MM-DD\""
+  },
+  {
+    "file": "core/mcp_server/search.py",
+    "line": 263,
+    "kind": "response/error field",
+    "text": "f\"❌ SUSTANTIVOS_CLAVE_FORMATO_INVALIDO — búsqueda NO ejecutada.\\n\\n\"\n                            f\"SUSTANTIVOS_CLAVE_FORMATO_INVALIDO: el término '{_sk_term}' no cumple \"\n                            \"(2-15 chars, sin espacios, solo alfanuméricos y guion bajo).\""
+  },
+  {
+    "file": "core/mcp_server/search.py",
+    "line": 99,
+    "kind": "response/error field",
+    "text": "f\"Fecha 'desde' inválida: '{desde}'. Formato: YYYY-MM-DD\""
+  },
+  {
+    "file": "core/mcp_server/write.py",
+    "line": 116,
+    "kind": "response/error field",
+    "text": "f\"❌ BÚSQUEDA PREVIA REQUERIDA — el nodo '{clave}' NO fue guardado.\\n\\n\"\n                \"INVARIANTE BIORAG: Ningún agente puede guardar o aprender información sin antes verificar \"\n                \"si ya existe o se relaciona con conocimientos previos en la memoria.\\n\\n\"\n                \"FLUJO OBLIGATORIO (3 pasos):\\n\"\n                \"  1. Llamá primero a `biorag_buscar` o `biorag_recordar` con la consulta del tema a guardar.\\n\"\n                \"  2. Evaluá los resultados:\\n\"\n                \"     • Si ya existe un nodo idéntico/complementario → usá `biorag_actualizar`.\\n\"\n                \"     • Si el tema es nuevo pero se relaciona con existentes → usá `biorag_aprender` con `vincular_con`.\\n\"\n                \"     • Si es un tema completamente independiente → usá `biorag_aprender` con `busqueda_previa=True`.\\n\"\n                \"  3. Repetí la llamada a `biorag_aprender` pasando explícitamente `busqueda_previa=True`.\\n\\n\"\n                \"ACCIÓN REQUERIDA: Realizá la búsqueda previa y reintentá con `busqueda_previa=True`.\""
+  },
+  {
+    "file": "core/mcp_server/write.py",
+    "line": 154,
+    "kind": "response/error field",
+    "text": "f\"❌ BRIDGES AUSENTES — el nodo '{clave}' NO fue guardado.\\n\\n\"\n                \"Los parámetros concepto, contenido, dimensiones y syn ya llegaron correctamente. \"\n                \"Solo falta el parámetro obligatorio 'bridges'.\\n\\n\"\n                \"ACCIÓN REQUERIDA: repetí la llamada a biorag_aprender con TODOS los mismos parámetros \"\n                \"más el campo bridges. No es necesario cambiar nada más — solo añadí bridges.\\n\\n\"\n                \"Se requieren exactamente 5 bridges cubriendo los 5 ángulos semánticos distintos:\\n\"\n                \"  1. 'sinonimo': mismo significado con otro vocabulario\\n\"\n                \"  2. 'problema': dolor o falla que resuelve este nodo\\n\"\n                \"  3. 'solucion': técnica o herramienta que aplica este nodo\\n\"\n                \"  4. 'situacion': caso de uso, rol o contexto de búsqueda\\n\"\n                \"  5. 'ingenuo': búsqueda sin tecnicismos (cómo lo googlearía un novato)\\n\\n\"\n                \"FORMATO — lista de 5 dicts obligatorios:\\n\"\n                \"bridges=[\\n\"\n                \"  {'text': 'modo reposo del sistema de memoria', 'angle': 'sinonimo'},\\n\"\n                \"  {'text': 'proceso que genera ideas en silencio', 'angle': 'problema'},\\n\"\n                \"  {'text': 'hilos de pensamiento espontaneo', 'angle': 'solucion'},\\n\"\n                \"  {'text': 'cerebro piensa solo cuando nadie pregunta', 'angle': 'situacion'},\\n\"\n                \"  {'text': 'que pasa cuando no hay actividad en BioRAG', 'angle': 'ingenuo'}\\n\"\n                \"]\""
+  },
+  {
+    "file": "core/mcp_server/write.py",
+    "line": 225,
+    "kind": "response/error field",
+    "text": "f\"❌ SUSTANTIVOS_CLAVE_AUSENTES — el nodo '{clave}' NO fue guardado.\\n\\n\"\n                \"Los parámetros concepto, contenido, dimensiones, syn y bridges ya llegaron correctamente. \"\n                \"Solo falta el parámetro obligatorio 'sustantivos_clave'.\\n\\n\"\n                \"ACCIÓN REQUERIDA: repetí la llamada a biorag_aprender con TODOS los mismos parámetros \"\n                \"más el campo sustantivos_clave. No es necesario cambiar nada más — solo añadí \"\n                \"sustantivos_clave.\\n\\n\"\n                \"Protocolo: ¿De QUÉ TRATA este nodo? Identificá 2 a 10 sustantivos centrales. \"\n                \"Formato: 'servidor,backend,timeout,conexion'\""
+  },
+  {
+    "file": "core/mcp_server/write.py",
+    "line": 252,
+    "kind": "response/error field",
+    "text": "f\"❌ SUSTANTIVOS_CLAVE_CANTIDAD_INVALIDA — el nodo '{clave}' NO fue guardado.\\n\\n\"\n                \"SUSTANTIVOS_CLAVE_CANTIDAD_INVALIDA: se requieren entre 2 a 10 términos \"\n                f\"únicos; se recibió {len(sk_unicos)} tras deduplicar. \"\n                \"Formato: 'servidor,backend,timeout,conexion'\""
+  },
+  {
+    "file": "core/mcp_server/write.py",
+    "line": 269,
+    "kind": "response/error field",
+    "text": "f\"❌ SUSTANTIVOS_CLAVE_FORMATO_INVALIDO — el nodo '{clave}' NO fue guardado.\\n\\n\"\n                    f\"SUSTANTIVOS_CLAVE_FORMATO_INVALIDO: el término '{_sk_term}' no cumple formato \"\n                    \"(2-15 chars, sin espacios, solo alfanuméricos y guion bajo).\""
+  },
+  {
+    "file": "core/mcp_server/write.py",
+    "line": 899,
+    "kind": "response/error field",
+    "text": "f\"❌ SUSTANTIVOS_CLAVE_AUSENTES — no se pudo actualizar '{clave}'.\\n\\n\"\n                    \"Falta el parámetro obligatorio 'sustantivos_clave'.\\n\"\n                    \"Formato: 2 a 10 términos únicos separados por coma (ej: 'servidor,backend,timeout').\""
+  },
+  {
+    "file": "core/mcp_server/write.py",
+    "line": 920,
+    "kind": "response/error field",
+    "text": "f\"❌ SUSTANTIVOS_CLAVE_CANTIDAD_INVALIDA — no se pudo actualizar '{clave}'.\\n\\n\"\n                    \"SUSTANTIVOS_CLAVE_CANTIDAD_INVALIDA: se requieren entre 2 a 10 términos \"\n                    f\"únicos; se recibió {len(sk_unicos)} tras deduplicar. \"\n                    \"Formato: 'servidor,backend,timeout,conexion'\""
+  },
+  {
+    "file": "core/mcp_server/write.py",
+    "line": 1172,
+    "kind": "response/error field",
+    "text": "f\"Nodo '{concepto}' actualizado\""
+  },
+  {
+    "file": "core/mcp_server/write.py",
+    "line": 935,
+    "kind": "response/error field",
+    "text": "f\"❌ SUSTANTIVOS_CLAVE_FORMATO_INVALIDO — no se pudo actualizar '{clave}'.\\n\\n\"\n                        f\"SUSTANTIVOS_CLAVE_FORMATO_INVALIDO: el término '{_sk_term}' no cumple formato \"\n                        \"(2-15 chars, sin espacios, solo alfanuméricos y guion bajo).\""
+  },
+  {
+    "file": "core/mcp_server/write.py",
+    "line": 950,
+    "kind": "response/error field",
+    "text": "f\"El concepto '{clave}' no existe en la base de datos.\""
+  },
+  {
+    "file": "core/mcp_server/write.py",
+    "line": 986,
+    "kind": "response/error field",
+    "text": "f\"El concepto '{clave}' no existe en la base de datos.\""
+  },
+  {
+    "file": "core/mcp_server/write.py",
+    "line": 1061,
+    "kind": "response/error field",
+    "text": "f\"Nodo '{concepto}' no encontrado\""
+  },
+  {
+    "file": "core/mcp_server/write.py",
+    "line": 1143,
+    "kind": "response/error field",
+    "text": "\"No se especificaron campos a actualizar\""
+  },
+  {
+    "file": "core/mcp_server/write.py",
+    "line": 1073,
+    "kind": "response/error field",
+    "text": "f\"peso_sinaptico debe estar entre 0.0 y 1.0, recibido: {peso_sinaptico}\""
+  },
+  {
+    "file": "core/mcp_server/write.py",
+    "line": 1082,
+    "kind": "response/error field",
+    "text": "f\"estado debe ser uno de {estados_validos}, recibido: '{estado}'\""
+  },
+  {
+    "file": "core/mcp_server/introspection.py",
+    "line": 128,
+    "kind": "response/error field",
+    "text": "\"No hay métricas registradas aún. Ejecuta un ciclo de sueño primero.\""
+  },
+  {
+    "file": "core/mcp_server/synapses.py",
+    "line": 38,
+    "kind": "response/error field",
+    "text": "f\"Feedback dopaminérgico aplicado a '{concepto}': {accion}\""
+  },
+  {
+    "file": "core/mcp_server/synapses.py",
+    "line": 87,
+    "kind": "response/error field",
+    "text": "f\"Sinapsis: '{a}' <--> '{b}'\""
+  },
+  {
+    "file": "core/mcp_server/synapses.py",
+    "line": 119,
+    "kind": "response/error field",
+    "text": "f\"Sinapsis eliminadas entre '{a}' y '{b}'\""
+  },
+  {
+    "file": "core/mcp_server/synapses.py",
+    "line": 36,
+    "kind": "response/error field",
+    "text": "f\"El concepto '{concepto}' no existe en largo plazo.\""
+  },
+  {
+    "file": "core/mcp_server/synapses.py",
+    "line": 80,
+    "kind": "response/error field",
+    "text": "f\"No se pueden vincular: nodo(s) {', '.join(faltantes)} no existen en la memoria. Deben existir previamente (guardados con 'aprender' o 'guardar').\""
+  },
+  {
+    "file": "core/mcp_server/communication.py",
+    "line": 65,
+    "kind": "response/error field",
+    "text": "f\"Mensaje de {agente} para {destino} registrado.\""
+  },
+  {
+    "file": "core/mcp_server/communication.py",
+    "line": 94,
+    "kind": "response/error field",
+    "text": "f\"Mensajes marcados como leídos por {nombre}.\""
+  }
+]

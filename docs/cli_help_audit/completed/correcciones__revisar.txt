@@ -1,0 +1,33 @@
+usage: biorag correcciones revisar [-h] [--db DB] --id ID
+
+Summary:
+Before approving, inspect the original message, context, values, dates and referenced memories.
+
+What is it for?
+Before approving, inspect the original message, context, values, dates and referenced
+memories. Obtain the digest identifying that evidence. Reviewing does not approve it.
+
+Before you start:
+referenced nodes must already exist.
+
+Dates are Unix seconds. BIORAG_CORRECTIONS=0 disables operations. Message language is not interpreted.
+
+Database: --db overrides BIORAG_PATH. Use an existing disposable copy.
+
+options:
+  -h, --help  show this help message and exit
+  --db DB     Existing database; defaults to BIORAG_PATH or the canonical path
+  --id ID     Stable proposal identifier
+
+Examples:
+  Use an existing test copy; replace the illustrative paths and node IDs.
+  UNIX dates are illustrative; never invent actual effective dates.
+  Replace REVIEW_DIGEST with the digest returned by revisar.
+  biorag correcciones revisar --db /path/test-copy.db --id cambio-puerto-001
+
+Expected output:
+JSON evidence with a review digest; use the returned digest for confirmation.
+Runtime messages retain their existing language (often Spanish); JSON keys are unchanged.
+
+See also:
+  biorag correcciones --help

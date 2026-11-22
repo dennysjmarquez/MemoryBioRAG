@@ -1,0 +1,28 @@
+Usage: biorag asociar <concept_a> <concept_b>
+
+Summary:
+Create a bidirectional association between related concepts.
+
+What is it for?
+Connect related concepts for associative retrieval. An association does not mean one
+fact replaces another.
+
+Before you start:
+referenced nodes must already exist.
+
+Changes memory or state. To test on a disposable copy, use: BIORAG_PATH=/path/copy.db
+biorag asociar ...
+
+Options:
+No additional options.
+
+Examples:
+  biorag asociar service_configuration service_deployment
+
+Expected output:
+An association confirmation for the two concepts.
+Runtime messages retain their existing language (often Spanish); JSON keys are unchanged.
+
+See also:
+  biorag buscar --help
+  biorag estado --help

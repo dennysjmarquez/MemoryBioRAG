@@ -1,5 +1,8 @@
 # CLI help audit — baseline and English-language pass
 
+> Historical first-pass report. The [completion report](COMPLETION.md) supersedes
+> its pending CLI presentation items; these original measurements are preserved.
+
 ## Scope and status
 
 The requested user-facing language is **English**, overriding the Spanish wording

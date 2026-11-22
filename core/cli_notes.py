@@ -40,11 +40,12 @@ NOTES = {
 
 # Commands whose handlers write memory or state; initialization may also prepare schema.
 WRITES = {'buscar', 'guardar', 'agregar_sustantivos', 'asociar', 'sueno', 'comunicar', 'leer_mensajes'}
-REQUIRES_NODES = {'asociar', 'agregar_sustantivos', 'sustantivos', 'correcciones'}
+REQUIRES_NODES = {'asociar', 'agregar_sustantivos', 'sustantivos', 'correcciones',
+                  'correcciones registrar', 'correcciones revisar', 'correcciones confirmar'}
 
 
 def usage_note(command):
-    note = fill('Why use it? ' + NOTES[command], width=88)
+    note = 'What is it for?\n' + fill(NOTES[command], width=88)
     if command == 'correcciones':
         sections = (
             ('How is this different from updating a node?',
@@ -73,6 +74,7 @@ def usage_note(command):
         note += '\n\n' + fill('Changes memory or state. To test on a disposable copy, use: '
                                'BIORAG_PATH=/path/copy.db biorag ' + command + ' ...', width=88)
     if command.startswith('correcciones'):
+        note += '\n\nDates are Unix seconds. BIORAG_CORRECTIONS=0 disables operations. Message language is not interpreted.'
         note += '\n\nDatabase: --db overrides BIORAG_PATH. Use an existing disposable copy.'
     return note
 
@@ -98,13 +100,13 @@ EXAMPLES = {
     'recovery': ('biorag recovery --receipt /path/update-receipts/receipt.json',
                  'biorag recovery --receipt /path/update-receipts/receipt.json --stage'),
     'correcciones': ('biorag correcciones registrar --help',
-                     'biorag correcciones revisar --db /ruta/copia_prueba.db --id cambio-puerto-001',
+                     'biorag correcciones revisar --db /path/test-copy.db --id cambio-puerto-001',
                      'biorag correcciones confirmar --help'),
     'correcciones registrar': (
-        'biorag correcciones registrar --db /ruta/copia_prueba.db \\\n    --id cambio-puerto-001 --mensaje "The service port changed from 8080 to 8443" \\\n    --nodo-anterior servicio_puerto_anterior --nodo-sucesor servicio_puerto_actual \\\n    --entidad service --atributo port --ambito test \\\n    --valor-anterior 8080 --valor-nuevo 8443 \\\n    --observado-en 1767225600 --efectivo-desde 1767225600 --anterior-desde 1735689600',),
-    'correcciones revisar': ('biorag correcciones revisar --db /ruta/copia_prueba.db --id cambio-puerto-001',),
+        'biorag correcciones registrar --db /path/test-copy.db \\\n    --id cambio-puerto-001 --mensaje "The service port changed from 8080 to 8443" \\\n    --nodo-anterior servicio_puerto_anterior --nodo-sucesor servicio_puerto_actual \\\n    --entidad service --atributo port --ambito test \\\n    --valor-anterior 8080 --valor-nuevo 8443 \\\n    --observado-en 1767225600 --efectivo-desde 1767225600 --anterior-desde 1735689600',),
+    'correcciones revisar': ('biorag correcciones revisar --db /path/test-copy.db --id cambio-puerto-001',),
     'correcciones confirmar': (
-        'biorag correcciones confirmar --db /ruta/copia_prueba.db \\\n    --id cambio-puerto-001 --digest DIGEST_DE_LA_REVISION --request-id aprobacion-001',),
+        'biorag correcciones confirmar --db /path/test-copy.db \\\n    --id cambio-puerto-001 --digest REVIEW_DIGEST --request-id aprobacion-001',),
 }
 
 
@@ -113,7 +115,69 @@ def command_examples(command):
     if command.startswith('correcciones'):
         header += ('  Use an existing test copy; replace the illustrative paths and node IDs.\n'
                    '  UNIX dates are illustrative; never invent actual effective dates.\n'
-                   '  Replace DIGEST_DE_LA_REVISION with the digest returned by revisar.\n')
+                   '  Replace REVIEW_DIGEST with the digest returned by revisar.\n')
     if command == 'dashboard':
         header += '  Help is safe; running dashboard without --help can install dependencies and start services.\n'
     return header + '\n'.join('  ' + example for example in EXAMPLES[command])
+
+
+GLOSSARY = {
+    'corteza': '`corteza` (cortex: permanent memory)',
+    'sueno': '`sueno` (sleep: consolidation)',
+    'sustantivos': '`sustantivos clave` (key nouns: the core topic of a memory)',
+}
+EXPECTED = {
+    'buscar': 'Matching concepts with content previews and scores; no match exits with code 1. Scores and ordering depend on stored data.',
+    'listar': 'A page of permanent concept names and content previews.',
+    'corteza': 'Permanent node names, weights and states.',
+    'estado': 'Active and dormant counts, working-memory count, energy and keyword coverage.',
+    'familiaridad': 'Recognized concepts or a no-match notice.',
+    'sustantivos': 'The selected concept and its assigned keyword list.',
+    'guardar': 'A working-memory save confirmation, keyword list and consolidation reminder.',
+    'agregar_sustantivos': 'The updated keyword list for the selected concept.',
+    'asociar': 'An association confirmation for the two concepts.',
+    'sueno': 'Consolidation and maintenance progress; details vary with stored data.',
+    'comunicar': 'A message registration confirmation including sender and destination.',
+    'leer_mensajes': 'Message IDs, read status, timestamps, sender, destination and message text.',
+    'dashboard': 'Without --help: service startup diagnostics; dependency installation may occur. Startup was not executed in this audit (not verified).',
+    'update': 'JSON plan or update receipt; failures report an error. Real update application was not executed (not verified).',
+    'recovery': 'JSON recovery plan; --stage reports separate snapshots and live_database_unchanged. No live recovery was executed.',
+    'correcciones': 'With no subcommand: this help. Operations return JSON; errors go to stderr.',
+    'correcciones registrar': 'JSON pending proposal; registration is not confirmation.',
+    'correcciones revisar': 'JSON evidence with a review digest; use the returned digest for confirmation.',
+    'correcciones confirmar': 'JSON confirmation result; the original memories remain intact.',
+}
+SEE_ALSO = {
+    'buscar': ('guardar', 'sueno', 'listar'),
+    'guardar': ('buscar', 'sueno', 'listar'),
+    'sueno': ('guardar', 'buscar', 'estado'),
+    'listar': ('buscar', 'guardar', 'sueno'),
+    'comunicar': ('leer_mensajes',), 'leer_mensajes': ('comunicar',),
+    'update': ('recovery',), 'recovery': ('update',),
+}
+
+
+def help_intro(command, summary):
+    note = usage_note(command)
+    # Prerequisites and safety belong before Options, not after Examples.
+    head, separator, rest = note.partition('\n\n')
+    result = 'Summary:\n' + summary.strip() + '\n\n' + head
+    terms = ['corteza', 'sueno', 'sustantivos'] if command in (
+        'buscar', 'guardar', 'listar', 'sueno', 'corteza') else []
+    if command in ('sustantivos', 'agregar_sustantivos'):
+        terms = ['sustantivos']
+    if terms:
+        result += '\n\n' + '; '.join(GLOSSARY[t] for t in terms) + '.'
+    if separator:
+        result += '\n\nBefore you start:\n' + rest.replace('Before you start:', '').strip()
+    if command == 'recovery':
+        result += ('\n\nBefore you start:\nThe receipt selects the source database. BIORAG_PATH does not override it. '
+                   'Keep the receipt and backup; verify code and data compatibility before using a staged copy.')
+    return result
+
+
+def help_end(command):
+    links = SEE_ALSO.get(command, ('correcciones',) if command.startswith('correcciones ') else ('buscar', 'estado'))
+    return (command_examples(command) + '\n\nExpected output:\n' + fill(EXPECTED[command], 88)
+            + '\nRuntime messages retain their existing language (often Spanish); JSON keys are unchanged.'
+            + '\n\nSee also:\n' + '\n'.join('  biorag ' + name + ' --help' for name in links))

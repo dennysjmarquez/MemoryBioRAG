@@ -5,6 +5,7 @@ actual ni revierte Git/pip. Conserva una copia del estado actual, incluidos dato
 posteriores al backup. Compatibilidad código-datos requiere verificación aparte.
 """
 import argparse
+from core.cli_help import HelpParser
 from contextlib import closing
 import json
 from pathlib import Path
@@ -60,7 +61,7 @@ def stage(receipt):
 
 def main(argv=None):
     from core.cli_notes import usage_note, command_examples
-    parser=argparse.ArgumentParser(prog='biorag recovery',
+    parser=HelpParser(prog='biorag recovery',
         description='Inspect an update backup or stage a separate restored copy without replacing live memory.',
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog=usage_note('recovery') + '\n\n' + command_examples('recovery'))

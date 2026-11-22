@@ -81,7 +81,17 @@ socket.create_connection=forbidden
                 with self.subTest(entry=entry, args=args):
                     result = self.run_cli(args, entry)
                     self.assertEqual(result.returncode, 0, result.stderr)
-                    self.assertIn('Why use it?', ' '.join(result.stdout.split()))
+                    self.assertIn('What is it for?', ' '.join(result.stdout.split()))
+                    headings = ('usage:', 'summary:', 'what is it for?', 'options:',
+                                'examples:', 'expected output:', 'see also:')
+                    positions = [result.stdout.lower().find(h) for h in headings]
+                    self.assertTrue(all(p >= 0 for p in positions), result.stdout)
+                    self.assertEqual(positions, sorted(positions))
+                    from scripts.audit_cli_help import language_hits
+                    import tomllib
+                    markers = tomllib.loads((ROOT/'release_manifest.toml').read_text())['language']['spanish_markers']
+                    self.assertEqual(language_hits(result.stdout, markers), [])
+                    self.assertTrue(language_hits('No se pudo cargar archivo de configuración', markers))
                     self.assertIn('Examples:', result.stdout)
                     self.assertIn('biorag ', result.stdout)
 

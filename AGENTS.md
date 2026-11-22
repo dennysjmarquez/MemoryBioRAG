@@ -647,3 +647,19 @@ para operaciones que escriben o arrancan servicios. Mantener NOTES y EXAMPLES
 con la misma cobertura; aliases reutilizan el comando canónico. Preservar saltos
 de línea de comandos largos en argparse. Probar los ejemplos de correcciones
 en una DB sintética con sustituciones explícitas, nunca en memoria viva.
+
+
+### English CLI help contract
+
+Public CLI help prose is English; preserve existing command/flag identifiers.
+Use Usage, Summary, What is it for?, Before you start (when applicable), Options,
+Examples, Expected output and See also in that order. Native argparse headings
+are acceptable. `core/cli_help.py` composes argparse presentation only; never copy
+argument definitions into a separate parser or change operational behavior for help.
+`core/cli_notes.py` owns purpose, glossary, safety, examples and expected-output notes.
+Run `python scripts/audit_cli_help.py` and both-entry-point guarded help tests.
+The audit reuses release manifest Spanish markers and an explicit identifier
+allowlist; review captures too because markers are not a language proof.
+Expected-output claims need synthetic execution evidence; label unexecuted paths
+not verified. Keep runtime/MCP translations and new aliases approval-gated.
+Never change hardcoded recipient routing as a documentation cleanup.

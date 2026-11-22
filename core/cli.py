@@ -46,32 +46,38 @@ def _overview():
     print('BioRAG — local memory for agents\n')
     print('Usage: biorag <command> [options]')
     print('       python3 biorag.py <command> [options]\n')
-    print('Why use it? Store, retrieve and maintain memory shared by your local agents.\n')
+    print('Summary:\nLocal memory tools for agents.\n')
+    print('What is it for?\nStore, retrieve and maintain memory shared by your local agents.\n')
     for group, entries in GROUPS:
         print(group + ':')
         for name, description in entries:
             print(f'  {name:22} {description}')
         print()
     print('Help: biorag help <command>  |  biorag <command> --help')
-    print('You can replace biorag with python3 biorag.py in the examples.\n')
+    print('You can replace `biorag` with `python3 biorag.py` in the examples.\n')
     print('Key concepts:')
     print('  Working memory: guardar stores new memories here; run sueno before buscar.')
-    print('  Cortex (permanent memory): consolidated memories used by buscar/listar/corteza.')
+    print('  `corteza` (cortex: permanent memory): consolidated memories used by buscar/listar.')
+    print('  `sueno` (sleep: consolidation): moves working memories into permanent storage.')
+    print('  `sustantivos clave` (key nouns: the core topic of a memory).')
     print('  Dormant node: an inactive memory; buscar --deep can wake a retrieved node.\n')
-    print('Database: BIORAG_PATH selects your database; use a disposable copy for testing.')
+    print('Before you start:\nDatabase: BIORAG_PATH selects your database; use a disposable copy for testing.')
     print('  Example: BIORAG_PATH=/path/copy.db biorag estado')
     print('  Commands may initialize or prepare schema when opening a database; help does not.\n')
-    print('Examples:')
-    print('  biorag guardar --help')
-    print('  biorag buscar --help')
-    print('  biorag update --dry-run')
-    print('  biorag recovery --help')
     print('\nBefore applying update, stop the MCP server (agent-to-memory tools process)')
     print('and the daemon (background maintenance process). Use the same Python environment.')
     print('Update requires a clean Git checkout (no local changes) and an external database')
     print('(outside the checkout). Planning may access the network.')
     print('Recovery --stage never overwrites live memory or rolls back Git/pip.')
-    print('The six contexto_vigencia modes belong to MCP recordar/buscar, not CLI buscar.')
+    print('The six `contexto_vigencia` modes belong to MCP `recordar`/`buscar`, not CLI `buscar`.')
+    print('Options:\n  -h, --help  Show help without opening a database.\n')
+    print('Examples:')
+    print('  biorag guardar --help')
+    print('  biorag buscar --help')
+    print('  biorag update --dry-run')
+    print('  biorag recovery --help')
+    print('\nExpected output:\nCommand-specific text or JSON; runtime messages may remain Spanish.')
+    print('\nSee also:\n  biorag guardar --help\n  biorag buscar --help\n  biorag sueno --help\n  biorag listar --help')
 
 
 def _memory_help(command):
@@ -87,10 +93,14 @@ def _memory_help(command):
                 if lines[end].startswith('  python3 biorag.py '):
                     break
                 end += 1
-            print('\n'.join(lines[index:end]).strip().replace('python3 biorag.py', 'biorag'))
-            from core.cli_notes import usage_note, command_examples
-            print('\n' + usage_note(command))
-            print('\n' + command_examples(command))
+            from core.cli_notes import help_intro, help_end
+            detail = '\n'.join(lines[index:end]).strip().replace('python3 biorag.py', 'biorag')
+            usage, _, body = detail.partition('\n')
+            summary, _, options = body.partition('Options:')
+            print('Usage: ' + usage)
+            print('\n' + help_intro(command, summary))
+            print('\nOptions:\n' + options.strip())
+            print('\n' + help_end(command))
             return 0
     # Nunca afirmar que un comando inexistente está implementado.
     print(f'Consulta el manual biorag.py para el comando {command}.')
