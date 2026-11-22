@@ -1,0 +1,46 @@
+usage: biorag buscar <query> [options]
+
+Summary:
+Search permanent memory using textual, semantic and associative signals.
+
+What is it for?
+Retrieve a permanent memory before saving a duplicate. Newly saved working memories
+become searchable after biorag sueno. Results are not proof that a fact is current.
+
+  - `corteza` (cortex: permanent memory)
+  - `sueno` (sleep: consolidation)
+  - `sustantivos clave` (key nouns: the core topic of a memory)
+
+Before you start:
+Side effects: --deep wakes retrieved dormant nodes and changes their weight. Search may
+also write search logs and learning state; it is not a read-only audit.
+
+Changes memory or state. To test on a disposable copy, use: BIORAG_PATH=/path/copy.db
+biorag buscar ...
+
+Options:
+  --sustantivos-clave "a,b"  Topic keywords; alias: --sustantivos.
+  --deep                     Include dormant memories and wake retrieved dormant nodes.
+  --todos                    Request up to 100 results, unless --frase or --tokens
+                             selects another search route.
+  --tokens "root1,root2"     Search stemmed tokens instead of a phrase.
+  --modo strict|relaxed      Token matching; default: relaxed.
+  --frase                    Explicit phrase search (the default route).
+  --pagina N                 Results page, starting at 1.
+  --cat TYPE                 Filter by category.
+  --completo                 Show full content rather than a preview.
+  --asociados                Show associated concepts and topic keywords.
+
+Examples:
+  biorag buscar "service configuration" --sustantivos-clave "service,config"
+  biorag buscar service --completo --asociados
+
+Expected output:
+Matching concepts with content previews and scores; no match exits with code 1. Scores
+and ordering depend on stored data.
+Runtime messages retain their existing language (often Spanish); JSON keys are unchanged.
+
+See also:
+  biorag guardar --help
+  biorag sueno --help
+  biorag listar --help

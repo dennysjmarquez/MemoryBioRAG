@@ -106,6 +106,15 @@ socket.create_connection=forbidden
                         self.assertIn('  - `corteza`', result.stdout)
                         self.assertIn('  - `sueno`', result.stdout)
                         self.assertIn('  - `sustantivos clave`', result.stdout)
+                    if args[0] == 'buscar':
+                        topic_line = next(line for line in options.splitlines() if 'Topic keywords' in line)
+                        tokens_line = next(line for line in options.splitlines() if 'Search stemmed' in line)
+                        self.assertEqual(topic_line.index('Topic keywords'), tokens_line.index('Search stemmed'))
+                    if args[0] == 'guardar':
+                        self.assertIn('Unicode letters', result.stdout)
+                        required_line = next(line for line in options.splitlines() if 'Required: 1–5 keywords' in line)
+                        alias_line = next(line for line in options.splitlines() if 'Alias of --sustantivos-clave' in line)
+                        self.assertEqual(required_line.index('Required: 1–5 keywords'), alias_line.index('Alias of --sustantivos-clave'))
                     if args[0] == 'dashboard':
                         self.assertTrue(result.stdout.split('Examples:\n')[1].startswith('  biorag dashboard --help'))
                     if args[0] == 'comunicar':

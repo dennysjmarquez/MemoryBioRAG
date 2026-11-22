@@ -116,6 +116,16 @@ class TestCmdGuardar:
         assert "relatividad" in out
         assert "3/5" in out or "(3)" in out
 
+    def test_guardar_acepta_sustantivos_con_letras_unicode(self, cerebro_tmp, capsys):
+        """Las letras de otros alfabetos cumplen el formato documentado."""
+        rc = biorag.cmd_guardar(cerebro_tmp, [
+            "costas_test", "La costa tiene un faro de piedra.",
+            "--sustantivos-clave", "海岸,mar"
+        ])
+        out = capsys.readouterr().out
+        assert rc == 0
+        assert "海岸" in out
+
     def test_guardar_sustantivos_invalidos_caracteres_especiales(self, cerebro_tmp, capsys):
         """RF-5: Sustantivos con caracteres prohibidos → exit 1."""
         rc = biorag.cmd_guardar(cerebro_tmp, [
@@ -312,6 +322,13 @@ class TestCmdAgregarSustantivos:
 
 class TestCmdBuscar:
     """T4: Pruebas para cmd_buscar con --sustantivos-clave y detalles enriquecidos."""
+
+    def test_todos_pide_hasta_cien_resultados(self, cerebro_tmp, capsys):
+        cerebro_tmp.buscar_por_frase = MagicMock(return_value=(
+            [("test", "content", 0.9, "activo", 0.8, "")], 1
+        ))
+        assert biorag.cmd_buscar(cerebro_tmp, ["test", "--todos"]) == 0
+        assert cerebro_tmp.buscar_por_frase.call_args.kwargs["limite"] == 100
 
     def test_buscar_con_flag_sustantivos_clave_sesga_busqueda(self, cerebro_tmp, capsys):
         """RF-14: Búsqueda con --sustantivos-clave."""

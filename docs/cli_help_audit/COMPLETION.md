@@ -2,6 +2,8 @@
 
 > Subsequent formatting/quick-start polish and fresh validation:
 > [final polish report](polished/REPORT.md).
+> Clean-clone regression, Unicode-keyword fix and SciPy dependency findings:
+> [review follow-up](review-followup/REPORT.md).
 
 This report supersedes the remaining-work list in REPORT.md for CLI presentation.
 REPORT.md and its captures/logs remain the historical record of the first pass.

@@ -7,24 +7,25 @@ Topic keywords describe what a memory is about, not every name or detail it ment
     Search permanent memory using textual, semantic and associative signals.
     Options:
     --sustantivos-clave "a,b"  Topic keywords; alias: --sustantivos.
-    --deep                  Include dormant memories and wake retrieved dormant nodes.
-    --todos                 Request up to 100 results, unless --frase or --tokens
-                            selects another search route.
-    --tokens "root1,root2"   Search stemmed tokens instead of a phrase.
-    --modo strict|relaxed   Token matching; default: relaxed.
-    --frase                 Explicit phrase search (the default route).
-    --pagina N              Results page, starting at 1.
-    --cat TYPE              Filter by category.
-    --completo              Show full content rather than a preview.
-    --asociados             Show associated concepts and topic keywords.
+    --deep                     Include dormant memories and wake retrieved dormant nodes.
+    --todos                    Request up to 100 results, unless --frase or --tokens
+                               selects another search route.
+    --tokens "root1,root2"     Search stemmed tokens instead of a phrase.
+    --modo strict|relaxed      Token matching; default: relaxed.
+    --frase                    Explicit phrase search (the default route).
+    --pagina N                 Results page, starting at 1.
+    --cat TYPE                 Filter by category.
+    --completo                 Show full content rather than a preview.
+    --asociados                Show associated concepts and topic keywords.
 
   python3 biorag.py guardar <concept> <content> --sustantivos-clave "a,b" [options]
     Save a memory in working memory. Consolidate it with sueno before searching.
     Options:
-    --sustantivos-clave "a,b"  Required: 1–5 topic keywords, each 2–15 characters.
-    --sustantivos           Alias of --sustantivos-clave.
-    --syn "a,b"             Search synonyms.
-    --cat TYPE              Explicit category; otherwise inferred from content.
+    --sustantivos-clave "a,b"  Required: 1–5 keywords; each is 2–15 Unicode letters,
+                               combining marks or numbers, or underscores; no spaces.
+    --sustantivos              Alias of --sustantivos-clave.
+    --syn "a,b"                Search synonyms.
+    --cat TYPE                 Explicit category; otherwise inferred from content.
 
   python3 biorag.py sustantivos <concept>
     Inspect topic keywords in permanent or working memory. Alias: sustantivo.
@@ -104,6 +105,7 @@ import time
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 import re
+import unicodedata
 from core.memory_store import SQLiteMemoryBioRAG, normalizar_sustantivos_clave
 from core.sinapsis import auto_vincular, vincular_por_sinonimos, _tokenizar, _peso_similitud
 from core.categorizador import inferir_categoria
@@ -403,8 +405,11 @@ def _validar_sustantivos_clave(raw_sustantivos: str) -> str:
     for t in terminos:
         if len(t) < 2 or len(t) > 15:
             raise ValueError(f"El sustantivo '{t}' debe tener entre 2 y 15 caracteres (tiene {len(t)}).")
-        if not re.match(r'^[a-zA-Z0-9_ñ]+$', t):
-            raise ValueError(f"El sustantivo '{t}' contiene caracteres no permitidos. Solo se permiten letras, números y guiones bajos.")
+        if not all(unicodedata.category(char)[0] in "LMN" or char == "_" for char in t):
+            raise ValueError(
+                f"El sustantivo '{t}' contiene caracteres no permitidos. "
+                "Solo se permiten letras Unicode, marcas, números y guiones bajos."
+            )
 
     return norm
 

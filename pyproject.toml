@@ -46,6 +46,9 @@ dependencies = [
 dev = [
     "pytest==9.1.1"
 ]
+research = [
+    "scipy==1.17.1"
+]
 
 [project.scripts]
 biorag = "core.cli:main"
