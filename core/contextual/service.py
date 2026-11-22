@@ -1,6 +1,6 @@
 """Correcciones aprobadas: unidad de trabajo en UNA DB, compatible con WAL.
 
-La identidad y la delegación son responsabilidad del host local. El digest es
+El cliente MCP local tiene acceso a todos los contextos. El digest es
 control de concurrencia, no autenticación. No altera recuerdos ni asociaciones.
 """
 import hashlib
@@ -17,12 +17,11 @@ def encoded(value):
 
 
 class Corrections:
-    def __init__(self, path, principal, grants):
-        text(principal)
+    def __init__(self, path):
         path = Path(path).expanduser().resolve()
         if not path.is_file():
             raise ValueError('DB existente requerida; no crear memoria por error')
-        self.principal, self.grants = principal, {tuple(g) for g in grants}
+        self.principal = 'local-mcp'  # Procedencia técnica, no identidad autenticada.
         self.db = sqlite3.connect(path.as_uri()+'?mode=rw', uri=True, timeout=10)
         if not self.db.execute("SELECT 1 FROM sqlite_master WHERE name='largo_plazo'").fetchone():
             self.db.close()
@@ -44,10 +43,6 @@ class Corrections:
     def close(self):
         self.db.close()
 
-    def authorize(self, f):
-        if (f['entity'], f['attribute'], f['scope']) not in self.grants:
-            raise PermissionError('Contexto no delegado por el anfitrión MCP')
-
     def _node(self, name):
         row = self.db.execute('SELECT concepto,contenido FROM largo_plazo WHERE concepto=?', (name,)).fetchone()
         if row is None:
@@ -66,7 +61,6 @@ class Corrections:
         if extraction.status != 'proposal':
             return dict(status='abstain', reason=extraction.reason, production_action='none')
         f = extraction.fields
-        self.authorize(f)
         if old_node == new_node:
             raise ValueError('Usar nodos distintos, sin reescribir el histórico')
         self._node(old_node); self._node(new_node)
@@ -87,14 +81,14 @@ class Corrections:
         row = self.db.execute('SELECT payload,created_by FROM ctx_proposals WHERE id=?', (proposal_id,)).fetchone()
         if row is None:
             raise ValueError('Propuesta inexistente')
-        payload = json.loads(row[0]); f = payload['fields']; self.authorize(f)
+        payload = json.loads(row[0]); f = payload['fields']
         at = payload['effective_at']
         claims = self.ledger.context(f['entity'],f['attribute'],f['scope'],at)
         edges = self.ledger.edges(f['entity'],f['attribute'],f['scope'],at)
         context = [vars(c) for _,c in sorted(claims.items())]
         evidence = dict(id=proposal_id,payload=payload,created_by=row[1],context=context,edges=edges,
                         nodes=[self._node(payload['old_node']),self._node(payload['new_node'])],
-                        policy='owner-delegated-single-valued-v1',bootstrap_predecessor=not bool(claims))
+                        policy='trusted-local-single-valued-v2',bootstrap_predecessor=not bool(claims))
         raw=encoded(evidence).encode()
         if len(raw)>1024*1024:
             raise ValueError('Revisión excede presupuesto 1 MiB')
@@ -111,7 +105,7 @@ class Corrections:
             review=self.review(proposal_id)
             prior=self.db.execute('SELECT request,receipt FROM ctx_approvals WHERE request_id=?',(request_id,)).fetchone()
             if prior:
-                if prior[0]!=request:
+                if json.loads(prior[0])[:2] != [proposal_id, digest]:
                     raise ValueError('request_id reutilizado')
                 self.db.rollback()
                 return json.loads(prior[1])

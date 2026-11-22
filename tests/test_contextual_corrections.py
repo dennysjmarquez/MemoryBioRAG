@@ -16,7 +16,7 @@ def sample(tmp_path,request):
       INSERT INTO largo_plazo VALUES ('old','contenido previo'),('new','contenido nuevo');
       CREATE TABLE sinapsis(origen TEXT,destino TEXT,tipo TEXT);
       INSERT INTO sinapsis VALUES ('new','old','manual');''');db.close()
-    service=Corrections(path,'owner',[('servicio','puerto','prod')])
+    service=Corrections(path)
     yield path,service,request.param.lower()
     service.close()
 
@@ -85,7 +85,7 @@ def test_growth_10000_does_not_change_review_or_decision(sample):
 def test_concurrent_confirmation_exactly_once(sample):
     path,s,_=sample;propose(s);digest=s.review('p')['digest']
     def run(_):
-        service=Corrections(path,'owner',[('servicio','puerto','prod')])
+        service=Corrections(path)
         try:return service.confirm('p',digest,'r')
         finally:service.close()
     with concurrent.futures.ThreadPoolExecutor(max_workers=2) as pool:
@@ -102,7 +102,7 @@ def test_process_death_before_and_after_commit(sample):
     path,s,_=sample;propose(s);digest=s.review('p')['digest']
     script='''import os,sys
 from core.contextual.service import Corrections
-s=Corrections(sys.argv[1],'owner',[('servicio','puerto','prod')])
+s=Corrections(sys.argv[1])
 s.confirm('p',sys.argv[2],'r',fault=lambda p:os._exit(72) if p=='after_graph' else None)
 '''
     env=dict(os.environ,PYTHONPATH=str(Path(__file__).resolve().parents[1]))
@@ -122,8 +122,7 @@ def test_permissions_default_off_and_no_sse(monkeypatch):
     with pytest.raises(PermissionError):configured_service(stdio=True)
     monkeypatch.setenv('BIORAG_CORRECTIONS','1')
     with pytest.raises(PermissionError):configured_service(stdio=False)
-    monkeypatch.delenv('BIORAG_CORRECTIONS_PRINCIPAL',raising=False)
-    with pytest.raises(PermissionError):configured_service(stdio=True)
+
 
 
 def test_real_mcp_schema_exposes_object_context_and_guarded_tools():

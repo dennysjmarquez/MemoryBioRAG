@@ -1,5 +1,7 @@
 # v36.2 — Correcciones contextuales integradas (candidata)
 
+> **Actualización posterior en esta rama:** se eliminan los permisos temáticos y la identidad manual para MCP stdio local; default de correcciones 1. La configuración y resultados que siguen describen el contrato inicial v36.2. Para el comportamiento nuevo y el prototipo de seis modos, ver [PROTOTIPO_PERSPECTIVA_TEMPORAL.md](PROTOTIPO_PERSPECTIVA_TEMPORAL.md). No copiar los grants históricos como requisito vigente de esta rama.
+
 El código está en `core/contextual` y el servidor MCP real registra las herramientas. No usa imports desde scripts de laboratorio. Esta versión NO convierte el sistema en un ser vivo ni comprende cualquier corrección en lenguaje libre. La publicación/tag/merge no son automáticos.
 
 ## Activación segura

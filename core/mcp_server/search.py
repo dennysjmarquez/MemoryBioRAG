@@ -16,6 +16,7 @@ import time
 from typing import Annotated, Any, Optional, List
 
 from pydantic import Field
+from core.contextual.perspective import DESCRIPTION as PERSPECTIVE_DESCRIPTION
 
 from core.identidad_unicode import normalizar_identidad
 from core.mcp_server._shared import (
@@ -135,6 +136,14 @@ def _recordar_impl(
     sustantivos_clave: Optional[str] = None,
     contexto_vigencia: Optional[dict] = None,
 ) -> str:
+    # Gate experimental: mismo servidor real, sin cambiar el contrato estable.
+    temporal_prototype = os.environ.get('BIORAG_TEMPORAL_PROTOTYPE', '0') == '1'
+    if temporal_prototype:
+        from core.contextual.perspective import validate, PerspectiveError
+        try:
+            contexto_vigencia = validate(contexto_vigencia)
+        except PerspectiveError as exc:
+            return json.dumps({'error': str(exc).split(':', 1)[0], 'instrucciones': str(exc)}, ensure_ascii=False)
     if limite is None:
         limite = LIMITE_MCP
 
@@ -719,8 +728,13 @@ def _recordar_impl(
 
         competencia_contextual = None
         if contexto_vigencia is not None:
-            from core.contextual.search import reorder
+            if temporal_prototype:
+                from core.contextual.perspective import apply as reorder
+            else:
+                from core.contextual.search import reorder
             resultados, competencia_contextual = reorder(cerebro.conn, resultados, contexto_vigencia)
+            if temporal_prototype and competencia_contextual.get('status') in ('VIGENCIA_NO_RESUELTA', 'HISTORIA_NO_RESUELTA'):
+                _warnings.append(competencia_contextual['status'] + ': resultados exploratorios; NO afirmar que Top-1 sea vigente o histórico. Revisar evidencia y contexto.')
 
         # Canal 2 — Asociaciones enriquecidas (grafo sináptico real, con fuerza de arista).
         # NO toca score_hibrido ni el ranking: es campo aparte, adjunto a cada resultado.
@@ -1426,7 +1440,7 @@ def register(mcp: Any) -> None:
             description=SUSTANTIVOS_CLAVE_BUSQUEDA_DESCRIPTION
         )] = None,
         contexto_vigencia: Annotated[Optional[dict], Field(
-            description='JSON {entity,attribute,scope,at,intent}: evidencia aprobada sin eliminar históricos. Omitir si el contexto es desconocido. No verifica verdad por recencia.'
+            description=(PERSPECTIVE_DESCRIPTION if os.environ.get('BIORAG_TEMPORAL_PROTOTYPE', '0') == '1' else 'JSON {entity,attribute,scope,at,intent}: evidencia aprobada sin eliminar históricos. Omitir si el contexto es desconocido. No verifica verdad por recencia.')
         )] = None,
     ) -> str:
         return _recordar_impl(
@@ -1465,7 +1479,7 @@ def register(mcp: Any) -> None:
             description=SUSTANTIVOS_CLAVE_BUSQUEDA_DESCRIPTION
         )] = None,
         contexto_vigencia: Annotated[Optional[dict], Field(
-            description='JSON {entity,attribute,scope,at,intent}: evidencia aprobada sin eliminar históricos. Omitir si el contexto es desconocido. No verifica verdad por recencia.'
+            description=(PERSPECTIVE_DESCRIPTION if os.environ.get('BIORAG_TEMPORAL_PROTOTYPE', '0') == '1' else 'JSON {entity,attribute,scope,at,intent}: evidencia aprobada sin eliminar históricos. Omitir si el contexto es desconocido. No verifica verdad por recencia.')
         )] = None,
         dimensiones: Annotated[Any, Field(
             description=(

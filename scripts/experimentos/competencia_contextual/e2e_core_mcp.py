@@ -31,8 +31,7 @@ async def run(args):
         assert before_node is not None
         db.close()
         env=dict(os.environ,HOME=str(root/'home'),BIORAG_PATH=str(dbpath),
-            BIORAG_CORRECTIONS='1',BIORAG_CORRECTIONS_PRINCIPAL='fixture-owner',
-            BIORAG_CORRECTIONS_GRANTS=json.dumps([['proyecto','versión','dev']]),
+            BIORAG_CORRECTIONS='1',
             BIORAG_DAEMON_ENABLED='0',BIORAG_UPDATE_CHECK='0',BIORAG_DMN_SINTESIS_ACTIVA='0',
             BIORAG_NLTK_AUTO_DOWNLOAD='0',BIORAG_NLTK_DATA=str(args.corpus.resolve()),
             PYTHONHASHSEED='1',OPENBLAS_NUM_THREADS='1',OMP_NUM_THREADS='1',MKL_NUM_THREADS='1')
