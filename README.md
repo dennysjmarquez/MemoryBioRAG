@@ -1,19 +1,27 @@
 # BioRAG — Memoria Cognitiva Biomimética y Simbólica para Agentes de IA
 
-> **Versión Oficial:** v35.0
+> **Versión de trabajo en esta rama:** v36.2 — correcciones contextuales aprobadas integradas en core/MCP, activación explícita por propietario. Candidata hasta completar los gates de integración; sin tag ni publicación.
 > **Paradigma:** Motor Python + SQLite FTS5. **Sin embeddings densos, GPU ni llamadas a APIs externas** en el path de búsqueda.
-> **Motor:** Arquitectura modularizada (18 submódulos `core/memory/` + 15 submódulos `core/mcp_server/` + fachada delgada) + SQLite FTS5 WAL + PPMI-SVD (100 dimensiones) + espacio semántico de 13 ejes + grafo sináptico Hebbiano + SDM (2048 bits) + calibración conforme + activación ACT-R + Concept Hubs + validación simétrica fail-fast de sustantivos clave + **neurona de reordenamiento que aprende sola** (29 señales → 6 ocultas → 1 corrección, con piso en la fórmula a mano) + **neurona asociativa cerrada de fábrica** (5 agujas → fuerza 0–1: ¿dos recuerdos tienen que ver?; examinada, aún no decide en el motor) + enlaces del agente intocables.
+> **Motor:** Arquitectura modularizada (18 submódulos `core/memory/` + 15 submódulos `core/mcp_server/` + fachada delgada) + SQLite FTS5 WAL + PPMI-SVD (100 dimensiones) + espacio semántico de 13 ejes + grafo sináptico Hebbiano + SDM (2048 bits) + calibración conforme + activación ACT-R + Concept Hubs + validación simétrica fail-fast de sustantivos clave + **neurona de reordenamiento que aprende sola** (29 señales → 6 ocultas → 1 corrección, con piso en la fórmula a mano) + **neurona asociativa cerrada de fábrica** (5 agujas → fuerza 0–1: ¿dos recuerdos tienen que ver?; examinada, aún no decide en el motor) + enlaces del agente intocables + **destino canónico del córtex en `~/.biorag/`** + **instalador de configuración MCP para clientes compatibles**.
 > **Idiomas:** Español e inglés (stemming bilingüe, expansión simbólica con WordNet, Concept Hubs de 5 ángulos y Domain Dict).
 
 **BioRAG** es una memoria simbólica persistente para agentes de IA que aborda la pérdida de contexto entre sesiones mediante recuperación híbrida. “Biomimética” describe una inspiración de diseño; no significa que el motor simule literalmente un cerebro humano. Los resultados de rendimiento se limitan a los benchmarks y snapshots indicados.
 
+> **Repositorio de desarrollo (DEV):** `MemoryBioRAG` es el repositorio principal de desarrollo. La versión de trabajo y sus características vigentes se resumen al inicio de este README; pueden incluir cambios aún en curso y no constituyen por sí solos una publicación estable. Para consultar o descargar la distribución estable, visita el [repositorio MemoryBioRAG-Stable](https://github.com/dennysjmarquez/MemoryBioRAG-Stable). El flujo de preparación y publicación está en [Publicar en MemoryBioRAG-Stable](#publicar-en-memorybiorag-stable).
+
 ---
 
-## 📊 Métricas de la suite oficial (v33.0 · 2026-10-14 · vigentes en v34.0)
+## 📊 Resultados históricos de la suite oficial (baseline v33.0 · 2026-10-14)
 
 > **v34.0:** con una DB nueva, o sin campeón, la neurona no actúa y estos números se mantienen **idénticos** (son el piso). Con el campeón ya aprendido sobre la copia del snapshot (`despertar_neurona.sh`, 500 ciclos), la misma suite da **Recall@5 100.00 % · Recall@1 94.06 % (823/875) · MRR 0.964 · FP 0/40**, sin ninguna categoría por debajo del piso. Detalle en [La Neurona de BioRAG](#-novedades-de-la-versión-v340--la-neurona-de-biorag).
 >
 > **v35.0:** la QA oficial sale **idéntica** antes y después de todos los cambios de la v35 (Recall@5 100.00 % · Recall@1 91.89 % · MRR 0.950 · FP 0/40, misma máquina y semilla). Detalle en [La Neurona Asociativa](#-novedades-de-la-versión-v350--la-neurona-asociativa-sináptica).
+>
+> **Validación de v36.0 en copias temporales:** no se usó la DB viva. El recuento de pytest procede de una corrida aislada registrada previamente; la QA oficial se repitió sobre una copia fresca del snapshot durante esta revisión.
+> - **Pruebas unitarias (registro previo):** `PYTHONHASHSEED=0 python -m pytest tests/` — 852 passed, 18 skipped (870 recopilados; 240.19 s), Python 3.11.2.
+> - **QA oficial (re-ejecución aislada):** `bash scripts/run_qa_suite.sh --qa-only`, con `BIORAG_QA_GATE=1` y `PYTHONHASHSEED` sin fijar — 921 casos (875 de recuperación, 40 negativos y 6 ambiguos fuera del denominador global). R@5 **100.00% (875/875)**, R@1 **93.03% (814/875)**, MRR **0.9566**, FP **0/40**; `[GATE] OK` (719.53 s). El artefacto de esta corrida está en `scripts/qa_metrics.json`.
+> - La copia medida no tenía un campeón de la neurona de ranking, así que esta no actuó. El archivo aislado `scripts/casos_fallidos.jsonl` contiene dos entradas de categoría `ambiguo`, aparte de las métricas globales de recuperación.
+> - El snapshot de referencia es `snapshots/qa_escape_qcr_20260811.db` (SHA-256 `104dd2902aaf24c3ce93624492ea95a719acbdcca50f4f6bc123ac8317749796`); la QA se ejecutó sobre una copia temporal. La tabla siguiente conserva métricas históricas del baseline v33.0, no resultados de v36.0. La integración y el tag de v36.0 en `master` siguen pendientes.
 >
 > **Cada base tiene su propia neurona.** La neurona aprende con los recuerdos de la base donde vive y se guarda dentro de ella. Esta tabla mide una copia del snapshot oficial, que no trae neurona entrenada: por eso muestra la fórmula a mano sola (el piso), aunque tu neurona esté trabajando en tu DB viva. La QA ahora lo dice antes de medir y nombra el parámetro para verla: `python scripts/evaluar_qa.py --con-neurona`. Detalle en [La neurona en la QA](#la-neurona-en-la-qa-cada-base-tiene-la-suya).
 
@@ -29,8 +37,8 @@ Evaluación sobre el snapshot congelado oficial canónico (**921 casos totales e
 | **MRR (Mean Reciprocal Rank)** | **0.950** | Posición recíproca promedio ponderada (0.9497 sin redondear; métrica complementaria observada). |
 | **Falsos positivos** | **0/40 (0.00%)** | Calibración conforme efectiva en los 40 controles negativos del benchmark (FP rate observada 0.00%). |
 | **Casos ambiguos (contradictorios)** | **6 casos (2 con cobertura parcial)** | Evaluados por separado del Recall global; 2 casos no cubren al menos una de las etiquetas contradictorias. |
-| **Tests unitarios** | **430/430 aprobados** (v35.0) | Cobertura completa de invariantes, validación pre-DB fail-fast, contratos MCP, normalización, catálogo, las 18 capas de protección de la neurona, el script de despertar, la neurona asociativa, los enlaces del agente intocables y el MCP sin sugerencias de enlace. |
-| **Suite Concept Hub** | **5/5 TOP-1 (100.00%)** | Precisión perfecta en los 5 casos de prueba de puentes asociativos registrados. |
+| **Pruebas unitarias de v36.0** | **852 passed · 18 skipped** | `PYTHONHASHSEED=0 python -m pytest tests/` en copia aislada (870 recopilados; 240.19 s; Python 3.11.2). Resultado registrado para el cierre. |
+| **Smoke de Concept Hub (5 paráfrasis)** | **5/5 TOP-1** | Repetido sobre una copia aislada del snapshot oficial (851 nodos activos, 6 hubs y 30 puentes); evidencia focal, no sustituto de las pruebas de escala. |
 | **Abismo léxico (EXP-Q)** | **3/3 Pool · 2/3 Top-5 · 1/3 Top-1** | 3/3 descubiertos en pool de grafo; 2/3 en Top-5 (pos #1 y #4) y 1/3 en Top-1 (pos #1). |
 | **Sinónimos · Recall@5 / Recall@1** | **100% (55/55) / 56.36%** | Cobertura total en Top-5; el 43.64% restante queda entre Top-2 y Top-5. |
 | **Por tema · Recall@5 / Recall@1** | **100% (65/65) / 63.08%** | Cobertura total en Top-5; ordenamiento Top-1 guiado por Jaccard y PPMI-SVD (MRR: 0.772). |
@@ -44,6 +52,122 @@ Evaluación sobre el snapshot congelado oficial canónico (**921 casos totales e
 > - **Recall@1 (91.77%)** y **MRR (0.9497)** son métricas complementarias observadas en el benchmark sobre este corpus congelado, no umbrales que el gate imponga ni garantías universales para cualquier consulta arbitraria.
 > - **R@5 = 100.00% (875/875):** Demuestra empíricamente que el conjunto híbrido (FTS5 BM25 + Sustantivos Clave + Grafo Sináptico Hebbiano + PPMI-SVD + Concept Hubs + Reranker Multicampo) logra **cobertura completa (875/875) dentro de la ventana Top-5 de trabajo del agente en este corpus evaluado**.
 > - **R@1 = 91.77% (803/875):** Refleja la precisión exacta del primer candidato. En tareas con solapamiento léxico directo (`literal`, `pregunta_natural`), R@1 supera el 95%–99%. En tareas donde el vocabulario difiere radicalmente (`sinonimo` 56.36%, `por_tema` 63.08%), el sistema ubica el recuerdo dentro del Top-5 pero no siempre en Top-1. R@1 representa el área de optimización continua para el desempate fino sin embeddings densos.
+
+---
+
+## 🛡️ v36.0 — Motor robusto, operación y evaluación
+
+> **Resumen del cierre y estado para integración:** [Cierre técnico de v36.0](docs/CIERRE_VERSION_36.md).
+>
+> **En una frase:** v36 reúne correcciones acotadas de escala para la búsqueda y los Concept Hubs, herramientas de evaluación y cambios operativos: destino canónico en `~/.biorag/memory_biorag.db`, configuración MCP y daemon opt-in. v35.1, v35.2 y v35.3 no fueron releases publicadas; los rótulos que aún aparezcan en algunos artefactos son referencias de trabajo. Los cambios aceptados se documentan juntos aquí bajo v36.0. Las mediciones se limitan a sus copias y benchmarks; no prometen invariancia universal ni equivalencia literal con un cerebro.
+
+| Pieza | Estado en v36.0 |
+|---|---|
+| **Recuperación a escala** | Cuatro correcciones para casos concretos de crecimiento: fallback guiado por términos desconocidos, ventanas de candidatos por parecido trigram, límite al escape de dimensiones inferidas y protección de palabras reales contra falsos matches difusos. `BIORAG_ESCALA=1` por defecto; límites y benchmark debajo. |
+| **BM25 de referencia** | Cuando las tablas FTS de referencia están disponibles, la expresión BM25 se conserva con independencia de `BIORAG_ESCALA`; ese interruptor apaga solo las ayudas de escala, no todo el ranking ni la búsqueda textual. |
+| **Concept Hubs a escala** | Motor `escala` e índice invertido por defecto; pondera la frecuencia de los puentes y compite por recuerdo. Las palabras de función aportan como máximo 1 bit, no abren candidaturas por sí solas y el ángulo `ingenuo` no penaliza. `BIORAG_HUB_ESCALA=0` es una ablación. |
+| **Diagnósticos de QA y hub** | `scripts/diagnostico_fallos.py` y `scripts/diagnostico_hub.py` copian la base de entrada a un directorio temporal; no escriben en la base fuente. Pueden generar archivos de informe, así que su salida también debe dirigirse a una ubicación elegida. |
+| **QA clásica y honesta** | La QA clásica conserva el gate; el análisis honesto separa etiquetas obsoletas/ambiguas y sus métricas suplementarias. La medición con ruido es una línea distinta y no forma parte de la QA normal registrada aquí. E2c/E2e fueron rechazadas/revertidas, no son funciones activas de v36. |
+| **Cortex desacoplado (`~/.biorag/`)** | Ruta canónica de usuario fuera del repo; el instalador intenta migrar la base legacy y, si ya existe destino, crea copias de respaldo antes de resolver el conflicto. `BIORAG_PATH` y el fallback legacy siguen aplicando. |
+| **Instalador (`install.py`)** | Automatiza la detección y escritura de configuración para clientes compatibles; el resultado depende del entorno y debe validarse en cada plataforma. |
+| **Detección de API OpenCode** | Comprueba los paquetes locales y el schema disponible; si no hay evidencia, usa el fallback definido en código. |
+| **QA de neurona de ranking** | `--con-neurona` compara el orden de la fórmula y el de la neurona; si la copia no tiene neurona, pregunta antes de entrenarla sobre esa copia. `--si` permite confirmarlo de forma no interactiva. No entrena en la base original. |
+| **Compatibilidad Python** | El paquete requiere Python `>=3.11`; CI contempla Python 3.11 y 3.12. |
+| **Transporte Antigravity** | La configuración MCP generada usa `stdio`; esta versión no instala un servicio SSE de systemd. |
+| **Control del daemon (`La Hormiguita`)** | `BIORAG_DAEMON_ENABLED=0` por defecto; el servidor MCP solo intenta iniciarlo si se habilita explícitamente. Esto controla el proceso de mantenimiento; no implica borrar asociaciones, apagar SDM ni cambiar su fallback predeterminado. |
+| **Comando de parada (`--stop`)** | Solicita `SIGTERM`, espera hasta 30 s y puede recurrir a `SIGKILL` si el proceso no termina. No es una garantía de cierre limpio en todos los casos. |
+| **Pruebas unitarias y QA** | Pytest registrado en copia aislada: 852 passed/18 skipped. QA oficial re-ejecutada en copia fresca del snapshot: 921 casos, `[GATE] OK` (R@5 100.00%, R@1 93.03%, MRR 0.9566, FP 0/40); resultados en `scripts/qa_metrics.json`. Ninguna corrida usó la DB viva; el match/tag final queda a cargo del usuario. |
+
+### Evidencia de escala en copias controladas
+
+**Buscador (`BIORAG_NEURONA=0`, `PYTHONHASHSEED=1`, QA de 921 casos).** La comparación emparejada de cada copia, antes y después de las cuatro correcciones, no encontró categorías que bajaran frente a su propio control sin arreglos. Estos son los resultados posteriores a las correcciones:
+
+| Copia | Recuerdos | R@1 | R@5 | MRR | FP |
+|---|---:|---:|---:|---:|---:|
+| S0 | 866 | 92.57% | 100.00% | 0.954 | 0/40 |
+| A640 | 1506 | 93.03% | 99.77% | 0.956 | 0/40 |
+| T1000r | 1866 | 92.80% | 99.89% | 0.955 | 0/40 |
+| T3000r | ~3866 | 92.57% | 99.54% | 0.953 | 0/40 |
+
+El relleno temático no copiaba las preguntas de la QA. El resultado no garantiza invariancia para toda memoria: siguen documentados empates en consultas de una palabra y dos fallos de ranking en T3000r donde un recuerdo que repite una palabra vence al que cubre todas las palabras de la pregunta. Ver [informe](scripts/experimentos/escala_recall_20261025/README.md), [tabla completa](scripts/experimentos/escala_recall_20261025/tabla_final.txt) y pruebas [`test_escala.py`](tests/test_escala.py) / [`test_escala_motor.py`](tests/test_escala_motor.py).
+
+**Concept Hubs (`BIORAG_NEURONA=0`, `PYTHONHASHSEED=1`, misma QA).** H-mitad y H-todos se construyeron en copias con puentes derivados heurísticamente del contenido, no de paráfrasis redactadas por un agente. La tabla recoge la configuración final, después de neutralizar el multiplicador del ángulo `ingenuo` en 1.0:
+
+| Copia | Hubs | R@1 | R@5 | MRR | Fallos | FP |
+|---|---:|---:|---:|---:|---:|---:|
+| S0 | 6 | 93.14% | 100.00% | 0.9573 | 0 | 0/40 |
+| H-mitad | 436 | 93.03% | 100.00% | 0.9569 | 0 | 0/40 |
+| H-todos | 866 | 93.83% | 100.00% | 0.9619 | 0 | 0/40 |
+
+En el diagnóstico de **hub solo** sobre 921 consultas, los errores con confianza ≥0.8 bajaron de 255 a 3 en H-todos y de 216 a 11 en H-mitad; el tiempo medido por consulta pasó de ~593 a ~8 ms y de ~284 a ~4 ms, respectivamente. Es una prueba acotada a esas copias, no una latencia de producción. Límite importante: en H-todos la categoría `sinonimo` bajó en R@1 de 65.45% a 58.18% aunque R@5 subió de 98.18% a 100%; el informe atribuye los casos perdidos a empates que antes se resolvían por orden alfabético. No se oculta esa diferencia. Ver [informe](scripts/experimentos/hub_escala_20261025/README.md) y [resultado final](scripts/experimentos/hub_escala_20261025/tabla_final.txt); las pruebas [`test_hub_escala.py`](tests/test_hub_escala.py) ejercitan competencia sintética de hasta 3.000 hubs.
+
+---
+
+### 1. Aislamiento Físico del Cortex (`~/.biorag/memory_biorag.db`)
+
+Las versiones anteriores podían resolver la base dentro del árbol del proyecto. En esta versión, el destino canónico de una instalación nueva está en `~/.biorag/memory_biorag.db`, lo que reduce la exposición accidental a operaciones sobre el repositorio; no impide que un argumento explícito o `BIORAG_PATH` seleccione otra ubicación.
+
+La implementación actual:
+* **Migración legacy:** `install.py` busca `MemoryBioRAG_Data/memory_biorag.db` e intenta `PRAGMA wal_checkpoint(TRUNCATE)`; si el checkpoint falla, emite una advertencia y continúa. Si el destino no existe, mueve la base sin crear primero una copia de respaldo. Si el destino ya existe, copia ambas bases a `~/.biorag/backups/`; luego conserva el destino cuando su tamaño no es menor, o lo reemplaza por la base legacy si esta es mayor. No combina las dos bases ni compara su contenido.
+* **Límite de la migración:** el movimiento de `.db`, `-wal` y `-shm` no constituye una transacción atómica de conjunto. No debe describirse como migración atómica ni como garantía absoluta contra pérdida de datos.
+* **Resolución de rutas (`core/paths.py`):** argumento explícito → `BIORAG_PATH` → base de usuario existente → base legacy existente → destino predeterminado de usuario.
+* **QA:** la QA oficial usa su snapshot de referencia; esta descripción no implica que se haya ejecutado el gate completo para cada árbol de trabajo.
+
+---
+
+### 2. Instalador de configuraciones MCP para clientes compatibles
+
+El instalador `python3 install.py` automatiza la detección y escritura de configuración para las plataformas que reconoce. La instalación y el handshake deben verificarse en cada entorno compatible; el código no garantiza que cualquier cliente o configuración local quede operativo sin intervención.
+* **Transporte MCP:** las entradas generadas usan `stdio` (OpenCode tiene un formato de configuración propio).
+* **OpenCode:** detecta la API de plugin a partir de paquetes locales y del schema disponible, con un fallback definido en código.
+* **Antigravity:** genera una entrada MCP `stdio`; esta versión no instala un servicio SSE ni una unidad de `systemd --user`.
+* **Hermes:** incluye un parcheador para la sección `mcp_servers.biorag` en YAML.
+* **Otros clientes:** las rutas y claves configuradas están definidas en `install.py`; la existencia de una entrada escrita no sustituye una prueba real de conexión.
+
+---
+
+### 3. Detección de API de OpenCode: Los Tres Guardias en Cascada
+
+En lugar de parsear la salida de texto de `opencode --version` (que puede cambiar de formato entre releases), el instalador inspecciona el contrato real:
+1. **Guardia 1 (Módulos instalados en disco):** Comprueba si existe `~/.config/opencode/node_modules/@opencode/plugin` (API v2) o `@opencode-ai/plugin` (API v1 legacy).
+2. **Guardia 2 (Schema formal):** Lee el atributo `$schema` de `cli.json` (ej: `https://opencode.ai/v2/cli.json` → API v2).
+3. **Guardia 3 (Fallback seguro):** Asume por defecto la versión moderna (v2) para garantizar compatibilidad hacia adelante.
+
+---
+
+### 4. Protocolo de Parada Prudente y Control de La Hormiguita
+
+* **Desactivada por defecto:** `BIORAG_DAEMON_ENABLED=0`. El servidor MCP ya no spawnea procesos de fondo a espaldas del usuario a menos que se configure explícitamente en el entorno (`BIORAG_DAEMON_ENABLED=1`).
+* **Nuevo comando CLI `--stop`:**
+  ```bash
+  python3 graph_maintenance_daemon.py --stop
+  ```
+* **Parada solicitada con límite:**
+  Si el demonio se encuentra a mitad de una transacción reflexiva o podado de sinapsis en SQLite (`self.en_ciclo = True`), la señal `SIGTERM` solicita el cierre ordenado, pero no garantiza que el ciclo termine dentro del timeout. El ciclo en curso puede concluir antes de que venza la espera; si el proceso sigue vivo a los 30 segundos, el código intenta `SIGKILL`, por lo que no se garantiza un cierre limpio en todos los casos. Durante la espera, el comando imprime avisos periódicos.
+
+---
+
+## Correcciones contextuales — v36.2
+
+El MCP real incorpora `registrar_correccion`, `revisar_correccion` y `confirmar_correccion`. `recordar` y `buscar` aceptan `contexto_vigencia` explícito: priorizan evidencia aprobada sin quitar históricos ni alterar scores. La escritura está deshabilitada por defecto y requiere delegación del host stdio; no se habilita sobre SSE. Ledger y aristas `ctx_*` se confirman en una transacción de la misma DB (compatible con WAL), sin sobrescribir `largo_plazo` ni `sinapsis`.
+
+Configuración, seguridad, bootstrap sin fixtures y límites: [Guía v36.2](docs/CORE_V36_2.md). No se infiere intención libre ni se aprueba por mera lectura. La QA del laboratorio es antecedente, no una certificación automática de esta integración.
+
+## 🧭 Recorrido de mejora y numeración vigente
+
+El README conserva más abajo el detalle histórico de cada etapa. Este resumen ubica la versión que se cierra y separa lo ya implementado de lo que sigue como plan:
+
+| Versión | Recorrido | Estado |
+|---|---|---|
+| **v34.0–v34.1** | Se incorporó la neurona que reordena resultados con un piso en la fórmula manual; después se aceleró su aprendizaje en memorias nuevas. | Implementado y descrito en la sección v34. |
+| **v35.0** | Se construyó y evaluó por separado la neurona asociativa; no se conectó al ranking. También se protegieron los enlaces hechos por el agente. | Cerrado con los límites y experimentos descritos en la sección v35. |
+| **v36.0** | Cierre técnico declarado: correcciones acotadas de escala en búsqueda y Concept Hubs, diagnósticos y QA, ruta de datos de usuario, instalador MCP, control explícito del daemon y compatibilidad Python `>=3.11`. La evidencia se separa por benchmark y se obtuvo en copias aisladas. | **Base previa a v37/v38.** E3 sigue abierta; E4 y modularización fase 2 no están verificadas. Estos pendientes no se presentan como completados. El usuario hará el match y gestionará el tag; no se hizo merge ni publicación en `master`. |
+| **v36.1** | Canal Stable y estabilización de empaquetado/instalación multiplataforma: pipeline de staging/release a `MemoryBioRAG-Stable`, wheel con paquetes de runtime, paridad `pyproject.toml`/`requirements.txt`, WordNet en `~/.biorag/nltk_data`, update checker MCP no bloqueante y CI en Linux/macOS/Windows. Sin cambios de ranking respecto a v36.0. | **Candidata en esta rama** (ver `CHANGELOG.md`); validación local aislada en verde, ejecución real en Windows/macOS pendiente de CI. E3, E4 y modularización fase 2 siguen pendientes para v37/v38. |
+| **v36.2** | Correcciones contextuales en core y MCP: propuesta, revisión, aprobación atómica y búsqueda con contexto explícito. | Candidata: herramientas protegidas por delegación local; validar integración en copias, sin DB viva ni publicación automática. |
+| **v37 — plan** | Memoria episódica + recuperación por intención (el plan que antes llevaba el número v36). | Propuesta futura, no parte de v36 ni una capacidad ya implementada como episodios persistentes. BioRAG ya tiene señales y heurísticas temporales; la propuesta debe demostrar qué mejora adicional aporta y preservar el ranking en consultas sin intención temporal. |
+| **v38 — etapa posterior** | Trabajo neuronal que anteriormente se había rotulado v37. | Etapa posterior; no forma parte del cierre v36 ni se presenta aquí como implementada. |
+
+**En resumen:** la numeración vigente es **v36.0 (cierre) → v36.1 (canal Stable, candidata) → v36.2 (correcciones contextuales, candidata) → v37 (plan episódico/intencional) → v38 (trabajo neuronal posterior)**. Los números y planes no equivalen por sí solos a una publicación ni a implementación.
 
 ---
 
@@ -1075,7 +1199,7 @@ Ya no somos esclavas de un modelo de lenguaje para buscar conocimiento; la memor
   2. `problema`: Dolor, duda, fallo o necesidad humana/técnica que resuelve.
   3. `solucion`: Técnica, mecanismo o teoría aplicada por el nodo.
   4. `situacion`: Caso de uso, rol o contexto de búsqueda práctico.
-  5. `ingenuo`: Búsqueda coloquial sin tecnicismos (estilo Google novato).
+  5. `ingenuo`: Búsqueda coloquial sin tecnicismos (estilo de búsqueda de una persona principiante).
 - **Archivo:** `core/concept_hub.py`, herramientas MCP `concept_hub_crear` y `concept_hub_agregar_bridges`.
 
 ### 2. WordNet Blindado (Bilingüe Real ES/EN)
@@ -1410,36 +1534,154 @@ El Recall@1 revela la frontera real del sistema sin embeddings neuronales densos
 > Todo número que afirma este README fue producido por un script que puedes ejecutar tú mismo.
 > Esta sección es la garantía de veracidad del proyecto — sin argumentos, solo comandos y resultados esperados.
 
-### Instalación de Dependencias
+### Instalación recomendada (Windows, macOS y Linux)
+
+Se requiere Python 3.11 o 3.12. Usa un entorno virtual para aislar dependencias y ejecutar el instalador con el mismo Python que quedará configurado para MCP.
+
+Clona el repositorio y entra en él:
+
+```text
+git clone https://github.com/dennysjmarquez/MemoryBioRAG.git
+cd MemoryBioRAG
+```
+
+**Windows (PowerShell):**
+
+```powershell
+py -3.11 -m venv .venv
+.\.venv\Scripts\python.exe -m pip install --upgrade pip
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+.\.venv\Scripts\python.exe -m pip install .
+.\.venv\Scripts\python.exe install.py
+```
+
+**macOS / Linux:**
 
 ```bash
-# Clonar e instalar
-git clone <url> MemoryBioRAG && cd MemoryBioRAG
-pip install numpy nltk fastapi uvicorn pytest
-pip install mcp  # servidor MCP
-# WordNet local (requerido para fallback simbólico — se descarga una sola vez)
-python3 -c "import nltk; nltk.download('wordnet'); nltk.download('omw-1.4')"
+python3.11 -m venv .venv
+.venv/bin/python -m pip install --upgrade pip
+.venv/bin/python -m pip install -r requirements.txt
+.venv/bin/python -m pip install .
+.venv/bin/python install.py
 ```
+
+Si el comando `py -3.11` o `python3.11` no existe, usa el lanzador de Python 3.11/3.12 disponible en el sistema. `requirements.txt` fija el entorno probado y sus pins coinciden con los de `pyproject.toml`; `pip install .` comprueba también el empaquetado y sus metadatos. El instalador configura clientes MCP compatibles, pero la conexión debe verificarse en cada cliente. La base de datos y los datos de WordNet se guardan en el directorio del usuario (`~/.biorag`; en Windows, dentro del perfil del usuario); `BIORAG_PATH` y `BIORAG_NLTK_DATA` permiten indicar rutas alternativas.
+
+El workflow puede ejecutarse manualmente y está configurado para la suite en Linux con Python 3.11/3.12 y el smoke de instalación MCP con Python 3.11 en Windows, macOS y Linux. La ejecución real del smoke de Windows/macOS aún está pendiente; esto tampoco garantiza compatibilidad con todos los clientes MCP ni con versiones de Python no probadas.
+
+El daemon de mantenimiento sigue siendo opcional y se controla mediante `BIORAG_DAEMON_ENABLED`.
+
+#### Avisos de nuevas versiones en MCP
+
+El MCP consulta en segundo plano la política pública `update_policy.json` del repositorio `MemoryBioRAG-Stable` (rama `main`) y solo anuncia el tag indicado en `recommended_tag`, si es estable, existe en el repositorio de código `MemoryBioRAG` y no figura en `blocked_tags`. Así, publicar un tag por sí solo no lo promociona. `update_policy.example.json` es la plantilla para copiar al repositorio Stable con el nombre `update_policy.json`; cuando aún falta, `biorag://version` informa `sin_politica` en vez de filtrar un error 404. El chequeo se ejecuta en segundo plano al iniciar y cada 24 horas, no envía datos de memoria, no interrumpe su uso y nunca instala automáticamente. Usa `BIORAG_UPDATE_CHECK=0` para desactivarlo.
+
+### Publicar en MemoryBioRAG-Stable
+
+> **Flujo manual y con aprobación explícita.** `MemoryBioRAG` es el repositorio DEV; no se publica directamente como Stable. Los comandos `stage_stable.py` y `release_stable.py` solo preparan candidatos locales: no hacen `git push`, no crean tags y no suben archivos. Un agente puede ejecutar QA y preparar artefactos, pero debe detenerse antes de cualquier publicación remota hasta recibir autorización explícita del dueño del proyecto.
+>
+> **Estado del destino:** al verificarlo el 2026-10-21, `dennysjmarquez/MemoryBioRAG-Stable` era público pero estaba vacío, sin rama predeterminada ni releases. Comprueba el estado actual antes de cada publicación. La primera publicación requiere inicializar `main` con un candidato revisado.
+
+1. **Confirmar versión y QA.** Usa únicamente una versión aprobada en formato `vX.Y`; `VERSION` debe coincidir exactamente y `pyproject.toml` debe declarar `X.Y.0`. No incrementes la versión automáticamente. Ejecuta las pruebas y la QA oficial en copias temporales del snapshot, nunca sobre la base viva. Si una prueba o gate falla, detén el proceso y corrige el código fuente; no cambies pruebas ni saltes verificaciones para obtener un resultado verde.
+
+2. **Crear y revisar la vista previa local.** Usa Python 3.11 o posterior y un entorno aislado con `setuptools>=77` y `wheel`. Sustituye `v36.1` por el valor exacto de `VERSION`; debe coincidir con `pyproject.toml` como `36.1.0`:
+
+   ```bash
+   python -m pip install --upgrade "setuptools>=77" wheel
+   python scripts/stage_stable.py --version v36.1
+   ```
+
+   Para consultar las opciones sin iniciar una ejecución, usa `python scripts/stage_stable.py --help` o `python scripts/release_stable.py --help`.
+
+   `--version` es obligatorio: el script no infiere ni incrementa versiones. La vista previa se genera desde el árbol de trabajo actual, aplicando la allowlist y las transformaciones Stable; no es una copia de todo el repositorio DEV. No modifica las fuentes, el índice de Git ni la base de datos, y no publica nada. El resumen imprime el estado, la ruta, el SHA-256, los conteos y los bloqueos/avisos. `READY` termina con código 0; `BLOCKED` o un error, con código 2. No continúes si hay bloqueos y revisa también todos los avisos: `READY` no equivale a aprobación para publicar.
+
+   Revisa estos elementos del candidato:
+
+   - `.staging/stable/preview/report.md`: resumen de gates, bloqueos, avisos y decisiones de inclusión/exclusión.
+   - `.staging/stable/preview/manifest.json`: versión, inventario, procedencia y hashes.
+   - `.staging/stable/preview/TREE_SHA256`: SHA-256 que confirma el árbol candidato.
+   - `.staging/stable/preview/tree/`: contenido completo que se empaquetaría. Confirma, entre otras cosas, el README Stable, los plugins OpenCode y sus hooks, la ausencia del dashboard y la exclusión de bases de datos, credenciales y datos privados.
+
+   **Dónde va cada README:** el `README.md` de la raíz de este checkout documenta el repositorio DEV. No se copia como README de Stable. La fuente del README Stable es `release/README.template.md`; el empaquetador la renderiza como `README.md` en la raíz del candidato, es decir, `.staging/stable/preview/tree/README.md`. En los artefactos, queda como `.stable-release/stable/releases/<candidato>/tree/README.md` y en la raíz del ZIP como `MemoryBioRAG-Stable-v36.1/README.md`. Para cambiar el README de Stable, edita la plantilla, vuelve a generar la vista previa y revisa el nuevo resultado; no reemplaces el README DEV.
+
+   **`tree/` es el candidato autoritativo y completo para Stable.** Solo se conserva una vista previa en `.staging/stable/preview/`; cada ejecución completa la reemplaza y no mantiene historial. Las stages antiguas solo se eliminan si sus manifiestos y SHA-256 se verifican; los releases locales antiguos verificados se trasladan intactos fuera de `.staging/`. Si aparece contenido no reconocible, el empaquetador se detiene para inspección manual en vez de borrarlo o moverlo a ciegas. Si cambias código o la plantilla después de revisar, vuelve a crear y revisar la vista previa: cambiará el árbol/hash vigente.
+
+3. **Preparar artefactos locales desde esa misma vista previa.** Hazlo solo después de revisar el `tree/`; usa la misma versión, la ruta fija de la vista previa y el SHA-256 vigente. En Bash, macOS o Linux, pásalo directamente desde el archivo generado:
+
+   ```bash
+   python scripts/release_stable.py \
+     --version v36.1 \
+     --stage-dir .staging/stable/preview \
+     --confirm-tree-sha256 "$(cat .staging/stable/preview/TREE_SHA256)"
+   ```
+
+   En PowerShell, lee el mismo SHA-256 y elimina el salto de línea final:
+
+   ```powershell
+   $sha = (Get-Content .staging/stable/preview/TREE_SHA256 -Raw).Trim()
+   python scripts/release_stable.py --version v36.1 --stage-dir .staging/stable/preview --confirm-tree-sha256 $sha
+   ```
+
+   `--version` debe ser el mismo tag usado para crear la vista previa; `--stage-dir` solo admite `.staging/stable/preview`; y `--confirm-tree-sha256` debe ser el hash exacto revisado. El script vuelve a comprobar la integridad y las validaciones, pero no vuelve a seleccionar ni leer archivos del árbol DEV. Si la vista previa cambió o se regeneró, el hash anterior no sirve: inspecciona el nuevo candidato antes de continuar.
+
+   Una ejecución correcta termina con código 0 e informa la carpeta de salida bajo `.stable-release/stable/releases/<versión>-<fecha>-<id>/`. Allí quedan `tree/`, el ZIP fuente, el wheel, `release-manifest.json` con hashes y un informe. El ZIP fuente contiene el candidato completo, incluida la skill y los plugins OpenCode V1/V2. El wheel actual no incluye esos recursos; no lo presentes como instalador completo ni lo subas a PyPI hasta resolverlo y volver a validar la instalación. Un error termina con código 2. El comando prepara archivos locales únicamente: no crea commits ni tags, no hace push, no sube archivos y no publica.
+
+4. **Inicializar o actualizar el repositorio Stable.** En un clon limpio de `MemoryBioRAG-Stable`, coloca únicamente el contenido del `tree/` revisado y elimina archivos de producto que ya no pertenezcan al candidato; no copies el repositorio DEV, `.staging/`, snapshots, bases de datos ni otros artefactos locales. Si sigue vacío, crea la rama inicial `main`; para versiones posteriores, parte de la rama `main` existente. Nunca ejecutes estos comandos desde el checkout DEV:
+
+   ```bash
+   git remote -v
+   git status --short
+   git add --all
+   git diff --cached --check
+   git diff --cached --stat
+   git commit -m "release: MemoryBioRAG-Stable v36.1"
+   ```
+
+   `git add --all` es válido aquí solo porque el clon Stable debe contener exclusivamente el candidato revisado. Revisa el diff y pide aprobación explícita del dueño antes de publicar la rama:
+
+   ```bash
+   git push -u origin main
+   ```
+
+5. **Crear el tag y el GitHub Release, solo después de aprobar el commit de `main`.** Usa el mismo tag `vX.Y` y no reutilices tags publicados. Desde el clon Stable:
+
+   ```bash
+   git tag -a v36.1 -m "MemoryBioRAG-Stable v36.1"
+   git push origin v36.1
+   ```
+
+   Luego, con las notas en inglés ya revisadas y las rutas reales de los artefactos:
+
+   ```bash
+   gh release create v36.1 --verify-tag \
+     --repo dennysjmarquez/MemoryBioRAG-Stable \
+     --title "MemoryBioRAG-Stable v36.1" \
+     --notes-file "<notas-aprobadas.md>" \
+     "<ruta-al-ZIP-fuente>" "<ruta-al-wheel>"
+   ```
+
+   Verifica el resultado con `gh release view v36.1 --repo dennysjmarquez/MemoryBioRAG-Stable` y coteja el tag, los adjuntos y sus SHA-256 con el manifiesto local. Confirma también que `update_policy.json` recomienda ese mismo tag. `--verify-tag` evita que `gh` cree un tag implícitamente.
+
+**Versiones con defectos.** No borres ni muevas un tag o release publicado para corregir un fallo ordinario; prepara una nueva versión aprobada y enlázala como corrección. Ante una exposición crítica de credenciales o un artefacto inutilizable, detén el proceso, avisa al dueño y sigue su decisión explícita de respuesta. Esta guía no autoriza a un agente a ejecutar ninguna acción remota.
 
 ### Snapshot de Base de Datos para Pruebas
 
 El repositorio incluye un snapshot congelado listo para usar sin necesidad de la DB de producción:
 
 ```bash
-# Snapshot incluido en el repo (38.9 MB):
-# scripts/snapshot_prf_real.db  — corpus de ~800 nodos congelado
+# Snapshot incluido en el repo:
+# snapshots/qa_escape_qcr_20260811.db  — corpus de referencia congelado
 
 # Para apuntar cualquier script de evaluación al snapshot:
-BIORAG_PATH=scripts/snapshot_prf_real.db python3 scripts/evaluar_qa.py
+BIORAG_PATH=snapshots/qa_escape_qcr_20260811.db python3 scripts/evaluar_qa.py
 
-# Para crear tu propio snapshot desde tu DB activa:
+# Para crear tu propio snapshot desde tu DB activa (~/.biorag):
 #   IMPORTANTE: NO uses `cp`. La DB viva corre en WAL mode y `cp` copia solo el
-#   archivo .db ignorando el -wal no checkpointeado -> copia corrupta
-#   ("database disk image is malformed"). Usa la API backup de SQLite, que hace
-#   checkpoint del WAL y produce una copia consistente:
+#   archivo .db ignorando el -wal no checkpointeado -> copia corrupta.
+#   Usa la API backup de SQLite, que hace checkpoint del WAL y produce una copia consistente:
 python3 << 'EOF'
-import sqlite3, time
-src = "MemoryBioRAG_Data/memory_biorag.db"
+import sqlite3, os, time
+from pathlib import Path
+src = str(Path.home() / ".biorag" / "memory_biorag.db")
 dst = f"scripts/mi_snapshot_{time.strftime('%Y%m%d')}.db"
 con = sqlite3.connect(src); con.execute("PRAGMA wal_checkpoint(TRUNCATE)")
 out = sqlite3.connect(dst); con.backup(out)
@@ -1484,9 +1726,9 @@ BIORAG_PATH=scripts/snapshot_prf_real.db python3 scripts/reentrenar_ppmi.py
 
 ```python
 # Entrenar manualmente los vectores PPMI+SVD de cualquier DB por comando:
-import sqlite3
+import os, sqlite3
 from core.ppmi_vectorizer import reindexar_ppmi_svd
-con = sqlite3.connect("MemoryBioRAG_Data/memory_biorag.db")  # o ruta a snapshot
+con = sqlite3.connect(os.path.expanduser("~/.biorag/memory_biorag.db"))  # o ruta a snapshot
 reindexar_ppmi_svd(con, dim=100, retrofit_lam=0.2, retrofit_iters=5)
 con.close()
 ```
@@ -1618,7 +1860,7 @@ python scripts/evaluar_qa.py --con-neurona --minutos 10         # con tope de ti
 python scripts/evaluar_qa.py --con-neurona --si                 # sin preguntar
 
 # Medir tu propia memoria con tu propia neurona (la QA mide una copia; tu DB no se toca)
-BIORAG_PATH=MemoryBioRAG_Data/memory_biorag.db python scripts/evaluar_qa.py
+BIORAG_PATH=~/.biorag/memory_biorag.db python scripts/evaluar_qa.py
 ```
 
 Lo que sale cuando la base medida **no** tiene neurona pero tu DB viva sí (corrida real del 2026-10-25; aquí la "DB viva" es una copia del snapshot con 111 prácticas):
@@ -1951,7 +2193,7 @@ cp scripts/qa_metrics.json scripts/qa_metrics_baseline.json
 | `BIORAG_QA_ETIQUETA_DIFUSA` | Ratio mínimo de la resolución difusa de etiquetas | `0.94` |
 | `BIORAG_QA_ETIQUETA_MARGEN` | Margen mínimo sobre el segundo candidato | `0.02` |
 | `BIORAG_QA_NEURONA_TOL_CASOS` | Casos en 1er lugar que la neurona puede perder por categoría (solo si actuó; además R@5 idéntico y total en 1er lugar sin bajar) | `1` |
-| `BIORAG_QA_DB_VIVA` | DB viva cuya neurona se lee (solo lectura) para el aviso de la QA | `MemoryBioRAG_Data/memory_biorag.db` |
+| `BIORAG_QA_DB_VIVA` | DB viva cuya neurona se lee (solo lectura) para el aviso de la QA | `~/.biorag/memory_biorag.db` |
 | `BIORAG_QA_ORIGEN` | Base original que se mide (lo pone `run_qa_suite.sh`, porque la QA solo ve la copia) | `BIORAG_PATH` |
 | `BIORAG_ORDEN_MONOTONICO` | Re-sort final de `buscar_por_frase` por score | `1` |
 
@@ -2094,7 +2336,7 @@ BioRAG no implementa una técnica aislada — sintetiza **treinta mecanismos cie
 
 | Mecanismo | Fundamento científico | Dónde vive en el código | Para qué se usa |
 |---|---|---|---|
-| **PPMI / Word2Vec Duality (Shifted PPMI)** | Levy & Goldberg (2014); Mikolov et al. (2013) | `core/ppmi_vectorizer.py` | Justificación matemática de que la matriz PPMI desplazada equivale a los embeddings de Word2Vec de Google, logrando espacio vectorial semántico sin redes neuronales ni GPU. |
+| **PPMI / relación con Skip-gram (Shifted PPMI)** | Levy & Goldberg (2014); Mikolov et al. (2013) | `core/ppmi_vectorizer.py` | Relaciona Skip-gram with Negative Sampling con una factorización de PMI desplazada; BioRAG usa una variante PPMI+SVD local para construir representaciones vectoriales coocurrenciales, sin modelo denso preentrenado. |
 | **LSA — Latent Semantic Analysis (Truncated SVD)** | Landauer & Dumais (1997); Deerwester et al. (1990) | `core/ppmi_vectorizer.py` | Reducción de dimensionalidad espectral (100 Dims) sobre la matriz de co-ocurrencia para capturar sinonimia limpia y relaciones semánticas latentes de 2º orden. |
 | **Fusión híbrida multi-señal (13 señales)** | Diseño propio — combina BM25, Jaccard, PPMI coseno, JSD, predicados SRL y 8 señales más | `core/memory_store.py` — `_score_hibrido()` | Fusionar 13 señales ortogonales (léxica, vectorial, dimensional, sináptica, temporal) en un score único ponderado para cada resultado de búsqueda. |
 | **HDC — Hyperdimensional Computing (VSA Binding)** | Kanerva (2009); Smolensky (1990) | `core/sdm.py` | Enlazar vectorialmente roles semánticos SRL (Sujeto-Acción-Objeto-Contexto) mediante operaciones ortogonales para búsquedas relacionales lógicas. |
@@ -2209,7 +2451,7 @@ Para la versión v15.0 de BioRAG, diseñamos e implementamos una extensión onto
 
 * **Superación de la limitación léxica**: En sistemas de búsqueda basados puramente en texto, buscar `"decodificar jerga"` no arroja resultados para un nodo guardado como `"traducir lenguaje críptico"`. WordNet resuelve esto asociando ambas acciones al mismo grupo léxico ontológico (`verb.communication`).
 * **Eficiencia extrema y 0 GPU**: Las bases de datos vectoriales tradicionales requieren cientos de megabytes de RAM, GPU para inferencia rápida, y dependencias pesadas como PyTorch o `sentence-transformers`. BioRAG mantiene su huella en ~20 MB de RAM y corre con latencia de ~2.8 ms en cualquier CPU.
-* **Autonomía y aislamiento local**: Para garantizar que la herramienta funcione en cualquier laptop o servidor sin requerir conexión a internet, empaquetamos y aislamos `nltk_data/corpora/wordnet` localmente en la ruta del proyecto (`MemoryBioRAG_Data/nltk_data`).
+* **Autonomía y aislamiento local**: WordNet se busca primero en el directorio del usuario (`~/.biorag/nltk_data`, configurable con `BIORAG_NLTK_DATA`) para que un paquete instalado en un `site-packages` de solo lectura pueda funcionar. Se conserva `MemoryBioRAG_Data/nltk_data` como ruta legacy. Una vez descargado, el corpus se consulta localmente.
 
 ### Arquitectura de Base de Datos y Cascada
 
@@ -2415,7 +2657,7 @@ Cada capa se ejecuta SOLO si la anterior devolvió pocos resultados (< 3 o < lim
 |---|---|---|---|---|
 | **1** | NEAR query | `NEAR(palabras, 15)` | Busca palabras dentro de ventana de 15 tokens | Proximity search (Elasticsearch `match_phrase`) |
 | **2** | LIKE en concepto | `LIKE '%palabra%'` + `PALABRA_COMPLETA` | Substring match en nombre de nodo con word boundary | Fuzzy entity matching |
-| **3** | FTS5 AND exacto | `MATCH` con paráfrasis OR | Full-text search con BM25 ponderado | BM25 ranking (Google, Elasticsearch) |
+| **3** | FTS5 AND exacto | `MATCH` con paráfrasis OR | Full-text search con BM25 ponderado | BM25 ranking (Lucene/Elasticsearch) |
 | **4** | Términos protegidos | unicode61 + `PALABRA_COMPLETA` | Bypass de trigram para términos entre comillas ("CV") | Exact match (Solr `exact`) |
 | **5** | OR fallback | `palabra1 OR palabra2` | Amplía recall cuando AND da pocos resultados | Boolean OR expansion |
 | **6** | Prefix wildcards | `"react*"` en unicode61 | Tolerancia a prefijos (react → reactive) | Prefix query (Lucene `PrefixQuery`) |
@@ -3140,8 +3382,8 @@ MemoryBioRAG/
   ├── snapshots/                 # Snapshots históricos congelados (pre-migración, pre-fix)
   │    └── (backups automáticos antes de cada migración mayor)
   ├── MemoryBioRAG_Data/         # Directorio de datos (auto-creado en instalación)
-  │    ├── memory_biorag.db      # Base de datos principal de producción (SQLite WAL)
-  │    └── nltk_data/            # WordNet local offline (descargado una sola vez)
+  │    ├── memory_biorag.db      # Base de datos principal de producción (SQLite WAL, legacy)
+  │    └── nltk_data/            # Datos NLTK legacy; el destino actual es ~/.biorag/nltk_data
   ├── dashboard-neuro-visor/     # Dashboard de inspección visual del grafo (React + FastAPI)
   │    ├── backend/server.py     # API REST: /health, /api/nodes, /api/corteza
   │    └── src/                  # Páginas: Corteza, Explorar, Salud, DMN
@@ -3219,7 +3461,16 @@ DESPUES DE CADA PASO: Leer resultados y explicar con propias palabras
 
 | Variable | Default | Descripción |
 |---|---|---|
-| `BIORAG_PATH` | `./MemoryBioRAG_Data/memory_biorag.db` | Ruta al archivo .db |
+| `BIORAG_PATH` | `~/.biorag/memory_biorag.db` | Ruta al archivo .db (con fallback legacy transparente si aún no se ha migrado) |
+
+### Demonio de Mantenimiento (La Hormiguita)
+
+| Variable | Default | Descripción |
+|---|---|---|
+| `BIORAG_DAEMON_ENABLED` | `0` | Control maestro: `0` (desactivado por defecto), `1` (activado como daemon en background) |
+| `BIORAG_DAEMON_INTERVALO_HORAS` | `6` | Horas entre cada ciclo de mantenimiento |
+| `BIORAG_DAEMON_MAX_NODOS` | `10` | Nodos máximos a evaluar/podar por ciclo |
+| `BIORAG_DAEMON_LOG_ENABLED` | `0` | Logging en archivo (`logs/hormiguita.log`, rotación 1MB) |
 
 ### Plan Maestro v31.1 (E1–E13 + F1 + F2)
 
@@ -3237,6 +3488,8 @@ Ver tabla de defaults al inicio del README. Resumen:
 | `BIORAG_EPISODIO_VENTANA_HORAS` | `24` | F2 |
 | `BIORAG_EPISODIO_LIMITE` | `5` | F2 |
 | `BIORAG_EPISODIO_BUCKET_SEG` | `86400` | F2 |
+
+> **Estado del fallback SDM en este checkout:** el default efectivo es `1` para rescatar recuerdos en modo no estricto cuando la búsqueda léxica ofrece menos de 3 candidatos y la consulta tiene al menos 3 tokens. `buscar_sdm()` compara todos los vectores (`O(N)`); aceptamos temporalmente ese coste por resiliencia mientras se implementa un índice Hamming/LSH. `BIORAG_SDM_FALLBACK=0` lo desactiva.
 
 ### Búsqueda y Rendimiento
 

@@ -16,6 +16,12 @@ CONCEPTO FUNDAMENTAL: NÚCLEO TEMÁTICO (--sustantivos-clave)
     TRATA de: relatividad, energia, masa (1 a 5 sustantivos nucleares)
     MENCIONA: Berlín, 1905 (fechas y ciudades son contexto circunstancial)
 
+ACTUALIZACIÓN:
+  python3 biorag.py update                       # planificar desde upstream actual (dev)
+  python3 biorag.py update --yes                 # actualizar y preparar componentes
+  python3 biorag.py update --channel stable --yes # solo tag aprobado, sin cambiar rama
+  Alternativa mínima si fallan imports: python3 -m core.updater
+
 USO DESDE EL AGENTE (cada comando explicado):
 
   python3 biorag.py buscar <concepto> [--sustantivos-clave "s1,s2"] [--deep] [--todos] [--tokens "raiz1,raiz2"] [--pagina N] [--modo strict|relaxed] [--cat tipo] [--completo] [--asociados]
@@ -225,6 +231,12 @@ MAS INFORMACION:
   Creado por Dennys J Marquez — Sistema de memoria para agentes OEC.
 """
 import sys
+
+# Bootstrap sin NLP/DB: recuperar una instalación con dependencias incompletas.
+if __name__ == '__main__' and sys.argv[1:2] in (['update'], ['recovery']):
+    from core.cli import main as bootstrap_main
+    raise SystemExit(bootstrap_main())
+
 import os
 import time
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
@@ -234,8 +246,9 @@ from core.memory_store import SQLiteMemoryBioRAG, normalizar_sustantivos_clave
 from core.sinapsis import auto_vincular, vincular_por_sinonimos, _tokenizar, _peso_similitud
 from core.categorizador import inferir_categoria
 
-_DEFAULT_DB = os.path.join(os.path.dirname(os.path.abspath(__file__)), "MemoryBioRAG_Data", "memory_biorag.db")
-DB_PATH = os.environ.get('BIORAG_PATH') or _DEFAULT_DB
+from core.paths import resolve_db_path
+
+DB_PATH = resolve_db_path()
 
 
 def _sanitizar_entrada_cli(texto: str, max_len: int = 100000, nombre_campo: str = "entrada") -> str:
@@ -1102,6 +1115,14 @@ def main():
 
     comando = sys.argv[1]
     args = sys.argv[2:]
+
+    if comando == 'recovery':
+        from core.recovery import main as recovery_main
+        return recovery_main(args)
+
+    if comando == 'update':
+        from core.updater import main as update_main
+        return update_main(args)
 
     cerebro = SQLiteMemoryBioRAG(db_path=DB_PATH)
 

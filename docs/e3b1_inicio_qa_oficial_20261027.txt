@@ -1,0 +1,21 @@
+E3B1: datos y parámetros de las cuatro QA al inicio de la medición corregida
+HEAD base:
+04d44ac210dbcf7e20c16cd502dcb75babe988a9
+Diff candidato (el HEAD base no contiene ese diff):
+f7889e213de1a19bb575b2994ec1537758bbfd8c7c8a72a6ad678ade59ff4247  docs/e3b1_diff_candidato_20261027.patch
+Fuentes y gold:
+104dd2902aaf24c3ce93624492ea95a719acbdcca50f4f6bc123ac8317749796  snapshots/qa_escape_qcr_20260811.db
+a61913ce074cd02323c13589040b7ab1e5e4f36b18bbe62c12f9c1d363324e9a  /tmp/viva_e3a.db
+c76a71465f7a9be647094d79f00ffcebd742b00a6c12fa4ae90cf2c3d0654f4c  scripts/casos_qa_baseline_v1.jsonl
+d3665a8e895ba061354ddd7d9c4fe44614956ad79d663433c6ef70e59aa78a6a  scripts/casos_qa_multilingue_e3a.jsonl
+ecadfca36f142e5f9cb00d86cce8c90bff29849c6d482c5034587d8f0a04b1dc  scripts/casos_qa_multilingue_sustantivos_e3a.jsonl
+Python, SQLite, dependencias:
+3.11.2 (main, Apr  8 2026, 01:58:00) [GCC 12.2.0]
+sqlite 3.40.1 numpy 2.4.6 nltk 3.9.4 pytest 9.1.1
+
+Comando base: PYTHONHASHSEED=0 BIORAG_NEURONA=0 BIORAG_PATH=<fuente> BIORAG_QA_METRICS=<json> BIORAG_QA_FAILED_CASES=<jsonl> /tmp/biorag-e3a-venv/bin/python -u scripts/evaluar_qa.py
+En las dos con ruido se agregan BIORAG_QA_RUIDO=zzqx y BIORAG_QA_TEMATICO_CENSO=1; en las normales no se agregan.
+Snapshot: snapshots/qa_escape_qcr_20260811.db; viva: /tmp/viva_e3a.db (copia reconstruida del backup; no es la DB real).
+El gate clásico queda activo, como en E2e; es esperable que las corridas con ruido salgan código 1 aunque la comparación honesta no haya empeorado.
+Cada proceso usa su propia copia temporal, no escribe la fuente. Sin WAL de origen, el arnés copia mediante mode=ro&immutable=1.
+No lanzar otra vez mientras esas mismas corridas sigan activas. Resultados: docs/e3b1_{snapshot,viva}_{normal,ruido}_20261027.{json,log} y *_fallos_20261027.jsonl.

@@ -1,0 +1,13 @@
+diff --git a/core/memory/scoring.py b/core/memory/scoring.py
+index 5370576..7b422e9 100644
+--- a/core/memory/scoring.py
++++ b/core/memory/scoring.py
+@@ -349,7 +349,7 @@ def _calcular_score_hibrido(self, bm25_norm=0.0, dim_score=0.0,
+             0.10 * peso_norm +           # Peso sináptico
+             0.10 * max(score_latente, score_cadena) +  # Jaccard/cadena
+             0.10 * grupo_score +         # Grupo semántico WordNet
+-            0.08 * tematico_score_gated +      # Similitud temática (gate per-candidate)
++            0.00 * tematico_score_gated +      # Similitud temática (gate per-candidate)
+             0.04 * temporal +            # Recencia
+             0.02 * asoc_norm +           # Asociaciones
+             0.20 * pred_score +          # Signal #12: Predicados SRL

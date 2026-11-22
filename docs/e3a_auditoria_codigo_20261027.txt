@@ -1,0 +1,24 @@
+E3A — verificación de código y archivos protegidos
+Comando: git diff --exit-code 1339cfb HEAD -- core
+Resultado: sin diferencias, exit 0
+Referencia 1339cfb: 1339cfb804981b94ad6bff688519968f3e192d54
+HEAD verificado: d9622fa16005703a8b37ab0d5283fa344a7265e5
+
+Comando: git diff --exit-code 7b42fc8 HEAD -- .github/workflows/ci.yml README.md VERSION CHANGELOG.md
+Resultado: sin diferencias, exit 0
+
+Python: git show --stat --oneline c78c432
+c78c432 Exigir Python 3.11 en metadatos e instalador
+ install.py     | 4 ++--
+ pyproject.toml | 3 +--
+ 2 files changed, 3 insertions(+), 4 deletions(-)
+
+Actualización tras el cambio web de Dennys en la matriz de CI
+Comando: git diff --exit-code 1339cfb -- core
+Resultado: sin diferencias, exit 0
+Comando: git diff --exit-code 956cd58 -- core .github/workflows/ci.yml README.md VERSION CHANGELOG.md
+Resultado: sin diferencias, exit 0
+Cambio web: git show --stat --oneline 956cd58
+956cd58 Update Python versions in CI workflow
+ .github/workflows/ci.yml | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)

@@ -1,0 +1,151 @@
+{
+  "base": "viva",
+  "esperado": "v13_2_limpieza_tabla_semantica",
+  "consultas": {
+    "limpia": {
+      "consulta": "semánticas embedding",
+      "palabras": 2,
+      "candidatos": 129,
+      "puesto_esperado": 1,
+      "score_esperado": 0.6184,
+      "top5": [
+        [
+          "v13_2_limpieza_tabla_semantica",
+          0.6184
+        ],
+        [
+          "aciertos_word2vec_top5_coincidencia_lexica_no_semantica_20260808",
+          0.5581
+        ],
+        [
+          "mentalidad_embedding_clasificacion_dimensional",
+          0.4304
+        ],
+        [
+          "biorag_si_tiene_motor_vectorial_propio_no_externo_20260815",
+          0.4198
+        ],
+        [
+          "panorama_proyectos_memoria_agentes_similares_biorag",
+          0.3892
+        ]
+      ]
+    },
+    "examen_0848": {
+      "consulta": "semánticas 849 embedding",
+      "palabras": 3,
+      "candidatos": 683,
+      "puesto_esperado": 6,
+      "score_esperado": 0.3732,
+      "top5": [
+        [
+          "biorag_si_tiene_motor_vectorial_propio_no_externo_20260815",
+          0.4428
+        ],
+        [
+          "vision_biorag_mas_alla_vectores_20260802",
+          0.3948
+        ],
+        [
+          "mentalidad_embedding_clasificacion_dimensional",
+          0.3938
+        ],
+        [
+          "panorama_proyectos_memoria_agentes_similares_biorag",
+          0.3931
+        ],
+        [
+          "cambio_paradigma_dimensiones_semanticas",
+          0.3811
+        ]
+      ]
+    },
+    "ruido_inventado": {
+      "consulta": "semánticas zzqx embedding",
+      "palabras": 3,
+      "candidatos": 683,
+      "puesto_esperado": 8,
+      "score_esperado": 0.3731,
+      "top5": [
+        [
+          "biorag_si_tiene_motor_vectorial_propio_no_externo_20260815",
+          0.4428
+        ],
+        [
+          "principio_emulacion_semantica_por_clusters_declarativos",
+          0.4412
+        ],
+        [
+          "vision_biorag_mas_alla_vectores_20260802",
+          0.3948
+        ],
+        [
+          "mentalidad_embedding_clasificacion_dimensional",
+          0.3938
+        ],
+        [
+          "panorama_proyectos_memoria_agentes_similares_biorag",
+          0.3931
+        ]
+      ]
+    },
+    "ruido_real": {
+      "consulta": "semánticas embedding julio",
+      "palabras": 3,
+      "candidatos": 150,
+      "puesto_esperado": 4,
+      "score_esperado": 0.4216,
+      "top5": [
+        [
+          "mentalidad_embedding_clasificacion_dimensional",
+          0.4417
+        ],
+        [
+          "cambio_paradigma_dimensiones_semanticas",
+          0.431
+        ],
+        [
+          "biorag_si_tiene_motor_vectorial_propio_no_externo_20260815",
+          0.4239
+        ],
+        [
+          "v13_2_limpieza_tabla_semantica",
+          0.4216
+        ],
+        [
+          "vision_biorag_mas_alla_vectores_20260802",
+          0.412
+        ]
+      ]
+    },
+    "solo_2_palabras_ok": {
+      "consulta": "limpieza semántica tabla embedding",
+      "palabras": 4,
+      "candidatos": 299,
+      "puesto_esperado": 1,
+      "score_esperado": 0.5514,
+      "top5": [
+        [
+          "v13_2_limpieza_tabla_semantica",
+          0.5514
+        ],
+        [
+          "limpieza_tabla_semantica_contaminacion_julio_2026",
+          0.4854
+        ],
+        [
+          "cambio_paradigma_dimensiones_semanticas",
+          0.4602
+        ],
+        [
+          "principio_purga_nivel_db_triggers",
+          0.4336
+        ],
+        [
+          "word2vec_puro_sgps_contenido_rompe_muro_sinonimo",
+          0.429
+        ]
+      ]
+    }
+  }
+}

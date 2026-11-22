@@ -28,8 +28,10 @@ from contextlib import redirect_stdout
 from collections import defaultdict
 import sqlite3
 
+from core.paths import resolve_db_path
+
 ROOT = Path(__file__).resolve().parent
-LIVE_DB = ROOT / "MemoryBioRAG_Data" / "memory_biorag.db"
+LIVE_DB = Path(resolve_db_path())
 QA_FILE = ROOT / "scripts" / "casos_qa_baseline_v1.jsonl"
 NLTK_DIR = ROOT / "MemoryBioRAG_Data" / "nltk_data"
 OUT_JSON = ROOT / "benchmark_comparativo_results.json"

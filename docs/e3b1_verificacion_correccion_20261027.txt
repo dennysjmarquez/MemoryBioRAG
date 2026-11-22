@@ -1,0 +1,11 @@
+E3B1 — verificación independiente de la corrección de 2–15 tras NFC
+La función actual rechaza 水 y 문; admite हिंदी, ガラス, чай y hola.
+El diff de motor actual coincide byte por byte con e3b1_diff_candidato_20261027.patch.
+Etiquetas originales: 132; inspeccionadas usando el normalizador y el validador actuales.
+Casos rechazados por un carácter y marcados como pendiente hueco 1: 14
+IDs: zh-18, ja-05, ja-06, ja-08, ja-10, ja-11, ja-14, ja-15, ja-17, ja-18, ko-05, ko-07, ko-18, ko-20
+Los 118 demás casos llegaron al motor; ningún rechazado se cuenta como abstención.
+El JSON MCP contiene los resultados de esa misma regla y etiquetas; SHA-256 64fdc14f4c14a953d8e24153c41ffa63433b222961ff9a3916efb7d5010176ac
+La QA directa se repitió después de la corrección, aunque no usa la validación MCP.
+Las cuatro QA oficiales de la regla anterior se interrumpieron antes de completar; los logs parciales fueron reemplazados por los de las corridas con la regla corregida.
+La salida focalizada anterior se reemplazó; la salida actual es 90 passed y el pytest completo actual es 626 passed.

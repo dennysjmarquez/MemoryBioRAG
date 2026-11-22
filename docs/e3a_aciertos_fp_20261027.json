@@ -1,0 +1,759 @@
+{
+  "base": {
+    "integridad": "ok",
+    "nodos": 120,
+    "sinapsis": 1,
+    "por_idioma": {
+      "zh": {
+        "recuerdos": 20,
+        "con_grupo_wordnet": 0,
+        "con_sinapsis": 0
+      },
+      "ja": {
+        "recuerdos": 20,
+        "con_grupo_wordnet": 0,
+        "con_sinapsis": 0
+      },
+      "ko": {
+        "recuerdos": 20,
+        "con_grupo_wordnet": 0,
+        "con_sinapsis": 0
+      },
+      "ru": {
+        "recuerdos": 20,
+        "con_grupo_wordnet": 0,
+        "con_sinapsis": 0
+      },
+      "en": {
+        "recuerdos": 20,
+        "con_grupo_wordnet": 20,
+        "con_sinapsis": 2
+      },
+      "es": {
+        "recuerdos": 20,
+        "con_grupo_wordnet": 20,
+        "con_sinapsis": 0
+      }
+    },
+    "sha256_sqlite": "25d78c785e2518873dfcfdd3b8e322bfa185d0d114d6fba67ff167a0b62bba1c"
+  },
+  "coincidencia_con_referencia": "16/16 rankings y scores idénticos",
+  "aciertos_zh_ja": [
+    {
+      "id": "zh-01",
+      "query": "海岸灯塔",
+      "query_filtrada": "海岸灯塔",
+      "stopwords_retiradas": [],
+      "tokens_fallback": [
+        "海岸灯塔"
+      ],
+      "stems": {
+        "海岸灯塔": "海岸灯塔"
+      },
+      "wordnet": "1",
+      "expansiones_wordnet": [],
+      "hits_fts_model_airplane": [],
+      "resultados": [
+        {
+          "concepto": "海岸灯塔",
+          "score": 0.8424
+        }
+      ],
+      "pool": [
+        {
+          "concepto": "海岸灯塔",
+          "origen": [
+            "simbolico",
+            1.0
+          ]
+        }
+      ],
+      "total_motor": 1
+    },
+    {
+      "id": "zh-02",
+      "query": "蓝色望远镜",
+      "query_filtrada": "蓝色望远镜",
+      "stopwords_retiradas": [],
+      "tokens_fallback": [
+        "蓝色望远镜"
+      ],
+      "stems": {
+        "蓝色望远镜": "蓝色望远镜"
+      },
+      "wordnet": "1",
+      "expansiones_wordnet": [],
+      "hits_fts_model_airplane": [],
+      "resultados": [
+        {
+          "concepto": "蓝色望远镜",
+          "score": 0.8424
+        }
+      ],
+      "pool": [
+        {
+          "concepto": "蓝色望远镜",
+          "origen": [
+            "simbolico",
+            1.0
+          ]
+        }
+      ],
+      "total_motor": 1
+    },
+    {
+      "id": "zh-03",
+      "query": "银色指南针",
+      "query_filtrada": "银色指南针",
+      "stopwords_retiradas": [],
+      "tokens_fallback": [
+        "银色指南针"
+      ],
+      "stems": {
+        "银色指南针": "银色指南针"
+      },
+      "wordnet": "1",
+      "expansiones_wordnet": [],
+      "hits_fts_model_airplane": [],
+      "resultados": [
+        {
+          "concepto": "银色指南针",
+          "score": 0.8453
+        }
+      ],
+      "pool": [
+        {
+          "concepto": "银色指南针",
+          "origen": [
+            "simbolico",
+            1.0
+          ]
+        }
+      ],
+      "total_motor": 1
+    },
+    {
+      "id": "zh-04",
+      "query": "桃木书架",
+      "query_filtrada": "桃木书架",
+      "stopwords_retiradas": [],
+      "tokens_fallback": [
+        "桃木书架"
+      ],
+      "stems": {
+        "桃木书架": "桃木书架"
+      },
+      "wordnet": "1",
+      "expansiones_wordnet": [],
+      "hits_fts_model_airplane": [],
+      "resultados": [
+        {
+          "concepto": "桃木书架",
+          "score": 0.8436
+        }
+      ],
+      "pool": [
+        {
+          "concepto": "桃木书架",
+          "origen": [
+            "simbolico",
+            1.0
+          ]
+        }
+      ],
+      "total_motor": 1
+    },
+    {
+      "id": "zh-05",
+      "query": "红色风筝",
+      "query_filtrada": "红色风筝",
+      "stopwords_retiradas": [],
+      "tokens_fallback": [
+        "红色风筝"
+      ],
+      "stems": {
+        "红色风筝": "红色风筝"
+      },
+      "wordnet": "1",
+      "expansiones_wordnet": [],
+      "hits_fts_model_airplane": [],
+      "resultados": [
+        {
+          "concepto": "红色风筝",
+          "score": 0.843
+        }
+      ],
+      "pool": [
+        {
+          "concepto": "红色风筝",
+          "origen": [
+            "simbolico",
+            1.0
+          ]
+        }
+      ],
+      "total_motor": 1
+    },
+    {
+      "id": "zh-19",
+      "query": "竹笛",
+      "query_filtrada": "竹笛",
+      "stopwords_retiradas": [],
+      "tokens_fallback": [
+        "竹笛"
+      ],
+      "stems": {
+        "竹笛": "竹笛"
+      },
+      "wordnet": "1",
+      "expansiones_wordnet": [],
+      "hits_fts_model_airplane": [],
+      "resultados": [
+        {
+          "concepto": "竹笛",
+          "score": 0.8395
+        }
+      ],
+      "pool": [
+        {
+          "concepto": "竹笛",
+          "origen": [
+            "unicode",
+            0.0
+          ]
+        }
+      ],
+      "total_motor": 1
+    },
+    {
+      "id": "zh-20",
+      "query": "陶鼓",
+      "query_filtrada": "陶鼓",
+      "stopwords_retiradas": [],
+      "tokens_fallback": [
+        "陶鼓"
+      ],
+      "stems": {
+        "陶鼓": "陶鼓"
+      },
+      "wordnet": "1",
+      "expansiones_wordnet": [],
+      "hits_fts_model_airplane": [],
+      "resultados": [
+        {
+          "concepto": "陶鼓",
+          "score": 0.8395
+        }
+      ],
+      "pool": [
+        {
+          "concepto": "陶鼓",
+          "origen": [
+            "unicode",
+            0.0
+          ]
+        }
+      ],
+      "total_motor": 1
+    },
+    {
+      "id": "ja-01",
+      "query": "海辺の灯台",
+      "query_filtrada": "海辺の灯台",
+      "stopwords_retiradas": [],
+      "tokens_fallback": [
+        "海辺の灯台"
+      ],
+      "stems": {
+        "海辺の灯台": "海辺の灯台"
+      },
+      "wordnet": "1",
+      "expansiones_wordnet": [],
+      "hits_fts_model_airplane": [],
+      "resultados": [
+        {
+          "concepto": "海辺の灯台",
+          "score": 0.8418
+        }
+      ],
+      "pool": [
+        {
+          "concepto": "海辺の灯台",
+          "origen": [
+            "simbolico",
+            1.0
+          ]
+        }
+      ],
+      "total_motor": 1
+    },
+    {
+      "id": "ja-02",
+      "query": "赤い望遠鏡",
+      "query_filtrada": "赤い望遠鏡",
+      "stopwords_retiradas": [],
+      "tokens_fallback": [
+        "赤い望遠鏡"
+      ],
+      "stems": {
+        "赤い望遠鏡": "赤い望遠鏡"
+      },
+      "wordnet": "1",
+      "expansiones_wordnet": [],
+      "hits_fts_model_airplane": [],
+      "resultados": [
+        {
+          "concepto": "赤い望遠鏡",
+          "score": 0.8421
+        }
+      ],
+      "pool": [
+        {
+          "concepto": "赤い望遠鏡",
+          "origen": [
+            "simbolico",
+            1.0
+          ]
+        }
+      ],
+      "total_motor": 1
+    },
+    {
+      "id": "ja-03",
+      "query": "真鍮の方位磁針",
+      "query_filtrada": "真鍮の方位磁針",
+      "stopwords_retiradas": [],
+      "tokens_fallback": [
+        "真鍮の方位磁針"
+      ],
+      "stems": {
+        "真鍮の方位磁針": "真鍮の方位磁針"
+      },
+      "wordnet": "1",
+      "expansiones_wordnet": [],
+      "hits_fts_model_airplane": [],
+      "resultados": [
+        {
+          "concepto": "真鍮の方位磁針",
+          "score": 0.846
+        }
+      ],
+      "pool": [
+        {
+          "concepto": "真鍮の方位磁針",
+          "origen": [
+            "simbolico",
+            1.0
+          ]
+        }
+      ],
+      "total_motor": 1
+    },
+    {
+      "id": "ja-04",
+      "query": "木の本棚",
+      "query_filtrada": "木の本棚",
+      "stopwords_retiradas": [],
+      "tokens_fallback": [
+        "木の本棚"
+      ],
+      "stems": {
+        "木の本棚": "木の本棚"
+      },
+      "wordnet": "1",
+      "expansiones_wordnet": [],
+      "hits_fts_model_airplane": [],
+      "resultados": [
+        {
+          "concepto": "木の本棚",
+          "score": 0.841
+        }
+      ],
+      "pool": [
+        {
+          "concepto": "木の本棚",
+          "origen": [
+            "simbolico",
+            1.0
+          ]
+        }
+      ],
+      "total_motor": 1
+    },
+    {
+      "id": "ja-05",
+      "query": "青い凧",
+      "query_filtrada": "青い凧",
+      "stopwords_retiradas": [],
+      "tokens_fallback": [
+        "青い凧"
+      ],
+      "stems": {
+        "青い凧": "青い凧"
+      },
+      "wordnet": "1",
+      "expansiones_wordnet": [],
+      "hits_fts_model_airplane": [],
+      "resultados": [
+        {
+          "concepto": "青い凧",
+          "score": 0.84
+        }
+      ],
+      "pool": [
+        {
+          "concepto": "青い凧",
+          "origen": [
+            "simbolico",
+            1.0
+          ]
+        }
+      ],
+      "total_motor": 1
+    },
+    {
+      "id": "ja-19",
+      "query": "ガラス",
+      "query_filtrada": "ガラス",
+      "stopwords_retiradas": [],
+      "tokens_fallback": [
+        "カラス"
+      ],
+      "stems": {
+        "カラス": "カラス"
+      },
+      "wordnet": "1",
+      "expansiones_wordnet": [],
+      "hits_fts_model_airplane": [],
+      "resultados": [
+        {
+          "concepto": "ガラス",
+          "score": 0.8609
+        },
+        {
+          "concepto": "カラス",
+          "score": 0.8549
+        }
+      ],
+      "pool": [
+        {
+          "concepto": "ガラス",
+          "origen": [
+            "simbolico",
+            1.0
+          ]
+        },
+        {
+          "concepto": "カラス",
+          "origen": [
+            "simbolico",
+            1.0
+          ]
+        }
+      ],
+      "total_motor": 2
+    },
+    {
+      "id": "ja-20",
+      "query": "カラス",
+      "query_filtrada": "カラス",
+      "stopwords_retiradas": [],
+      "tokens_fallback": [
+        "カラス"
+      ],
+      "stems": {
+        "カラス": "カラス"
+      },
+      "wordnet": "1",
+      "expansiones_wordnet": [],
+      "hits_fts_model_airplane": [],
+      "resultados": [
+        {
+          "concepto": "カラス",
+          "score": 0.8616
+        },
+        {
+          "concepto": "ガラス",
+          "score": 0.8542
+        }
+      ],
+      "pool": [
+        {
+          "concepto": "カラス",
+          "origen": [
+            "simbolico",
+            1.0
+          ]
+        },
+        {
+          "concepto": "ガラス",
+          "origen": [
+            "simbolico",
+            1.0
+          ]
+        }
+      ],
+      "total_motor": 2
+    }
+  ],
+  "negativos_ingleses": [
+    {
+      "id": "en-n01",
+      "query": "Where does the platypus in boots play chess?",
+      "query_filtrada": "platypus boots play chess",
+      "stopwords_retiradas": [
+        "where",
+        "does",
+        "the",
+        "in"
+      ],
+      "tokens_fallback": [
+        "boots",
+        "chess",
+        "platypus",
+        "play"
+      ],
+      "stems": {
+        "boots": "boot",
+        "chess": "chess",
+        "platypus": "platypus",
+        "play": "play"
+      },
+      "wordnet": "1",
+      "expansiones_wordnet": [
+        {
+          "token": "platypus",
+          "synsets": [
+            "platypus.n.01"
+          ],
+          "agregados": [
+            "duckbill",
+            "duckbilled platypus",
+            "duck-billed platypus",
+            "Ornithorhynchus anatinus"
+          ]
+        },
+        {
+          "token": "boots",
+          "synsets": [
+            "boot.n.01",
+            "boot.n.02"
+          ],
+          "agregados": [
+            "boot"
+          ]
+        },
+        {
+          "token": "play",
+          "synsets": [
+            "play.n.01",
+            "play.n.02"
+          ],
+          "agregados": [
+            "drama",
+            "dramatic play"
+          ]
+        },
+        {
+          "token": "chess",
+          "synsets": [
+            "chess.n.01",
+            "chess.n.02"
+          ],
+          "agregados": [
+            "cheat"
+          ]
+        }
+      ],
+      "hits_fts_model_airplane": [
+        {
+          "termino_fts": "play",
+          "contenido_resaltado": "The model airplane is dis[play]ed inside the wooden cabinet."
+        }
+      ],
+      "resultados": [
+        {
+          "concepto": "model airplane",
+          "score": 0.1723
+        }
+      ],
+      "pool": [
+        {
+          "concepto": "model airplane",
+          "origen": [
+            "literal",
+            0.0
+          ]
+        }
+      ],
+      "total_motor": 1
+    },
+    {
+      "id": "en-n02",
+      "query": "Which saxophone is buried in a desert glacier?",
+      "query_filtrada": "saxophone buried desert glacier",
+      "stopwords_retiradas": [
+        "which",
+        "is",
+        "in",
+        "a"
+      ],
+      "tokens_fallback": [
+        "buried",
+        "desert",
+        "glacier",
+        "saxophone"
+      ],
+      "stems": {
+        "buried": "buri",
+        "desert": "desert",
+        "glacier": "glaci",
+        "saxophone": "saxophon"
+      },
+      "wordnet": "1",
+      "expansiones_wordnet": [
+        {
+          "token": "saxophone",
+          "synsets": [
+            "sax.n.02"
+          ],
+          "agregados": [
+            "sax"
+          ]
+        },
+        {
+          "token": "buried",
+          "synsets": [
+            "bury.v.01",
+            "bury.v.02"
+          ],
+          "agregados": [
+            "bury",
+            "entomb",
+            "inhume",
+            "inter",
+            "lay to rest"
+          ]
+        },
+        {
+          "token": "desert",
+          "synsets": [
+            "desert.n.01",
+            "abandon.v.05"
+          ],
+          "agregados": [
+            "abandon",
+            "forsake"
+          ]
+        },
+        {
+          "token": "glacier",
+          "synsets": [
+            "glacier.n.01"
+          ],
+          "agregados": []
+        }
+      ],
+      "hits_fts_model_airplane": [
+        {
+          "termino_fts": "lay",
+          "contenido_resaltado": "The model airplane is disp[lay]ed inside the wooden cabinet."
+        }
+      ],
+      "resultados": [
+        {
+          "concepto": "model airplane",
+          "score": 0.2039
+        }
+      ],
+      "pool": [
+        {
+          "concepto": "model airplane",
+          "origen": [
+            "literal",
+            0.0
+          ]
+        }
+      ],
+      "total_motor": 1
+    }
+  ],
+  "wordnet_apagado_solo_como_sonda": [
+    {
+      "id": "en-n01",
+      "query": "Where does the platypus in boots play chess?",
+      "query_filtrada": "platypus boots play chess",
+      "stopwords_retiradas": [
+        "where",
+        "does",
+        "the",
+        "in"
+      ],
+      "tokens_fallback": [
+        "boots",
+        "chess",
+        "platypus",
+        "play"
+      ],
+      "stems": {
+        "boots": "boot",
+        "chess": "chess",
+        "platypus": "platypus",
+        "play": "play"
+      },
+      "wordnet": "0",
+      "expansiones_wordnet": [],
+      "hits_fts_model_airplane": [
+        {
+          "termino_fts": "play",
+          "contenido_resaltado": "The model airplane is dis[play]ed inside the wooden cabinet."
+        }
+      ],
+      "resultados": [
+        {
+          "concepto": "model airplane",
+          "score": 0.1723
+        }
+      ],
+      "pool": [
+        {
+          "concepto": "model airplane",
+          "origen": [
+            "literal",
+            0.0
+          ]
+        }
+      ],
+      "total_motor": 1
+    },
+    {
+      "id": "en-n02",
+      "query": "Which saxophone is buried in a desert glacier?",
+      "query_filtrada": "saxophone buried desert glacier",
+      "stopwords_retiradas": [
+        "which",
+        "is",
+        "in",
+        "a"
+      ],
+      "tokens_fallback": [
+        "buried",
+        "desert",
+        "glacier",
+        "saxophone"
+      ],
+      "stems": {
+        "buried": "buri",
+        "desert": "desert",
+        "glacier": "glaci",
+        "saxophone": "saxophon"
+      },
+      "wordnet": "0",
+      "expansiones_wordnet": [],
+      "hits_fts_model_airplane": [],
+      "resultados": [],
+      "pool": [],
+      "total_motor": 0
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "mode": "full tests/ on isolated effective-code copy; no correction module activated",
+  "passed": 879,
+  "skipped": 18,
+  "subtests_passed": 2,
+  "failures": 0,
+  "errors": 0,
+  "elapsed_seconds": 379.17,
+  "exit_code": 0,
+  "skip_reason": "Tests require live DB at import; no live DB provided to isolated process",
+  "initial_runs": {
+    "missing_hebbian_asset_and_forced_dmn_off": "3 failures",
+    "dmn_flag_removed_but_asset_still_missing": "2 failures",
+    "fixed_test_isolation": "879 passed, 18 skipped; no core/tests modifications"
+  },
+  "hebbian_asset_sha256": "7b49d729d354ce08e9479efdcf581f5fc9b23f780bdd587b3e99979cd7d1a57b",
+  "junit_sha256": "06ff91a46e51a68aa85cb245f6298482ea2c4ae1e04e19ce7d982adb61e033dc"
+}

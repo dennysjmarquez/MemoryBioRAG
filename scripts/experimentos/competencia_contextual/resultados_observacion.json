@@ -1,0 +1,265 @@
+{
+  "mode": "observation_only",
+  "effective_time": "instantes lógicos de fixture, no fechas inferidas",
+  "configuration": {
+    "message": "Corrijo: el puerto del servicio alfa en producción es 8443, no 8080.",
+    "simulated_message": true,
+    "observed_at": 3,
+    "effective_at": 2,
+    "proposal": {
+      "event_id": "demo-correction-1",
+      "status": "pending_confirmation",
+      "reason": "predecessor_grounded",
+      "extraction": {
+        "status": "proposal",
+        "reason": "explicit_direct_revision",
+        "fields": {
+          "entity": "servicio alfa",
+          "attribute": "puerto",
+          "scope": "producción",
+          "old": "8080",
+          "new": "8443"
+        },
+        "spans": {
+          "entity": [
+            23,
+            36
+          ],
+          "attribute": [
+            12,
+            18
+          ],
+          "scope": [
+            40,
+            50
+          ],
+          "old": [
+            63,
+            67
+          ],
+          "new": [
+            54,
+            58
+          ]
+        }
+      },
+      "old_claim": "port-before",
+      "confirmed": false,
+      "production_action": "none"
+    },
+    "observation": {
+      "mode": "observation_only",
+      "status": "simulated_not_applied",
+      "actual": {
+        "status": "resolved",
+        "winner": "port-old",
+        "candidates": [
+          {
+            "node": "port-old",
+            "base_score": 0.99
+          },
+          {
+            "node": "neighbor",
+            "base_score": 0.8
+          },
+          {
+            "node": "port-new",
+            "base_score": 0.2
+          }
+        ],
+        "claims": [
+          "port-before"
+        ],
+        "superseded": [],
+        "missing_nodes": []
+      },
+      "would_if_confirmed": {
+        "status": "resolved",
+        "winner": "port-new",
+        "candidates": [
+          {
+            "node": "port-new",
+            "base_score": 0.2
+          },
+          {
+            "node": "port-old",
+            "base_score": 0.99
+          },
+          {
+            "node": "neighbor",
+            "base_score": 0.8
+          }
+        ],
+        "claims": [
+          "interaction:2a199f76ede02f807925abada9e72f6e0fb517a27254324c93ea9b376bcd9f90"
+        ],
+        "superseded": [
+          "port-before"
+        ],
+        "missing_nodes": []
+      },
+      "confirmation_required": true,
+      "production_action": "none"
+    },
+    "ledger_unchanged": true,
+    "production_ranking_unchanged": true,
+    "production_candidates": [
+      {
+        "node": "port-old",
+        "base_score": 0.99
+      },
+      {
+        "node": "neighbor",
+        "base_score": 0.8
+      },
+      {
+        "node": "port-new",
+        "base_score": 0.2
+      }
+    ]
+  },
+  "snapshot_case": {
+    "message": "Actualizo: la versión del proyecto en DEV pasa de 32.4 a 36.1.",
+    "simulated_message": true,
+    "observed_at": 3,
+    "effective_at": 2,
+    "proposal": {
+      "event_id": "demo-correction-1",
+      "status": "pending_confirmation",
+      "reason": "predecessor_grounded",
+      "extraction": {
+        "status": "proposal",
+        "reason": "explicit_direct_revision",
+        "fields": {
+          "entity": "proyecto",
+          "attribute": "versión",
+          "scope": "dev",
+          "old": "32.4",
+          "new": "36.1"
+        },
+        "spans": {
+          "entity": [
+            26,
+            34
+          ],
+          "attribute": [
+            14,
+            21
+          ],
+          "scope": [
+            38,
+            41
+          ],
+          "old": [
+            50,
+            54
+          ],
+          "new": [
+            57,
+            61
+          ]
+        }
+      },
+      "old_claim": "release-before",
+      "confirmed": false,
+      "production_action": "none"
+    },
+    "observation": {
+      "mode": "observation_only",
+      "status": "simulated_not_applied",
+      "actual": {
+        "status": "resolved",
+        "winner": "version_actual_biorag_v32_4_20261007",
+        "candidates": [
+          {
+            "node": "version_actual_biorag_v32_4_20261007",
+            "base_score": 0.7746
+          },
+          {
+            "node": "version_actual_biorag",
+            "base_score": 0.7208
+          },
+          {
+            "node": "biorag_v14_0_estado",
+            "base_score": 0.633
+          },
+          {
+            "node": "version_biorag_v11_1",
+            "base_score": 0.521
+          },
+          {
+            "node": "version_actual_biorag_v32_3_20261003",
+            "base_score": 0.4862
+          }
+        ],
+        "claims": [
+          "release-before"
+        ],
+        "superseded": [],
+        "missing_nodes": []
+      },
+      "would_if_confirmed": {
+        "status": "resolved",
+        "winner": "version_actual_biorag",
+        "candidates": [
+          {
+            "node": "version_actual_biorag",
+            "base_score": 0.7208
+          },
+          {
+            "node": "version_actual_biorag_v32_4_20261007",
+            "base_score": 0.7746
+          },
+          {
+            "node": "biorag_v14_0_estado",
+            "base_score": 0.633
+          },
+          {
+            "node": "version_biorag_v11_1",
+            "base_score": 0.521
+          },
+          {
+            "node": "version_actual_biorag_v32_3_20261003",
+            "base_score": 0.4862
+          }
+        ],
+        "claims": [
+          "interaction:a3667fc7e5e33dcead1a49cf6c07c648f3ec5f7c45c02a17763bdf96d4959d44"
+        ],
+        "superseded": [
+          "release-before"
+        ],
+        "missing_nodes": []
+      },
+      "confirmation_required": true,
+      "production_action": "none"
+    },
+    "ledger_unchanged": true,
+    "production_ranking_unchanged": true,
+    "production_candidates": [
+      {
+        "node": "version_actual_biorag_v32_4_20261007",
+        "base_score": 0.7746
+      },
+      {
+        "node": "version_actual_biorag",
+        "base_score": 0.7208
+      },
+      {
+        "node": "biorag_v14_0_estado",
+        "base_score": 0.633
+      },
+      {
+        "node": "version_biorag_v11_1",
+        "base_score": 0.521
+      },
+      {
+        "node": "version_actual_biorag_v32_3_20261003",
+        "base_score": 0.4862
+      }
+    ]
+  },
+  "source_sha256": "07a77c801eaa56750627e1c831de91a65e6448da25e4803b86d3ae4e2446c55e",
+  "source_unchanged": true,
+  "snapshot_mode": "backup verificado; candidatos de traza previa, NO búsqueda nueva"
+}

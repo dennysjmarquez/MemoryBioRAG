@@ -15,12 +15,14 @@ Características:
 - Modo --once para ejecución single-shot
 
 Uso:
-    python3 graph_maintenance_daemon.py              # Daemon continuo
+    python3 graph_maintenance_daemon.py              # Daemon continuo (requiere BIORAG_DAEMON_ENABLED=1 o --force)
     python3 graph_maintenance_daemon.py --once       # Un solo ciclo
     python3 graph_maintenance_daemon.py --status     # Ver estado actual
     python3 graph_maintenance_daemon.py --reset      # Resetear estado
+    python3 graph_maintenance_daemon.py --stop       # Detener daemon en ejecución
 
 Variables de entorno:
+    BIORAG_DAEMON_ENABLED          — 0/off (default): desactivado; 1/on: habilitado
     BIORAG_DAEMON_INTERVALO_HORAS  — Intervalo entre ciclos (default: 6)
     BIORAG_DAEMON_MAX_NODOS        — Nodos por ciclo (default: 10)
     BIORAG_DAEMON_LOCK_PATH        — Ruta del lock file (default: .hormiguita.lock)
@@ -187,6 +189,8 @@ class GraphMaintenanceDaemon:
         self.max_nodos = max_nodos
         self.intervalo_horas = intervalo_horas
         self.running = True
+        self.en_ciclo = False
+        self.solicitud_parada = False
         self._db_path = None
         
         # Configurar signal handlers para graceful shutdown
@@ -194,20 +198,28 @@ class GraphMaintenanceDaemon:
         signal.signal(signal.SIGTERM, self._signal_handler)
     
     def _signal_handler(self, signum, frame):
-        """Maneja señales de shutdown."""
-        self.logger.info(f"[Daemon] Señal {signum} recibida, shutting down gracefully...")
+        """Maneja señales de shutdown prudente.
+
+        Si está ejecutando un ciclo con transacciones activas en SQLite,
+        espera a que el ciclo termine limpiamente antes de salir para
+        evitar corromper la base de datos o dejar estados inconsistentes.
+        """
+        self.solicitud_parada = True
         self.running = False
-        _borrar_pid()
+        if self.en_ciclo:
+            self.logger.info(
+                f"[Daemon] Señal {signum} recibida durante ciclo activo. "
+                "Esperando a que la transacción en curso termine limpiamente..."
+            )
+        else:
+            self.logger.info(f"[Daemon] Señal {signum} recibida, deteniendo daemon limpiamente...")
     
     def _get_db_path(self):
         """Obtiene la ruta de la base de datos."""
         if self._db_path:
             return self._db_path
-        default = os.path.join(
-            os.path.dirname(os.path.abspath(__file__)),
-            "MemoryBioRAG_Data", "memory_biorag.db"
-        )
-        self._db_path = os.environ.get("BIORAG_PATH") or default
+        from core.paths import resolve_db_path
+        self._db_path = resolve_db_path()
         return self._db_path
     
     def ejecutar_ciclo(self):
@@ -218,6 +230,7 @@ class GraphMaintenanceDaemon:
             self.logger.error(f"[Daemon] Base de datos no encontrada: {db_path}")
             return {"resultado": "error", "motivo": "db_no_encontrada"}
         
+        self.en_ciclo = True
         cerebro = SQLiteMemoryBioRAG(db_path=db_path)
         
         try:
@@ -262,7 +275,11 @@ class GraphMaintenanceDaemon:
             self.logger.error(f"[Daemon] Error en ciclo: {e}", exc_info=True)
             return {"resultado": "error", "motivo": str(e)}
         finally:
-            cerebro.cerrar_sistema()
+            try:
+                cerebro.cerrar_sistema()
+            except Exception:
+                pass
+            self.en_ciclo = False
     
     def ejecutar_once(self):
         """Ejecuta un solo ciclo y retorna."""
@@ -406,6 +423,14 @@ def main():
         help="Resetear estado de la hormiguita"
     )
     parser.add_argument(
+        "--stop", action="store_true",
+        help="Detener el daemon en ejecución"
+    )
+    parser.add_argument(
+        "--force", action="store_true",
+        help="Forzar arranque del daemon continuo ignorando BIORAG_DAEMON_ENABLED=0"
+    )
+    parser.add_argument(
         "--max-nodos", type=int, default=MAX_NODOS_POR_CICLO,
         help=f"Máximo de nodos por ciclo (default: {MAX_NODOS_POR_CICLO})"
     )
@@ -435,7 +460,27 @@ def main():
     if args.reset:
         daemon.reset_estado()
         return
-    
+
+    # Modo stop
+    if args.stop:
+        from core.daemon_lifecycle import stop_daemon
+        detenido = stop_daemon()
+        if detenido:
+            print("✓ Daemon de La Hormiguita detenido correctamente.")
+        else:
+            print("ℹ No se encontró ninguna instancia del daemon en ejecución.")
+        return
+
+    # Invariante: por defecto el daemon continuo está apagado (BIORAG_DAEMON_ENABLED=0).
+    # Solo corre si BIORAG_DAEMON_ENABLED=1, o con --force, o con --once.
+    daemon_enabled = os.environ.get("BIORAG_DAEMON_ENABLED", "0").strip().lower() in ("1", "true", "yes", "on")
+    if not args.once and not daemon_enabled and not args.force:
+        print("ℹ Daemon continuo desactivado por defecto (BIORAG_DAEMON_ENABLED=0).")
+        print("  • Para ejecutar un solo ciclo ahora: python3 graph_maintenance_daemon.py --once")
+        print("  • Para activar el daemon continuo:   BIORAG_DAEMON_ENABLED=1 python3 graph_maintenance_daemon.py")
+        print("  • O bien fuerza el arranque con:     python3 graph_maintenance_daemon.py --force")
+        return
+
     # Adquirir lock
     lock = DaemonLock(LOCK_PATH)
     if not lock.adquirir():

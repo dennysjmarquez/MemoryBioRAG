@@ -2,16 +2,17 @@
 BioRAG Daemon Lifecycle — Gestión cross-platform del daemon de mantenimiento del grafo
 ======================================================================================
 
-El MCP server usa este módulo para asegurar que el daemon de la hormiguita
-esté corriendo como proceso detachado. El daemon sobrevive a la muerte del
-MCP server — cuando opencode cierra, el daemon sigue. La próxima vez que
-opencode abra, el MCP server checkea si sigue vivo.
+El MCP server puede usar este módulo para comprobar o iniciar el daemon de
+mantenimiento como proceso separado. El inicio automático está desactivado
+por defecto y requiere BIORAG_DAEMON_ENABLED=1; si se habilita, el proceso
+puede sobrevivir al MCP server y la siguiente instancia comprueba su estado.
 
 Uso en mcp_server.py:
     from core.daemon_lifecycle import ensure_daemon_alive
-    ensure_daemon_alive()  # Called once at server startup
+    ensure_daemon_alive()  # Solo inicia si BIORAG_DAEMON_ENABLED está habilitado
 
 Variables de entorno:
+    BIORAG_DAEMON_ENABLED          — Activación explícita (default: 0)
     BIORAG_DAEMON_INTERVALO_HORAS  — Intervalo entre ciclos (default: 6)
     BIORAG_DAEMON_MAX_NODOS        — Nodos por ciclo (default: 10)
 """
@@ -56,6 +57,15 @@ def _borrar_pid() -> None:
         os.remove(PID_PATH)
     except FileNotFoundError:
         pass
+
+
+def is_daemon_enabled() -> bool:
+    """Verifica si el daemon en segundo plano está habilitado vía variable de entorno.
+
+    Por defecto está DESACTIVADO (0). Solo se activa si BIORAG_DAEMON_ENABLED=1/true/on.
+    """
+    val = os.environ.get("BIORAG_DAEMON_ENABLED", "0").strip().lower()
+    return val in ("1", "true", "yes", "on")
 
 
 # --- Health check ------------------------------------------------------------
@@ -160,9 +170,14 @@ def ensure_daemon_alive(
     Check + spawn si necesario. Llamar al arrancar el MCP server.
     Usa un lock no bloqueante para evitar que múltiples instancias MCP concurrentes
     intenten spawnear daemons simultáneamente en arranques simultáneos.
-    
+
+    INVARIANTE: Desactivado por defecto. Solo spawnea si BIORAG_DAEMON_ENABLED=1.
     Retorna True si el daemon está vivo (o se spawneó exitosamente).
     """
+    if not is_daemon_enabled():
+        logger.debug("Daemon deshabilitado por defecto (BIORAG_DAEMON_ENABLED != 1)")
+        return False
+
     if is_daemon_alive():
         pid = _leer_pid()
         logger.info("Daemon ya vivo (PID %s)", pid)
@@ -203,3 +218,83 @@ def ensure_daemon_alive(
             intervalo_horas=intervalo_horas,
             max_nodos=max_nodos,
         )
+
+
+def stop_daemon(timeout: float = 30.0, verbose: bool = True) -> bool:
+    """Detiene cualquier instancia activa del daemon de mantenimiento de forma prudente.
+
+    Protocolo de Parada Prudente:
+    1. Envía SIGTERM al proceso para solicitar un cierre ordenado.
+    2. Si el daemon está en mitad de una transacción o escritura en SQLite,
+       se le da un tiempo prudencial (`timeout`, default 30s) para que termine
+       el ciclo, guarde su estado y cierre la base de datos limpiamente.
+    3. Solo si tras agotarse el tiempo no responde (deadlock o colgado),
+       se aplica SIGKILL como último recurso de seguridad.
+    """
+    pid = _leer_pid()
+    detenido = False
+
+    if pid is not None:
+        try:
+            # Comprobar si realmente está vivo
+            os.kill(pid, 0)
+        except (OSError, ProcessLookupError):
+            _borrar_pid()
+            return False
+
+        if verbose:
+            print(f"⏳ Solicitando parada prudente del daemon (PID: {pid})...")
+            print("   Esperando a que cualquier ciclo de escritura activo termine limpiamente...")
+
+        try:
+            os.kill(pid, signal.SIGTERM)
+            inicio = time.time()
+            ultimo_aviso = inicio
+            while time.time() - inicio < timeout:
+                time.sleep(0.5)
+                try:
+                    os.kill(pid, 0)
+                    # Sigue vivo, avisar periódicamente si tarda
+                    if verbose and (time.time() - ultimo_aviso) >= 5.0:
+                        transcurrido = int(time.time() - inicio)
+                        print(f"   ... esperando finalización ordenada ({transcurrido}s transcurridos)")
+                        ultimo_aviso = time.time()
+                except (OSError, ProcessLookupError):
+                    detenido = True
+                    break
+
+            if not detenido:
+                if verbose:
+                    print("⚠ El daemon no respondió en el tiempo prudencial. Forzando detención inmediata (SIGKILL)...")
+                try:
+                    os.kill(pid, signal.SIGKILL)
+                    detenido = True
+                except (OSError, ProcessLookupError):
+                    detenido = True
+        except (OSError, ProcessLookupError):
+            detenido = True
+
+        _borrar_pid()
+
+    # Fallback cross-process si no había PID o quedó algún proceso hijo huérfano
+    if sys.platform != "win32":
+        try:
+            res = subprocess.run(
+                ["pgrep", "-f", "graph_maintenance_daemon.py"],
+                capture_output=True, text=True
+            )
+            my_pid = os.getpid()
+            for line in res.stdout.strip().splitlines():
+                line = line.strip()
+                if line and line.isdigit():
+                    p = int(line)
+                    if p != my_pid:
+                        try:
+                            os.kill(p, signal.SIGTERM)
+                            detenido = True
+                        except OSError:
+                            pass
+        except Exception:
+            pass
+
+    return detenido

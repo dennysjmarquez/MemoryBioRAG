@@ -77,3 +77,16 @@ scripts/*.db
 scripts/snapshot_prf_real.db-shm
 
 scripts/snapshot_prf_real.db-wal
+
+# Volcados de la base viva subidos desde Google Drive para medir (nunca al repo)
+google_drive/
+*.sql
+
+# Private blind-review crosswalks (never commit source label mappings)
+.private_evidence/
+
+# Generated local preview for the Stable distribution (never commit)
+/.staging/
+
+# Release archives and wheels are local outputs, separate from the preview
+/.stable-release/

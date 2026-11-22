@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import json
 import sqlite3
+from core.database_access import connect as managed_connect
 import time
 from pathlib import Path
 from typing import Any, Dict, List, Optional
@@ -243,7 +244,7 @@ class ADNConceptualEngine:
         afinidades = firmas_norm @ firmas_norm.T
 
         ahora = time.time()
-        con = sqlite3.connect(ruta)
+        con = managed_connect(ruta)
         try:
             cls.asegurar_esquema(con)
             for tabla in (

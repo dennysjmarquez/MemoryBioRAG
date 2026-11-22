@@ -1,0 +1,90 @@
+{
+  "schema": "synthetic_v2_limited_measurement_audit_v1",
+  "date": "2026-10-31",
+  "candidate_sha256": "11fe45a8d83bef09c0f8e7ffbad774910efbb61c3f5c962c1cc647918c0ace18",
+  "candidate_schema": "synthetic_freeze_candidate_v1",
+  "actual_approval_sha256": "339f0e79688afc0e45a77f260562098ee32e2613402d92e2bd4fad11f6b94dce",
+  "actual_approval_schema": "synthetic_freeze_approval_v1",
+  "actual_approval_state": "APROBADO",
+  "actual_approved_by": "Dennys",
+  "gold_sha256": "5d83616a63be7c73bbea8bb90452091316d7e238835013440a6fd939c13d16d8",
+  "operational_manifest_sha256": "eaa6d4235f07e21daa479433cbe0107b5d5f120a9224a1c2debb3d996c0ad451",
+  "fixture_selected_sha256": "cf9aaf50e0b36007c9c00cc4b7335c47c0d1dda1bd598bef561cdcf9c8bace55",
+  "graph_review_sha256": "659e969a0d2c8d666e2be9f83ab9f70857fb144d77546d8732d32a568e3248ae",
+  "repeatability_report_sha256": "b19f0810a58843dc37d8bca1df2d4a8c235698097a651ca5eaf34aad5a9cd456",
+  "freeze_manifest_sha256_used": "339f0e79688afc0e45a77f260562098ee32e2613402d92e2bd4fad11f6b94dce",
+  "measurement_exit_code": 0,
+  "measurement_valid": true,
+  "invalidations": [],
+  "gold_queries": 1,
+  "arms_planned": [
+    "N0",
+    "N1",
+    "G1",
+    "G2",
+    "R"
+  ],
+  "arms_with_calls": [
+    "G1",
+    "G2",
+    "N0",
+    "N1",
+    "R"
+  ],
+  "calls_recordar": 5,
+  "mcp_errors": {
+    "N0": 0,
+    "N1": 0,
+    "G1": 0,
+    "G2": 0,
+    "R": 0
+  },
+  "transport_failures": {
+    "N0": 0,
+    "N1": 0,
+    "G1": 0,
+    "G2": 0,
+    "R": 0
+  },
+  "row_field_audit_all_valid": true,
+  "unexpected_tables_by_arm": {
+    "N0": [],
+    "N1": [],
+    "G1": [],
+    "G2": [],
+    "R": []
+  },
+  "edge_changes_by_arm": {
+    "N0": {
+      "insertadas": [],
+      "eliminadas": [],
+      "actualizadas": []
+    },
+    "N1": {
+      "insertadas": [],
+      "eliminadas": [],
+      "actualizadas": []
+    },
+    "G1": {
+      "insertadas": [],
+      "eliminadas": [],
+      "actualizadas": []
+    },
+    "G2": {
+      "insertadas": [],
+      "eliminadas": [],
+      "actualizadas": []
+    },
+    "R": {
+      "insertadas": [],
+      "eliminadas": [],
+      "actualizadas": []
+    }
+  },
+  "base_fixture_hashes_unchanged_after_measurement": true,
+  "no_original_gold_or_databases": true,
+  "full_qa_run": false,
+  "real_baseline_run": false,
+  "wake_W": "pendiente; no ejecutado ni incluido",
+  "related_noise_labels": "unadjudicated; category metrics are not interpreted or reported as evaluated"
+}

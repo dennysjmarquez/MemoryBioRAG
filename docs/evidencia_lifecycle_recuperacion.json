@@ -1,0 +1,64 @@
+{
+  "suite": {
+    "passed": 984,
+    "skipped": 18,
+    "subtests_passed": 11,
+    "seconds": 323.31,
+    "temporal_contract": "explicitly disabled for legacy-suite compatibility",
+    "isolated_code": "/tmp/biorag-regression-final2"
+  },
+  "targeted": {
+    "passed": 105,
+    "subtests_passed": 9,
+    "temporal_contract": "default enabled"
+  },
+  "mcp_e2e": "evidencia_mcp_estructurado_sintetico.json",
+  "qa_921": {
+    "status": "passed",
+    "process": "qa-oficial-921-en-copia-final-51beb27a",
+    "logs": "/tmp/biorag-final-qa",
+    "code": "/tmp/biorag-final-validation",
+    "gate_modified": false,
+    "exit_code": 0,
+    "metrics": "evidencia_qa_lifecycle_921.json",
+    "note": "Copia de código previa a la revisión final menor; no sustituye suite final2 ni E2E final2",
+    "cases_total": 921,
+    "global_metrics": {
+      "queries": 875,
+      "recall_at_5": 100.0,
+      "recall_at_1": 93.03,
+      "mrr": 0.9566,
+      "fallos": 0,
+      "negativos_total": 40,
+      "negativos_fp": 0,
+      "negativos_fp_rate": 0.0,
+      "negativos_contaminados": 0,
+      "spreading_activation": 9,
+      "etiquetas_obsoletas_resueltas": 3,
+      "etiquetas_irreparables": 0,
+      "queries_ambiguas": 3,
+      "nodos_dormidos_iniciales": 15,
+      "nodos_restaurados_entre_casos": 64,
+      "orden_no_monotonico": 0
+    }
+  },
+  "limits": [
+    "no live DB modified",
+    "no release or push",
+    "updater pip mocked",
+    "no Windows maintenance certification",
+    "no globally atomic Git/pip/SQLite rollback"
+  ],
+  "source_sha256": {
+    "core/database_access.py": "5260a82bb559f4fb2df6eca1ba919f47418d9e152b972bab90c5948705550245",
+    "core/database_backup.py": "d9ede13461c45c6cbb9dcbb268563da8d2293f2d05e52e435f0611bb46f2fb59",
+    "core/recovery.py": "38c8d071060d201ea98500d22b2e601bbf97a17ef8452f04f97c6107a4d509fe",
+    "core/updater.py": "bbe384c97b602e5d51d1d99f3048e4fd8aaeb14a3d8d6595a4fcdf26e2a65d11",
+    "core/lifecycle.py": "6c1c921abf583935d9c2114c169a6cf3026365c0bcad80f3974dda8f95e7112f",
+    "core/contextual/service.py": "e1c4e98dcadf2ef522d222cfbf4a07f5419546e8e32cbc9b64ddc426f1cbdffd",
+    "core/contextual/ledger.py": "2ec3db4e6a9234612ee84efb5bb254f6571fddefb15116f8da764a1237976d2d",
+    "core/contextual/perspective.py": "5c550237899f887021187694d4e439c57170ae0388feb2db1e59f290d4a29147",
+    "core/contextual/search.py": "039bc5077fe70d90ed731538c0a3560fc6c544ef4dc5a527db5d6e59a26ecf37",
+    "core/mcp_server/corrections.py": "82326b61bb7f3c73536e1368b4f3cd6190e19fd080cea8a35f5a529930d8aefc"
+  }
+}

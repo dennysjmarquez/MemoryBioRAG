@@ -1,0 +1,9 @@
+concept_hub es origen no literal: False
+total: 33
+un_token: 33
+sin_prefijo_en_cuatro_campos: 33
+canonical_detectado: 33
+origen_concept_hub: 33
+sin_resultados: 33
+identicas_a_b2: 33
+La traza y el predicado son compatibles con el descarte por PALABRA_PREFIJO; no se instrumentó ni modificó el punto interno del descarte.

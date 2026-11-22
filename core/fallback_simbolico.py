@@ -153,11 +153,18 @@ def _verificar_wordnet() -> bool:
     if _wordnet_disponible is None:
         try:
             import nltk
-            # Configurar ruta local de nltk_data dentro del proyecto
+            # Preferir datos por usuario: el paquete puede vivir en site-packages
+            # de solo lectura. Se conserva la ruta legacy del checkout como fallback.
             project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-            local_nltk_dir = os.path.join(project_root, "MemoryBioRAG_Data", "nltk_data")
+            local_nltk_dir = os.path.expanduser(os.environ.get(
+                "BIORAG_NLTK_DATA",
+                os.path.join(os.path.expanduser("~"), ".biorag", "nltk_data"),
+            ))
+            legacy_nltk_dir = os.path.join(project_root, "MemoryBioRAG_Data", "nltk_data")
             if local_nltk_dir not in nltk.data.path:
                 nltk.data.path.insert(0, local_nltk_dir)
+            if legacy_nltk_dir not in nltk.data.path:
+                nltk.data.path.append(legacy_nltk_dir)
 
             from nltk.corpus import wordnet as wn
             wn.synsets('test')

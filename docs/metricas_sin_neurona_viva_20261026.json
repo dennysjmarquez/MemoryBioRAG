@@ -1,0 +1,242 @@
+{
+  "version": "v35.0",
+  "generado_en": "2026-10-26T20:52:17",
+  "elapsed_seconds": 1106.37,
+  "casos_file": "casos_qa_baseline_v1.jsonl",
+  "casos_total": 921,
+  "db_src": "/tmp/viva.db",
+  "global": {
+    "queries": 875,
+    "recall_at_5": 99.2,
+    "recall_at_1": 91.09,
+    "mrr": 0.9432,
+    "fallos": 7,
+    "negativos_total": 40,
+    "negativos_fp": 0,
+    "negativos_fp_rate": 0.0,
+    "negativos_contaminados": 0,
+    "spreading_activation": 5,
+    "etiquetas_obsoletas_resueltas": 3,
+    "etiquetas_irreparables": 0,
+    "queries_ambiguas": 3,
+    "nodos_dormidos_iniciales": 162,
+    "nodos_restaurados_entre_casos": 248,
+    "orden_no_monotonico": 0
+  },
+  "categorias": {
+    "cruce_idioma": {
+      "total": 8,
+      "recall_at_5": 100.0,
+      "recall_at_1": 62.5,
+      "mrr": 0.7708,
+      "fallos": 0
+    },
+    "dormido": {
+      "total": 65,
+      "recall_at_5": 100.0,
+      "recall_at_1": 100.0,
+      "mrr": 1.0,
+      "fallos": 0
+    },
+    "literal": {
+      "total": 487,
+      "recall_at_5": 100.0,
+      "recall_at_1": 99.38,
+      "mrr": 0.9969,
+      "fallos": 0
+    },
+    "por_tema": {
+      "total": 65,
+      "recall_at_5": 98.46,
+      "recall_at_1": 63.08,
+      "mrr": 0.7687,
+      "fallos": 1
+    },
+    "pregunta_natural": {
+      "total": 65,
+      "recall_at_5": 100.0,
+      "recall_at_1": 95.38,
+      "mrr": 0.9744,
+      "fallos": 0
+    },
+    "sinonimo": {
+      "total": 55,
+      "recall_at_5": 89.09,
+      "recall_at_1": 52.73,
+      "mrr": 0.6506,
+      "fallos": 6
+    },
+    "typo": {
+      "total": 65,
+      "recall_at_5": 100.0,
+      "recall_at_1": 87.69,
+      "mrr": 0.9308,
+      "fallos": 0
+    },
+    "variante_gramatical": {
+      "total": 65,
+      "recall_at_5": 100.0,
+      "recall_at_1": 83.08,
+      "mrr": 0.909,
+      "fallos": 0
+    }
+  },
+  "neurona": {
+    "activa": false,
+    "actuo": false,
+    "entrenada_en_la_copia": null,
+    "con_neurona_decision": null,
+    "origen": "/tmp/viva.db",
+    "origen_es_snapshot": false,
+    "base_medida": {
+      "campeon": true,
+      "margen": 5.0,
+      "ciclos": 433,
+      "ascensos": 8,
+      "retiros": 0,
+      "tranquila": true,
+      "estudio": 392,
+      "guardia": 98
+    },
+    "db_viva": null,
+    "columnas": {
+      "categorias": {
+        "cruce_idioma": {
+          "total": 8,
+          "hits1_formula": 5,
+          "hits1_neurona": 5,
+          "hits5_formula": 8,
+          "hits5_neurona": 8,
+          "recall_at_1_formula": 62.5,
+          "recall_at_1_neurona": 62.5,
+          "recall_at_5_formula": 100.0,
+          "recall_at_5_neurona": 100.0,
+          "mrr_formula": 0.7708,
+          "mrr_neurona": 0.7708
+        },
+        "dormido": {
+          "total": 65,
+          "hits1_formula": 65,
+          "hits1_neurona": 65,
+          "hits5_formula": 65,
+          "hits5_neurona": 65,
+          "recall_at_1_formula": 100.0,
+          "recall_at_1_neurona": 100.0,
+          "recall_at_5_formula": 100.0,
+          "recall_at_5_neurona": 100.0,
+          "mrr_formula": 1.0,
+          "mrr_neurona": 1.0
+        },
+        "literal": {
+          "total": 487,
+          "hits1_formula": 484,
+          "hits1_neurona": 484,
+          "hits5_formula": 487,
+          "hits5_neurona": 487,
+          "recall_at_1_formula": 99.38,
+          "recall_at_1_neurona": 99.38,
+          "recall_at_5_formula": 100.0,
+          "recall_at_5_neurona": 100.0,
+          "mrr_formula": 0.9969,
+          "mrr_neurona": 0.9969
+        },
+        "por_tema": {
+          "total": 65,
+          "hits1_formula": 41,
+          "hits1_neurona": 41,
+          "hits5_formula": 64,
+          "hits5_neurona": 64,
+          "recall_at_1_formula": 63.08,
+          "recall_at_1_neurona": 63.08,
+          "recall_at_5_formula": 98.46,
+          "recall_at_5_neurona": 98.46,
+          "mrr_formula": 0.7687,
+          "mrr_neurona": 0.7687
+        },
+        "pregunta_natural": {
+          "total": 65,
+          "hits1_formula": 62,
+          "hits1_neurona": 62,
+          "hits5_formula": 65,
+          "hits5_neurona": 65,
+          "recall_at_1_formula": 95.38,
+          "recall_at_1_neurona": 95.38,
+          "recall_at_5_formula": 100.0,
+          "recall_at_5_neurona": 100.0,
+          "mrr_formula": 0.9744,
+          "mrr_neurona": 0.9744
+        },
+        "sinonimo": {
+          "total": 55,
+          "hits1_formula": 29,
+          "hits1_neurona": 29,
+          "hits5_formula": 49,
+          "hits5_neurona": 49,
+          "recall_at_1_formula": 52.73,
+          "recall_at_1_neurona": 52.73,
+          "recall_at_5_formula": 89.09,
+          "recall_at_5_neurona": 89.09,
+          "mrr_formula": 0.6506,
+          "mrr_neurona": 0.6506
+        },
+        "typo": {
+          "total": 65,
+          "hits1_formula": 57,
+          "hits1_neurona": 57,
+          "hits5_formula": 65,
+          "hits5_neurona": 65,
+          "recall_at_1_formula": 87.69,
+          "recall_at_1_neurona": 87.69,
+          "recall_at_5_formula": 100.0,
+          "recall_at_5_neurona": 100.0,
+          "mrr_formula": 0.9308,
+          "mrr_neurona": 0.9308
+        },
+        "variante_gramatical": {
+          "total": 65,
+          "hits1_formula": 54,
+          "hits1_neurona": 54,
+          "hits5_formula": 65,
+          "hits5_neurona": 65,
+          "recall_at_1_formula": 83.08,
+          "recall_at_1_neurona": 83.08,
+          "recall_at_5_formula": 100.0,
+          "recall_at_5_neurona": 100.0,
+          "mrr_formula": 0.909,
+          "mrr_neurona": 0.909
+        }
+      },
+      "global": {
+        "total": 875,
+        "hits1_formula": 797,
+        "hits1_neurona": 797,
+        "hits5_formula": 868,
+        "hits5_neurona": 868,
+        "recall_at_1_formula": 91.09,
+        "recall_at_1_neurona": 91.09,
+        "recall_at_5_formula": 99.2,
+        "recall_at_5_neurona": 99.2,
+        "mrr_formula": 0.9432,
+        "mrr_neurona": 0.9432
+      }
+    },
+    "cambios": {
+      "reordenadas": 0,
+      "subio_al_1": 0,
+      "bajo_del_1": 0,
+      "mejoro": 0,
+      "empeoro": 0
+    },
+    "incoherentes": 0,
+    "tiempos": {
+      "decisiones": 0,
+      "mediana_ms": 0.0,
+      "p95_ms": 0.0,
+      "max_ms": 0.0
+    },
+    "control_de_dano": {
+      "tolerancia_casos": 1,
+      "motivos": []
+    }
+  }
+}

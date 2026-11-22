@@ -1,0 +1,665 @@
+{
+  "comparacion_completa": true,
+  "metricas_cumplen": true,
+  "pendientes": [],
+  "problemas": [],
+  "escenarios": {
+    "snapshot_normal": {
+      "r5_antes": {
+        "queries": 865,
+        "recall_at_5": 100.0,
+        "fallos": 0
+      },
+      "r1_antes": {
+        "queries": 853,
+        "recall_at_1": 95.31,
+        "mrr": 0.9718,
+        "no_top1": 40
+      },
+      "fp_antes": [
+        0,
+        40
+      ],
+      "categorias_honestas": {
+        "cruce_idioma": {
+          "r5": {
+            "total": 8,
+            "antes": 8,
+            "despues": 8,
+            "porcentaje_antes": 100.0,
+            "porcentaje_despues": 100.0
+          },
+          "r1": {
+            "total": 8,
+            "antes": 5,
+            "despues": 5,
+            "porcentaje_antes": 62.5,
+            "porcentaje_despues": 62.5
+          }
+        },
+        "dormido": {
+          "r5": {
+            "total": 65,
+            "antes": 65,
+            "despues": 65,
+            "porcentaje_antes": 100.0,
+            "porcentaje_despues": 100.0
+          },
+          "r1": {
+            "total": 65,
+            "antes": 65,
+            "despues": 65,
+            "porcentaje_antes": 100.0,
+            "porcentaje_despues": 100.0
+          }
+        },
+        "literal": {
+          "r5": {
+            "total": 487,
+            "antes": 487,
+            "despues": 487,
+            "porcentaje_antes": 100.0,
+            "porcentaje_despues": 100.0
+          },
+          "r1": {
+            "total": 487,
+            "antes": 485,
+            "despues": 485,
+            "porcentaje_antes": 99.59,
+            "porcentaje_despues": 99.59
+          }
+        },
+        "por_tema": {
+          "r5": {
+            "total": 65,
+            "antes": 65,
+            "despues": 65,
+            "porcentaje_antes": 100.0,
+            "porcentaje_despues": 100.0
+          },
+          "r1": {
+            "total": 65,
+            "antes": 45,
+            "despues": 45,
+            "porcentaje_antes": 69.23,
+            "porcentaje_despues": 69.23
+          }
+        },
+        "pregunta_natural": {
+          "r5": {
+            "total": 65,
+            "antes": 65,
+            "despues": 65,
+            "porcentaje_antes": 100.0,
+            "porcentaje_despues": 100.0
+          },
+          "r1": {
+            "total": 65,
+            "antes": 63,
+            "despues": 63,
+            "porcentaje_antes": 96.92,
+            "porcentaje_despues": 96.92
+          }
+        },
+        "sinonimo": {
+          "r5": {
+            "total": 45,
+            "antes": 45,
+            "despues": 45,
+            "porcentaje_antes": 100.0,
+            "porcentaje_despues": 100.0
+          },
+          "r1": {
+            "total": 33,
+            "antes": 29,
+            "despues": 29,
+            "porcentaje_antes": 87.88,
+            "porcentaje_despues": 87.88
+          }
+        },
+        "typo": {
+          "r5": {
+            "total": 65,
+            "antes": 65,
+            "despues": 65,
+            "porcentaje_antes": 100.0,
+            "porcentaje_despues": 100.0
+          },
+          "r1": {
+            "total": 65,
+            "antes": 60,
+            "despues": 60,
+            "porcentaje_antes": 92.31,
+            "porcentaje_despues": 92.31
+          }
+        },
+        "variante_gramatical": {
+          "r5": {
+            "total": 65,
+            "antes": 65,
+            "despues": 65,
+            "porcentaje_antes": 100.0,
+            "porcentaje_despues": 100.0
+          },
+          "r1": {
+            "total": 65,
+            "antes": 61,
+            "despues": 61,
+            "porcentaje_antes": 93.85,
+            "porcentaje_despues": 93.85
+          }
+        }
+      },
+      "fallos_honestos_nuevos": [],
+      "fallos_honestos_recuperados": [],
+      "r5_b2": {
+        "queries": 865,
+        "recall_at_5": 100.0,
+        "fallos": 0
+      },
+      "r1_b2": {
+        "queries": 853,
+        "recall_at_1": 95.31,
+        "mrr": 0.9718,
+        "no_top1": 40
+      },
+      "fp_b2": [
+        0,
+        40
+      ]
+    },
+    "snapshot_ruido": {
+      "r5_antes": {
+        "queries": 865,
+        "recall_at_5": 97.34,
+        "fallos": 23
+      },
+      "r1_antes": {
+        "queries": 853,
+        "recall_at_1": 88.63,
+        "mrr": 0.9281,
+        "no_top1": 97
+      },
+      "fp_antes": [
+        0,
+        40
+      ],
+      "categorias_honestas": {
+        "cruce_idioma": {
+          "r5": {
+            "total": 8,
+            "antes": 5,
+            "despues": 5,
+            "porcentaje_antes": 62.5,
+            "porcentaje_despues": 62.5
+          },
+          "r1": {
+            "total": 8,
+            "antes": 4,
+            "despues": 4,
+            "porcentaje_antes": 50.0,
+            "porcentaje_despues": 50.0
+          }
+        },
+        "dormido": {
+          "r5": {
+            "total": 65,
+            "antes": 64,
+            "despues": 64,
+            "porcentaje_antes": 98.46,
+            "porcentaje_despues": 98.46
+          },
+          "r1": {
+            "total": 65,
+            "antes": 62,
+            "despues": 62,
+            "porcentaje_antes": 95.38,
+            "porcentaje_despues": 95.38
+          }
+        },
+        "literal": {
+          "r5": {
+            "total": 487,
+            "antes": 484,
+            "despues": 484,
+            "porcentaje_antes": 99.38,
+            "porcentaje_despues": 99.38
+          },
+          "r1": {
+            "total": 487,
+            "antes": 445,
+            "despues": 445,
+            "porcentaje_antes": 91.38,
+            "porcentaje_despues": 91.38
+          }
+        },
+        "por_tema": {
+          "r5": {
+            "total": 65,
+            "antes": 62,
+            "despues": 62,
+            "porcentaje_antes": 95.38,
+            "porcentaje_despues": 95.38
+          },
+          "r1": {
+            "total": 65,
+            "antes": 44,
+            "despues": 44,
+            "porcentaje_antes": 67.69,
+            "porcentaje_despues": 67.69
+          }
+        },
+        "pregunta_natural": {
+          "r5": {
+            "total": 65,
+            "antes": 64,
+            "despues": 64,
+            "porcentaje_antes": 98.46,
+            "porcentaje_despues": 98.46
+          },
+          "r1": {
+            "total": 65,
+            "antes": 61,
+            "despues": 61,
+            "porcentaje_antes": 93.85,
+            "porcentaje_despues": 93.85
+          }
+        },
+        "sinonimo": {
+          "r5": {
+            "total": 45,
+            "antes": 40,
+            "despues": 40,
+            "porcentaje_antes": 88.89,
+            "porcentaje_despues": 88.89
+          },
+          "r1": {
+            "total": 33,
+            "antes": 26,
+            "despues": 26,
+            "porcentaje_antes": 78.79,
+            "porcentaje_despues": 78.79
+          }
+        },
+        "typo": {
+          "r5": {
+            "total": 65,
+            "antes": 61,
+            "despues": 61,
+            "porcentaje_antes": 93.85,
+            "porcentaje_despues": 93.85
+          },
+          "r1": {
+            "total": 65,
+            "antes": 59,
+            "despues": 59,
+            "porcentaje_antes": 90.77,
+            "porcentaje_despues": 90.77
+          }
+        },
+        "variante_gramatical": {
+          "r5": {
+            "total": 65,
+            "antes": 62,
+            "despues": 62,
+            "porcentaje_antes": 95.38,
+            "porcentaje_despues": 95.38
+          },
+          "r1": {
+            "total": 65,
+            "antes": 55,
+            "despues": 55,
+            "porcentaje_antes": 84.62,
+            "porcentaje_despues": 84.62
+          }
+        }
+      },
+      "fallos_honestos_nuevos": [],
+      "fallos_honestos_recuperados": [],
+      "r5_b2": {
+        "queries": 865,
+        "recall_at_5": 97.34,
+        "fallos": 23
+      },
+      "r1_b2": {
+        "queries": 853,
+        "recall_at_1": 88.63,
+        "mrr": 0.9281,
+        "no_top1": 97
+      },
+      "fp_b2": [
+        0,
+        40
+      ]
+    },
+    "viva_normal": {
+      "r5_antes": {
+        "queries": 861,
+        "recall_at_5": 99.88,
+        "fallos": 1
+      },
+      "r1_antes": {
+        "queries": 850,
+        "recall_at_1": 93.53,
+        "mrr": 0.9622,
+        "no_top1": 55
+      },
+      "fp_antes": [
+        0,
+        40
+      ],
+      "categorias_honestas": {
+        "cruce_idioma": {
+          "r5": {
+            "total": 8,
+            "antes": 8,
+            "despues": 8,
+            "porcentaje_antes": 100.0,
+            "porcentaje_despues": 100.0
+          },
+          "r1": {
+            "total": 8,
+            "antes": 5,
+            "despues": 5,
+            "porcentaje_antes": 62.5,
+            "porcentaje_despues": 62.5
+          }
+        },
+        "dormido": {
+          "r5": {
+            "total": 65,
+            "antes": 65,
+            "despues": 65,
+            "porcentaje_antes": 100.0,
+            "porcentaje_despues": 100.0
+          },
+          "r1": {
+            "total": 65,
+            "antes": 65,
+            "despues": 65,
+            "porcentaje_antes": 100.0,
+            "porcentaje_despues": 100.0
+          }
+        },
+        "literal": {
+          "r5": {
+            "total": 487,
+            "antes": 487,
+            "despues": 487,
+            "porcentaje_antes": 100.0,
+            "porcentaje_despues": 100.0
+          },
+          "r1": {
+            "total": 487,
+            "antes": 484,
+            "despues": 484,
+            "porcentaje_antes": 99.38,
+            "porcentaje_despues": 99.38
+          }
+        },
+        "por_tema": {
+          "r5": {
+            "total": 65,
+            "antes": 64,
+            "despues": 64,
+            "porcentaje_antes": 98.46,
+            "porcentaje_despues": 98.46
+          },
+          "r1": {
+            "total": 65,
+            "antes": 41,
+            "despues": 41,
+            "porcentaje_antes": 63.08,
+            "porcentaje_despues": 63.08
+          }
+        },
+        "pregunta_natural": {
+          "r5": {
+            "total": 65,
+            "antes": 65,
+            "despues": 65,
+            "porcentaje_antes": 100.0,
+            "porcentaje_despues": 100.0
+          },
+          "r1": {
+            "total": 65,
+            "antes": 62,
+            "despues": 62,
+            "porcentaje_antes": 95.38,
+            "porcentaje_despues": 95.38
+          }
+        },
+        "sinonimo": {
+          "r5": {
+            "total": 41,
+            "antes": 41,
+            "despues": 41,
+            "porcentaje_antes": 100.0,
+            "porcentaje_despues": 100.0
+          },
+          "r1": {
+            "total": 30,
+            "antes": 27,
+            "despues": 27,
+            "porcentaje_antes": 90.0,
+            "porcentaje_despues": 90.0
+          }
+        },
+        "typo": {
+          "r5": {
+            "total": 65,
+            "antes": 65,
+            "despues": 65,
+            "porcentaje_antes": 100.0,
+            "porcentaje_despues": 100.0
+          },
+          "r1": {
+            "total": 65,
+            "antes": 57,
+            "despues": 57,
+            "porcentaje_antes": 87.69,
+            "porcentaje_despues": 87.69
+          }
+        },
+        "variante_gramatical": {
+          "r5": {
+            "total": 65,
+            "antes": 65,
+            "despues": 65,
+            "porcentaje_antes": 100.0,
+            "porcentaje_despues": 100.0
+          },
+          "r1": {
+            "total": 65,
+            "antes": 54,
+            "despues": 54,
+            "porcentaje_antes": 83.08,
+            "porcentaje_despues": 83.08
+          }
+        }
+      },
+      "fallos_honestos_nuevos": [],
+      "fallos_honestos_recuperados": [],
+      "r5_b2": {
+        "queries": 861,
+        "recall_at_5": 99.88,
+        "fallos": 1
+      },
+      "r1_b2": {
+        "queries": 850,
+        "recall_at_1": 93.53,
+        "mrr": 0.9622,
+        "no_top1": 55
+      },
+      "fp_b2": [
+        0,
+        40
+      ]
+    },
+    "viva_ruido": {
+      "r5_antes": {
+        "queries": 861,
+        "recall_at_5": 96.63,
+        "fallos": 29
+      },
+      "r1_antes": {
+        "queries": 850,
+        "recall_at_1": 88.12,
+        "mrr": 0.9215,
+        "no_top1": 101
+      },
+      "fp_antes": [
+        0,
+        40
+      ],
+      "categorias_honestas": {
+        "cruce_idioma": {
+          "r5": {
+            "total": 8,
+            "antes": 5,
+            "despues": 5,
+            "porcentaje_antes": 62.5,
+            "porcentaje_despues": 62.5
+          },
+          "r1": {
+            "total": 8,
+            "antes": 5,
+            "despues": 5,
+            "porcentaje_antes": 62.5,
+            "porcentaje_despues": 62.5
+          }
+        },
+        "dormido": {
+          "r5": {
+            "total": 65,
+            "antes": 64,
+            "despues": 64,
+            "porcentaje_antes": 98.46,
+            "porcentaje_despues": 98.46
+          },
+          "r1": {
+            "total": 65,
+            "antes": 64,
+            "despues": 64,
+            "porcentaje_antes": 98.46,
+            "porcentaje_despues": 98.46
+          }
+        },
+        "literal": {
+          "r5": {
+            "total": 487,
+            "antes": 480,
+            "despues": 480,
+            "porcentaje_antes": 98.56,
+            "porcentaje_despues": 98.56
+          },
+          "r1": {
+            "total": 487,
+            "antes": 445,
+            "despues": 445,
+            "porcentaje_antes": 91.38,
+            "porcentaje_despues": 91.38
+          }
+        },
+        "por_tema": {
+          "r5": {
+            "total": 65,
+            "antes": 60,
+            "despues": 60,
+            "porcentaje_antes": 92.31,
+            "porcentaje_despues": 92.31
+          },
+          "r1": {
+            "total": 65,
+            "antes": 37,
+            "despues": 37,
+            "porcentaje_antes": 56.92,
+            "porcentaje_despues": 56.92
+          }
+        },
+        "pregunta_natural": {
+          "r5": {
+            "total": 65,
+            "antes": 65,
+            "despues": 65,
+            "porcentaje_antes": 100.0,
+            "porcentaje_despues": 100.0
+          },
+          "r1": {
+            "total": 65,
+            "antes": 63,
+            "despues": 63,
+            "porcentaje_antes": 96.92,
+            "porcentaje_despues": 96.92
+          }
+        },
+        "sinonimo": {
+          "r5": {
+            "total": 41,
+            "antes": 35,
+            "despues": 35,
+            "porcentaje_antes": 85.37,
+            "porcentaje_despues": 85.37
+          },
+          "r1": {
+            "total": 30,
+            "antes": 24,
+            "despues": 24,
+            "porcentaje_antes": 80.0,
+            "porcentaje_despues": 80.0
+          }
+        },
+        "typo": {
+          "r5": {
+            "total": 65,
+            "antes": 63,
+            "despues": 63,
+            "porcentaje_antes": 96.92,
+            "porcentaje_despues": 96.92
+          },
+          "r1": {
+            "total": 65,
+            "antes": 59,
+            "despues": 59,
+            "porcentaje_antes": 90.77,
+            "porcentaje_despues": 90.77
+          }
+        },
+        "variante_gramatical": {
+          "r5": {
+            "total": 65,
+            "antes": 60,
+            "despues": 60,
+            "porcentaje_antes": 92.31,
+            "porcentaje_despues": 92.31
+          },
+          "r1": {
+            "total": 65,
+            "antes": 52,
+            "despues": 52,
+            "porcentaje_antes": 80.0,
+            "porcentaje_despues": 80.0
+          }
+        }
+      },
+      "fallos_honestos_nuevos": [],
+      "fallos_honestos_recuperados": [],
+      "r5_b2": {
+        "queries": 861,
+        "recall_at_5": 96.63,
+        "fallos": 29
+      },
+      "r1_b2": {
+        "queries": 850,
+        "recall_at_1": 88.12,
+        "mrr": 0.9215,
+        "no_top1": 101
+      },
+      "fp_b2": [
+        0,
+        40
+      ]
+    }
+  },
+  "pytest_y_multilingue_se_validan_aparte": true
+}

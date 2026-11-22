@@ -1,0 +1,3 @@
+snapshot_normal  R@5 100.00→100.00  R@1 95.31→95.31  FP [0, 40]→[0, 40]
+Pendientes: ['snapshot_ruido', 'viva_normal', 'viva_ruido']
+Comparación oficial: PENDIENTE

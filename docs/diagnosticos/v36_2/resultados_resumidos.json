@@ -1,0 +1,1727 @@
+{
+  "baseline": {
+    "variant": "baseline",
+    "source_sha256": "07a77c801eaa56750627e1c831de91a65e6448da25e4803b86d3ae4e2446c55e",
+    "fingerprint": "5721b3821c3521e6",
+    "champion": true,
+    "margin": 2.0,
+    "before": [
+      [
+        "ultima_version_biorag",
+        "activo",
+        0.35,
+        1795288827.8314147
+      ],
+      [
+        "version_actual_biorag",
+        "activo",
+        0.21,
+        1795234571.3517253
+      ],
+      [
+        "version_actual_biorag_v32_4_20261007",
+        "activo",
+        0.32999999999999996,
+        1795262656.3489635
+      ]
+    ],
+    "scoring": [
+      {
+        "concepto": "ultima_version_biorag",
+        "inputs": {
+          "bm25_norm": 0.19358805761862777,
+          "dim_score": 0.0,
+          "peso_sinaptico": 0.35,
+          "concepto_ratio": 1.0,
+          "sinonimos_ratio": 0.0,
+          "score_latente": 0.4528,
+          "score_cadena": 0.0,
+          "asoc_count": 68,
+          "match_exacto": true,
+          "grupo_score": 1.0,
+          "tematico_score": 1.0,
+          "jsd_score": 0.5168,
+          "jsd_weight": 0.025,
+          "pred_score": 0.0,
+          "ppmi_score": 0.6825693472676945,
+          "hub_match": 0.0,
+          "ncd_score": 0.07187500000000002,
+          "episodio_score": 1.0,
+          "analogia_score": 0.0,
+          "campo_score": 0.9411431450449448
+        },
+        "score": 0.9161,
+        "score_without_exact": 0.3658
+      },
+      {
+        "concepto": "version_actual_biorag_v32_4_20261007",
+        "inputs": {
+          "bm25_norm": 0.7060266637115064,
+          "dim_score": 0.6793662204867574,
+          "peso_sinaptico": 0.32999999999999996,
+          "concepto_ratio": 0.6667,
+          "sinonimos_ratio": 1.0,
+          "score_latente": 0.5434,
+          "score_cadena": 0.0,
+          "asoc_count": 25,
+          "match_exacto": false,
+          "grupo_score": 1.0,
+          "tematico_score": 0.0,
+          "jsd_score": 0.5636,
+          "jsd_weight": 0.025,
+          "pred_score": 0.0,
+          "ppmi_score": 0.7391148578112604,
+          "hub_match": 0.0,
+          "ncd_score": 0.034431137724550864,
+          "episodio_score": 0.0,
+          "analogia_score": 0.0,
+          "campo_score": 0.9120586976599687
+        },
+        "score": 0.7436,
+        "score_without_exact": 0.7436
+      },
+      {
+        "concepto": "version_actual_biorag",
+        "inputs": {
+          "bm25_norm": 1.0,
+          "dim_score": 0.8320502943378437,
+          "peso_sinaptico": 0.21,
+          "concepto_ratio": 0.6667,
+          "sinonimos_ratio": 1.0,
+          "score_latente": 0.5755,
+          "score_cadena": 0.0,
+          "asoc_count": 172,
+          "match_exacto": false,
+          "grupo_score": 1.0,
+          "tematico_score": 0.0,
+          "jsd_score": 0.6072,
+          "jsd_weight": 0.025,
+          "pred_score": 0.0,
+          "ppmi_score": 0.5969714674610842,
+          "hub_match": 0.0,
+          "ncd_score": 0.023076923076923106,
+          "episodio_score": 1.0,
+          "analogia_score": 0.0,
+          "campo_score": 0.9689562487056534
+        },
+        "score": 0.779,
+        "score_without_exact": 0.779
+      }
+    ],
+    "neuronal": [
+      {
+        "query": "ultima version biorag",
+        "before": [
+          {
+            "concepto": "ultima_version_biorag",
+            "peso": 0.35,
+            "estado": "activo",
+            "score": 0.9586
+          },
+          {
+            "concepto": "version_actual_biorag",
+            "peso": 0.21,
+            "estado": "activo",
+            "score": 0.8522
+          },
+          {
+            "concepto": "version_actual_biorag_v32_4_20261007",
+            "peso": 0.32999999999999996,
+            "estado": "activo",
+            "score": 0.8168
+          }
+        ],
+        "visible": [
+          {
+            "concepto": "ultima_version_biorag",
+            "base": 3.142193078994751,
+            "correction": 9.937554362086148,
+            "key": 23.079747441080897
+          },
+          {
+            "concepto": "version_actual_biorag",
+            "base": 1.7519612312316895,
+            "correction": 9.87043851837543,
+            "key": 19.62239974960712
+          },
+          {
+            "concepto": "version_actual_biorag_v32_4_20261007",
+            "base": 1.4948158264160156,
+            "correction": 7.413136357865658,
+            "key": 14.907952184281672
+          }
+        ],
+        "identity": true,
+        "after": [
+          {
+            "concepto": "ultima_version_biorag",
+            "peso": 0.35,
+            "estado": "activo",
+            "score": 0.9586
+          },
+          {
+            "concepto": "version_actual_biorag",
+            "peso": 0.21,
+            "estado": "activo",
+            "score": 0.8522
+          },
+          {
+            "concepto": "version_actual_biorag_v32_4_20261007",
+            "peso": 0.32999999999999996,
+            "estado": "activo",
+            "score": 0.8168
+          }
+        ]
+      }
+    ],
+    "calls": [
+      {
+        "status": null,
+        "results": [
+          {
+            "concepto": "ultima_version_biorag",
+            "peso_sinaptico": 0.35,
+            "estado": "activo",
+            "score_hibrido": 0.9586
+          },
+          {
+            "concepto": "version_actual_biorag",
+            "peso_sinaptico": 0.21,
+            "estado": "activo",
+            "score_hibrido": 0.8522
+          },
+          {
+            "concepto": "version_actual_biorag_v32_4_20261007",
+            "peso_sinaptico": 0.32999999999999996,
+            "estado": "activo",
+            "score_hibrido": 0.8168
+          }
+        ],
+        "state": [
+          [
+            "ultima_version_biorag",
+            "activo",
+            0.35,
+            1795288827.8314147
+          ],
+          [
+            "version_actual_biorag",
+            "activo",
+            0.21,
+            1795234571.3517253
+          ],
+          [
+            "version_actual_biorag_v32_4_20261007",
+            "activo",
+            0.32999999999999996,
+            1795262656.3489635
+          ]
+        ],
+        "response_keys": [
+          "total",
+          "pagina_actual",
+          "paginas_totales",
+          "resultados",
+          "contexto_expandido",
+          "sinapsis_creadas",
+          "profundidad",
+          "trazabilidad",
+          "advertencia_temporal"
+        ]
+      }
+    ],
+    "after": [
+      [
+        "ultima_version_biorag",
+        "activo",
+        0.35,
+        1795288827.8314147
+      ],
+      [
+        "version_actual_biorag",
+        "activo",
+        0.21,
+        1795234571.3517253
+      ],
+      [
+        "version_actual_biorag_v32_4_20261007",
+        "activo",
+        0.32999999999999996,
+        1795262656.3489635
+      ]
+    ],
+    "source_unchanged": true
+  },
+  "sin_neurona": {
+    "variant": "sin_neurona",
+    "source_sha256": "07a77c801eaa56750627e1c831de91a65e6448da25e4803b86d3ae4e2446c55e",
+    "fingerprint": "5721b3821c3521e6",
+    "champion": true,
+    "margin": 2.0,
+    "before": [
+      [
+        "ultima_version_biorag",
+        "activo",
+        0.35,
+        1795288827.8314147
+      ],
+      [
+        "version_actual_biorag",
+        "activo",
+        0.21,
+        1795234571.3517253
+      ],
+      [
+        "version_actual_biorag_v32_4_20261007",
+        "activo",
+        0.32999999999999996,
+        1795262656.3489635
+      ]
+    ],
+    "scoring": [
+      {
+        "concepto": "ultima_version_biorag",
+        "inputs": {
+          "bm25_norm": 0.19358805761862777,
+          "dim_score": 0.0,
+          "peso_sinaptico": 0.35,
+          "concepto_ratio": 1.0,
+          "sinonimos_ratio": 0.0,
+          "score_latente": 0.4528,
+          "score_cadena": 0.0,
+          "asoc_count": 68,
+          "match_exacto": true,
+          "grupo_score": 1.0,
+          "tematico_score": 1.0,
+          "jsd_score": 0.5168,
+          "jsd_weight": 0.025,
+          "pred_score": 0.0,
+          "ppmi_score": 0.6825693472676945,
+          "hub_match": 0.0,
+          "ncd_score": 0.07187500000000002,
+          "episodio_score": 1.0,
+          "analogia_score": 0.0,
+          "campo_score": 0.9411431450449448
+        },
+        "score": 0.9161,
+        "score_without_exact": 0.3658
+      },
+      {
+        "concepto": "version_actual_biorag_v32_4_20261007",
+        "inputs": {
+          "bm25_norm": 0.7060266637115064,
+          "dim_score": 0.6793662204867574,
+          "peso_sinaptico": 0.32999999999999996,
+          "concepto_ratio": 0.6667,
+          "sinonimos_ratio": 1.0,
+          "score_latente": 0.5434,
+          "score_cadena": 0.0,
+          "asoc_count": 25,
+          "match_exacto": false,
+          "grupo_score": 1.0,
+          "tematico_score": 0.0,
+          "jsd_score": 0.5636,
+          "jsd_weight": 0.025,
+          "pred_score": 0.0,
+          "ppmi_score": 0.7391148578112604,
+          "hub_match": 0.0,
+          "ncd_score": 0.034431137724550864,
+          "episodio_score": 0.0,
+          "analogia_score": 0.0,
+          "campo_score": 0.9120586976599687
+        },
+        "score": 0.7436,
+        "score_without_exact": 0.7436
+      },
+      {
+        "concepto": "version_actual_biorag",
+        "inputs": {
+          "bm25_norm": 1.0,
+          "dim_score": 0.8320502943378437,
+          "peso_sinaptico": 0.21,
+          "concepto_ratio": 0.6667,
+          "sinonimos_ratio": 1.0,
+          "score_latente": 0.5755,
+          "score_cadena": 0.0,
+          "asoc_count": 172,
+          "match_exacto": false,
+          "grupo_score": 1.0,
+          "tematico_score": 0.0,
+          "jsd_score": 0.6072,
+          "jsd_weight": 0.025,
+          "pred_score": 0.0,
+          "ppmi_score": 0.5969714674610842,
+          "hub_match": 0.0,
+          "ncd_score": 0.023076923076923106,
+          "episodio_score": 1.0,
+          "analogia_score": 0.0,
+          "campo_score": 0.9689562487056534
+        },
+        "score": 0.779,
+        "score_without_exact": 0.779
+      }
+    ],
+    "neuronal": [],
+    "calls": [
+      {
+        "status": null,
+        "results": [
+          {
+            "concepto": "ultima_version_biorag",
+            "peso_sinaptico": 0.35,
+            "estado": "activo",
+            "score_hibrido": 0.9586
+          },
+          {
+            "concepto": "version_actual_biorag",
+            "peso_sinaptico": 0.21,
+            "estado": "activo",
+            "score_hibrido": 0.8522
+          },
+          {
+            "concepto": "version_actual_biorag_v32_4_20261007",
+            "peso_sinaptico": 0.32999999999999996,
+            "estado": "activo",
+            "score_hibrido": 0.8168
+          }
+        ],
+        "state": [
+          [
+            "ultima_version_biorag",
+            "activo",
+            0.35,
+            1795288827.8314147
+          ],
+          [
+            "version_actual_biorag",
+            "activo",
+            0.21,
+            1795234571.3517253
+          ],
+          [
+            "version_actual_biorag_v32_4_20261007",
+            "activo",
+            0.32999999999999996,
+            1795262656.3489635
+          ]
+        ],
+        "response_keys": [
+          "total",
+          "pagina_actual",
+          "paginas_totales",
+          "resultados",
+          "contexto_expandido",
+          "sinapsis_creadas",
+          "profundidad",
+          "trazabilidad",
+          "advertencia_temporal"
+        ]
+      }
+    ],
+    "after": [
+      [
+        "ultima_version_biorag",
+        "activo",
+        0.35,
+        1795288827.8314147
+      ],
+      [
+        "version_actual_biorag",
+        "activo",
+        0.21,
+        1795234571.3517253
+      ],
+      [
+        "version_actual_biorag_v32_4_20261007",
+        "activo",
+        0.32999999999999996,
+        1795262656.3489635
+      ]
+    ],
+    "source_unchanged": true
+  },
+  "sin_identidad": {
+    "variant": "sin_identidad",
+    "source_sha256": "07a77c801eaa56750627e1c831de91a65e6448da25e4803b86d3ae4e2446c55e",
+    "fingerprint": "5721b3821c3521e6",
+    "champion": true,
+    "margin": 2.0,
+    "before": [
+      [
+        "ultima_version_biorag",
+        "activo",
+        0.35,
+        1795288827.8314147
+      ],
+      [
+        "version_actual_biorag",
+        "activo",
+        0.21,
+        1795234571.3517253
+      ],
+      [
+        "version_actual_biorag_v32_4_20261007",
+        "activo",
+        0.32999999999999996,
+        1795262656.3489635
+      ]
+    ],
+    "scoring": [
+      {
+        "concepto": "ultima_version_biorag",
+        "inputs": {
+          "bm25_norm": 0.19358805761862777,
+          "dim_score": 0.0,
+          "peso_sinaptico": 0.35,
+          "concepto_ratio": 1.0,
+          "sinonimos_ratio": 0.0,
+          "score_latente": 0.4528,
+          "score_cadena": 0.0,
+          "asoc_count": 68,
+          "match_exacto": true,
+          "grupo_score": 1.0,
+          "tematico_score": 1.0,
+          "jsd_score": 0.5168,
+          "jsd_weight": 0.025,
+          "pred_score": 0.0,
+          "ppmi_score": 0.6825693472676945,
+          "hub_match": 0.0,
+          "ncd_score": 0.07187500000000002,
+          "episodio_score": 1.0,
+          "analogia_score": 0.0,
+          "campo_score": 0.9411431450449448
+        },
+        "score": 0.9161,
+        "score_without_exact": 0.3658
+      },
+      {
+        "concepto": "version_actual_biorag_v32_4_20261007",
+        "inputs": {
+          "bm25_norm": 0.7060266637115064,
+          "dim_score": 0.6793662204867574,
+          "peso_sinaptico": 0.32999999999999996,
+          "concepto_ratio": 0.6667,
+          "sinonimos_ratio": 1.0,
+          "score_latente": 0.5434,
+          "score_cadena": 0.0,
+          "asoc_count": 25,
+          "match_exacto": false,
+          "grupo_score": 1.0,
+          "tematico_score": 0.0,
+          "jsd_score": 0.5636,
+          "jsd_weight": 0.025,
+          "pred_score": 0.0,
+          "ppmi_score": 0.7391148578112604,
+          "hub_match": 0.0,
+          "ncd_score": 0.034431137724550864,
+          "episodio_score": 0.0,
+          "analogia_score": 0.0,
+          "campo_score": 0.9120586976599687
+        },
+        "score": 0.7436,
+        "score_without_exact": 0.7436
+      },
+      {
+        "concepto": "version_actual_biorag",
+        "inputs": {
+          "bm25_norm": 1.0,
+          "dim_score": 0.8320502943378437,
+          "peso_sinaptico": 0.21,
+          "concepto_ratio": 0.6667,
+          "sinonimos_ratio": 1.0,
+          "score_latente": 0.5755,
+          "score_cadena": 0.0,
+          "asoc_count": 172,
+          "match_exacto": false,
+          "grupo_score": 1.0,
+          "tematico_score": 0.0,
+          "jsd_score": 0.6072,
+          "jsd_weight": 0.025,
+          "pred_score": 0.0,
+          "ppmi_score": 0.5969714674610842,
+          "hub_match": 0.0,
+          "ncd_score": 0.023076923076923106,
+          "episodio_score": 1.0,
+          "analogia_score": 0.0,
+          "campo_score": 0.9689562487056534
+        },
+        "score": 0.779,
+        "score_without_exact": 0.779
+      }
+    ],
+    "neuronal": [
+      {
+        "query": "ultima version biorag",
+        "before": [
+          {
+            "concepto": "ultima_version_biorag",
+            "peso": 0.35,
+            "estado": "activo",
+            "score": 0.9586
+          },
+          {
+            "concepto": "version_actual_biorag",
+            "peso": 0.21,
+            "estado": "activo",
+            "score": 0.8522
+          },
+          {
+            "concepto": "version_actual_biorag_v32_4_20261007",
+            "peso": 0.32999999999999996,
+            "estado": "activo",
+            "score": 0.8168
+          }
+        ],
+        "visible": [
+          {
+            "concepto": "ultima_version_biorag",
+            "base": 3.142193078994751,
+            "correction": 9.937554362086148,
+            "key": 23.079747441080897
+          },
+          {
+            "concepto": "version_actual_biorag",
+            "base": 1.7519612312316895,
+            "correction": 9.87043851837543,
+            "key": 19.62239974960712
+          },
+          {
+            "concepto": "version_actual_biorag_v32_4_20261007",
+            "base": 1.4948158264160156,
+            "correction": 7.413136357865658,
+            "key": 14.907952184281672
+          }
+        ],
+        "identity": false,
+        "after": [
+          {
+            "concepto": "ultima_version_biorag",
+            "peso": 0.35,
+            "estado": "activo",
+            "score": 0.9586
+          },
+          {
+            "concepto": "version_actual_biorag",
+            "peso": 0.21,
+            "estado": "activo",
+            "score": 0.8522
+          },
+          {
+            "concepto": "version_actual_biorag_v32_4_20261007",
+            "peso": 0.32999999999999996,
+            "estado": "activo",
+            "score": 0.8168
+          }
+        ]
+      }
+    ],
+    "calls": [
+      {
+        "status": null,
+        "results": [
+          {
+            "concepto": "ultima_version_biorag",
+            "peso_sinaptico": 0.35,
+            "estado": "activo",
+            "score_hibrido": 0.9586
+          },
+          {
+            "concepto": "version_actual_biorag",
+            "peso_sinaptico": 0.21,
+            "estado": "activo",
+            "score_hibrido": 0.8522
+          },
+          {
+            "concepto": "version_actual_biorag_v32_4_20261007",
+            "peso_sinaptico": 0.32999999999999996,
+            "estado": "activo",
+            "score_hibrido": 0.8168
+          }
+        ],
+        "state": [
+          [
+            "ultima_version_biorag",
+            "activo",
+            0.35,
+            1795288827.8314147
+          ],
+          [
+            "version_actual_biorag",
+            "activo",
+            0.21,
+            1795234571.3517253
+          ],
+          [
+            "version_actual_biorag_v32_4_20261007",
+            "activo",
+            0.32999999999999996,
+            1795262656.3489635
+          ]
+        ],
+        "response_keys": [
+          "total",
+          "pagina_actual",
+          "paginas_totales",
+          "resultados",
+          "contexto_expandido",
+          "sinapsis_creadas",
+          "profundidad",
+          "trazabilidad",
+          "advertencia_temporal"
+        ]
+      }
+    ],
+    "after": [
+      [
+        "ultima_version_biorag",
+        "activo",
+        0.35,
+        1795288827.8314147
+      ],
+      [
+        "version_actual_biorag",
+        "activo",
+        0.21,
+        1795234571.3517253
+      ],
+      [
+        "version_actual_biorag_v32_4_20261007",
+        "activo",
+        0.32999999999999996,
+        1795262656.3489635
+      ]
+    ],
+    "source_unchanged": true
+  },
+  "sin_bono_exacto": {
+    "variant": "sin_bono_exacto",
+    "source_sha256": "07a77c801eaa56750627e1c831de91a65e6448da25e4803b86d3ae4e2446c55e",
+    "fingerprint": "5721b3821c3521e6",
+    "champion": true,
+    "margin": 2.0,
+    "before": [
+      [
+        "ultima_version_biorag",
+        "activo",
+        0.35,
+        1795288827.8314147
+      ],
+      [
+        "version_actual_biorag",
+        "activo",
+        0.21,
+        1795234571.3517253
+      ],
+      [
+        "version_actual_biorag_v32_4_20261007",
+        "activo",
+        0.32999999999999996,
+        1795262656.3489635
+      ]
+    ],
+    "scoring": [
+      {
+        "concepto": "ultima_version_biorag",
+        "inputs": {
+          "bm25_norm": 0.19358805761862777,
+          "dim_score": 0.0,
+          "peso_sinaptico": 0.35,
+          "concepto_ratio": 1.0,
+          "sinonimos_ratio": 0.0,
+          "score_latente": 0.4528,
+          "score_cadena": 0.0,
+          "asoc_count": 68,
+          "match_exacto": true,
+          "grupo_score": 1.0,
+          "tematico_score": 1.0,
+          "jsd_score": 0.5168,
+          "jsd_weight": 0.025,
+          "pred_score": 0.0,
+          "ppmi_score": 0.6825693472676945,
+          "hub_match": 0.0,
+          "ncd_score": 0.07187500000000002,
+          "episodio_score": 1.0,
+          "analogia_score": 0.0,
+          "campo_score": 0.9411431450449448
+        },
+        "score": 0.3658,
+        "score_without_exact": 0.3658
+      },
+      {
+        "concepto": "version_actual_biorag_v32_4_20261007",
+        "inputs": {
+          "bm25_norm": 0.7060266637115064,
+          "dim_score": 0.6793662204867574,
+          "peso_sinaptico": 0.32999999999999996,
+          "concepto_ratio": 0.6667,
+          "sinonimos_ratio": 1.0,
+          "score_latente": 0.5434,
+          "score_cadena": 0.0,
+          "asoc_count": 25,
+          "match_exacto": false,
+          "grupo_score": 1.0,
+          "tematico_score": 0.0,
+          "jsd_score": 0.5636,
+          "jsd_weight": 0.025,
+          "pred_score": 0.0,
+          "ppmi_score": 0.7391148578112604,
+          "hub_match": 0.0,
+          "ncd_score": 0.034431137724550864,
+          "episodio_score": 0.0,
+          "analogia_score": 0.0,
+          "campo_score": 0.9120586976599687
+        },
+        "score": 0.7436,
+        "score_without_exact": 0.7436
+      },
+      {
+        "concepto": "version_actual_biorag",
+        "inputs": {
+          "bm25_norm": 1.0,
+          "dim_score": 0.8320502943378437,
+          "peso_sinaptico": 0.21,
+          "concepto_ratio": 0.6667,
+          "sinonimos_ratio": 1.0,
+          "score_latente": 0.5755,
+          "score_cadena": 0.0,
+          "asoc_count": 172,
+          "match_exacto": false,
+          "grupo_score": 1.0,
+          "tematico_score": 0.0,
+          "jsd_score": 0.6072,
+          "jsd_weight": 0.025,
+          "pred_score": 0.0,
+          "ppmi_score": 0.5969714674610842,
+          "hub_match": 0.0,
+          "ncd_score": 0.023076923076923106,
+          "episodio_score": 1.0,
+          "analogia_score": 0.0,
+          "campo_score": 0.9689562487056534
+        },
+        "score": 0.779,
+        "score_without_exact": 0.779
+      }
+    ],
+    "neuronal": [
+      {
+        "query": "ultima version biorag",
+        "before": [
+          {
+            "concepto": "version_actual_biorag",
+            "peso": 0.21,
+            "estado": "activo",
+            "score": 0.8522
+          },
+          {
+            "concepto": "version_actual_biorag_v32_4_20261007",
+            "peso": 0.32999999999999996,
+            "estado": "activo",
+            "score": 0.8168
+          }
+        ],
+        "visible": [
+          {
+            "concepto": "version_actual_biorag",
+            "base": 1.7519612312316895,
+            "correction": 9.87043851837543,
+            "key": 21.62239974960712
+          },
+          {
+            "concepto": "version_actual_biorag_v32_4_20261007",
+            "base": 1.4948158264160156,
+            "correction": 7.413136357865658,
+            "key": 16.907952184281672
+          }
+        ],
+        "identity": false,
+        "after": [
+          {
+            "concepto": "version_actual_biorag",
+            "peso": 0.21,
+            "estado": "activo",
+            "score": 0.8522
+          },
+          {
+            "concepto": "version_actual_biorag_v32_4_20261007",
+            "peso": 0.32999999999999996,
+            "estado": "activo",
+            "score": 0.8168
+          }
+        ]
+      }
+    ],
+    "calls": [
+      {
+        "status": null,
+        "results": [
+          {
+            "concepto": "version_actual_biorag",
+            "peso_sinaptico": 0.21,
+            "estado": "activo",
+            "score_hibrido": 0.8522
+          },
+          {
+            "concepto": "version_actual_biorag_v32_4_20261007",
+            "peso_sinaptico": 0.32999999999999996,
+            "estado": "activo",
+            "score_hibrido": 0.8168
+          }
+        ],
+        "state": [
+          [
+            "ultima_version_biorag",
+            "activo",
+            0.35,
+            1795288827.8314147
+          ],
+          [
+            "version_actual_biorag",
+            "activo",
+            0.21,
+            1795234571.3517253
+          ],
+          [
+            "version_actual_biorag_v32_4_20261007",
+            "activo",
+            0.32999999999999996,
+            1795262656.3489635
+          ]
+        ],
+        "response_keys": [
+          "total",
+          "pagina_actual",
+          "paginas_totales",
+          "resultados",
+          "contexto_expandido",
+          "sinapsis_creadas",
+          "profundidad",
+          "trazabilidad",
+          "advertencia_temporal"
+        ]
+      }
+    ],
+    "after": [
+      [
+        "ultima_version_biorag",
+        "activo",
+        0.35,
+        1795288827.8314147
+      ],
+      [
+        "version_actual_biorag",
+        "activo",
+        0.21,
+        1795234571.3517253
+      ],
+      [
+        "version_actual_biorag_v32_4_20261007",
+        "activo",
+        0.32999999999999996,
+        1795262656.3489635
+      ]
+    ],
+    "source_unchanged": true
+  },
+  "dormido": {
+    "variant": "dormido",
+    "source_sha256": "07a77c801eaa56750627e1c831de91a65e6448da25e4803b86d3ae4e2446c55e",
+    "fingerprint": "5721b3821c3521e6",
+    "champion": true,
+    "margin": 2.0,
+    "before": [
+      [
+        "ultima_version_biorag",
+        "dormido",
+        0.05,
+        1795288827.8314147
+      ],
+      [
+        "version_actual_biorag",
+        "activo",
+        0.21,
+        1795234571.3517253
+      ],
+      [
+        "version_actual_biorag_v32_4_20261007",
+        "activo",
+        0.32999999999999996,
+        1795262656.3489635
+      ]
+    ],
+    "scoring": [
+      {
+        "concepto": "version_actual_biorag_v32_4_20261007",
+        "inputs": {
+          "bm25_norm": 0.7105285513360058,
+          "dim_score": 0.0,
+          "peso_sinaptico": 0.32999999999999996,
+          "concepto_ratio": 0.6667,
+          "sinonimos_ratio": 1.0,
+          "score_latente": 0.5434,
+          "score_cadena": 0.0,
+          "asoc_count": 25,
+          "match_exacto": false,
+          "grupo_score": 1.0,
+          "tematico_score": 0.0,
+          "jsd_score": 0.5636,
+          "jsd_weight": 0.025,
+          "pred_score": 0.0,
+          "ppmi_score": 0.7391148578112604,
+          "hub_match": 0.0,
+          "ncd_score": 0.034431137724550864,
+          "episodio_score": 0.0,
+          "analogia_score": 0.0,
+          "campo_score": 1.0
+        },
+        "score": 0.7014,
+        "score_without_exact": 0.7014
+      },
+      {
+        "concepto": "version_actual_biorag",
+        "inputs": {
+          "bm25_norm": 0.36711334125846556,
+          "dim_score": 0.0,
+          "peso_sinaptico": 0.21,
+          "concepto_ratio": 0.6667,
+          "sinonimos_ratio": 1.0,
+          "score_latente": 0.5755,
+          "score_cadena": 0.0,
+          "asoc_count": 172,
+          "match_exacto": false,
+          "grupo_score": 1.0,
+          "tematico_score": 0.0,
+          "jsd_score": 0.6072,
+          "jsd_weight": 0.025,
+          "pred_score": 0.0,
+          "ppmi_score": 0.5969714674610842,
+          "hub_match": 0.0,
+          "ncd_score": 0.023076923076923106,
+          "episodio_score": 1.0,
+          "analogia_score": 0.0,
+          "campo_score": 0.9312600530274453
+        },
+        "score": 0.6476,
+        "score_without_exact": 0.6476
+      },
+      {
+        "concepto": "version_actual_biorag_v32_4_20261007",
+        "inputs": {
+          "bm25_norm": 0.7105285513360058,
+          "dim_score": 0.0,
+          "peso_sinaptico": 0.32999999999999996,
+          "concepto_ratio": 0.6667,
+          "sinonimos_ratio": 1.0,
+          "score_latente": 0.5434,
+          "score_cadena": 0.0,
+          "asoc_count": 25,
+          "match_exacto": false,
+          "grupo_score": 1.0,
+          "tematico_score": 0.0,
+          "jsd_score": 0.5636,
+          "jsd_weight": 0.025,
+          "pred_score": 0.0,
+          "ppmi_score": 0.7391148578112604,
+          "hub_match": 0.0,
+          "ncd_score": 0.034431137724550864,
+          "episodio_score": 0.0,
+          "analogia_score": 0.0,
+          "campo_score": 1.0
+        },
+        "score": 0.7014,
+        "score_without_exact": 0.7014
+      },
+      {
+        "concepto": "version_actual_biorag",
+        "inputs": {
+          "bm25_norm": 0.36711334125846556,
+          "dim_score": 0.0,
+          "peso_sinaptico": 0.21,
+          "concepto_ratio": 0.6667,
+          "sinonimos_ratio": 1.0,
+          "score_latente": 0.5755,
+          "score_cadena": 0.0,
+          "asoc_count": 172,
+          "match_exacto": false,
+          "grupo_score": 1.0,
+          "tematico_score": 0.0,
+          "jsd_score": 0.6072,
+          "jsd_weight": 0.025,
+          "pred_score": 0.0,
+          "ppmi_score": 0.5969714674610842,
+          "hub_match": 0.0,
+          "ncd_score": 0.023076923076923106,
+          "episodio_score": 1.0,
+          "analogia_score": 0.0,
+          "campo_score": 0.9312600530274453
+        },
+        "score": 0.6476,
+        "score_without_exact": 0.6476
+      }
+    ],
+    "neuronal": [
+      {
+        "query": "ultima version biorag",
+        "before": [
+          {
+            "concepto": "version_actual_biorag_v32_4_20261007",
+            "peso": 0.32999999999999996,
+            "estado": "activo",
+            "score": 0.7746
+          },
+          {
+            "concepto": "version_actual_biorag",
+            "peso": 0.21,
+            "estado": "activo",
+            "score": 0.7208
+          }
+        ],
+        "visible": [
+          {
+            "concepto": "version_actual_biorag_v32_4_20261007",
+            "base": 1.2344701290130615,
+            "correction": 10.063826334639232,
+            "key": 21.298296463652292
+          },
+          {
+            "concepto": "version_actual_biorag",
+            "base": 0.9484333395957947,
+            "correction": 9.843525089975518,
+            "key": 18.791958429571313
+          }
+        ],
+        "identity": false,
+        "after": [
+          {
+            "concepto": "version_actual_biorag_v32_4_20261007",
+            "peso": 0.32999999999999996,
+            "estado": "activo",
+            "score": 0.7746
+          },
+          {
+            "concepto": "version_actual_biorag",
+            "peso": 0.21,
+            "estado": "activo",
+            "score": 0.7208
+          }
+        ]
+      },
+      {
+        "query": "ultima version biorag",
+        "before": [
+          {
+            "concepto": "version_actual_biorag_v32_4_20261007",
+            "peso": 0.32999999999999996,
+            "estado": "activo",
+            "score": 0.7746
+          },
+          {
+            "concepto": "version_actual_biorag",
+            "peso": 0.21,
+            "estado": "activo",
+            "score": 0.7208
+          }
+        ],
+        "visible": [
+          {
+            "concepto": "version_actual_biorag_v32_4_20261007",
+            "base": 1.2344701290130615,
+            "correction": 10.063826334639232,
+            "key": 21.298296463652292
+          },
+          {
+            "concepto": "version_actual_biorag",
+            "base": 0.9484333395957947,
+            "correction": 9.843525089975518,
+            "key": 18.791958429571313
+          }
+        ],
+        "identity": false,
+        "after": [
+          {
+            "concepto": "version_actual_biorag_v32_4_20261007",
+            "peso": 0.32999999999999996,
+            "estado": "activo",
+            "score": 0.7746
+          },
+          {
+            "concepto": "version_actual_biorag",
+            "peso": 0.21,
+            "estado": "activo",
+            "score": 0.7208
+          }
+        ]
+      }
+    ],
+    "calls": [
+      {
+        "status": null,
+        "results": [
+          {
+            "concepto": "version_actual_biorag_v32_4_20261007",
+            "peso_sinaptico": 0.32999999999999996,
+            "estado": "activo",
+            "score_hibrido": 0.7746
+          },
+          {
+            "concepto": "version_actual_biorag",
+            "peso_sinaptico": 0.21,
+            "estado": "activo",
+            "score_hibrido": 0.7208
+          }
+        ],
+        "state": [
+          [
+            "ultima_version_biorag",
+            "dormido",
+            0.05,
+            1795288827.8314147
+          ],
+          [
+            "version_actual_biorag",
+            "activo",
+            0.21,
+            1795234571.3517253
+          ],
+          [
+            "version_actual_biorag_v32_4_20261007",
+            "activo",
+            0.32999999999999996,
+            1795262656.3489635
+          ]
+        ],
+        "response_keys": [
+          "total",
+          "pagina_actual",
+          "paginas_totales",
+          "resultados",
+          "contexto_expandido",
+          "sinapsis_creadas",
+          "profundidad",
+          "trazabilidad",
+          "advertencia_temporal"
+        ]
+      },
+      {
+        "status": null,
+        "results": [
+          {
+            "concepto": "version_actual_biorag_v32_4_20261007",
+            "peso_sinaptico": 0.32999999999999996,
+            "estado": "activo",
+            "score_hibrido": 0.7746
+          },
+          {
+            "concepto": "version_actual_biorag",
+            "peso_sinaptico": 0.21,
+            "estado": "activo",
+            "score_hibrido": 0.7208
+          }
+        ],
+        "state": [
+          [
+            "ultima_version_biorag",
+            "dormido",
+            0.05,
+            1795288827.8314147
+          ],
+          [
+            "version_actual_biorag",
+            "activo",
+            0.21,
+            1795234571.3517253
+          ],
+          [
+            "version_actual_biorag_v32_4_20261007",
+            "activo",
+            0.32999999999999996,
+            1795262656.3489635
+          ]
+        ],
+        "response_keys": [
+          "total",
+          "pagina_actual",
+          "paginas_totales",
+          "resultados",
+          "contexto_expandido",
+          "sinapsis_creadas",
+          "profundidad",
+          "trazabilidad",
+          "advertencia_temporal"
+        ]
+      }
+    ],
+    "after": [
+      [
+        "ultima_version_biorag",
+        "dormido",
+        0.05,
+        1795288827.8314147
+      ],
+      [
+        "version_actual_biorag",
+        "activo",
+        0.21,
+        1795234571.3517253
+      ],
+      [
+        "version_actual_biorag_v32_4_20261007",
+        "activo",
+        0.32999999999999996,
+        1795262656.3489635
+      ]
+    ],
+    "source_unchanged": true
+  },
+  "dormido_profundo": {
+    "variant": "dormido_profundo",
+    "source_sha256": "07a77c801eaa56750627e1c831de91a65e6448da25e4803b86d3ae4e2446c55e",
+    "fingerprint": "5721b3821c3521e6",
+    "champion": true,
+    "margin": 2.0,
+    "before": [
+      [
+        "ultima_version_biorag",
+        "dormido",
+        0.05,
+        1795288827.8314147
+      ],
+      [
+        "version_actual_biorag",
+        "activo",
+        0.21,
+        1795234571.3517253
+      ],
+      [
+        "version_actual_biorag_v32_4_20261007",
+        "activo",
+        0.32999999999999996,
+        1795262656.3489635
+      ]
+    ],
+    "scoring": [
+      {
+        "concepto": "ultima_version_biorag",
+        "inputs": {
+          "bm25_norm": 0.19358805761862777,
+          "dim_score": 0.0,
+          "peso_sinaptico": 0.05,
+          "concepto_ratio": 1.0,
+          "sinonimos_ratio": 0.0,
+          "score_latente": 0.4528,
+          "score_cadena": 0.0,
+          "asoc_count": 68,
+          "match_exacto": true,
+          "grupo_score": 1.0,
+          "tematico_score": 1.0,
+          "jsd_score": 0.5168,
+          "jsd_weight": 0.025,
+          "pred_score": 0.0,
+          "ppmi_score": 0.6825693472676945,
+          "hub_match": 0.0,
+          "ncd_score": 0.07187500000000002,
+          "episodio_score": 1.0,
+          "analogia_score": 0.0,
+          "campo_score": 0.9411431450449448
+        },
+        "score": 0.9101,
+        "score_without_exact": 0.3485
+      },
+      {
+        "concepto": "version_actual_biorag_v32_4_20261007",
+        "inputs": {
+          "bm25_norm": 0.7060266637115064,
+          "dim_score": 0.6793662204867574,
+          "peso_sinaptico": 0.32999999999999996,
+          "concepto_ratio": 0.6667,
+          "sinonimos_ratio": 1.0,
+          "score_latente": 0.5434,
+          "score_cadena": 0.0,
+          "asoc_count": 25,
+          "match_exacto": false,
+          "grupo_score": 1.0,
+          "tematico_score": 0.0,
+          "jsd_score": 0.5636,
+          "jsd_weight": 0.025,
+          "pred_score": 0.0,
+          "ppmi_score": 0.7391148578112604,
+          "hub_match": 0.0,
+          "ncd_score": 0.034431137724550864,
+          "episodio_score": 0.0,
+          "analogia_score": 0.0,
+          "campo_score": 0.9120586976599687
+        },
+        "score": 0.7436,
+        "score_without_exact": 0.7436
+      },
+      {
+        "concepto": "version_actual_biorag",
+        "inputs": {
+          "bm25_norm": 1.0,
+          "dim_score": 0.8320502943378437,
+          "peso_sinaptico": 0.21,
+          "concepto_ratio": 0.6667,
+          "sinonimos_ratio": 1.0,
+          "score_latente": 0.5755,
+          "score_cadena": 0.0,
+          "asoc_count": 172,
+          "match_exacto": false,
+          "grupo_score": 1.0,
+          "tematico_score": 0.0,
+          "jsd_score": 0.6072,
+          "jsd_weight": 0.025,
+          "pred_score": 0.0,
+          "ppmi_score": 0.5969714674610842,
+          "hub_match": 0.0,
+          "ncd_score": 0.023076923076923106,
+          "episodio_score": 1.0,
+          "analogia_score": 0.0,
+          "campo_score": 0.9689562487056534
+        },
+        "score": 0.779,
+        "score_without_exact": 0.779
+      },
+      {
+        "concepto": "ultima_version_biorag",
+        "inputs": {
+          "bm25_norm": 0.19358805761862777,
+          "dim_score": 0.0,
+          "peso_sinaptico": 0.2,
+          "concepto_ratio": 1.0,
+          "sinonimos_ratio": 0.0,
+          "score_latente": 0.4528,
+          "score_cadena": 0.0,
+          "asoc_count": 68,
+          "match_exacto": true,
+          "grupo_score": 1.0,
+          "tematico_score": 1.0,
+          "jsd_score": 0.5168,
+          "jsd_weight": 0.025,
+          "pred_score": 0.0,
+          "ppmi_score": 0.6825693472676945,
+          "hub_match": 0.0,
+          "ncd_score": 0.07187500000000002,
+          "episodio_score": 1.0,
+          "analogia_score": 0.0,
+          "campo_score": 0.9411431450449448
+        },
+        "score": 0.9131,
+        "score_without_exact": 0.3572
+      },
+      {
+        "concepto": "version_actual_biorag_v32_4_20261007",
+        "inputs": {
+          "bm25_norm": 0.7060266637115064,
+          "dim_score": 0.6793662204867574,
+          "peso_sinaptico": 0.32999999999999996,
+          "concepto_ratio": 0.6667,
+          "sinonimos_ratio": 1.0,
+          "score_latente": 0.5434,
+          "score_cadena": 0.0,
+          "asoc_count": 25,
+          "match_exacto": false,
+          "grupo_score": 1.0,
+          "tematico_score": 0.0,
+          "jsd_score": 0.5636,
+          "jsd_weight": 0.025,
+          "pred_score": 0.0,
+          "ppmi_score": 0.7391148578112604,
+          "hub_match": 0.0,
+          "ncd_score": 0.034431137724550864,
+          "episodio_score": 0.0,
+          "analogia_score": 0.0,
+          "campo_score": 0.9120586976599687
+        },
+        "score": 0.7436,
+        "score_without_exact": 0.7436
+      },
+      {
+        "concepto": "version_actual_biorag",
+        "inputs": {
+          "bm25_norm": 1.0,
+          "dim_score": 0.8320502943378437,
+          "peso_sinaptico": 0.21,
+          "concepto_ratio": 0.6667,
+          "sinonimos_ratio": 1.0,
+          "score_latente": 0.5755,
+          "score_cadena": 0.0,
+          "asoc_count": 172,
+          "match_exacto": false,
+          "grupo_score": 1.0,
+          "tematico_score": 0.0,
+          "jsd_score": 0.6072,
+          "jsd_weight": 0.025,
+          "pred_score": 0.0,
+          "ppmi_score": 0.5969714674610842,
+          "hub_match": 0.0,
+          "ncd_score": 0.023076923076923106,
+          "episodio_score": 1.0,
+          "analogia_score": 0.0,
+          "campo_score": 0.9689562487056534
+        },
+        "score": 0.779,
+        "score_without_exact": 0.779
+      }
+    ],
+    "neuronal": [
+      {
+        "query": "ultima version biorag",
+        "before": [
+          {
+            "concepto": "ultima_version_biorag",
+            "peso": 0.2,
+            "estado": "activo",
+            "score": 0.9676
+          },
+          {
+            "concepto": "version_actual_biorag",
+            "peso": 0.21,
+            "estado": "activo",
+            "score": 0.8522
+          },
+          {
+            "concepto": "version_actual_biorag_v32_4_20261007",
+            "peso": 0.32999999999999996,
+            "estado": "activo",
+            "score": 0.8168
+          }
+        ],
+        "visible": [
+          {
+            "concepto": "ultima_version_biorag",
+            "base": 3.396660327911377,
+            "correction": 10.527431897508993,
+            "key": 23.92409222542037
+          },
+          {
+            "concepto": "version_actual_biorag",
+            "base": 1.7519612312316895,
+            "correction": 9.87043851837543,
+            "key": 19.62239974960712
+          },
+          {
+            "concepto": "version_actual_biorag_v32_4_20261007",
+            "base": 1.4948158264160156,
+            "correction": 7.413136357865658,
+            "key": 14.907952184281672
+          }
+        ],
+        "identity": true,
+        "after": [
+          {
+            "concepto": "ultima_version_biorag",
+            "peso": 0.2,
+            "estado": "activo",
+            "score": 0.9676
+          },
+          {
+            "concepto": "version_actual_biorag",
+            "peso": 0.21,
+            "estado": "activo",
+            "score": 0.8522
+          },
+          {
+            "concepto": "version_actual_biorag_v32_4_20261007",
+            "peso": 0.32999999999999996,
+            "estado": "activo",
+            "score": 0.8168
+          }
+        ]
+      },
+      {
+        "query": "ultima version biorag",
+        "before": [
+          {
+            "concepto": "ultima_version_biorag",
+            "peso": 0.2,
+            "estado": "activo",
+            "score": 0.9556
+          },
+          {
+            "concepto": "version_actual_biorag",
+            "peso": 0.21,
+            "estado": "activo",
+            "score": 0.8522
+          },
+          {
+            "concepto": "version_actual_biorag_v32_4_20261007",
+            "peso": 0.32999999999999996,
+            "estado": "activo",
+            "score": 0.8168
+          }
+        ],
+        "visible": [
+          {
+            "concepto": "ultima_version_biorag",
+            "base": 3.0690999031066895,
+            "correction": 10.527431897508993,
+            "key": 23.596531800615683
+          },
+          {
+            "concepto": "version_actual_biorag",
+            "base": 1.7519612312316895,
+            "correction": 9.87043851837543,
+            "key": 19.62239974960712
+          },
+          {
+            "concepto": "version_actual_biorag_v32_4_20261007",
+            "base": 1.4948158264160156,
+            "correction": 7.413136357865658,
+            "key": 14.907952184281672
+          }
+        ],
+        "identity": true,
+        "after": [
+          {
+            "concepto": "ultima_version_biorag",
+            "peso": 0.2,
+            "estado": "activo",
+            "score": 0.9556
+          },
+          {
+            "concepto": "version_actual_biorag",
+            "peso": 0.21,
+            "estado": "activo",
+            "score": 0.8522
+          },
+          {
+            "concepto": "version_actual_biorag_v32_4_20261007",
+            "peso": 0.32999999999999996,
+            "estado": "activo",
+            "score": 0.8168
+          }
+        ]
+      }
+    ],
+    "calls": [
+      {
+        "status": null,
+        "results": [
+          {
+            "concepto": "ultima_version_biorag",
+            "peso_sinaptico": 0.2,
+            "estado": "activo",
+            "score_hibrido": 0.9676
+          },
+          {
+            "concepto": "version_actual_biorag",
+            "peso_sinaptico": 0.21,
+            "estado": "activo",
+            "score_hibrido": 0.8522
+          },
+          {
+            "concepto": "version_actual_biorag_v32_4_20261007",
+            "peso_sinaptico": 0.32999999999999996,
+            "estado": "activo",
+            "score_hibrido": 0.8168
+          }
+        ],
+        "state": [
+          [
+            "ultima_version_biorag",
+            "activo",
+            0.2,
+            1795291909.0511186
+          ],
+          [
+            "version_actual_biorag",
+            "activo",
+            0.21,
+            1795234571.3517253
+          ],
+          [
+            "version_actual_biorag_v32_4_20261007",
+            "activo",
+            0.32999999999999996,
+            1795262656.3489635
+          ]
+        ],
+        "response_keys": [
+          "total",
+          "pagina_actual",
+          "paginas_totales",
+          "resultados",
+          "contexto_expandido",
+          "sinapsis_creadas",
+          "profundidad",
+          "trazabilidad",
+          "advertencia_temporal"
+        ]
+      },
+      {
+        "status": null,
+        "results": [
+          {
+            "concepto": "ultima_version_biorag",
+            "peso_sinaptico": 0.2,
+            "estado": "activo",
+            "score_hibrido": 0.9556
+          },
+          {
+            "concepto": "version_actual_biorag",
+            "peso_sinaptico": 0.21,
+            "estado": "activo",
+            "score_hibrido": 0.8522
+          },
+          {
+            "concepto": "version_actual_biorag_v32_4_20261007",
+            "peso_sinaptico": 0.32999999999999996,
+            "estado": "activo",
+            "score_hibrido": 0.8168
+          }
+        ],
+        "state": [
+          [
+            "ultima_version_biorag",
+            "activo",
+            0.2,
+            1795291909.0511186
+          ],
+          [
+            "version_actual_biorag",
+            "activo",
+            0.21,
+            1795234571.3517253
+          ],
+          [
+            "version_actual_biorag_v32_4_20261007",
+            "activo",
+            0.32999999999999996,
+            1795262656.3489635
+          ]
+        ],
+        "response_keys": [
+          "total",
+          "pagina_actual",
+          "paginas_totales",
+          "resultados",
+          "contexto_expandido",
+          "sinapsis_creadas",
+          "profundidad",
+          "trazabilidad",
+          "advertencia_temporal"
+        ]
+      }
+    ],
+    "after": [
+      [
+        "ultima_version_biorag",
+        "activo",
+        0.2,
+        1795291909.0511186
+      ],
+      [
+        "version_actual_biorag",
+        "activo",
+        0.21,
+        1795234571.3517253
+      ],
+      [
+        "version_actual_biorag_v32_4_20261007",
+        "activo",
+        0.32999999999999996,
+        1795262656.3489635
+      ]
+    ],
+    "source_unchanged": true
+  }
+}

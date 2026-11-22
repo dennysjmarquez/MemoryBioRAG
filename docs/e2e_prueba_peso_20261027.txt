@@ -1,0 +1,10 @@
+ANTES: fórmula original
+sin_lexico: tematico_0=0.0000 tematico_1=0.0000 delta=+0.0000
+con_bm25: tematico_0=0.0740 tematico_1=0.1213 delta=+0.0473
+con_concepto: tematico_0=0.0237 tematico_1=0.0710 delta=+0.0473
+con_varias_senales: tematico_0=0.1030 tematico_1=0.1503 delta=+0.0473
+CANDIDATO: aporte temático a 0
+sin_lexico: tematico_0=0.0000 tematico_1=0.0000 delta=+0.0000
+con_bm25: tematico_0=0.0740 tematico_1=0.0740 delta=+0.0000
+con_concepto: tematico_0=0.0237 tematico_1=0.0237 delta=+0.0000
+con_varias_senales: tematico_0=0.1030 tematico_1=0.1030 delta=+0.0000

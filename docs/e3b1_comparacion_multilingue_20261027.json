@@ -1,0 +1,115 @@
+{
+  "directa_casos_diferentes": [],
+  "mcp_en_es_casos_diferentes": [],
+  "pendiente_hueco_1": {
+    "total": 14,
+    "por_idioma": {
+      "zh": 1,
+      "ja": 9,
+      "ko": 4,
+      "ru": 0,
+      "en": 0,
+      "es": 0
+    },
+    "ids": [
+      "zh-18",
+      "ja-05",
+      "ja-06",
+      "ja-08",
+      "ja-10",
+      "ja-11",
+      "ja-14",
+      "ja-15",
+      "ja-17",
+      "ja-18",
+      "ko-05",
+      "ko-07",
+      "ko-18",
+      "ko-20"
+    ]
+  },
+  "consultas_mcp_ejecutadas": 118,
+  "mcp_metricas": {
+    "zh": {
+      "positivos": 20,
+      "ejecutados_positivos": 19,
+      "rechazos_positivos": 1,
+      "aciertos_r1": 7,
+      "aciertos_r5": 7,
+      "negativos": 2,
+      "negativos_ejecutados": 2,
+      "rechazos_negativos": 0,
+      "falsos_positivos": 0,
+      "codigos_error": {
+        "SUSTANTIVOS_CLAVE_FORMATO_INVALIDO": 1
+      }
+    },
+    "ja": {
+      "positivos": 20,
+      "ejecutados_positivos": 11,
+      "rechazos_positivos": 9,
+      "aciertos_r1": 6,
+      "aciertos_r5": 6,
+      "negativos": 2,
+      "negativos_ejecutados": 2,
+      "rechazos_negativos": 0,
+      "falsos_positivos": 0,
+      "codigos_error": {
+        "SUSTANTIVOS_CLAVE_FORMATO_INVALIDO": 9
+      }
+    },
+    "ko": {
+      "positivos": 20,
+      "ejecutados_positivos": 16,
+      "rechazos_positivos": 4,
+      "aciertos_r1": 16,
+      "aciertos_r5": 16,
+      "negativos": 2,
+      "negativos_ejecutados": 2,
+      "rechazos_negativos": 0,
+      "falsos_positivos": 0,
+      "codigos_error": {
+        "SUSTANTIVOS_CLAVE_FORMATO_INVALIDO": 4
+      }
+    },
+    "ru": {
+      "positivos": 20,
+      "ejecutados_positivos": 20,
+      "rechazos_positivos": 0,
+      "aciertos_r1": 19,
+      "aciertos_r5": 20,
+      "negativos": 2,
+      "negativos_ejecutados": 2,
+      "rechazos_negativos": 0,
+      "falsos_positivos": 0,
+      "codigos_error": {}
+    },
+    "en": {
+      "positivos": 20,
+      "ejecutados_positivos": 20,
+      "rechazos_positivos": 0,
+      "aciertos_r1": 20,
+      "aciertos_r5": 20,
+      "negativos": 2,
+      "negativos_ejecutados": 2,
+      "rechazos_negativos": 0,
+      "falsos_positivos": 2,
+      "codigos_error": {}
+    },
+    "es": {
+      "positivos": 20,
+      "ejecutados_positivos": 20,
+      "rechazos_positivos": 0,
+      "aciertos_r1": 20,
+      "aciertos_r5": 20,
+      "negativos": 2,
+      "negativos_ejecutados": 2,
+      "rechazos_negativos": 0,
+      "falsos_positivos": 0,
+      "codigos_error": {}
+    }
+  },
+  "problemas": [],
+  "cumple_multilingue": true,
+  "solo_multilingue": true
+}

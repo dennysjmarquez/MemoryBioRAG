@@ -1,0 +1,22 @@
+
+=== snapshot normal ===
+FP antes/candidato: 0/40 → 0/40; contaminados 0 → 0
+R@5 honesta global: 100.00% → 99.77%; fallos 0 → 2; n=865
+R@1 honesta global: 95.31% → 95.78%; no top-1 40 → 36; n=853
+Categoría                 R@5 honesta antes → candidato (aciertos / total)
+cruce_idioma             100.00% → 100.00% (  8 →   8 /   8)
+dormido                  100.00% → 100.00% ( 65 →  65 /  65)
+literal                  100.00% → 100.00% (487 → 487 / 487)
+por_tema                 100.00% →  98.46% ( 65 →  64 /  65) BAJA
+pregunta_natural         100.00% → 100.00% ( 65 →  65 /  65)
+sinonimo                 100.00% → 100.00% ( 45 →  45 /  45)
+typo                     100.00% → 100.00% ( 65 →  65 /  65)
+variante_gramatical      100.00% →  98.46% ( 65 →  64 /  65) BAJA
+Fallos honestos nuevos (2): [('0518', 'variante_gramatical'), ('0634', 'por_tema')]
+Fallos honestos recuperados (0): []
+
+=== COMPARACIÓN DE MÉTRICAS (pytest se valida aparte) ===
+PARCIAL: 1/4 parejas; NO constituye el veredicto final.
+NO CUMPLE
+- snapshot normal: baja R@5 honesta por_tema (65→64/65)
+- snapshot normal: baja R@5 honesta variante_gramatical (65→64/65)
