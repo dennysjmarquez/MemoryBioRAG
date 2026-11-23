@@ -32,6 +32,7 @@ def _checker(
     tags=None,
     fetch_policy=None,
     fetch_tags=None,
+    channel="stable",
 ):
     if fetch_policy is None:
         value = _policy() if policy is _UNSET else policy
@@ -43,6 +44,7 @@ def _checker(
         enabled=True,
         fetch_policy=fetch_policy,
         fetch_tags=fetch_tags,
+        channel=channel,
     )
 
 
@@ -75,7 +77,7 @@ def test_solo_anuncia_la_version_aprobada_no_el_tag_mas_nuevo():
     assert status["url_tag"] == TAG_URL
     assert notice and "v36.2.0" in notice
     assert "v36.10.0" not in notice
-    assert "not automatic" in notice
+    assert "biorag update" in notice
 
 
 def test_una_notificacion_por_tag_y_se_conserva_hasta_consumirla():
@@ -237,6 +239,7 @@ def test_chequeo_deshabilitado_no_consulta_red(monkeypatch):
         current_version="36.1.0",
         fetch_policy=fail,
         fetch_tags=fail,
+        channel="stable",
     )
 
     assert checker.check_once()["estado"] == "deshabilitado"
@@ -437,3 +440,113 @@ def test_recurso_version_expone_estado_404_sin_otra_peticion():
     assert result["estado"] == "sin_politica"
     assert "update_policy.json" in result["detalle"]
     assert result["version_remota"] is None
+
+
+# ── DEV channel tests ──────────────────────────────────────────────────────
+
+
+def test_dev_channel_detecta_commits_nuevos(monkeypatch):
+    """DEV checker detects new upstream commits via git rev-list."""
+    monkeypatch.setattr(
+        update_checker, "_dev_upstream_status",
+        lambda root: {"behind": 5, "upstream_ref": "abc123def456"},
+    )
+    checker = UpdateChecker(
+        current_version="36.2.0",
+        enabled=True,
+        channel="dev",
+    )
+    status = checker.check_once()
+
+    assert status["estado"] == "actualizacion_disponible"
+    assert status["actualizacion_disponible"] is True
+    assert status["canal"] == "dev"
+    assert "5" in status["detalle"]
+
+    notice = checker.take_notice()
+    assert notice is not None
+    assert "5 new commits" in notice
+    assert "biorag update" in notice
+    # No re-notification for same upstream ref
+    checker.check_once()
+    assert checker.take_notice() is None
+
+
+def test_dev_channel_actualizado_no_notifica(monkeypatch):
+    """DEV checker: 0 commits behind = no notification."""
+    monkeypatch.setattr(
+        update_checker, "_dev_upstream_status",
+        lambda root: {"behind": 0, "upstream_ref": "abc123def456"},
+    )
+    checker = UpdateChecker(
+        current_version="36.2.0",
+        enabled=True,
+        channel="dev",
+    )
+    status = checker.check_once()
+
+    assert status["estado"] == "actualizado"
+    assert status["actualizacion_disponible"] is False
+    assert checker.take_notice() is None
+
+
+def test_dev_channel_re_notifica_si_upstream_cambia(monkeypatch):
+    """DEV checker re-notifies when upstream ref changes (new push)."""
+    refs = iter(["aaa111bbb222", "ccc333ddd444"])
+    monkeypatch.setattr(
+        update_checker, "_dev_upstream_status",
+        lambda root: {"behind": 3, "upstream_ref": next(refs)},
+    )
+    checker = UpdateChecker(
+        current_version="36.2.0",
+        enabled=True,
+        channel="dev",
+    )
+    checker.check_once()
+    notice1 = checker.take_notice()
+    assert notice1 is not None
+
+    checker.check_once()
+    notice2 = checker.take_notice()
+    assert notice2 is not None  # Different upstream ref → re-notify
+
+
+def test_dev_channel_error_de_red_no_rompe(monkeypatch):
+    """DEV checker handles fetch failures gracefully."""
+    monkeypatch.setattr(
+        update_checker, "_dev_upstream_status",
+        lambda root: {"error": "fetch_failed"},
+    )
+    checker = UpdateChecker(
+        current_version="36.2.0",
+        enabled=True,
+        channel="dev",
+    )
+    status = checker.check_once()
+
+    assert status["estado"] == "sin_respuesta"
+    assert checker.take_notice() is None
+
+
+def test_detect_channel_stable(monkeypatch):
+    """_detect_channel returns 'stable' when remote URL contains MemoryBioRAG-Stable."""
+    monkeypatch.setattr(
+        update_checker.subprocess, "run",
+        lambda *a, **kw: type("R", (), {
+            "returncode": 0,
+            "stdout": "git@github.com:dennysjmarquez/MemoryBioRAG-Stable.git\n",
+        })(),
+    )
+    assert update_checker._detect_channel(Path("/fake")) == "stable"
+
+
+def test_detect_channel_dev(monkeypatch):
+    """_detect_channel returns 'dev' for the main dev repo."""
+    monkeypatch.setattr(
+        update_checker.subprocess, "run",
+        lambda *a, **kw: type("R", (), {
+            "returncode": 0,
+            "stdout": "git@github.com:dennysjmarquez/MemoryBioRAG.git\n",
+        })(),
+    )
+    assert update_checker._detect_channel(Path("/fake")) == "dev"

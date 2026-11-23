@@ -9,6 +9,7 @@ import base64
 import json
 import os
 import re
+import subprocess
 import threading
 from datetime import datetime, timezone
 from importlib.metadata import PackageNotFoundError, version as distribution_version
@@ -62,6 +63,52 @@ def installed_version() -> str:
 def _updates_enabled_from_env() -> bool:
     value = os.environ.get("BIORAG_UPDATE_CHECK", "1").strip().lower()
     return value not in {"0", "false", "no", "off", "disabled"}
+
+
+def _detect_channel(root: Path | None = None) -> str:
+    """Auto-detect DEV vs STABLE from git remote URL."""
+    if root is None:
+        root = Path(__file__).resolve().parents[2]
+    try:
+        result = subprocess.run(
+            ["git", "-C", str(root), "remote", "get-url", "origin"],
+            capture_output=True, text=True, timeout=5,
+        )
+        if result.returncode == 0 and "MemoryBioRAG-Stable" in result.stdout:
+            return "stable"
+        if result.returncode == 0:
+            return "dev"
+    except Exception:
+        pass
+    return "stable"
+
+
+def _dev_upstream_status(root: Path) -> dict[str, Any]:
+    """Non-blocking git fetch + rev-list to count commits behind upstream."""
+    try:
+        subprocess.run(
+            ["git", "-C", str(root), "fetch", "--quiet", "origin"],
+            capture_output=True, timeout=30,
+        )
+    except Exception:
+        return {"error": "fetch_failed"}
+    try:
+        behind_out = subprocess.run(
+            ["git", "-C", str(root), "rev-list", "--count", "HEAD..@{upstream}"],
+            capture_output=True, text=True, timeout=10,
+        )
+        behind = int(behind_out.stdout.strip()) if behind_out.returncode == 0 else 0
+    except Exception:
+        behind = 0
+    try:
+        sha_out = subprocess.run(
+            ["git", "-C", str(root), "rev-parse", "--short=12", "@{upstream}"],
+            capture_output=True, text=True, timeout=5,
+        )
+        upstream_ref = sha_out.stdout.strip() if sha_out.returncode == 0 else None
+    except Exception:
+        upstream_ref = None
+    return {"behind": behind, "upstream_ref": upstream_ref}
 
 
 def _github_json(url: str, read_limit: int) -> Any:
@@ -133,6 +180,8 @@ class UpdateChecker:
         fetch_policy: Callable[[], dict[str, Any] | None] = fetch_update_policy,
         fetch_tags: Callable[[], list[str]] = fetch_stable_tags,
         interval_seconds: float = _DEFAULT_INTERVAL_SECONDS,
+        install_root: Path | str | None = None,
+        channel: str | None = None,
     ) -> None:
         self.current_version = _canonical_version(current_version or installed_version())
         self.enabled = _updates_enabled_from_env() if enabled is None else enabled
@@ -144,6 +193,8 @@ class UpdateChecker:
         self._thread: threading.Thread | None = None
         self._pending_notice: str | None = None
         self._notified_tag: str | None = None
+        self._install_root = Path(install_root) if install_root else Path(__file__).resolve().parents[2]
+        self._channel = channel or _detect_channel(self._install_root)
         self._status: dict[str, Any] = {
             "estado": "deshabilitado" if not self.enabled else "pendiente",
             "detalle": None,
@@ -152,6 +203,7 @@ class UpdateChecker:
             "actualizacion_disponible": False,
             "url_tag": None,
             "ultima_comprobacion": None,
+            "canal": self._channel,
         }
 
     def start(self) -> None:
@@ -198,6 +250,7 @@ class UpdateChecker:
                 "actualizacion_disponible": available,
                 "url_tag": tag_url,
                 "ultima_comprobacion": datetime.now(timezone.utc).isoformat(),
+                "canal": self._channel,
             }
             if clear_notice:
                 self._pending_notice = None
@@ -206,7 +259,49 @@ class UpdateChecker:
             return dict(self._status)
 
     def check_once(self) -> dict[str, Any]:
-        """Consulta la política estable; tags nuevos no se anuncian sin aprobación."""
+        """Consulta disponibilidad de actualizaciones según el canal detectado."""
+        if not self.enabled:
+            return self.status()
+        if self._channel == "dev":
+            return self._check_dev()
+        return self._check_stable()
+
+    def _check_dev(self) -> dict[str, Any]:
+        """DEV channel: git fetch + rev-list to count commits behind upstream."""
+        info = _dev_upstream_status(self._install_root)
+        if "error" in info:
+            return self._set_status(
+                "sin_respuesta",
+                "Could not check upstream for updates.",
+                clear_notice=False,
+            )
+        behind = info["behind"]
+        upstream_ref = info.get("upstream_ref")
+        if behind > 0:
+            s = "s" if behind != 1 else ""
+            with self._lock:
+                self._status = {
+                    "estado": "actualizacion_disponible",
+                    "detalle": f"{behind} new commit{s} in upstream",
+                    "version_instalada": self.current_version,
+                    "version_remota": f"+{behind} commits",
+                    "actualizacion_disponible": True,
+                    "url_tag": None,
+                    "ultima_comprobacion": datetime.now(timezone.utc).isoformat(),
+                    "canal": "dev",
+                }
+                # Only re-notify if upstream changed (new push)
+                if upstream_ref and upstream_ref != self._notified_tag:
+                    self._pending_notice = (
+                        f"BioRAG (dev) has {behind} new commit{s} "
+                        f"available from upstream. To update, run: biorag update"
+                    )
+                    self._notified_tag = upstream_ref
+                return dict(self._status)
+        return self._set_status("actualizado", "Up to date with upstream.")
+
+    def _check_stable(self) -> dict[str, Any]:
+        """Stable channel: policy + tags from GitHub API."""
         if not self.enabled:
             return self.status()
 
@@ -315,20 +410,13 @@ class UpdateChecker:
                 "actualizacion_disponible": available,
                 "url_tag": tag_url,
                 "ultima_comprobacion": datetime.now(timezone.utc).isoformat(),
+                "canal": self._channel,
             }
             if available and tag != self._notified_tag:
                 self._pending_notice = (
-                    f"A new approved stable BioRAG version is available: {tag} "
-                    f"(installed: {self.current_version}). Release tag: {tag_url}. "
-                    "This update is not automatic. After explicit authorization, run "
-                    "python -m core.updater --channel stable from the installed Git "
-                    "checkout. The CLI stops only BioRAG's own verified daemon, backs "
-                    "up the database, updates code and dependencies, then verifies it. "
-                    "A failure triggers automatic rollback when it can be verified; "
-                    "otherwise keep the backup and do not restart BioRAG. Ask the external "
-                    "MCP host to reconnect after success. Other installation "
-                    "methods must use their original package manager, then run "
-                    "python -m core.lifecycle. Never replace the user's database file."
+                    f"A new BioRAG version is available: {tag} "
+                    f"(installed: v{self.current_version}). "
+                    f"To update, run: biorag update"
                 )
                 self._notified_tag = tag
             elif not available:
