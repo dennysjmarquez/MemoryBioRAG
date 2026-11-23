@@ -563,14 +563,20 @@ def version_aware_server_class(
                     if logger is not None:
                         logger.debug("El cliente MCP no aceptó el aviso de versión: %s", exc)
             result = await super().call_tool(name, arguments)
-            if notice and result is not None:
+            if notice and result:
                 banner = f"ℹ️ [BioRAG Update Notice]: {notice}\n---\n"
                 try:
                     from mcp.types import TextContent
-                    # FastMCP puede retornar (list[ContentBlock], dict) o list[ContentBlock]
-                    blocks = result[0] if isinstance(result, tuple) and len(result) > 0 and isinstance(result[0], list) else result
-                    if isinstance(blocks, list) and len(blocks) > 0 and isinstance(blocks[0], TextContent):
-                        blocks[0] = TextContent(type='text', text=banner + blocks[0].text)
+                    # FastMCP puede retornar [TextContent] o un tuple (content_list, extra_dict)
+                    if isinstance(result, tuple) and len(result) >= 1:
+                        content_list = result[0]
+                        extra_dict = result[1] if len(result) > 1 and isinstance(result[1], dict) else None
+                        if isinstance(content_list, list) and len(content_list) > 0 and isinstance(content_list[0], TextContent):
+                            content_list[0] = TextContent(type='text', text=banner + content_list[0].text)
+                            if extra_dict is not None and "result" in extra_dict and isinstance(extra_dict["result"], str):
+                                extra_dict["result"] = banner + extra_dict["result"]
+                    elif isinstance(result, list) and len(result) > 0 and isinstance(result[0], TextContent):
+                        result[0] = TextContent(type='text', text=banner + result[0].text)
                 except Exception:
                     pass
             return result

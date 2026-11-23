@@ -419,6 +419,37 @@ def test_banner_inyectado_en_text_content_para_visibilidad_del_agente():
     assert '{"recuerdos": ["usuario_dennys"]}' in result[0].text
 
 
+def test_banner_inyectado_en_fastmcp_tuple_real():
+    """FastMCP real devuelve tuple (content_list, extra_dict) en call_tool."""
+    from mcp.types import TextContent
+
+    checker = _checker(current="v36.1")
+    checker.check_once()
+
+    class FakeRealFastMCP:
+        def __init__(self, *_args, **_kwargs):
+            self._mcp_server = type("LowLevel", (), {"version": None})()
+
+        def get_context(self):
+            return type("C", (), {"warning": lambda self, msg: None})()
+
+        async def call_tool(self, _name, _arguments):
+            return (
+                [TextContent(type="text", text="salida normal de recordar")],
+                {"result": "salida normal de recordar"},
+            )
+
+    aware_class = update_checker.version_aware_server_class(FakeRealFastMCP, checker)
+    server = aware_class("biorag")
+
+    result = asyncio.run(server.call_tool("recordar", {}))
+    assert isinstance(result, tuple)
+    content_list, extra_dict = result
+    assert "ℹ️ [BioRAG Update Notice]" in content_list[0].text
+    assert "ℹ️ [BioRAG Update Notice]" in extra_dict["result"]
+    assert "salida normal de recordar" in content_list[0].text
+
+
 def test_recurso_version_expone_estado_404_sin_otra_peticion():
     class FakeMCP:
         resource_options = None
