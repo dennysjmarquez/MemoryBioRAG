@@ -187,7 +187,7 @@ def main(argv: Optional[list[str]] = None) -> int:
             except ValueError:
                 pass
 
-    # Refuse service until a previous update's exact code/database contract was verified.
+    # Fail closed until the prior update's exact code/database contract is verified.
     from core.paths import resolve_db_path
     from core.update_barrier import runtime_status
     barrier = runtime_status(resolve_db_path())
