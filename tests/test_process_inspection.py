@@ -179,13 +179,22 @@ class ProcessInspectionTests(unittest.TestCase):
                                 stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=env)
         try:
             self.assertEqual(proc.stdout.readline().decode().strip(), 'ready')
-            report = inspection.inspect_database_processes(self.db)
-            matches = [item for item in report['holders'] if item['pid'] == proc.pid]
-            self.assertEqual(len(matches), 1)
-            self.assertEqual(matches[0]['kind'], 'mcp')
-            stop_report = inspection.stop_known_database_processes(self.db, timeout=3)
-            self.assertIn(proc.pid, [item['pid'] for item in stop_report['stopped']])
-            self.assertIsNotNone(proc.wait(timeout=3))
+            # Keep the live-handle assertion deterministic across CI hosts that may
+            # have unrelated permission-restricted Python processes.
+            real_psutil=inspection._psutil()
+            class IsolatedPsutil:
+                def process_iter(self, attrs):
+                    return [item for item in real_psutil.process_iter(attrs) if item.pid==proc.pid]
+                def __getattr__(self, name):
+                    return getattr(real_psutil, name)
+            with patch.object(inspection,'_psutil',return_value=IsolatedPsutil()):
+                report = inspection.inspect_database_processes(self.db)
+                matches = [item for item in report['holders'] if item['pid'] == proc.pid]
+                self.assertEqual(len(matches), 1)
+                self.assertEqual(matches[0]['kind'], 'mcp')
+                stop_report = inspection.stop_known_database_processes(self.db, timeout=3)
+                self.assertIn(proc.pid, [item['pid'] for item in stop_report['stopped']])
+                self.assertIsNotNone(proc.wait(timeout=3))
         finally:
             if proc.poll() is None:
                 proc.kill()
