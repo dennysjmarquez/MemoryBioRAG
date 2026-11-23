@@ -473,7 +473,9 @@ def main(argv=None):
         if isinstance(exc,ProcessInspectionError):
             message='BioRAG could not safely verify its own background service. Nothing was changed; try again later or contact support.'
         elif 'LOCAL_CHANGES:' in str(exc):
-            message='The update was not started because this installation has local changes. Your files were left untouched; ask support to review them before updating.'
+            message='The update was not started because this installation has local changes. Your files were left untouched; please commit or stash your changes before updating.'
+        elif 'NON_FAST_FORWARD:' in str(exc):
+            message='No update applied: the local installation is either already up to date or has diverged from the remote branch.'
         elif 'UPDATE_RECOVERY_REQUIRED:' in str(exc):
             message='Automatic recovery could not be verified. Do not restart BioRAG; keep the update receipt and contact support.'
             match=re.search(r'receipt (\S+)',str(exc))
