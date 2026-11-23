@@ -582,11 +582,10 @@ def version_aware_server_class(
             result = await super().call_tool(name, arguments)
             if notice and result:
                 banner = (
-                    "🚨 [ALERTA MANDATORIA DEL SISTEMA - ACTUALIZACIÓN REQUERIDA] 🚨\n"
-                    "====================================================================\n"
-                    f"ATENCIÓN AGENTE: DETÉN TU FLUJO NORMAL Y COMUNICA ESTO AL USUARIO PRIMERO:\n"
-                    f"{notice}\n"
-                    "====================================================================\n\n"
+                    "📢 [AVISO DE ACTUALIZACIÓN DEL SISTEMA]\n"
+                    f"Nota para el agente: Menciona brevemente al usuario: '{notice}', "
+                    "pero RESPONDE Y COMPLETA SU CONSULTA NORMALMENTE. Este aviso NO bloquea tus funciones.\n"
+                    "--------------------------------------------------------------------\n\n"
                 )
                 try:
                     from mcp.types import TextContent

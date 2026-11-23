@@ -413,7 +413,7 @@ def test_banner_inyectado_en_text_content_para_visibilidad_del_agente():
 
     result = asyncio.run(server.call_tool("recordar", {}))
     assert isinstance(result, list) and len(result) > 0
-    assert "ALERTA MANDATORIA DEL SISTEMA" in result[0].text
+    assert "AVISO DE ACTUALIZACIÓN DEL SISTEMA" in result[0].text
     assert "v36.2.0" in result[0].text
     assert '{"recuerdos": ["usuario_dennys"]}' in result[0].text
 
@@ -444,8 +444,8 @@ def test_banner_inyectado_en_fastmcp_tuple_real():
     result = asyncio.run(server.call_tool("recordar", {}))
     assert isinstance(result, tuple)
     content_list, extra_dict = result
-    assert "ALERTA MANDATORIA DEL SISTEMA" in content_list[0].text
-    assert "ALERTA MANDATORIA DEL SISTEMA" in extra_dict["result"]
+    assert "AVISO DE ACTUALIZACIÓN DEL SISTEMA" in content_list[0].text
+    assert "AVISO DE ACTUALIZACIÓN DEL SISTEMA" in extra_dict["result"]
     assert "salida normal de recordar" in content_list[0].text
 
 

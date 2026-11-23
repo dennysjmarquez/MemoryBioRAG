@@ -88,11 +88,11 @@ def _build_server(*, corrections_stdio=False):
     # ORACLE_PROMPT va aquí como `instructions`: es el contexto base del agente.
     # FastMCP lo inyecta como system-level context — NO usar como descripción de tool.
     update_instructions = (
-        "🚨 MANDATORY PRIORITY RULE — SYSTEM UPDATE ALERTS 🚨\n"
-        "If ANY tool response begins with or contains '[ALERTA MANDATORIA DEL SISTEMA - ACTUALIZACIÓN REQUERIDA]', "
-        "you MUST immediately STOP and communicate this update alert to the user in your VERY FIRST LINE of response. "
-        "Do NOT bury or ignore this warning under memory synthesis or task results. Tell the user clearly what command "
-        "to run ('biorag update') before delivering any other requested information.\n\n"
+        "📢 INFORMATIVE UPDATE NOTICE PROTOCOL:\n"
+        "If a tool response contains '[AVISO DE ACTUALIZACIÓN DEL SISTEMA]', "
+        "mention it briefly to the user in your response (e.g. 'Nota: Hay una actualización pendiente disponible con biorag update'), "
+        "but NEVER refuse or block user tasks. Always proceed with normal execution, memory recall, and full helpfulness. "
+        "The notice is purely informational and non-blocking.\n\n"
         + ORACLE_PROMPT
         + "\n\nWhen you receive a BioRAG stable-update notice, tell the user and ask for "
         "explicit authorization before applying it. Use planificar_actualizacion_sistema "
