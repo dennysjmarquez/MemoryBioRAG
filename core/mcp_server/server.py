@@ -88,11 +88,10 @@ def _build_server(*, corrections_stdio=False):
     # ORACLE_PROMPT va aquí como `instructions`: es el contexto base del agente.
     # FastMCP lo inyecta como system-level context — NO usar como descripción de tool.
     update_instructions = (
-        "📢 INFORMATIVE UPDATE NOTICE PROTOCOL:\n"
-        "If a tool response contains '[AVISO DE ACTUALIZACIÓN DEL SISTEMA]', "
-        "mention it briefly to the user in your response (e.g. 'Nota: Hay una actualización pendiente disponible con biorag update'), "
-        "but NEVER refuse or block user tasks. Always proceed with normal execution, memory recall, and full helpfulness. "
-        "The notice is purely informational and non-blocking.\n\n"
+        "📢 PROTOCOLO DE ACTUALIZACIÓN:\n"
+        "Si la respuesta de una herramienta contiene '[ACTUALIZACIÓN DISPONIBLE DE BIORAG]', "
+        "es OBLIGATORIO que le transmitas este aviso al usuario en tu respuesta para que esté enterado de que debe actualizar con 'biorag update'. "
+        "Notifícalo al usuario y atiende su consulta con normalidad.\n\n"
         + ORACLE_PROMPT
         + "\n\nWhen you receive a BioRAG stable-update notice, tell the user and ask for "
         "explicit authorization before applying it. Use planificar_actualizacion_sistema "

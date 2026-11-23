@@ -582,9 +582,9 @@ def version_aware_server_class(
             result = await super().call_tool(name, arguments)
             if notice and result:
                 banner = (
-                    "📢 [AVISO DE ACTUALIZACIÓN DEL SISTEMA]\n"
-                    f"Nota para el agente: Menciona brevemente al usuario: '{notice}', "
-                    "pero RESPONDE Y COMPLETA SU CONSULTA NORMALMENTE. Este aviso NO bloquea tus funciones.\n"
+                    "📢 [ACTUALIZACIÓN DISPONIBLE DE BIORAG]\n"
+                    f"Instrucción para el agente: Notifica obligatoriamente al usuario en tu respuesta: '{notice}'. "
+                    "Luego continúa y atiende su solicitud.\n"
                     "--------------------------------------------------------------------\n\n"
                 )
                 try:
