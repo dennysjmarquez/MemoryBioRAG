@@ -563,13 +563,14 @@ def version_aware_server_class(
                     if logger is not None:
                         logger.debug("El cliente MCP no aceptó el aviso de versión: %s", exc)
             result = await super().call_tool(name, arguments)
-            if notice and result:
-                # Inyectar banner visible en el payload de retorno (TextContent) para que el agente lo lea directamente
+            if notice and result is not None:
                 banner = f"ℹ️ [BioRAG Update Notice]: {notice}\n---\n"
                 try:
                     from mcp.types import TextContent
-                    if isinstance(result, list) and len(result) > 0 and isinstance(result[0], TextContent):
-                        result[0] = TextContent(type='text', text=banner + result[0].text)
+                    # FastMCP puede retornar (list[ContentBlock], dict) o list[ContentBlock]
+                    blocks = result[0] if isinstance(result, tuple) and len(result) > 0 and isinstance(result[0], list) else result
+                    if isinstance(blocks, list) and len(blocks) > 0 and isinstance(blocks[0], TextContent):
+                        blocks[0] = TextContent(type='text', text=banner + blocks[0].text)
                 except Exception:
                     pass
             return result
