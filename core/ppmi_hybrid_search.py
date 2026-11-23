@@ -11,6 +11,8 @@ import math
 import re
 import sqlite3
 import numpy as np
+
+from core.database_access import connect_readonly
 from pathlib import Path
 from collections import defaultdict
 
@@ -49,47 +51,48 @@ class IndicesBioRAG:
 
     def __init__(self, con_or_db):
         if isinstance(con_or_db, (str, Path)):
-            con = sqlite3.connect(f"file:{con_or_db}?mode=ro", uri=True)
+            con = connect_readonly(con_or_db)
             auto_close = True
         else:
             con = con_or_db
             auto_close = False
 
-        self.idx_sin: dict[str, list[tuple[str, int]]] = defaultdict(list)
-        for concepto, sinonimos in con.execute("SELECT concepto, sinonimos FROM largo_plazo"):
-            if not sinonimos:
-                continue
-            toks = _tokenizar(sinonimos)
-            n_sin = max(len(toks), 1)
-            for tok in set(toks):
-                self.idx_sin[tok].append((concepto, n_sin))
+        try:
+            self.idx_sin: dict[str, list[tuple[str, int]]] = defaultdict(list)
+            for concepto, sinonimos in con.execute("SELECT concepto, sinonimos FROM largo_plazo"):
+                if not sinonimos:
+                    continue
+                toks = _tokenizar(sinonimos)
+                n_sin = max(len(toks), 1)
+                for tok in set(toks):
+                    self.idx_sin[tok].append((concepto, n_sin))
 
-        self.token_vecs: dict[str, np.ndarray] = {}
-        self.token_freq: dict[str, int] = {}
-        for token, freq, blob in con.execute("SELECT token, freq, vector FROM tokens"):
-            self.token_vecs[token] = np.frombuffer(blob, dtype='float32').astype('float64')
-            self.token_freq[token] = freq
+            self.token_vecs: dict[str, np.ndarray] = {}
+            self.token_freq: dict[str, int] = {}
+            for token, freq, blob in con.execute("SELECT token, freq, vector FROM tokens"):
+                self.token_vecs[token] = np.frombuffer(blob, dtype='float32').astype('float64')
+                self.token_freq[token] = freq
 
-        self.vecs: dict[str, np.ndarray] = {}
-        for concepto, blob in con.execute("SELECT concepto, vector FROM nodos"):
-            self.vecs[concepto] = np.frombuffer(blob, dtype='float32').astype('float64')
+            self.vecs: dict[str, np.ndarray] = {}
+            for concepto, blob in con.execute("SELECT concepto, vector FROM nodos"):
+                self.vecs[concepto] = np.frombuffer(blob, dtype='float32').astype('float64')
 
-        self.grafo_sin: dict[str, list[tuple[str, float]]] = defaultdict(list)
-        for origen, destino, peso, tipo in con.execute("SELECT origen, destino, peso, tipo FROM sinapsis"):
-            if tipo in TIPOS_HOP:
-                p = float(peso or 0.5)
-                self.grafo_sin[origen].append((destino, p))
-                self.grafo_sin[destino].append((origen, p))
+            self.grafo_sin: dict[str, list[tuple[str, float]]] = defaultdict(list)
+            for origen, destino, peso, tipo in con.execute("SELECT origen, destino, peso, tipo FROM sinapsis"):
+                if tipo in TIPOS_HOP:
+                    p = float(peso or 0.5)
+                    self.grafo_sin[origen].append((destino, p))
+                    self.grafo_sin[destino].append((origen, p))
 
-        self.contenidos: dict[str, set[str]] = {}
-        for concepto, contenido in con.execute("SELECT concepto, contenido FROM largo_plazo"):
-            self.contenidos[concepto] = set(_tokenizar(contenido or ''))
+            self.contenidos: dict[str, set[str]] = {}
+            for concepto, contenido in con.execute("SELECT concepto, contenido FROM largo_plazo"):
+                self.contenidos[concepto] = set(_tokenizar(contenido or ''))
 
-        self.todos_los_conceptos = [r[0] for r in con.execute("SELECT concepto FROM nodos")]
-        self.n_docs = len(self.todos_los_conceptos)
-
-        if auto_close:
-            con.close()
+            self.todos_los_conceptos = [r[0] for r in con.execute("SELECT concepto FROM nodos")]
+            self.n_docs = len(self.todos_los_conceptos)
+        finally:
+            if auto_close:
+                con.close()
 
     def vector_query(self, q_toks: list[str]) -> np.ndarray:
         vsum = None

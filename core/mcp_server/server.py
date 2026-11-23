@@ -61,13 +61,14 @@ from core.mcp_server import oracle as _mcp_oracle
 from core.mcp_server import sync as _mcp_sync
 from core.mcp_server import calibrar as _mcp_calibrar
 from core.mcp_server import resources as _mcp_resources
+from core.mcp_server import update_checker as _mcp_updates
 from core.mcp_server import prompt as _mcp_prompt
 from core.mcp_server import write as _mcp_write
 from core.mcp_server import search as _mcp_search
 from core.mcp_server.prompt import ORACLE_PROMPT
 
 
-def _build_server():
+def _build_server(*, stdio=False):
     try:
         from mcp.server.fastmcp import FastMCP
     except ImportError as exc:
@@ -76,12 +77,20 @@ def _build_server():
             f"  pip install 'mcp>=1.0.0,<2'\n  ({exc})"
         ) from exc
 
-    # ORACLE_PROMPT va aquí como `instructions`: es el contexto base del agente.
-    # FastMCP lo inyecta como system-level context — NO usar como descripción de tool.
-    mcp = FastMCP(
-        "biorag",
-        instructions=ORACLE_PROMPT,
+    update_checker = _mcp_updates.UpdateChecker()
+    VersionAwareFastMCP = _mcp_updates.version_aware_server_class(
+        FastMCP, update_checker, logger,
     )
+    update_instructions = (
+        ORACLE_PROMPT
+        + "\n\nWhen you receive a BioRAG stable-update notice, tell the user and ask for "
+        "explicit authorization before applying it. Use planificar_actualizacion_sistema "
+        "to inspect the plan, then run its returned CLI command in a separate terminal "
+        "process only after approval. Do not claim success until the CLI JSON receipt "
+        "reports status=ok and database_status.status=ready. If the MCP transport closes, "
+        "inspect the receipt and wait for the host to reconnect; never replace the database."
+    )
+    mcp = VersionAwareFastMCP("biorag", instructions=update_instructions)
 
     # ── Submódulos extraídos (Fase 2) ────────────────────────────────────────
     _mcp_communication.register(mcp)
@@ -96,6 +105,9 @@ def _build_server():
     _mcp_sync.register(mcp)
     _mcp_calibrar.register(mcp)
     _mcp_resources.register(mcp)
+    _mcp_updates.register(mcp, update_checker)
+    from core.mcp_server import maintenance as _mcp_maintenance
+    _mcp_maintenance.register(mcp, stdio=stdio)
     _mcp_prompt.register(mcp)
     _mcp_write.register(mcp)
     _mcp_search.register(mcp)
@@ -164,11 +176,25 @@ def main(argv: Optional[list[str]] = None) -> int:
             except ValueError:
                 pass
 
+    from core.paths import resolve_db_path
+    from core.update_barrier import runtime_status
+    barrier = runtime_status(resolve_db_path())
+    if not barrier.get("allowed"):
+        sys.stderr.write(
+            "BioRAG MCP startup blocked: an update is incomplete or its safety marker "
+            f"is unreadable ({barrier.get('status')}; {barrier.get('path')}). "
+            "Run the authorized CLI update/recovery procedure and verify its receipt before reconnecting.\n"
+        )
+        return 3
+
     try:
-        server = _build_server()
+        server = _build_server(stdio=not use_sse)
     except ImportError as exc:
         sys.stderr.write(f"BioRAG MCP: {exc}\n")
         return 2
+    update_checker = getattr(server, "update_checker", None)
+    if update_checker is not None:
+        update_checker.start()
 
     # El MCP es el guardián del daemon: al arrancar cualquier consola,
     # verifica que la hormiguita esté viva y la spawnea si hace falta.
@@ -214,6 +240,9 @@ def main(argv: Optional[list[str]] = None) -> int:
         logger.exception("BioRAG MCP server crashed")
         sys.stderr.write(f"BioRAG MCP server error: {exc}\n")
         return 1
+    finally:
+        if update_checker is not None:
+            update_checker.stop()
     return 0
 
 

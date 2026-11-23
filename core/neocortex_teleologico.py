@@ -20,6 +20,8 @@ import math
 import sqlite3
 import logging
 import numpy as np
+
+from core.database_access import connect_readonly
 from pathlib import Path
 from typing import Dict, List, Tuple, Set, Optional, Any
 
@@ -69,7 +71,7 @@ class NeocortexTeleologico:
         # La consulta ya no debe comparar contra todos los vectores de ``self.indices.vecs``.
         self.token_candidatos = {}
         try:
-            con = sqlite3.connect(f"file:{self.db_path}?mode=ro", uri=True)
+            con = connect_readonly(self.db_path)
             tabla = con.execute(
                 "SELECT 1 FROM sqlite_master WHERE type='table' AND name='neocortex_token_candidatos_v29'"
             ).fetchone()

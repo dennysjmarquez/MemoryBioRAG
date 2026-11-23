@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import json
 import sqlite3
+from core.database_access import connect as managed_connect, connect_readonly
 import time
 from pathlib import Path
 from typing import Any, Dict, List, Optional
@@ -46,7 +47,7 @@ class _CerebroSoloLectura:
     """Adaptador mínimo para reutilizar el clustering LPA existente."""
 
     def __init__(self, db_path: Path):
-        self.conn = sqlite3.connect(f"file:{db_path}?mode=ro", uri=True)
+        self.conn = connect_readonly(db_path)
         self.cursor = self.conn.cursor()
 
     def close(self) -> None:
@@ -75,7 +76,7 @@ class ADNConceptualEngine:
         return list(self.cromosoma_centroides.keys())
 
     def _conexion_lectura(self) -> sqlite3.Connection:
-        return sqlite3.connect(f"file:{self.db_path}?mode=ro", uri=True)
+        return connect_readonly(self.db_path)
 
     @staticmethod
     def asegurar_esquema(conn: sqlite3.Connection) -> None:
@@ -243,7 +244,7 @@ class ADNConceptualEngine:
         afinidades = firmas_norm @ firmas_norm.T
 
         ahora = time.time()
-        con = sqlite3.connect(ruta)
+        con = managed_connect(ruta)
         try:
             cls.asegurar_esquema(con)
             for tabla in (

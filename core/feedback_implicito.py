@@ -52,7 +52,12 @@ import os
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 import re
 import sqlite3
+
+from core.database_access import connect_readonly
 import sys
+if __package__ in (None, ""):
+    sys.path.insert(0, BASE_DIR)
+from core.database_access import connect as managed_connect
 from typing import Dict, List, Optional, Tuple
 
 # Ventanas temporales, en segundos.
@@ -134,7 +139,7 @@ def inferir_feedback(db_path: str, limite: Optional[int] = None,
             "Este script NO simula datos: sin log real no hay inferencia."
         )
 
-    con = sqlite3.connect(f"file:{db_path}?mode=ro", uri=True)
+    con = connect_readonly(db_path)
 
     tablas = {r[0] for r in con.execute(
         "SELECT name FROM sqlite_master WHERE type='table'")}
@@ -309,7 +314,7 @@ def aplicar(db_path: str, inferencias: List[dict], confianza_min: float = 0.7,
         print(f"Ninguna inferencia aplicable con confianza >= {confianza_min}.")
         return 0
 
-    con = sqlite3.connect(db_path)
+    con = managed_connect(db_path)
     n = 0
     try:
         for x in aplicables:

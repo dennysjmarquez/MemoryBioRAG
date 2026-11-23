@@ -1,5 +1,6 @@
 import os
 import sqlite3
+from core.database_access import connect as managed_connect
 import re
 import logging
 from collections import deque
@@ -50,6 +51,7 @@ from core.memory.constants import (
     PPMI_VECTOR_WEIGHT,
     ADN_RANKING_ENABLED, ADN_PESO, ADN_MAX_EXPANSION, ADN_UMBRAL_ASOCIACION,
     _qcr_levenshtein, _qcr_todos_cercanos, normalizar_sustantivos_clave,
+    normalizar_sustantivos_clave_exacto, normalizar_sustantivos_clave_exactos_coherentes,
 )
 from core.memory import comms
 from core.memory import telemetry
@@ -90,7 +92,7 @@ class SQLiteMemoryBioRAG:
             os.makedirs(os.path.dirname(self.db_path), exist_ok=True)
         # Conectar a SQLite
         # check_same_thread=False: MCP/WAL reutiliza la instancia entre tools.
-        self.conn = sqlite3.connect(self.db_path, timeout=60, check_same_thread=False)
+        self.conn = managed_connect(self.db_path, timeout=60, check_same_thread=False)
         self._persistente = False
         try:
             self.conn.execute("PRAGMA journal_mode=WAL")
@@ -118,6 +120,24 @@ class SQLiteMemoryBioRAG:
             texto_norm = texto.lower().replace('_', ' ').replace('-', ' ')
             return 1 if re.search(r'\b' + re.escape(token_norm), texto_norm) else 0
         self.conn.create_function("PALABRA_PREFIJO", 2, palabra_prefijo)
+
+        def palabra_inicio_ancho(token, texto):
+            """Prefijo en límite habitual o después de un carácter W/F."""
+            import unicodedata
+            if not token or not texto:
+                return 0
+            token_norm = token.lower().replace('_', ' ').replace('-', ' ')
+            texto_norm = texto.lower().replace('_', ' ').replace('-', ' ')
+            patron = re.compile(r'\b' + re.escape(token_norm))
+            pos = texto_norm.find(token_norm)
+            while pos >= 0:
+                if patron.match(texto_norm, pos) or (
+                    pos > 0 and unicodedata.east_asian_width(texto_norm[pos - 1]) in ('W', 'F')
+                ):
+                    return 1
+                pos = texto_norm.find(token_norm, pos + 1)
+            return 0
+        self.conn.create_function("PALABRA_INICIO_ANCHO", 2, palabra_inicio_ancho)
         self._cat_cache = {}
         self.cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='largo_plazo'")
         if not self.cursor.fetchone():
@@ -269,8 +289,10 @@ class SQLiteMemoryBioRAG:
     def _asegurar_catalogo_dimensiones(self):
         return schema._asegurar_catalogo_dimensiones(self)
 
-    def _idf_tokens_qcr(self, tokens):
-        return scoring._idf_tokens_qcr(self, tokens=tokens)
+    def _idf_tokens_qcr(self, tokens, candidate_texts=None):
+        return scoring._idf_tokens_qcr(
+            self, tokens=tokens, candidate_texts=candidate_texts
+        )
 
     def _calcular_jaccard(self, str1, str2):
         return scoring._calcular_jaccard(self, str1=str1, str2=str2)
@@ -300,7 +322,7 @@ class SQLiteMemoryBioRAG:
     def buscar_recuerdo_profundo(self, concepto):
         return search.buscar_recuerdo_profundo(self, concepto=concepto)
 
-    def percibir_corto_plazo(self, concepto, contenido, sinonimos="", categoria="General", dimensiones=None, predicados=None, valencia_somatica=0.0, sustantivos_clave=""):
+    def percibir_corto_plazo(self, concepto, contenido, sinonimos="", categoria="General", dimensiones=None, predicados=None, valencia_somatica=0.0, sustantivos_clave="", sustantivos_clave_exactos=None):
         return ingest.percibir_corto_plazo(
             self,
             concepto=concepto,
@@ -311,6 +333,7 @@ class SQLiteMemoryBioRAG:
             predicados=predicados,
             valencia_somatica=valencia_somatica,
             sustantivos_clave=sustantivos_clave,
+            sustantivos_clave_exactos=sustantivos_clave_exactos,
         )
 
     def consolidar_concepto(self, concepto):
