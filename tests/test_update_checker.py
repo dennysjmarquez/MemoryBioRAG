@@ -33,22 +33,21 @@ def _checker(
     fetch_policy=None,
     fetch_tags=None,
     channel="stable",
+    db_path=":memory:",
 ):
     if fetch_policy is None:
         value = _policy() if policy is _UNSET else policy
         fetch_policy = lambda: value
     if fetch_tags is None:
         fetch_tags = lambda: list(DEFAULT_TAGS if tags is None else tags)
-    c = UpdateChecker(
+    return UpdateChecker(
         current_version=current,
         enabled=True,
         fetch_policy=fetch_policy,
         fetch_tags=fetch_tags,
         channel=channel,
+        db_path=db_path,
     )
-    # Aislar para tests de red/tag puro (no disparar aviso de DB viva en tests de política)
-    c._db_path = ":memory:"
-    return c
 
 
 def test_manifiesto_ejemplo_no_recomienda_tag_sin_aprobacion():

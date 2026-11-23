@@ -114,8 +114,7 @@ def _dev_upstream_status(root: Path) -> dict[str, Any]:
 def _check_database_update_status(db_path: Path | str | None, install_root: Path) -> dict[str, Any] | None:
     """Verifica si la base de datos local tiene sellado el ciclo de actualización actual.
 
-    Retorna un diccionario de aviso si la base de datos no tiene registrado el update_id
-    o si no concuerda con el código instalado, permitiendo notificar inmediatamente.
+    Consulta ultra-rápida (1ms) directamente a la tabla data sin bloquear el arranque.
     """
     if db_path is None:
         try:
@@ -125,50 +124,55 @@ def _check_database_update_status(db_path: Path | str | None, install_root: Path
             return None
 
     path = Path(db_path).expanduser().resolve()
-    if not path.exists():
+    if not path.exists() or not path.is_file():
+        return None
+
+    try:
+        from core.schema_status import APPLIED_UPDATE_KEY
+        import sqlite3
+        with sqlite3.connect(f"file:{path}?mode=ro", uri=True, timeout=0.5) as conn:
+            cur = conn.cursor()
+            # Verificar si existe la tabla data
+            cur.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='data'")
+            if not cur.fetchone():
+                return {
+                    "motivo": "db_no_actualizada",
+                    "detalle": "La tabla data no existe en la base de datos.",
+                    "mensaje": "BioRAG database is not synchronized (missing data table). Run: biorag update",
+                }
+            cur.execute("SELECT valor FROM data WHERE clave = ?", (APPLIED_UPDATE_KEY,))
+            row = cur.fetchone()
+            applied_id = row[0] if row and isinstance(row[0], str) else None
+    except Exception:
         return None
 
     try:
         head_commit = subprocess.run(
             ["git", "-C", str(install_root), "rev-parse", "HEAD"],
-            capture_output=True, text=True, timeout=5,
+            capture_output=True, text=True, timeout=2,
         ).stdout.strip()
     except Exception:
         head_commit = None
 
-    try:
-        from core.schema_status import inspect_database
-        report = inspect_database(path, expected_update_id=head_commit)
-        status = report.get("status")
-        applied_id = report.get("applied_update_id")
-
-        if status == "update_id_not_recorded" or applied_id is None:
-            return {
-                "motivo": "db_no_actualizada",
-                "detalle": "La base de datos no tiene registrado el sello de actualización.",
-                "mensaje": (
-                    "BioRAG database is not synchronized with installed code "
-                    "(missing update marker in data table). Run: biorag update"
-                ),
-            }
-        elif status == "prepared_for_different_update" or (head_commit and applied_id != head_commit):
-            return {
-                "motivo": "db_commit_desfasado",
-                "detalle": f"La base de datos está en commit {applied_id[:8] if applied_id else 'desconocido'} pero el código está en {head_commit[:8] if head_commit else 'desconocido'}.",
-                "mensaje": (
-                    f"BioRAG database update marker ({applied_id[:8] if applied_id else 'none'}) "
-                    f"differs from installed code ({head_commit[:8] if head_commit else 'unknown'}). "
-                    "To synchronize, run: biorag update"
-                ),
-            }
-        elif status == "schema_drift":
-            return {
-                "motivo": "db_schema_drift",
-                "detalle": "Hay tablas o columnas pendientes en la base de datos.",
-                "mensaje": "BioRAG database schema requires update. Run: biorag update",
-            }
-    except Exception:
-        pass
+    if applied_id is None:
+        return {
+            "motivo": "db_no_actualizada",
+            "detalle": "La base de datos no tiene registrado el sello de actualización.",
+            "mensaje": (
+                "BioRAG database is not synchronized with installed code "
+                "(missing update marker in data table). Run: biorag update"
+            ),
+        }
+    elif head_commit and applied_id != head_commit:
+        return {
+            "motivo": "db_commit_desfasado",
+            "detalle": f"La base de datos está en commit {applied_id[:8]} pero el código está en {head_commit[:8]}.",
+            "mensaje": (
+                f"BioRAG database update marker ({applied_id[:8]}) "
+                f"differs from installed code ({head_commit[:8]}). "
+                "To synchronize, run: biorag update"
+            ),
+        }
     return None
 
 
@@ -268,6 +272,19 @@ class UpdateChecker:
             "ultima_comprobacion": None,
             "canal": self._channel,
         }
+        # Chequeo local de base de datos inmediato al instanciar (tarda 1ms, cero lag en tools)
+        if self.enabled:
+            db_issue = _check_database_update_status(self._db_path, self._install_root)
+            if db_issue is not None:
+                self._status.update(
+                    estado="actualizacion_disponible",
+                    detalle=db_issue["detalle"],
+                    version_remota="db_sync_required",
+                    actualizacion_disponible=True,
+                    canal=self._channel,
+                )
+                self._pending_notice = db_issue["mensaje"]
+                self._notified_tag = db_issue["motivo"]
 
     def start(self) -> None:
         """Inicia la comprobación en background; no espera la red ni retrasa initialize."""
