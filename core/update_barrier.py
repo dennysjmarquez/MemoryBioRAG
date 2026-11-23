@@ -14,7 +14,7 @@ class UpdateBarrierError(RuntimeError):
 
 
 _FORMAT = 'biorag.update-barrier.v1'
-_PHASES = {'starting', 'backup', 'code', 'dependencies', 'lifecycle'}
+_PHASES = {'starting', 'backup', 'code', 'dependencies', 'lifecycle', 'recovery'}
 
 
 def _valid_payload(data):

@@ -24,10 +24,9 @@ la memoria; el plan sí consulta la DB elegida en modo de solo lectura.
 Dentro del checkout instalado, usando el Python de su entorno:
 
 ```sh
-python3 biorag.py update                 # plan: no instala ni migra
-python3 biorag.py update --yes           # autoriza update DEV desde su upstream
+python3 biorag.py update                 # aplica update DEV desde su upstream
+python3 biorag.py update --dry-run       # vista previa, sin cambios
 python3 biorag.py update --channel stable
-python3 biorag.py update --channel stable --yes
 ```
 
 El entry point instalado `biorag` despacha mediante `core.cli`; `update` y
@@ -45,21 +44,24 @@ checkout a otro canal, degradación ni merge automático de historias divergente
 El canal dev confía en el upstream configurado; stable confía en la política y
 repositorio oficial de GitHub, no incorpora verificación criptográfica de firmas.
 
-Sin --yes solo planifica. La planificación puede actualizar referencias Git por
-fetch y consultar la red, pero no cambia el código, dependencias ni DB. La DB
-seleccionada se abre en modo SQLite de solo lectura: se compara el ID aplicado y
-el esquema base producido por el inicializador core en una DB en memoria; no
-se crean archivos ni se ejecutan migraciones. `database.status` diferencia DB no
-inicializada, ID ausente/desfasado, deriva estructural, fallo de `quick_check` o
-`foreign_key_check`, y estado listo. No es un modo completamente offline.
-Al aplicar con autorización, el CLI inventaría procesos con handles visibles a la DB,
-WAL/SHM o lease, detiene solo entradas BioRAG MCP/daemon/CLI/worker inequívocas y bloquea
-consumidores desconocidos o scans incompletos. El OS lease compartido/exclusivo
-coordina conexiones administradas (POSIX `flock`, Windows `LockFileEx`). Programas
-que abren SQLite directamente no respetan ese lease; los handles visibles se detectan,
-pero no puede probarse ausencia universal de consumidores externos. No se mata ningún
-proceso ajeno o no identificado. El MCP host es externo y puede necesitar reabrirse.
-La ruta Windows tiene pruebas unitarias de contrato, pero falta smoke test en Windows.
+`--dry-run` planifica sin cambiar código, dependencias ni DB. La planificación
+puede consultar la red y abre la DB elegida en modo SQLite de solo lectura. Al
+aplicar, BioRAG detiene solo el daemon cuyo PID registró su propio gestor y cuya
+identidad se verifica; no inspecciona ni detiene otros procesos. El OS lease
+compartido/exclusivo (POSIX `flock`, Windows `LockFileEx`) coordina las conexiones
+administradas. Programas externos que abren SQLite directamente no respetan ese
+lease; nunca se termina un proceso desconocido. El host MCP externo debe reconectar
+tras una actualización para cargar el código nuevo.
+
+Antes de actualizar se crea y prueba un backup de la DB. Al terminar se verifican
+el esquema, integridad SQLite e ID aplicado; solo entonces se elimina el backup.
+Si falla cualquier fase, el actualizador intenta volver al commit anterior,
+reinstalar sus dependencias y restaurar la DB. La reversión compara el inventario de nombres/versiones de paquetes Python con
+el estado previo; no es una copia byte a byte del entorno. Si puede verificar las
+comprobaciones disponibles, conserva el backup y registra `rolled_back`; si no,
+mantiene la barrera y backup, registra `recovery_required` y pide no reiniciar
+BioRAG hasta recibir soporte. No se promete que todo quede exactamente “como si
+nada hubiera pasado”.
 
 ## Identidad aplicada y chequeo read-only
 
@@ -97,13 +99,15 @@ completó el lifecycle de esta instalación.
    Así se cargan callbacks del código nuevo, no módulos importados en el viejo; el
    ID se guarda en `data` únicamente después de completar los pasos y verificaciones.
 9. Guarda recibo externo y anuncia éxito solo después del lifecycle satisfactorio.
-   Informa reinicio requerido. No arranca procesos opcionales automáticamente.
+   Si el daemon BioRAG estaba activo, se reinicia después de verificar; el host MCP
+   externo debe reconectar para cargar el código nuevo.
 
-El recibo conserva commits, canal, fase, respaldo y estado. Un fallo conserva
-estado parcial y no promete rollback global: Git, pip y SQLite no son una sola
-transacción distribuida. No se restaura una DB anterior encima de escrituras
-nuevas. Corregir la fase fallida y repetir vuelve a verificar preparación aunque
-no haya nuevos commits. Tras un fallo, no reiniciar MCP hasta comprobar estado.
+El recibo conserva commits, canal, fase, respaldo y estado. Si falla una fase, el
+updater intenta volver al commit, reinstalar dependencias, restaurar atómicamente
+el snapshot DB y verificarlo. El inventario de paquetes compara nombres/versiones,
+no bytes completos del entorno: no se promete que todo quede exactamente como si
+nada hubiera pasado. Si una comprobación falla, conserva el backup, mantiene la
+barrera, registra `recovery_required` y pide no reiniciar BioRAG hasta soporte.
 
 El backup se centraliza en `core/database_backup.py`. El updater pasa su respaldo
 pendiente al proceso lifecycle mediante un handoff validado (DB, ubicación,
@@ -286,17 +290,19 @@ del snapshot, además de integridad y SHA256 del archivo. La comparación usa
 transacción de lectura. Esto mide restaurabilidad del snapshot en este entorno,
 no demuestra semántica de una migración ni compatibilidad con un binario anterior.
 
-El estado de fallo del updater ahora es recovery_required y conserva timestamps,
-backup_sha256 y restore_tested. El mantenimiento administra conexiones internas en
-POSIX con lock compartido por cliente y exclusivo durante preparación; el hijo
-autorizado recibe un token. No es una identidad del agente ni una ACL por contexto.
-No se borran archivos de lock para evitar romper exclusión por cambio de inode.
+El updater registra `rolled_back` cuando las comprobaciones de rollback tienen
+éxito y `recovery_required` cuando no puede verificarlas; en el segundo caso conserva
+la barrera y el backup. El mantenimiento administra conexiones internas mediante
+lease compartido por cliente y exclusivo durante preparación; el hijo autorizado
+recibe un token. No se borran archivos de lock para evitar romper exclusión por
+cambio de inode.
 
-Un proceso externo o un hijo huérfano no cooperativo puede escribir: por eso el
-recibo NO afirma writers_blocked=true y no hay restauración automática a la DB viva.
-Un corte durante un subproceso puede requerir cerrar procesos e inspeccionar antes
-de reintentar; no se ha certificado recuperación automática frente a todo corte.
-Los Step declarados destructive se rechazan con el alcance de bloqueo actual.
+Un proceso externo que abra SQLite directamente puede ignorar el lease: el updater
+no lo inspecciona ni lo detiene y no puede prometer exclusión universal frente a
+ese cliente no cooperativo. El host MCP es externo; debe reconectar después del
+éxito. Ante rollback no verificado, no reiniciar BioRAG y pedir soporte. La
+recuperación asistida siguiente es un mecanismo separado para preservar evidencia,
+no sustituye la restauración automática ni certifica un entorno idéntico al previo.
 
 ```sh
 python biorag.py recovery --receipt /ruta/al/recibo.json

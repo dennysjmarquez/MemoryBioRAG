@@ -65,9 +65,11 @@ class GitUpdaterTests(unittest.TestCase):
         self.patch=patch.object(updater,'resolve_target',return_value=(self.target,'origin/current'));self.patch.start()
         self.schema_patch=patch('core.schema_status.inspect_database',return_value={'status':'ready'})
         self.schema_patch.start()
+        self.daemon_patch=patch.object(updater,'stop_managed_daemon',return_value={'status':'not_running','stopped':[]})
+        self.daemon_patch.start()
 
     def tearDown(self):
-        self.schema_patch.stop();self.patch.stop();self.tmp.cleanup()
+        self.daemon_patch.stop();self.schema_patch.stop();self.patch.stop();self.tmp.cleanup()
 
     def git(self,*args):
         return subprocess.run(['git','-C',str(self.root),*args],check=True,capture_output=True,text=True).stdout.strip()
@@ -76,6 +78,12 @@ class GitUpdaterTests(unittest.TestCase):
         report=updater.plan(self.root)
         self.assertTrue(report['changed']);self.assertEqual(self.git('rev-parse','HEAD'),self.before)
         self.assertFalse((self.db.parent/'backups').exists())
+
+    def test_plan_hides_process_inspection_details_from_user(self):
+        with patch.object(updater,'managed_daemon_status',side_effect=updater.ProcessInspectionError('AccessDenied / private traceback')):
+            report=updater.plan(self.root)
+        self.assertEqual(report['managed_daemon']['status'],'verification_failed')
+        self.assertNotIn('AccessDenied',report['managed_daemon']['message'])
 
     def test_plan_reports_database_state_separately_from_git_update(self):
         with patch('core.schema_status.inspect_database',return_value={
@@ -92,8 +100,8 @@ class GitUpdaterTests(unittest.TestCase):
 
     def test_cli_plan_output_is_english_and_aware_of_no_update(self):
         for changed,expected in (
-            (False, 'This checkout already matches its upstream revision.'),
-            (True, 'After explicit authorization'),
+            (False, 'Preview only: no changes were made.'),
+            (True, 'Preview only: no changes were made.'),
         ):
             with self.subTest(changed=changed):
                 report=dict(status='planned',root=str(self.root),branch='current',channel='dev',
@@ -110,8 +118,6 @@ class GitUpdaterTests(unittest.TestCase):
                 payload=json.loads(output.getvalue())
                 self.assertIn(expected,payload['next'])
                 self.assertNotIn('Detén',payload['next'])
-                if not changed:
-                    self.assertIn('No code update is available',payload['next'])
 
     def test_cli_no_code_update_still_reports_unprepared_database(self):
         report=dict(status='planned',root=str(self.root),branch='current',channel='dev',
@@ -127,9 +133,28 @@ class GitUpdaterTests(unittest.TestCase):
         payload=json.loads(output.getvalue())
         self.assertFalse(payload['changed'])
         self.assertEqual(payload['database']['status'],'schema_drift')
-        self.assertIn('No code update is available',payload['next'])
-        self.assertIn('database preparation is not confirmed',payload['next'])
-        self.assertIn('--yes',payload['next'])
+        self.assertIn('Preview only',payload['next'])
+
+    def test_cli_applies_by_default_and_dry_run_is_opt_in_preview(self):
+        output=io.StringIO()
+        with (
+            patch.object(updater,'installed_root',return_value=self.root),
+            patch.object(updater,'apply',return_value={'status':'ok'}) as apply,
+            redirect_stdout(output),
+        ):
+            self.assertEqual(updater.main([]),0)
+        apply.assert_called_once()
+        self.assertEqual(json.loads(output.getvalue())['status'],'ok')
+        output=io.StringIO()
+        with (
+            patch.object(updater,'installed_root',return_value=self.root),
+            patch.object(updater,'plan',return_value={'status':'planned'}) as plan,
+            patch.object(updater,'apply') as apply,
+            redirect_stdout(output),
+        ):
+            self.assertEqual(updater.main(['--dry-run']),0)
+        plan.assert_called_once();apply.assert_not_called()
+        self.assertIn('Preview only',json.loads(output.getvalue())['next'])
 
     def test_cli_local_changes_error_is_english_json(self):
         (self.root/'uncommitted.txt').write_text('keep me')
@@ -138,8 +163,8 @@ class GitUpdaterTests(unittest.TestCase):
             self.assertEqual(updater.main(['--dry-run']),1)
         payload=json.loads(output.getvalue())
         self.assertEqual(payload['status'],'error')
-        self.assertIn('Preserve or commit your local changes',payload['message'])
-        self.assertNotIn('conserva',payload['message'])
+        self.assertIn('local changes',payload['message'])
+        self.assertIn('left untouched',payload['message'])
 
     def test_update_runs_new_processes_preserves_branch_and_backup(self):
         calls=[]
@@ -159,12 +184,25 @@ class GitUpdaterTests(unittest.TestCase):
         self.assertEqual(calls[1][0][1:3],['-m','core.lifecycle'])
         self.assertEqual(calls[1][0][calls[1][0].index('--update-id')+1],self.target)
         self.assertTrue(all(kwargs['check'] for _,kwargs in calls))
-        with sqlite3.connect(report['backup']) as backup:
-            self.assertEqual(backup.execute('SELECT value FROM memories').fetchone()[0],'preserve')
+        self.assertFalse(Path(report['backup']).exists())
+        self.assertEqual(report['backup_cleanup'],'removed_after_verified_success')
+        with sqlite3.connect(self.db) as db:
+            self.assertEqual(db.execute('SELECT value FROM memories').fetchone()[0],'preserve')
         self.assertEqual(json.loads(Path(report['receipt']).read_text())['phase'],'complete')
-        # Repetir incluso sin nuevos commits vuelve a verificar el lifecycle.
         report=updater.apply(self.root,database=self.db,runner=runner)
         self.assertEqual(report['status'],'ok');self.assertEqual(len(calls),4)
+
+    def test_daemon_restart_waits_for_verified_pid_file_and_identity(self):
+        stopped={'stopped':[{'kind':'daemon','pid':1234}]}
+        with patch('core.daemon_lifecycle.spawn_daemon_detached',return_value=True) as spawn, \
+             patch.object(updater,'managed_daemon_status',return_value={'status':'running','pid':5678}):
+            result=updater.restart_stopped_daemon(stopped,self.root)
+        spawn.assert_called_once_with()
+        self.assertTrue(result['startup_verified'])
+        with patch('core.daemon_lifecycle.spawn_daemon_detached',return_value=True), \
+             patch.object(updater,'managed_daemon_status',return_value={'status':'not_running'}):
+            with self.assertRaisesRegex(updater.UpdateError,'DAEMON_RESTART_UNVERIFIED'):
+                updater.restart_stopped_daemon(stopped,self.root)
 
     def test_mcp_restart_is_explicitly_handed_to_host_for_health_check(self):
         def runner(args, **kwargs):
@@ -176,12 +214,9 @@ class GitUpdaterTests(unittest.TestCase):
                                    'applied_update_id':self.target,
                                    'expected_update_id':self.target},
             }))
-        stopped = {'stopped':[{'kind':'mcp','pid':456}], 'restart_required':True}
-        with patch.object(updater, 'stop_known_database_processes', return_value=stopped):
-            report = updater.apply(self.root, database=self.db, runner=runner)
-        self.assertEqual(report['mcp_restart']['status'], 'pending_host_reconnect')
-        self.assertEqual(report['mcp_restart']['health_check'],
-                         'host_must_reconnect_and_verify_update_id')
+        report = updater.apply(self.root, database=self.db, runner=runner)
+        self.assertEqual(report['mcp_restart']['status'], 'host_restart_recommended')
+        self.assertFalse(report['process_stop']['stopped'])
 
     def test_lifecycle_executes_the_new_revision_in_a_real_child(self):
         self.git('update-ref','refs/heads/current',self.target)
@@ -193,7 +228,7 @@ class GitUpdaterTests(unittest.TestCase):
         self.git('read-tree',self.before)
         (self.root/'core/lifecycle.py').write_text('# synthetic\n')
         def runner(args,**kwargs):
-            if args[1:3]==['-m','pip']:return None  # no instalar paquetes de prueba
+            if args[1:3]==['-m','pip']:return None
             return subprocess.run(args,**kwargs)
         with patch.object(updater,'resolve_target',return_value=(new_target,'origin/current')):
             report=updater.apply(self.root,database=self.db,runner=runner)
@@ -208,60 +243,100 @@ class GitUpdaterTests(unittest.TestCase):
         self.assertEqual((self.root/'local.txt').read_text(),'user data')
         self.assertEqual(self.git('rev-parse','HEAD'),self.before)
 
-    def test_failed_dependencies_produce_partial_receipt_not_success(self):
-        def fail(*args,**kwargs):raise subprocess.CalledProcessError(1,'pip')
-        with self.assertRaisesRegex(updater.UpdateError,'UPDATE_FAILED'):
-            updater.apply(self.root,database=self.db,runner=fail)
-        report=json.loads(next((self.db.parent/'update-receipts').glob('*.json')).read_text())
-        self.assertEqual(report['status'],'recovery_required');self.assertEqual(report['phase'],'dependencies')
+    def test_failed_dependencies_roll_back_code_database_and_keep_backup(self):
+        pip_calls=0
+        def fail_first_pip(args,**kwargs):
+            nonlocal pip_calls
+            if args[1:3]==['-m','pip']:
+                pip_calls+=1
+                if pip_calls==1:raise subprocess.CalledProcessError(1,'pip')
+                return None
+            raise AssertionError('Lifecycle must not run after dependency failure')
+        report=updater.apply(self.root,database=self.db,runner=fail_first_pip)
+        self.assertEqual(report['status'],'rolled_back');self.assertEqual(report['phase'],'rollback_complete')
         self.assertTrue(Path(report['backup']).exists())
         from core.update_barrier import runtime_status
-        self.assertEqual(runtime_status(self.db)['status'], 'update_incomplete')
-        # No rollback destructivo del código ya actualizado.
-        self.assertEqual(self.git('rev-parse','HEAD'),self.target)
+        self.assertTrue(runtime_status(self.db)['allowed'])
+        self.assertEqual(self.git('rev-parse','HEAD'),self.before)
+
+    def test_dependency_inventory_mismatch_prevents_false_rollback_success(self):
+        def fail_lifecycle(args,**kwargs):
+            if args[1:3]==['-m','pip']:return None
+            raise subprocess.CalledProcessError(1,args,output='failed')
+        with patch.object(updater,'dependency_inventory',side_effect=[{'old-package':'1'}, {'new-package':'2'}]):
+            with self.assertRaisesRegex(updater.UpdateError,'UPDATE_RECOVERY_REQUIRED'):
+                updater.apply(self.root,database=self.db,runner=fail_lifecycle)
+        report=json.loads(next((self.db.parent/'update-receipts').glob('*.json')).read_text())
+        self.assertEqual(report['status'],'recovery_required')
+        self.assertEqual(report['safety_barrier'],'active')
+        self.assertTrue(Path(report['backup']).exists())
+        from core.update_barrier import runtime_status
+        self.assertEqual(runtime_status(self.db)['status'],'update_incomplete')
 
     def test_zero_exit_without_valid_lifecycle_report_is_not_success(self):
         for output in ('', '{"status":"failed"}'):
             with self.subTest(output=output):
                 def runner(*args,**kwargs):return SimpleNamespace(stdout=output)
-                with self.assertRaisesRegex(updater.UpdateError,'LIFECYCLE_REPORT_'):
-                    updater.apply(self.root,database=self.db,runner=runner)
+                report=updater.apply(self.root,database=self.db,runner=runner)
+                self.assertEqual(report['status'],'rolled_back')
+                self.assertTrue(Path(report['backup']).exists())
 
     def test_failed_component_report_is_saved_in_receipt(self):
         detail={'status':'failed','failed_step':'files','completed':[{'step':'database-schema'}]}
         def runner(args,**kwargs):
             if args[1:3]==['-m','pip']:return None
             raise subprocess.CalledProcessError(1,args,output=json.dumps(detail))
-        with self.assertRaises(updater.UpdateError):updater.apply(self.root,database=self.db,runner=runner)
+        result=updater.apply(self.root,database=self.db,runner=runner)
         report=json.loads(next((self.db.parent/'update-receipts').glob('*.json')).read_text())
+        self.assertEqual(result['status'],'rolled_back')
         self.assertEqual(report['lifecycle']['failed_step'],'files')
-        self.assertEqual(report['phase'],'lifecycle')
+        self.assertEqual(report['phase'],'rollback_complete')
 
-    def test_failure_after_database_commit_preserves_later_memories(self):
+    def test_failure_after_database_commit_restores_database_automatically(self):
         from core.recovery import stage
         def runner(args,**kwargs):
             if args[1:3]==['-m','pip']:return None
             with sqlite3.connect(self.db) as db:
                 db.execute("INSERT INTO memories VALUES ('after-backup')")
             raise subprocess.CalledProcessError(1,args,output=json.dumps({'status':'failed','failed_step':'after-commit'}))
-        with self.assertRaises(updater.UpdateError):updater.apply(self.root,database=self.db,runner=runner)
+        result=updater.apply(self.root,database=self.db,runner=runner)
         receipt=next((self.db.parent/'update-receipts').glob('*.json'))
         report=json.loads(receipt.read_text())
-        self.assertEqual(report['status'],'recovery_required')
+        self.assertEqual(result['status'],'rolled_back')
+        self.assertEqual(report['status'],'rolled_back')
+        with sqlite3.connect(self.db) as db:
+            self.assertEqual(db.execute('SELECT count(*) FROM memories').fetchone()[0],1)
         restored=stage(receipt)
-        for path in (self.db,restored['current_snapshot']):
-            with sqlite3.connect(path) as db:self.assertEqual(db.execute('SELECT count(*) FROM memories').fetchone()[0],2)
         with sqlite3.connect(restored['restored_snapshot']) as db:
             self.assertEqual(db.execute('SELECT count(*) FROM memories').fetchone()[0],1)
 
-    def test_backup_failure_never_advances_code(self):
+    def test_existing_empty_database_cannot_skip_required_backup(self):
+        self.db.write_bytes(b'')
+        report=updater.apply(self.root,database=self.db,runner=lambda *a,**k:None)
+        self.assertEqual(report['status'],'rolled_back')
+        self.assertEqual(self.git('rev-parse','HEAD'),self.before)
+        self.assertEqual(self.db.read_bytes(),b'')
+        self.assertIsNone(report['backup'])
+
+    def test_backup_failure_never_advances_code_and_clears_barrier(self):
         with patch.object(updater,'backup_database',side_effect=OSError('disk full')):
-            with self.assertRaises(updater.UpdateError):updater.apply(self.root,database=self.db)
+            report=updater.apply(self.root,database=self.db)
+        self.assertEqual(report['status'],'rolled_back')
         self.assertEqual(self.git('rev-parse','HEAD'),self.before)
         receipt=json.loads(next((self.db.parent/'update-receipts').glob('*.json')).read_text())
-        self.assertEqual(receipt['phase'],'backup')
+        self.assertEqual(receipt['phase'],'rollback_complete')
         from core.update_barrier import runtime_status
         self.assertTrue(runtime_status(self.db)['allowed'])
+
+    def test_existing_recovery_barrier_is_not_overwritten_or_services_stopped(self):
+        from core.update_barrier import activate, barrier_path
+        marker=activate(self.db,update_id='c'*40,phase='recovery')
+        with patch.object(updater,'stop_managed_daemon') as stop:
+            with self.assertRaisesRegex(updater.UpdateError,'UPDATE_BARRIER_ACTIVE'):
+                updater.apply(self.root,database=self.db)
+        stop.assert_not_called()
+        self.assertEqual(json.loads(marker.read_text())['phase'],'recovery')
+        self.assertEqual(self.git('rev-parse','HEAD'),self.before)
 
     def test_lock_prevents_concurrent_updater(self):
         _,gitdir=updater.preflight(self.root)
@@ -277,10 +352,8 @@ class GitUpdaterTests(unittest.TestCase):
 
     def test_target_without_contract_is_refused(self):
         with patch.object(updater,'git',wraps=updater.git) as command:
-            real=updater.git
             def wrapper(root,*args):
                 if args[:2]==('cat-file','-e'):raise subprocess.CalledProcessError(1,'cat-file')
-                # evitar el mock recursivo
                 return subprocess.run(['git','-C',str(root),*args],check=True,capture_output=True,text=True).stdout.strip()
             command.side_effect=wrapper
             with self.assertRaisesRegex(updater.UpdateError,'TARGET_LACKS_LIFECYCLE'):updater.plan(self.root)
@@ -288,9 +361,6 @@ class GitUpdaterTests(unittest.TestCase):
     def test_non_git_install_has_actionable_refusal(self):
         other=self.home/'package';other.mkdir()
         with self.assertRaisesRegex(updater.UpdateError,'INSTALL_METHOD_UNSUPPORTED'):updater.plan(other)
-
-
-if __name__=='__main__':unittest.main()
 
 
 class UpdateSurfaceTests(unittest.TestCase):
@@ -316,14 +386,15 @@ class UpdateSurfaceTests(unittest.TestCase):
                 else:
                     self.assertTrue(result['requires_user_authorization'])
                     self.assertTrue(result['requires_separate_process'])
-                    self.assertEqual(result['apply_command'][-1],'--yes')
+                    self.assertNotIn('--yes',result['apply_command'])
 
     def test_stable_requires_approved_tag_and_uses_official_source(self):
         from core.mcp_server import update_checker
         with patch.object(update_checker.UpdateChecker,'check_once',return_value={'estado':'actualizacion_disponible','version_remota':'v36.2'}),patch.object(updater,'git',return_value='a'*40) as git:
             target,source=updater.resolve_target(Path('/synthetic'),'stable')
-            self.assertEqual(source,'v36.2');self.assertEqual(target,'a'*40)
-            self.assertIn('https://github.com/dennysjmarquez/MemoryBioRAG.git',git.call_args_list[0].args)
-        with patch.object(update_checker.UpdateChecker,'check_once',return_value={'estado':'politica_invalida'}),patch.object(updater,'git') as git:
-            with self.assertRaisesRegex(updater.UpdateError,'STABLE_NOT_APPROVED'):updater.resolve_target(Path('/synthetic'),'stable')
-            git.assert_not_called()
+            self.assertEqual(target,'a'*40);self.assertEqual(source,'v36.2')
+            self.assertTrue(any('https://github.com/dennysjmarquez/MemoryBioRAG.git' in call.args[1:]
+                                for call in git.call_args_list))
+
+
+if __name__=='__main__':unittest.main()

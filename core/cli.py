@@ -27,7 +27,7 @@ GROUPS = (
         ('dashboard', 'Start the local interface, if installed'),
     )),
     ('Update and recover the system', (
-        ('update', 'Plan an update; --yes authorizes applying it'),
+        ('update', 'Apply an update; --dry-run previews it'),
         ('recovery', 'Plan recovery; --stage creates separate copies'),
     )),
 )
@@ -65,11 +65,11 @@ def _overview():
     print('Before you start:\nDatabase: BIORAG_PATH selects your database; use a disposable copy for testing.')
     print('  Example: BIORAG_PATH=/path/copy.db biorag estado')
     print('  Commands may initialize or prepare schema when opening a database; help does not.\n')
-    print('Updates and recovery:\nBefore applying update, stop the MCP server (agent-to-memory tools process)')
-    print('and the daemon (background maintenance process). Use the same Python environment.')
-    print('Update requires a clean Git checkout (no local changes) and an external database')
-    print('(outside the checkout). Planning may access the network.')
-    print('Recovery --stage never overwrites live memory or rolls back Git/pip.')
+    print('Updates and recovery:\nRun biorag update to apply safely, or add --dry-run for a preview.')
+    print('BioRAG stops only its own verified background daemon, tests a database backup, then')
+    print('verifies the update. If a step fails, it attempts to restore code, dependencies, and data.')
+    print('If rollback cannot be verified, BioRAG keeps the safety barrier and backup; contact support.')
+    print('Update requires a clean Git checkout and a database outside the checkout.')
     print('The MCP temporal prototype is off by default; enable it with BIORAG_TEMPORAL_PROTOTYPE=1.')
     print('Its six modes apply to MCP `recordar`/`buscar`, not CLI `buscar`.')
     print('\nOptions:\n  -h, --help  Show help without opening a database.\n')

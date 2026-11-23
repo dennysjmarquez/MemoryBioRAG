@@ -116,6 +116,51 @@ class ProcessInspectionTests(unittest.TestCase):
                 inspection.stop_known_database_processes(self.db)
         self.assertFalse(holder.terminated)
 
+    def test_managed_daemon_status_needs_only_biorag_pid_file(self):
+        with patch('core.daemon_lifecycle._leer_pid', return_value=None), \
+             patch.object(inspection, '_psutil', side_effect=AssertionError('must not scan')):
+            self.assertEqual(inspection.managed_daemon_status('/repo'), {'status':'not_running'})
+
+    def test_managed_daemon_stops_only_verified_pid_and_waits(self):
+        root=Path(self.tmp.name)/'checkout'
+        script=str(root/'graph_maintenance_daemon.py')
+        class Managed:
+            pid=991008
+            def __init__(self):self.stopped=False;self.waited=False
+            def cmdline(self):return [sys.executable,script]
+            def cwd(self):return str(root)
+            def uids(self):return SimpleNamespace(real=os.getuid())
+            def terminate(self):self.stopped=True
+            def wait(self,timeout):self.waited=True
+            def kill(self):raise AssertionError('graceful stop should finish')
+        managed=Managed()
+        fake=SimpleNamespace(Process=lambda pid:managed,
+                             NoSuchProcess=type('NoSuchProcess',(Exception,),{}),
+                             AccessDenied=type('AccessDenied',(Exception,),{}),
+                             TimeoutExpired=type('TimeoutExpired',(Exception,),{}))
+        with patch('core.daemon_lifecycle._leer_pid',return_value=managed.pid), \
+             patch('core.daemon_lifecycle._borrar_pid') as clear_pid, \
+             patch.object(inspection,'_psutil',return_value=fake):
+            result=inspection.stop_managed_daemon(root,timeout=1)
+        self.assertEqual(result['status'],'stopped')
+        self.assertTrue(managed.stopped);self.assertTrue(managed.waited)
+        clear_pid.assert_called_once_with()
+
+    def test_managed_daemon_identity_mismatch_is_never_signaled(self):
+        root=Path(self.tmp.name)/'checkout'
+        class WrongProcess:
+            pid=991009
+            def cmdline(self):return [sys.executable,'/tmp/unrelated.py']
+            def cwd(self):return '/tmp'
+            def terminate(self):raise AssertionError('must not signal')
+        fake=SimpleNamespace(Process=lambda pid:WrongProcess(),
+                             NoSuchProcess=type('NoSuchProcess',(Exception,),{}),
+                             AccessDenied=type('AccessDenied',(Exception,),{}))
+        with patch('core.daemon_lifecycle._leer_pid',return_value=991009), \
+             patch.object(inspection,'_psutil',return_value=fake):
+            with self.assertRaisesRegex(inspection.ProcessInspectionError,'IDENTITY_MISMATCH'):
+                inspection.stop_managed_daemon(root)
+
     @unittest.skipUnless(sys.platform.startswith('linux'), 'live process-handle test currently runs on Linux only')
     def test_linux_inventory_and_stop_use_only_synthetic_mcp_process(self):
         script = Path(self.tmp.name) / 'mcp_server.py'
@@ -145,6 +190,8 @@ class ProcessInspectionTests(unittest.TestCase):
             if proc.poll() is None:
                 proc.kill()
                 proc.wait(timeout=3)
+            proc.stdout.close()
+            proc.stderr.close()
 
 
 if __name__ == '__main__':

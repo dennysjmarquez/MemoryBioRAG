@@ -1,7 +1,7 @@
-"""Actualizador Git conservador. CLI: python -m core.updater [--yes].
+"""Safe Git updater; CLI: python -m core.updater [--dry-run].
 
-Actualiza solo el checkout donde está instalado este módulo, sin cambiar de rama.
-No restaura código/DB automáticamente ni convierte una instalación ajena en Git.
+Applies by default, stops only BioRAG's verified managed daemon, and creates a
+verified database backup. Failures trigger automatic rollback where verifiable.
 """
 from __future__ import annotations
 import argparse
@@ -18,8 +18,8 @@ import tempfile
 from core.database_access import MaintenanceError
 from core.process_inspection import (
     ProcessInspectionError,
-    inspect_database_processes,
-    stop_known_database_processes,
+    managed_daemon_status,
+    stop_managed_daemon,
 )
 
 
@@ -105,11 +105,14 @@ def plan(root, channel='dev', *, database=None):
     changed=before!=target
     database_status['target_update_id']=target
     database_status['lifecycle_required']=changed or database_status.get('status')!='ready'
-    process_status=inspect_database_processes(database) if database is not None else {
-        'status':'not_checked','holders':[],'scan_errors':[]}
+    try:
+        process_status=managed_daemon_status(root)
+    except ProcessInspectionError:
+        process_status={'status':'verification_failed',
+                        'message':'BioRAG could not safely verify its own background service; no process will be stopped.'}
     return dict(status='planned',root=str(root),branch=branch,channel=channel,
                 source=source,before=before,target=target,changed=changed,
-                database=database_status,database_processes=process_status)
+                database=database_status,managed_daemon=process_status)
 
 
 @contextmanager
@@ -132,14 +135,16 @@ def exclusive_update(root, gitdir, database, channel):
         db_state = proposal.get('database', {}).get('status')
         if db_state in {'check_failed', 'unreadable', 'database_integrity_failed'}:
             raise UpdateError('DATABASE_PREFLIGHT_FAILED: no code or database changes were made; inspect the read-only database report before retrying.')
-        stopped = stop_known_database_processes(database)
         from core.update_barrier import activate, runtime_status
         prior_barrier = runtime_status(database)
-        progress = {'phase':'backup', 'preexisting_barrier':not prior_barrier['allowed']}
+        if not prior_barrier['allowed']:
+            raise UpdateError('UPDATE_BARRIER_ACTIVE: a previous update needs recovery; no process or data was changed.')
+        stopped = stop_managed_daemon(root)
+        progress = {'phase':'backup', 'preexisting_barrier':False}
         try:
             activate(database, update_id=proposal['target'], phase='backup')
         except Exception:
-            try: restart_stopped_daemon(stopped)
+            try: restart_stopped_daemon(stopped, root)
             except Exception: pass
             raise
         from core.database_access import maintenance
@@ -156,7 +161,7 @@ def exclusive_update(root, gitdir, database, channel):
                     unchanged = False
                 if unchanged:
                     try:
-                        progress['service_restart'] = restart_stopped_daemon(stopped)
+                        progress['service_restart'] = restart_stopped_daemon(stopped, root)
                     except Exception as restart_exc:
                         progress['service_restart'] = {
                             'status':'failed', 'detail':str(restart_exc)}
@@ -169,20 +174,115 @@ def exclusive_update(root, gitdir, database, channel):
             raise
 
 
-def restart_stopped_daemon(process_stop):
+def restart_stopped_daemon(process_stop, root=None):
     """Restart only the BioRAG daemon that this authorized update actually stopped."""
     stopped = process_stop.get('stopped', []) if isinstance(process_stop, dict) else []
     if not any(item.get('kind') == 'daemon' for item in stopped):
         return {'status':'not_needed'}
     from core.daemon_lifecycle import spawn_daemon_detached
     if not spawn_daemon_detached():
-        raise UpdateError('DAEMON_RESTART_FAILED: code and database are prepared, but the previously active daemon did not confirm startup.')
-    return {'status':'ok'}
+        raise UpdateError('DAEMON_RESTART_FAILED: BioRAG could not confirm its background service restarted.')
+    try:
+        status=managed_daemon_status(root or installed_root())
+    except ProcessInspectionError as exc:
+        raise UpdateError('DAEMON_RESTART_UNVERIFIED: BioRAG could not verify its restarted background service.') from exc
+    if status.get('status')!='running':
+        raise UpdateError('DAEMON_RESTART_UNVERIFIED: BioRAG could not verify its restarted background service.')
+    return {'status':'ok','pid':status.get('pid'),'startup_verified':True}
 
 
 def backup_database(database):
     from core.database_backup import create_backup
     return create_backup(database, purpose='update')
+
+
+def dependency_inventory():
+    """Installed package versions, used to avoid claiming a dependency rollback blindly."""
+    from importlib.metadata import distributions
+    inventory={}
+    for distribution in distributions():
+        name=distribution.metadata.get('Name')
+        version=distribution.version
+        if name:
+            inventory[name.strip().lower().replace('_','-')]=version
+    return dict(sorted(inventory.items()))
+
+
+def restore_database_backup(backup, database):
+    """Restore a verified snapshot atomically beside the live SQLite database."""
+    from contextlib import closing
+    import sqlite3
+    from core.database_backup import logical_fingerprint, validate_update_backup, verify_database
+
+    backup = Path(validate_update_backup(backup, database))
+    target = Path(database).expanduser().resolve()
+    with tempfile.NamedTemporaryFile(dir=target.parent, prefix=target.name+'.restore-',
+                                     suffix='.db', delete=False) as file:
+        temporary = Path(file.name)
+    try:
+        with closing(sqlite3.connect(backup.as_uri()+'?mode=ro', uri=True)) as source:
+            with closing(sqlite3.connect(str(temporary))) as destination:
+                source.backup(destination)
+        verify_database(temporary)
+        expected_fingerprint=logical_fingerprint(backup)
+        if logical_fingerprint(temporary)!=expected_fingerprint:
+            raise UpdateError('DATABASE_RESTORE_CONTENT_MISMATCH')
+        os.replace(temporary, target)
+        # Under the update lease and after managed services are stopped, these are
+        # stale files from the replaced DB; never remove them before replacement.
+        Path(str(target)+'-wal').unlink(missing_ok=True)
+        Path(str(target)+'-shm').unlink(missing_ok=True)
+        verify_database(target)
+        if logical_fingerprint(target)!=expected_fingerprint:
+            raise UpdateError('DATABASE_RESTORE_CONTENT_MISMATCH')
+    finally:
+        temporary.unlink(missing_ok=True)
+
+
+def rollback_update(root, database, report, process_stop, runner):
+    """Best-effort full rollback. Failure keeps the barrier and backup for recovery."""
+    root = Path(root).resolve()
+    before = report.get('before')
+    current = git(root, 'rev-parse', 'HEAD')
+    dependency_mismatch = None
+    dependency_restore_error = None
+    dependency_restore_attempted = current != before
+    if current != before:
+        # This is safe because preflight required a clean checkout and the updater
+        # only performed a fast-forward. Never reset an unexpected user revision.
+        if current != report.get('target'):
+            raise UpdateError('ROLLBACK_HEAD_UNEXPECTED: refusing to reset an unexpected checkout state.')
+        git(root, 'reset', '--hard', before)
+        if git(root, 'rev-parse', 'HEAD') != before:
+            raise UpdateError('CODE_ROLLBACK_NOT_VERIFIED')
+        try:
+            runner([sys.executable, '-m', 'pip', 'install', '.'], cwd=str(root),
+                   check=True, timeout=900)
+        except Exception as exc:
+            dependency_restore_error=exc
+    if dependency_restore_attempted or report.get('phase') in {'dependencies','lifecycle'}:
+        try:
+            actual_dependencies=dependency_inventory()
+            if report.get('dependencies_before') != actual_dependencies:
+                dependency_mismatch='DEPENDENCY_ROLLBACK_NOT_VERIFIED'
+        except Exception:
+            dependency_mismatch='DEPENDENCY_ROLLBACK_NOT_VERIFIED'
+    if report.get('backup'):
+        restore_database_backup(report['backup'], database)
+    elif report.get('database_existed_before') is False:
+        Path(database).unlink(missing_ok=True)
+    if dependency_restore_error is not None:
+        raise UpdateError('DEPENDENCY_RESTORE_FAILED') from dependency_restore_error
+    if dependency_mismatch:
+        raise UpdateError(dependency_mismatch)
+    if not report.get('preexisting_barrier'):
+        from core.update_barrier import clear
+        clear(database)
+        restarted = restart_stopped_daemon(process_stop, root)
+    else:
+        restarted = {'status':'not_restarted_preexisting_barrier'}
+    return {'status':'ok', 'code_revision':before, 'database_restored':bool(report.get('backup')),
+            'service_restart':restarted}
 
 
 def apply(root, *, channel='dev', database, runner=subprocess.run):
@@ -199,26 +299,27 @@ def apply(root, *, channel='dev', database, runner=subprocess.run):
         receipt_dir=database.parent/'update-receipts';receipt_dir.mkdir(parents=True,exist_ok=True)
         with tempfile.NamedTemporaryFile(dir=receipt_dir,prefix='update-',suffix='.json',delete=False) as file:
             receipt_path=Path(file.name)
-        mcp_was_stopped = any(
-            isinstance(item, dict) and item.get('kind') == 'mcp'
-            for item in process_stop.get('stopped', [])
-        ) if isinstance(process_stop, dict) else False
         report=dict(proposal,status='running',phase='backup',backup=None,
+                    database_existed_before=database.is_file(),
+                    preexisting_barrier=progress.get('preexisting_barrier',False),
                     receipt=str(receipt_path),process_stop=process_stop,
                     mcp_restart={
-                        'required':mcp_was_stopped,
+                        'required':False,
                         'owner':'external_mcp_host',
-                        'status':'pending_host_reconnect' if mcp_was_stopped else 'not_required',
-                        'health_check':'host_must_reconnect_and_verify_update_id' if mcp_was_stopped else 'not_applicable',
+                        'status':'host_restart_recommended',
+                        'health_check':'reconnect_host_and_verify_update_id',
                     },
-                    writers_blocked=True,managed_clients_excluded=True,
-                    writer_control='cross_platform_database_lease_plus_verified_process_inventory',
+                    writers_blocked='managed_clients_only',managed_clients_excluded=True,
+                    writer_control='cross_platform_shared_exclusive_database_lease_and_verified_managed_daemon_stop',
                     started_at=datetime.now(timezone.utc).isoformat(),restart_required=True)
         def save():
             tmp=receipt_path.with_suffix('.tmp');tmp.write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n');os.replace(tmp,receipt_path)
         save()
         try:
+            report['dependencies_before']=dependency_inventory()
             report['backup']=backup_database(database)
+            if report['database_existed_before'] and not report['backup']:
+                raise UpdateError('DATABASE_BACKUP_UNAVAILABLE: an existing database must have a verified backup before update.')
             if report['backup']:
                 from core.database_backup import backup_evidence
                 evidence=backup_evidence(report['backup'])
@@ -260,7 +361,7 @@ def apply(root, *, channel='dev', database, runner=subprocess.run):
                     or lifecycle_report.get('update_id') != proposal['target']):
                 raise UpdateError('LIFECYCLE_REPORT_FAILED: The new lifecycle process did not confirm this exact update ID.')
             report['lifecycle']=lifecycle_report
-            from core.database_backup import verify_database, finish_backup, prune_successful
+            from core.database_backup import verify_database
             report['database_verification']=verify_database(database)
             report['database_status']=lifecycle_report.get('database_status')
             if (not isinstance(report['database_status'],dict)
@@ -270,35 +371,90 @@ def apply(root, *, channel='dev', database, runner=subprocess.run):
                 raise UpdateError('DATABASE_UPDATE_NOT_CONFIRMED: The new lifecycle process did not verify the schema and exact applied update ID.')
             from core.update_barrier import clear
             clear(database)
-            report['service_restart']=restart_stopped_daemon(process_stop)
-            finish_backup(report['backup'], success=True)
-            report['retention']=prune_successful(database)
             report.update(status='ok',phase='complete',finished_at=datetime.now(timezone.utc).isoformat(),after=git(root,'rev-parse','HEAD'))
-            save();return report
-        except Exception as exc:
+            if report['backup']:
+                report['backup_cleanup']='pending'
+            save()
+            report['service_restart']=restart_stopped_daemon(process_stop, root)
+            try:save()
+            except OSError:pass  # El recibo de éxito previo ya confirma la verificación durable.
+            if report['backup']:
+                backup_path=Path(report['backup'])
+                try:
+                    backup_path.unlink(missing_ok=True)
+                    Path(str(backup_path)+'.json').unlink(missing_ok=True)
+                    report['backup_cleanup']='removed_after_verified_success'
+                except OSError:
+                    report['backup_cleanup']='warning_backup_retained'
+                try:save()
+                except OSError:pass  # El recibo de éxito ya es durable; la limpieza es solo housekeeping.
+            return report
+        except BaseException as exc:
             from core.database_backup import finish_backup
-            try:finish_backup(report['backup'], success=False)
-            except (OSError,ValueError):pass  # Backup pendiente sigue protegido si metadata no se pudo actualizar.
             if report['phase']=='lifecycle' and isinstance(exc,subprocess.CalledProcessError):
                 try:
                     failed_report=json.loads((exc.stdout or '').strip().splitlines()[-1])
                     if isinstance(failed_report,dict):report['lifecycle']=failed_report
                 except (IndexError,TypeError,ValueError):
                     pass  # Conserva fallo de proceso; jamás convierte ausencia de informe en éxito.
-            report.update(status='recovery_required',finished_at=datetime.now(timezone.utc).isoformat(),error=type(exc).__name__,detail=str(exc),
-                          recovery='No automatic rollback of code, dependencies, or the database was performed. Keep the backup and receipt; fix the failed phase and retry the update. Do not start MCP until verification is complete.')
-            save();raise UpdateError('UPDATE_FAILED: phase '+report['phase']+'; receipt '+str(receipt_path)+'; '+str(exc)) from exc
+            try:
+                report['rollback']=rollback_update(
+                    root, database, report, process_stop, runner)
+                try:finish_backup(report['backup'], success=False)
+                except (OSError,ValueError):pass
+                report.update(status='rolled_back',phase='rollback_complete',
+                              finished_at=datetime.now(timezone.utc).isoformat(),
+                              error=type(exc).__name__,detail=str(exc),
+                              recovery='The update did not complete. The previous code, dependencies, and database were restored and verified; the protected backup and receipt were retained.')
+                save()
+                return report
+            except Exception as rollback_exc:
+                try:
+                    from core.update_barrier import activate
+                    activate(database, update_id=report.get('target', 'unknown'), phase='recovery')
+                    barrier_state='active'
+                except Exception:
+                    barrier_state='unconfirmed'
+                try:finish_backup(report['backup'], success=False)
+                except (OSError,ValueError):pass
+                report.update(status='recovery_required',safety_barrier=barrier_state,
+                              finished_at=datetime.now(timezone.utc).isoformat(),
+                              error=type(exc).__name__,detail=str(exc),rollback_error=type(rollback_exc).__name__,
+                              rollback_detail=str(rollback_exc),
+                              recovery='Automatic rollback could not be fully verified. The safety barrier remains active; keep the backup and receipt and contact support before restarting BioRAG.')
+                save()
+                raise UpdateError('UPDATE_RECOVERY_REQUIRED: phase '+report['phase']+'; receipt '+str(receipt_path)+'; '+str(rollback_exc)) from exc
+
+
+def _public_result(result):
+    """Keep machine diagnostics in the receipt, not in the nontechnical CLI output."""
+    status=result.get('status')
+    if status=='rolled_back':
+        return {'status':status,
+                'message':'The update could not be completed. The previous version and database were restored; a backup was kept.',
+                'receipt':result.get('receipt'),'backup':result.get('backup')}
+    if status=='recovery_required':
+        return {'status':status,
+                'message':'Automatic recovery could not be verified. Do not restart BioRAG; keep the receipt and contact support.',
+                'receipt':result.get('receipt'),'backup':result.get('backup'),
+                'safety_barrier':result.get('safety_barrier')}
+    if status=='ok' and 'receipt' in result:
+        return {'status':'ok','message':'The update was applied and verified. Reconnect the agent host to load the updated program.',
+                'receipt':result.get('receipt'),'channel':result.get('channel'),
+                'backup_cleanup':result.get('backup_cleanup','not_needed'),
+                'host_restart_recommended':True}
+    return result
 
 
 def main(argv=None):
     from core.cli_notes import usage_note, command_examples
     parser=HelpParser(prog='biorag update',
-        description='Plan or apply a conservative Git-based program update without switching branches.',
+        description='Apply a safe Git-based program update by default, or preview it with --dry-run.',
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog=usage_note('update') + '\n\n' + command_examples('update'))
     parser.add_argument('--channel',choices=('dev','stable'),default='dev', help='dev: upstream of the installed branch; stable: policy-approved official tag; both require fast-forward')
-    parser.add_argument('--dry-run',action='store_true',help='Plan without applying; includes a read-only database schema and applied-update check')
-    parser.add_argument('--yes',action='store_true',help='Authorize applying the update; otherwise only plan')
+    parser.add_argument('--dry-run',action='store_true',help='Preview the update without applying it')
+    parser.add_argument('--yes',action='store_true',help='Deprecated compatibility option; updates now apply by default')
     parser.add_argument('--db',help='Database outside the checkout; defaults to BIORAG_PATH or the canonical path')
     args=parser.parse_args(argv)
     if args.dry_run and args.yes:
@@ -306,22 +462,27 @@ def main(argv=None):
     try:
         from core.paths import resolve_db_path
         database=args.db or resolve_db_path()
-        if not args.yes:
+        if args.dry_run:
             result=plan(installed_root(),args.channel,database=database)
-            database_status=result.get('database',{}).get('status')
-            if database_status in ('check_failed','unreadable','database_integrity_failed'):
-                result['next']='The database check failed. Inspect the reported database path and error and resolve it before authorizing an update; no code or database changes were made.'
-            elif result.get('changed'):
-                result['next']='After explicit authorization, rerun with --yes. The CLI inventories users of this database, stops only recognized BioRAG MCP/daemon/CLI/worker processes, and refuses unknown or uninspectable holders before backing up, updating, preparing, and verifying. Restart the MCP host if it does not respawn its server.'
-            elif database_status=='ready':
-                result['next']='This checkout already matches its upstream revision. No code update is available, and the database lifecycle is verified for this checkout; no source files or database were changed.'
-            else:
-                result['next']='No code update is available, but database preparation is not confirmed. After explicit authorization, rerun with --yes; the CLI will inventory database users, stop only recognized BioRAG MCP/daemon/CLI/worker processes, then back up, prepare, and verify. Unknown or uninspectable holders block the operation.'
+            result['next']='Preview only: no changes were made. Run biorag update to apply safely.'
         else:
             result=apply(installed_root(),channel=args.channel,database=database)
-        print(json.dumps(result,ensure_ascii=False,indent=2));return 0
+        print(json.dumps(_public_result(result),ensure_ascii=False,indent=2))
+        return 1 if result.get('status') in {'rolled_back','recovery_required'} else 0
     except (UpdateError,MaintenanceError,ProcessInspectionError,OSError,subprocess.SubprocessError) as exc:
-        print(json.dumps(dict(status='error',message=str(exc)),ensure_ascii=False),file=sys.stderr);return 1
+        if isinstance(exc,ProcessInspectionError):
+            message='BioRAG could not safely verify its own background service. Nothing was changed; try again later or contact support.'
+        elif 'LOCAL_CHANGES:' in str(exc):
+            message='The update was not started because this installation has local changes. Your files were left untouched; ask support to review them before updating.'
+        elif 'UPDATE_RECOVERY_REQUIRED:' in str(exc):
+            message='Automatic recovery could not be verified. Do not restart BioRAG; keep the update receipt and contact support.'
+            match=re.search(r'receipt (\S+)',str(exc))
+            if match:message+=' Receipt: '+match.group(1)
+        elif isinstance(exc,MaintenanceError):
+            message='BioRAG is currently using the memory database. Wait for active work to finish, then try the update again.'
+        else:
+            message='BioRAG could not safely start the update. No update was applied; try again later or contact support.'
+        print(json.dumps(dict(status='error',message=message),ensure_ascii=False),file=sys.stderr);return 1
 
 
 if __name__=='__main__':

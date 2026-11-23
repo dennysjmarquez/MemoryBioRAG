@@ -22,12 +22,9 @@ NOTES = {
                      'This changes read status. Unsupported destination filters are ignored by the current engine.',
     'dashboard': 'Start the local inspection interfaces, if included. This can install Python and Node dependencies, '
                  'start servers on ports 8001 and 3000, and open a browser. It is not required for CLI or MCP use.',
-    'update': 'Update the program and prepare its components in one command. Without --yes this only plans, may access the network, and checks the selected database read-only. '
-              'The plan reports code and database readiness separately. Stop the MCP server (the process connecting your agent to memory tools) and background maintenance daemon before applying. '
-              'A clean Git checkout has no local changes; an external database is stored outside that checkout.',
-    'recovery': 'After an update failure, inspect the backup referenced by its update receipt. With --stage, '
-                'preserve a snapshot of the present and restore the old backup to a separate file. '
-                'This never overwrites live memory or activates an older program version.',
+    'update': 'Apply a safe program update in one command. The updater checks the selected database, stops only its own verified background daemon, makes and tests a database backup, updates code and dependencies, then verifies the database. If a step fails, it attempts to restore the previous code, dependencies and database. Dependency verification compares package names and versions; it is not a byte-for-byte environment snapshot. A failed rollback keeps the safety barrier active and preserves the backup and receipt. '
+              'Use --dry-run for an optional preview. The checkout must be clean and the database must be outside it.',
+    'recovery': 'If automatic rollback cannot be verified, do not restart BioRAG; keep the backup and receipt and contact support. Recovery staging can make separate copies, but does not overwrite live memory.',
     'correcciones': 'Keep an earlier fact and record which fact replaces it for a specific context and effective date. '
                     'This is not a command for editing memory text.',
     'correcciones registrar': 'Propose that one fact replaces another, providing context, values, existing nodes and dates. '
@@ -96,7 +93,7 @@ EXAMPLES = {
     'leer_mensajes': ('AGENT_NAME=agent_b biorag leer_mensajes --no-leidos',
                       'biorag leer_mensajes --ultimos 5'),
     'dashboard': ('biorag dashboard --help',),
-    'update': ('biorag update --dry-run', 'biorag update --yes --db /path/copy.db'),
+    'update': ('biorag update --dry-run', 'biorag update --db /path/copy.db'),
     'recovery': ('biorag recovery --receipt /path/update-receipts/receipt.json',
                  'biorag recovery --receipt /path/update-receipts/receipt.json --stage'),
     'correcciones': ('biorag correcciones registrar --help',

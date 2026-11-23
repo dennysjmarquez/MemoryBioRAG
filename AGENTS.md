@@ -50,32 +50,36 @@ preparación de archivos ni activación de componentes dentro de CLI/MCP/updater
 ### Flujo que debe respetar cualquier agente
 
 1. Un aviso de nueva versión se comunica al usuario; no autoriza ejecutar código.
-2. Obtener autorización explícita y planificar mediante `biorag update` o
-   `planificar_actualizacion_sistema`. DEV sigue el upstream de la rama instalada,
-   sin publicar Stable. STABLE requiere política/tag aprobados; no asumir que un
-   push a master o al repo Stable por sí solo satisface la política del avisador.
-3. Usar el mismo entorno Python y checkout instalado. Detener clientes/servicios
-   antes de aplicar; no auto-reemplazar el MCP residente que atiende la petición.
-4. `biorag update --yes` / `python -m core.updater --yes`: verificar limpieza y
-   destino, respaldar DB (SQLite backup, incluido WAL), avanzar Git solo fast-forward,
-   instalar dependencias y ejecutar lifecycle en **proceso nuevo**.
-5. El updater exige proceso satisfactorio **y reporte JSON de preparación status=ok**.
-   El instalador actual solo comprueba exit code del lifecycle; no atribuirle validación
-   JSON independiente. Reiniciar MCP únicamente tras verificar compatibilidad y con
-   autorización; la preparación no activa servicios. Una salida 0 aislada no es prueba
-   suficiente para certificar una extensión.
-6. Ante fallo, conservar recibo, respaldo y fase; no anunciar éxito, no hacer reset,
-   stash ni restauración automática de DB. Resolver el fallo y repetir verificación.
+2. La invocación directa del usuario `biorag update` autoriza aplicar (no hace falta
+   `--yes`); `--dry-run` es la vista previa optativa. MCP solo planifica y pide permiso
+   explícito antes de ejecutar el comando en un proceso separado. DEV sigue el upstream
+   instalado; STABLE requiere política/tag aprobados.
+3. Usar el mismo entorno Python y checkout instalado. El updater detiene únicamente
+   el daemon BioRAG registrado por su propio PID y verificado; no mata ni inspecciona
+   indiscriminadamente otros procesos. El host MCP externo no se reemplaza; se le pide
+   reconectar después de aplicar.
+4. `biorag update` / `python -m core.updater`: verificar limpieza y destino, crear y
+   probar un backup SQLite antes de cambios, avanzar Git solo fast-forward, instalar
+   dependencias y ejecutar lifecycle en **proceso nuevo**.
+5. El updater exige proceso satisfactorio **y reporte JSON de preparación status=ok**,
+   además de verificación de DB e ID exacto. Solo tras el éxito verificado elimina el
+   backup temporal de esa actualización. La preparación no activa servicios.
+6. Ante fallo, intenta restaurar automáticamente commit, dependencias y DB. La
+   comparación de dependencias verifica nombres/versiones, no cada byte del entorno;
+   nunca prometer rollback “como si nada”. Si las comprobaciones disponibles pasan,
+   registra `rolled_back` y conserva el backup. Si no, registra `recovery_required`,
+   mantiene la barrera y backup; no reiniciar BioRAG y pedir soporte.
 
 ### Política compartida de respaldo y retención
 
-- Usar `core/database_backup.py`, no duplicar copia SQLite ni borrados en componentes.
-- Verificar backup e integridad de destino; conservar por defecto dos backups de
-  operaciones exitosas. Podar solo éxitos propios anteriores de la misma DB.
+- Usar `core/database_backup.py`, no duplicar la creación del snapshot SQLite.
+- Verificar backup e integridad de destino; en actualizaciones, eliminar el snapshot
+  temporal tras el éxito final verificado y conservarlo cuando haya un fallo/rollback.
+  Para otras operaciones continúa la retención normal de backups exitosos.
 - Ensayar restauración en temporal y registrar SHA256 antes de cambiar código.
   Integridad estructural no prueba conservación semántica.
 - Un handoff validado permite que lifecycle use el backup del updater sin duplicarlo;
-  solo la operación dueña lo marca éxito y ejecuta retención al terminar todo.
+  solo la operación dueña determina el éxito final y la limpieza correspondiente.
 - Preservar fallidos/pendientes y archivos con metadata desconocida; nunca borrar el
   último recurso de recuperación por pasar quick_check. No confundir integridad
   estructural con conservación semántica. Una comprobación fallida bloquea éxito.
@@ -84,18 +88,17 @@ preparación de archivos ni activación de componentes dentro de CLI/MCP/updater
 
 ### Mantenimiento y recuperación actuales
 
-- `core.database_access` coordina conexiones escritoras internas mediante leases
-  compartidos y mantenimiento exclusivo. Cerrar clientes/servicios antes de update;
-  si siguen conectados, rechazar en vez de matarlos. El hijo autorizado prepara
-  componentes con token de handoff, no con permisos por tema de memoria.
-- Control **cooperativo POSIX**, no bloqueo universal de clientes SQLite externos.
-  Windows rechaza mantenimiento hasta tener backend probado; no simular protección.
-  El recibo usa writers_blocked=false y managed_clients_excluded=true para no afirmar
-  exclusividad global. No habilitar migraciones destructivas con este alcance.
-- Ante fallo de update, marcar recovery_required, conservar backup y base actual.
+- `core.database_access` coordina conexiones administradas mediante leases
+  compartidos y mantenimiento exclusivo. El updater detiene solo su daemon propio;
+  el resto de clientes administrados se coordina por lease. Un programa que abre
+  SQLite directamente no queda bloqueado por ese mecanismo.
+- Hay backend OS para POSIX y Windows; declarar únicamente el alcance que se prueba.
+  El recibo documenta el bloqueo cooperativo, no una exclusión universal de procesos
+  externos. No habilitar migraciones destructivas no reversibles con este alcance.
+- Ante fallo de update, intentar rollback automático code/deps/DB. Si no puede
+  verificarse, marcar `recovery_required`, conservar backup y mantener la barrera.
   `biorag recovery --receipt ...` planifica; `--stage` restaura solo en archivo nuevo
-  y conserva snapshot del estado actual. Nunca sobrescribir automáticamente la DB,
-  borrar tablas como supuesto undo o asumir que Git/pip/esquema retroceden juntos.
+  y conserva snapshot del estado actual. No asumir que un rollback parcial quedó completo.
 - Una copia restaurada NO significa sistema anterior activado: comprobar código,
   dependencias, schema y datos elegidos antes de cambiar rutas/reiniciar. No se
   promete merge automático de recuerdos posteriores ni rollback global.

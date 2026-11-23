@@ -67,6 +67,108 @@ def _classify(cmdline: list[str], cwd: str | None) -> str | None:
     return None
 
 
+def _daemon_process(database_root: str | os.PathLike[str]):
+    """Resolve only the daemon registered by BioRAG's own PID file.
+
+    This deliberately does not enumerate the machine's processes: unrelated or
+    permission-restricted Python applications are outside the update's scope.
+    """
+    from core import daemon_lifecycle
+
+    try:
+        pid = daemon_lifecycle._leer_pid()
+    except OSError as exc:
+        raise ProcessInspectionError(
+            "MANAGED_DAEMON_UNVERIFIED: BioRAG could not read its own service record."
+        ) from exc
+    if pid is None:
+        return None, None
+    psutil = _psutil()
+    try:
+        process = psutil.Process(pid)
+        command = process.cmdline()
+        cwd = process.cwd()
+        script = _normalized(Path(database_root) / "graph_maintenance_daemon.py")
+        has_exact_entry = any(_normalized(token) == script for token in command)
+        if not has_exact_entry or _normalized(cwd) != _normalized(database_root):
+            raise ProcessInspectionError(
+                "MANAGED_DAEMON_IDENTITY_MISMATCH: refusing to signal a PID that is not "
+                "BioRAG's daemon for this installation."
+            )
+        if os.name != "nt" and hasattr(os, "getuid"):
+            if process.uids().real != os.getuid():
+                raise ProcessInspectionError(
+                    "MANAGED_DAEMON_OWNER_MISMATCH: run the update as the daemon's owner, without sudo."
+                )
+        elif os.name == "nt":
+            import getpass
+            owner = process.username().rsplit("\\", 1)[-1].casefold()
+            current = getpass.getuser().rsplit("\\", 1)[-1].casefold()
+            if owner != current:
+                raise ProcessInspectionError(
+                    "MANAGED_DAEMON_OWNER_MISMATCH: run the update as the daemon's owner."
+                )
+        return psutil, process
+    except psutil.NoSuchProcess:
+        # Clear only the stale PID we just read; never scan or kill a replacement.
+        try:
+            if daemon_lifecycle._leer_pid() == pid:
+                daemon_lifecycle._borrar_pid()
+        except OSError as exc:
+            raise ProcessInspectionError(
+                "MANAGED_DAEMON_UNVERIFIED: BioRAG could not clear its stale service record."
+            ) from exc
+        return psutil, None
+    except ProcessInspectionError:
+        raise
+    except (psutil.AccessDenied, PermissionError, OSError, AttributeError, TypeError) as exc:
+        raise ProcessInspectionError(
+            "MANAGED_DAEMON_UNVERIFIED: could not verify BioRAG's own daemon; no process was stopped."
+        ) from exc
+
+
+def managed_daemon_status(root: str | os.PathLike[str]) -> dict[str, Any]:
+    """Report only the daemon identity BioRAG itself registered."""
+    _, process = _daemon_process(root)
+    if process is None:
+        return {"status": "not_running"}
+    return {"status": "running", "pid": int(process.pid)}
+
+
+def stop_managed_daemon(
+    root: str | os.PathLike[str], *, timeout: float = 20.0
+) -> dict[str, Any]:
+    """Gracefully stop, then if necessary kill, only the verified PID-file daemon."""
+    psutil, process = _daemon_process(root)
+    if process is None:
+        return {"status": "not_running", "stopped": []}
+    pid = int(process.pid)
+    try:
+        process.terminate()
+        try:
+            process.wait(timeout=max(0.0, timeout))
+            forced = False
+        except psutil.TimeoutExpired:
+            process.kill()
+            process.wait(timeout=3.0)
+            forced = True
+    except psutil.NoSuchProcess:
+        forced = False
+    except psutil.TimeoutExpired as exc:
+        raise ProcessInspectionError(
+            "MANAGED_DAEMON_STOP_FAILED: BioRAG's verified background service did not stop in time."
+        ) from exc
+    except (psutil.AccessDenied, PermissionError, OSError) as exc:
+        raise ProcessInspectionError(
+            "MANAGED_DAEMON_STOP_FAILED: BioRAG could not stop its verified daemon."
+        ) from exc
+    from core import daemon_lifecycle
+    if daemon_lifecycle._leer_pid() == pid:
+        daemon_lifecycle._borrar_pid()
+    return {"status": "stopped", "stopped": [{"kind": "daemon", "pid": pid}],
+            "force_killed_after_timeout": [pid] if forced else []}
+
+
 def _runtime_candidate(name: str) -> bool:
     value = name.lower()
     return (value.startswith(("python", "biorag")) or "sqlite" in value
