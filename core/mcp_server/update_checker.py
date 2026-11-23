@@ -19,12 +19,10 @@ from urllib.request import Request, urlopen
 
 
 _SOURCE_REPO_API = "https://api.github.com/repos/dennysjmarquez/MemoryBioRAG"
-_POLICY_API = (
-    "https://api.github.com/repos/dennysjmarquez/MemoryBioRAG-Stable/contents/"
-    "update_policy.json?ref=main"
-)
-_TAGS_API = f"{_SOURCE_REPO_API}/tags?per_page=100"
-_TAGS_PAGE = "https://github.com/dennysjmarquez/MemoryBioRAG/tree/"
+_STABLE_REPO_API = "https://api.github.com/repos/dennysjmarquez/MemoryBioRAG-Stable"
+_POLICY_API = f"{_STABLE_REPO_API}/contents/update_policy.json?ref=main"
+_TAGS_API = f"{_STABLE_REPO_API}/tags?per_page=100"
+_TAGS_PAGE = "https://github.com/dennysjmarquez/MemoryBioRAG-Stable/tree/"
 _DEFAULT_TIMEOUT_SECONDS = 3.0
 _MAX_TAG_PAGES = 10
 _DEFAULT_INTERVAL_SECONDS = 24 * 60 * 60
@@ -385,12 +383,24 @@ def version_aware_server_class(
                 low_level_server.version = checker.current_version
 
         async def call_tool(self, name, arguments):
-            await notify_pending_update(
-                self.update_checker,
-                self.get_context(),
-                logger,
-            )
-            return await super().call_tool(name, arguments)
+            notice = self.update_checker.take_notice()
+            if notice:
+                try:
+                    await self.get_context().warning(notice)
+                except Exception as exc:
+                    if logger is not None:
+                        logger.debug("El cliente MCP no aceptó el aviso de versión: %s", exc)
+            result = await super().call_tool(name, arguments)
+            if notice and result:
+                # Inyectar banner visible en el payload de retorno (TextContent) para que el agente lo lea directamente
+                banner = f"ℹ️ [BioRAG Update Notice]: {notice}\n---\n"
+                try:
+                    from mcp.types import TextContent
+                    if isinstance(result, list) and len(result) > 0 and isinstance(result[0], TextContent):
+                        result[0] = TextContent(type='text', text=banner + result[0].text)
+                except Exception:
+                    pass
+            return result
 
     return VersionAwareServer
 

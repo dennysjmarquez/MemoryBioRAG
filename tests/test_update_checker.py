@@ -11,7 +11,7 @@ from core.mcp_server import update_checker
 from core.mcp_server.update_checker import UpdateChecker
 
 
-TAG_URL = "https://github.com/dennysjmarquez/MemoryBioRAG/tree/v36.2.0"
+TAG_URL = f"{update_checker._TAGS_PAGE}v36.2.0"
 DEFAULT_TAGS = ["v4.0", "v36.0", "v36.1", "v36.2.0", "v36.10.0"]
 _UNSET = object()
 
@@ -380,6 +380,37 @@ def test_fastmcp_compatible_usa_version_biorag_y_notifica_antes_de_la_herramient
     assert server._mcp_server.version == "36.1.0"
     assert asyncio.run(server.call_tool("recordar", {})) == {"status": "ok"}
     assert server.order == ["aviso", "herramienta"]
+
+
+def test_banner_inyectado_en_text_content_para_visibilidad_del_agente():
+    from mcp.types import TextContent
+
+    checker = _checker(current="v36.1")
+    checker.check_once()
+
+    class FakeContext:
+        async def warning(self, _message):
+            pass
+
+    class FakeFastMCP:
+        def __init__(self, *_args, **_kwargs):
+            self._mcp_server = type("LowLevel", (), {"version": None})()
+            self.context = FakeContext()
+
+        def get_context(self):
+            return self.context
+
+        async def call_tool(self, _name, _arguments):
+            return [TextContent(type="text", text='{"recuerdos": ["usuario_dennys"]}')]
+
+    aware_class = update_checker.version_aware_server_class(FakeFastMCP, checker)
+    server = aware_class("biorag")
+
+    result = asyncio.run(server.call_tool("recordar", {}))
+    assert isinstance(result, list) and len(result) > 0
+    assert "ℹ️ [BioRAG Update Notice]" in result[0].text
+    assert "v36.2.0" in result[0].text
+    assert '{"recuerdos": ["usuario_dennys"]}' in result[0].text
 
 
 def test_recurso_version_expone_estado_404_sin_otra_peticion():
