@@ -1,0 +1,60 @@
+usage: biorag correcciones [-h] {registrar,revisar,confirmar} ...
+
+Summary:
+Keep an earlier fact and record which fact replaces it for a specific context and effective date.
+
+What is it for?
+Keep an earlier fact and record which fact replaces it for a specific context and
+effective date. This is not a command for editing memory text.
+
+Before you start:
+How is this different from updating a node?
+Updating a node changes its text. A contextual correction keeps two memories and records
+that one fact replaces another in a context from a given date. It does not delete or
+rewrite either memory.
+
+Concrete example:
+One memory says the service uses port 8080; another says it now uses 8443. Approve the
+relationship: for this service and environment, from the specified date, 8443 replaces
+8080. The earlier memory remains available as history.
+
+
+Both memories must already exist. Register proposes, review checks the evidence, and
+confirm approves the relationship, not the truth of the fact.
+
+Where does it apply?
+It supplies evidence to MCP recordar/buscar with the matching context and mode vigente,
+historico or ambos. It does not change every search or guarantee that the newer fact
+always ranks first. These modes are not CLI buscar options.
+
+ referenced nodes must already exist.
+
+Dates are Unix seconds. BIORAG_CORRECTIONS=0 disables operations. Message language is not interpreted.
+
+Database: --db overrides BIORAG_PATH. Use an existing disposable copy.
+
+positional arguments:
+  {registrar,revisar,confirmar}
+    registrar           Create a proposal; does NOT approve it or edit
+                        memories
+    revisar             Inspect full evidence and its digest
+    confirmar           Explicitly approve the reviewed relationship
+
+options:
+  -h, --help            show this help message and exit
+
+Examples:
+  Use an existing test copy; replace the illustrative paths and node IDs.
+  UNIX dates are illustrative; never invent actual effective dates.
+  Replace REVIEW_DIGEST with the digest returned by revisar.
+  biorag correcciones registrar --help
+  biorag correcciones revisar --db /path/test-copy.db --id cambio-puerto-001
+  biorag correcciones confirmar --help
+
+Expected output:
+With no subcommand: this help. Operations return JSON; errors go to stderr.
+Runtime messages retain their existing language (often Spanish); JSON keys are unchanged.
+
+See also:
+  biorag buscar --help
+  biorag estado --help

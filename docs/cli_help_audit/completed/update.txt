@@ -1,0 +1,33 @@
+usage: biorag update [-h] [--channel {dev,stable}] [--dry-run] [--yes]
+                     [--db DB]
+
+Summary:
+Update the program and prepare its components in one command.
+
+What is it for?
+Update the program and prepare its components in one command. Without --yes this only
+plans and may access the network. Stop the MCP server (the process connecting your agent
+to memory tools) and background maintenance daemon before applying. A clean Git checkout
+has no local changes; an external database is stored outside that checkout.
+
+options:
+  -h, --help            show this help message and exit
+  --channel {dev,stable}
+                        dev: upstream of the installed branch; stable: policy-
+                        approved official tag; both require fast-forward
+  --dry-run             Plan without applying; equivalent to the default mode
+  --yes                 Authorize applying the update; otherwise only plan
+  --db DB               Database outside the checkout; defaults to BIORAG_PATH
+                        or the canonical path
+
+Examples:
+  biorag update --dry-run
+  biorag update --yes --db /path/copy.db
+
+Expected output:
+JSON plan or update receipt; failures report an error. Real update application was not
+executed (not verified).
+Runtime messages retain their existing language (often Spanish); JSON keys are unchanged.
+
+See also:
+  biorag recovery --help

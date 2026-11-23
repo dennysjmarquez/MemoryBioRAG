@@ -1,0 +1,27 @@
+usage: biorag sustantivos <concept>
+
+Summary:
+Inspect topic keywords in permanent or working memory. Alias: sustantivo.
+
+What is it for?
+Inspect the topic keywords assigned to an existing permanent or working-memory node when
+diagnosing retrieval.
+
+  - `sustantivos clave` (key nouns: the core topic of a memory)
+
+Before you start:
+referenced nodes must already exist.
+
+Options:
+  No additional options.
+
+Examples:
+  biorag sustantivos servicio_puerto_actual
+
+Expected output:
+The selected concept and its assigned keyword list.
+Runtime messages retain their existing language (often Spanish); JSON keys are unchanged.
+
+See also:
+  biorag buscar --help
+  biorag estado --help

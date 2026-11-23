@@ -1,0 +1,65 @@
+{
+  "scope": "921 official cases; adapter with empty ledger and absent contextual resolver",
+  "efficacy_with_approved_corrections_measured": false,
+  "hebbian_asset_manifested": false,
+  "hebbian_asset_sha256": null,
+  "configuration": {},
+  "cases_total": 921,
+  "scored_queries": 875,
+  "global_metrics": {
+    "recall_at_5": {
+      "baseline": 100.0,
+      "adapter": 100.0,
+      "delta": 0.0
+    },
+    "recall_at_1": {
+      "baseline": 93.03,
+      "adapter": 93.03,
+      "delta": 0.0
+    },
+    "mrr": {
+      "baseline": 0.9566,
+      "adapter": 0.9566,
+      "delta": 0.0
+    },
+    "negativos_fp": {
+      "baseline": 0,
+      "adapter": 0,
+      "delta": 0
+    },
+    "negativos_fp_rate": {
+      "baseline": 0.0,
+      "adapter": 0.0,
+      "delta": 0.0
+    },
+    "queries": {
+      "baseline": 875,
+      "adapter": 875,
+      "delta": 0
+    }
+  },
+  "official_snapshot_champion_present": false,
+  "neuron_applied": {
+    "baseline": false,
+    "adapter": false
+  },
+  "categories_equal": true,
+  "all_global_fields_equal": true,
+  "exact_output_order_scores_per_case_equal": true,
+  "changed_case_ids": [],
+  "unexpected_adapter_states": [],
+  "gate_exit_codes": {
+    "baseline": 0,
+    "selector": 0
+  },
+  "qa_input_snapshot_unchanged": true,
+  "official_snapshot_sha256": "aa7ac66f9fe76d194eeaf578b4e14ba965e94eab40247dace35854df094aa25c",
+  "evaluator_sha256": "53c6591cdb21a2549d3400139851af823529fa86efe3d8bfda2d28881abd4a60",
+  "cases_sha256": "c76a71465f7a9be647094d79f00ffcebd742b00a6c12fa4ae90cf2c3d0654f4c",
+  "hashes": {
+    "baseline-trace.jsonl": "eefe30d5b2cec56e6cd335dde5481a0407bbdb23cc56af3ea88640d9f7e43435",
+    "selector-trace.jsonl": "9039aa9a0a6bf57660630be45f2f146a5ba25a1ef3a94a69b3c8c37289ac5a14"
+  },
+  "baseline_failure_records": 2,
+  "variant_failure_records": 2
+}

@@ -1,0 +1,131 @@
+{
+  "mode": "handler MCP real + selector EXTERNO, metadatos de fixture explícitos",
+  "source_sha256": "07a77c801eaa56750627e1c831de91a65e6448da25e4803b86d3ae4e2446c55e",
+  "variants": {
+    "activo": {
+      "before": [
+        {
+          "node": "ultima_version_biorag",
+          "base_score": 0.9586
+        },
+        {
+          "node": "version_actual_biorag",
+          "base_score": 0.8522
+        },
+        {
+          "node": "version_actual_biorag_v32_4_20261007",
+          "base_score": 0.8168
+        },
+        {
+          "node": "biorag_v14_0_estado",
+          "base_score": 0.3732
+        },
+        {
+          "node": "version_actual_biorag_v33_0_20261014",
+          "base_score": 0.3522
+        }
+      ],
+      "after": {
+        "status": "resolved",
+        "winner": "version_actual_biorag",
+        "candidates": [
+          {
+            "node": "version_actual_biorag",
+            "base_score": 0.8522
+          },
+          {
+            "node": "ultima_version_biorag",
+            "base_score": 0.9586
+          },
+          {
+            "node": "version_actual_biorag_v32_4_20261007",
+            "base_score": 0.8168
+          },
+          {
+            "node": "biorag_v14_0_estado",
+            "base_score": 0.3732
+          },
+          {
+            "node": "version_actual_biorag_v33_0_20261014",
+            "base_score": 0.3522
+          }
+        ],
+        "claims": [
+          "version_actual_biorag"
+        ],
+        "superseded": [
+          "ultima_version_biorag",
+          "version_actual_biorag_v32_4_20261007"
+        ],
+        "missing_nodes": []
+      },
+      "fingerprint": "5721b3821c3521e6",
+      "champion": true,
+      "candidates_preserved": true,
+      "ledger_read_only": true
+    },
+    "dormido": {
+      "before": [
+        {
+          "node": "version_actual_biorag_v32_4_20261007",
+          "base_score": 0.7746
+        },
+        {
+          "node": "version_actual_biorag",
+          "base_score": 0.7208
+        },
+        {
+          "node": "biorag_v14_0_estado",
+          "base_score": 0.633
+        },
+        {
+          "node": "version_biorag_v11_1",
+          "base_score": 0.521
+        },
+        {
+          "node": "version_actual_biorag_v32_3_20261003",
+          "base_score": 0.4862
+        }
+      ],
+      "after": {
+        "status": "resolved",
+        "winner": "version_actual_biorag",
+        "candidates": [
+          {
+            "node": "version_actual_biorag",
+            "base_score": 0.7208
+          },
+          {
+            "node": "version_actual_biorag_v32_4_20261007",
+            "base_score": 0.7746
+          },
+          {
+            "node": "biorag_v14_0_estado",
+            "base_score": 0.633
+          },
+          {
+            "node": "version_biorag_v11_1",
+            "base_score": 0.521
+          },
+          {
+            "node": "version_actual_biorag_v32_3_20261003",
+            "base_score": 0.4862
+          }
+        ],
+        "claims": [
+          "version_actual_biorag"
+        ],
+        "superseded": [
+          "ultima_version_biorag",
+          "version_actual_biorag_v32_4_20261007"
+        ],
+        "missing_nodes": []
+      },
+      "fingerprint": "5721b3821c3521e6",
+      "champion": true,
+      "candidates_preserved": true,
+      "ledger_read_only": true
+    }
+  },
+  "source_unchanged": true
+}

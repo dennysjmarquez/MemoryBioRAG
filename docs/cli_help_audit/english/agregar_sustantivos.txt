@@ -1,0 +1,17 @@
+biorag agregar_sustantivos <concept> "keyword1,keyword2"
+    Assign topic keywords in permanent or working memory.
+    Options:
+    --sustantivos-clave "a,b"  Alternative to the positional keyword list.
+    --sustantivos           Alias of --sustantivos-clave.
+    Aliases: agregar-sustantivos, asignar_sustantivos, asignar-sustantivos.
+
+Why use it? Assign or update topic keywords on an existing permanent or working memory
+to improve retrieval. This does not establish which version of a fact is current.
+
+Before you start: referenced nodes must already exist.
+
+Changes memory or state. To test on a disposable copy, use: BIORAG_PATH=/path/copy.db
+biorag agregar_sustantivos ...
+
+Examples:
+  biorag agregar_sustantivos servicio_puerto_actual "service,port"

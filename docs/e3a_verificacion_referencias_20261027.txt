@@ -1,0 +1,62 @@
+E3 A — verificación de las referencias E2e
+Fecha de verificación: 2026-10-27
+Base E2e:
+9f2c0befa45be89adec75856cbc49cb7458a5377
+HEAD con ajuste de Python:
+3af967d3252a2a87d3aeeafc3e8314facc0290af
+
+Diff E2e vs HEAD: motor, arnés, examen, snapshot, dependencias y corpus WordNet:
+(sin diferencias en los componentes indicados)
+Diff no confirmado en core:
+
+Respaldo descargado de Drive:
+34650056ebcc04427ba3f9b494150026  /tmp/biorag_e3a_backup.sql
+Copias reconstruida y snapshot:
+a61913ce074cd02323c13589040b7ab1e5e4f36b18bbe62c12f9c1d363324e9a  /tmp/viva_e3a.db
+104dd2902aaf24c3ce93624492ea95a719acbdcca50f4f6bc123ac8317749796  snapshots/qa_escape_qcr_20260811.db
+Comprobación de integridad y número de recuerdos:
+/tmp/viva_e3a.db integrity_check= ok largo_plazo= 1357
+snapshots/qa_escape_qcr_20260811.db integrity_check= ok largo_plazo= 866
+
+Manifiesto E2e: única sustitución de ruta temporal antigua por copia reconstruida:
+core/memory/scoring.py: OK
+snapshots/qa_escape_qcr_20260811.db: OK
+/tmp/viva_e3a.db: OK
+docs/e2e_base_snapshot_normal_20261027.json: OK
+docs/e2e_base_snapshot_normal_20261027.log: OK
+docs/e2e_base_snapshot_normal_fallos_20261027.jsonl: OK
+docs/e2e_base_snapshot_ruido_20261027.json: OK
+docs/e2e_base_snapshot_ruido_20261027.log: OK
+docs/e2e_base_snapshot_ruido_fallos_20261027.jsonl: OK
+docs/e2e_base_viva_normal_20261027.json: OK
+docs/e2e_base_viva_normal_20261027.log: OK
+docs/e2e_base_viva_normal_fallos_20261027.jsonl: OK
+docs/e2e_base_viva_ruido_20261027.json: OK
+docs/e2e_base_viva_ruido_20261027.log: OK
+docs/e2e_base_viva_ruido_fallos_20261027.jsonl: OK
+docs/e2e_candidato_snapshot_normal_20261027.json: OK
+docs/e2e_candidato_snapshot_normal_20261027.log: OK
+docs/e2e_candidato_snapshot_normal_fallos_20261027.jsonl: OK
+docs/e2e_candidato_snapshot_ruido_20261027.json: OK
+docs/e2e_candidato_snapshot_ruido_20261027.log: OK
+docs/e2e_candidato_snapshot_ruido_fallos_20261027.jsonl: OK
+docs/e2e_candidato_viva_normal_20261027.json: OK
+docs/e2e_candidato_viva_normal_20261027.log: OK
+docs/e2e_candidato_viva_normal_fallos_20261027.jsonl: OK
+docs/e2e_candidato_viva_ruido_20261027.json: OK
+docs/e2e_candidato_viva_ruido_20261027.log: OK
+docs/e2e_candidato_viva_ruido_fallos_20261027.jsonl: OK
+docs/e2e_comparacion_20261027.txt: OK
+docs/e2e_comparacion_parcial_viva_normal_20261027.txt: OK
+docs/e2e_comparacion_veredicto_20261027.json: OK
+docs/e2e_peso_tematico_20261027.md: OK
+docs/e2e_prueba_tematico_revertido_20261027.log: OK
+docs/e2e_veredicto_20261027.json: OK
+docs/e2e_veredicto_parcial_viva_normal_20261027.json: OK
+
+Versiones del entorno actual (comparar con docs/e2e_peso_tematico_20261027.md):
+Python 3.11.2 (main, Apr  8 2026, 01:58:00) [GCC 12.2.0]
+SQLite 3.40.1
+NumPy 2.4.6
+pytest 9.1.1
+NLTK 3.9.4

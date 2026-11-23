@@ -1,0 +1,122 @@
+{
+  "root": {
+    "returncode": 0,
+    "language_hits": [],
+    "ordered_sections": true,
+    "internal_names": []
+  },
+  "buscar": {
+    "returncode": 0,
+    "language_hits": [],
+    "ordered_sections": true,
+    "internal_names": []
+  },
+  "listar": {
+    "returncode": 0,
+    "language_hits": [],
+    "ordered_sections": true,
+    "internal_names": []
+  },
+  "corteza": {
+    "returncode": 0,
+    "language_hits": [],
+    "ordered_sections": true,
+    "internal_names": []
+  },
+  "estado": {
+    "returncode": 0,
+    "language_hits": [],
+    "ordered_sections": true,
+    "internal_names": []
+  },
+  "familiaridad": {
+    "returncode": 0,
+    "language_hits": [],
+    "ordered_sections": true,
+    "internal_names": []
+  },
+  "sustantivos": {
+    "returncode": 0,
+    "language_hits": [],
+    "ordered_sections": true,
+    "internal_names": []
+  },
+  "guardar": {
+    "returncode": 0,
+    "language_hits": [],
+    "ordered_sections": true,
+    "internal_names": []
+  },
+  "correcciones": {
+    "returncode": 0,
+    "language_hits": [],
+    "ordered_sections": true,
+    "internal_names": []
+  },
+  "agregar_sustantivos": {
+    "returncode": 0,
+    "language_hits": [],
+    "ordered_sections": true,
+    "internal_names": []
+  },
+  "asociar": {
+    "returncode": 0,
+    "language_hits": [],
+    "ordered_sections": true,
+    "internal_names": []
+  },
+  "sueno": {
+    "returncode": 0,
+    "language_hits": [],
+    "ordered_sections": true,
+    "internal_names": []
+  },
+  "comunicar": {
+    "returncode": 0,
+    "language_hits": [],
+    "ordered_sections": true,
+    "internal_names": []
+  },
+  "leer_mensajes": {
+    "returncode": 0,
+    "language_hits": [],
+    "ordered_sections": true,
+    "internal_names": []
+  },
+  "dashboard": {
+    "returncode": 0,
+    "language_hits": [],
+    "ordered_sections": true,
+    "internal_names": []
+  },
+  "update": {
+    "returncode": 0,
+    "language_hits": [],
+    "ordered_sections": true,
+    "internal_names": []
+  },
+  "recovery": {
+    "returncode": 0,
+    "language_hits": [],
+    "ordered_sections": true,
+    "internal_names": []
+  },
+  "correcciones__registrar": {
+    "returncode": 0,
+    "language_hits": [],
+    "ordered_sections": true,
+    "internal_names": []
+  },
+  "correcciones__revisar": {
+    "returncode": 0,
+    "language_hits": [],
+    "ordered_sections": true,
+    "internal_names": []
+  },
+  "correcciones__confirmar": {
+    "returncode": 0,
+    "language_hits": [],
+    "ordered_sections": true,
+    "internal_names": []
+  }
+}

@@ -53,6 +53,27 @@ def test_typo_citado_en_un_recuerdo_sigue_siendo_raro():
     assert set(E.palabras_desconocidas(cur, {"memovria", "biroag"})) == {"memovria", "biroag"}
 
 
+def test_palabra_rara_se_mide_sobre_el_corte_baseline():
+    conn, cur = _db([("base", "contenido sin la palabra rara")])
+    cutoff = cur.execute("SELECT MAX(rowid) FROM largo_plazo").fetchone()[0]
+    for i in range(2):
+        cur.execute(
+            "INSERT INTO largo_plazo (concepto, contenido, sinonimos, sustantivos_clave, estado, categoria) "
+            "VALUES (?, ?, '', '', 'activo', 1)",
+            (f"ruido_{i}", "memovria aparece solo en el ruido nuevo"),
+        )
+        rid = cur.lastrowid
+        cur.execute(
+            "INSERT INTO largo_plazo_fts_unicode (rowid, concepto, contenido, sinonimos) "
+            "VALUES (?, ?, ?, '')",
+            (rid, f"ruido_{i}", "memovria aparece solo en el ruido nuevo"),
+        )
+    conn.commit()
+
+    assert E.palabras_desconocidas(cur, {"memovria"}, baseline_rowid=cutoff) == ["memovria"]
+    assert E.palabras_desconocidas(cur, {"memovria"}) == []
+
+
 def test_umbral_de_frecuencia_configurable(monkeypatch):
     _, cur = _db([("nota_qa", "memovria"), ("b", "memovria otra vez")])
     assert E.palabras_desconocidas(cur, {"memovria"}) == []  # en 2 recuerdos: ya no es rara

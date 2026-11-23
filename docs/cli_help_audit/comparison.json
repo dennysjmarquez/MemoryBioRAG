@@ -1,0 +1,22 @@
+[
+  {
+    "phase": "before",
+    "entries": 20,
+    "exit_zero": 20,
+    "purpose": 19,
+    "examples": 20,
+    "internal_names": 1,
+    "legacy_weights": 1,
+    "node_warning_entries": 19
+  },
+  {
+    "phase": "english",
+    "entries": 20,
+    "exit_zero": 20,
+    "purpose": 20,
+    "examples": 20,
+    "internal_names": 0,
+    "legacy_weights": 0,
+    "node_warning_entries": 4
+  }
+]

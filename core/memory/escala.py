@@ -25,7 +25,7 @@ recuerdo VIEJO), sino porque dos decisiones del buscador dependían del tamaño:
 Coste constante: una consulta al vocabulario por palabra (índice FTS5) y una
 consulta trigram acotada por el mismo LIMIT que ya existía.
 
-Interruptor: BIORAG_ESCALA=0 vuelve al comportamiento anterior.
+Interruptor: BIORAG_ESCALA=0 desactiva estas ayudas de escala; no revierte por sí solo todo el buscador a una versión anterior.
 """
 from __future__ import annotations
 
@@ -71,19 +71,41 @@ def _df_max_rara() -> int:
         return 1
 
 
-def palabras_desconocidas(cursor, tokens) -> list[str]:
-    """Palabras de la pregunta (normalizadas, ≥ 3 letras, no solo dígitos) que la memoria
-    no conoce o casi no conoce: aparecen en ≤ BIORAG_ESCALA_DF_RARA recuerdos (1).
+def palabras_desconocidas(cursor, tokens, *, baseline_rowid=None) -> list[str]:
+    """Palabras de la pregunta que la memoria conoce en ≤ el umbral de recuerdos.
 
-    Por qué «≤ 1» y no «0»: un typo es personal; como mucho aparece en la nota que lo
-    cita (p. ej. un recuerdo sobre fallos de la QA), y esa frecuencia NO crece con la
-    memoria. Las palabras reales sí: en el snapshot «memoria» está en 180 recuerdos.
-    Medido: typos con frecuencia 0 en el snapshot y 1 en una memoria que los cita.
-    Si algo falla, devuelve [] (= comportamiento anterior)."""
-    candidatas = [t for t in tokens if len(t) >= 3 and not t.isdigit()]
-    if not candidatas or not _asegurar_vocab(cursor):
+    Si se proporciona ``baseline_rowid``, la frecuencia se mide sobre el corpus
+    de referencia, no sobre las altas posteriores. Se consultan los postings del
+    índice ``unicode61`` con ``LIMIT df_max + 1``: el trabajo queda acotado por el
+    umbral y no recorre filas ni recalcula el vocabulario del corpus durante la
+    búsqueda. Sin límite explícito se conserva la compatibilidad con la API previa.
+    """
+    candidatas = [str(t) for t in tokens if len(str(t)) >= 3 and not str(t).isdigit()]
+    if not candidatas:
         return []
     df_max = _df_max_rara()
+
+    if baseline_rowid is not None:
+        raras = []
+        try:
+            for token in candidatas:
+                normalizado = _sin_tildes(token)
+                match = '"' + normalizado.replace('"', '""') + '"'
+                filas = cursor.execute(
+                    "SELECT 1 FROM largo_plazo_fts_unicode "
+                    "WHERE largo_plazo_fts_unicode MATCH ? AND rowid <= ? LIMIT ?",
+                    (match, int(baseline_rowid), df_max + 1),
+                ).fetchall()
+                if len(filas) <= df_max:
+                    raras.append(token)
+            return raras
+        except sqlite3.Error:
+            # No usar la frecuencia global como fallback: produciría de nuevo
+            # una decisión dependiente de las filas añadidas después del corte.
+            return []
+
+    if not _asegurar_vocab(cursor):
+        return []
     raras = []
     try:
         for t in candidatas:
@@ -110,28 +132,45 @@ def _trigramas(query: str) -> list[str]:
 
 
 def rowids_por_parecido(cursor, query: str, where_extra: str, params_extra: tuple,
-                        limite: int):
+                        limite: int, *, baseline_rowid=None):
     """Los `limite` recuerdos más parecidos a la pregunta por trigramas (typo-tolerante),
     respetando el mismo filtro de estado/categoría. Devuelve None cuando la memoria
     entera cabe en la ventana: el llamador usa entonces su consulta de siempre."""
     try:
-        total = cursor.execute(
-            f"SELECT COUNT(*) FROM largo_plazo l {where_extra}", params_extra
-        ).fetchone()[0]
-    except sqlite3.Error:
+        # Solo hace falta distinguir <= límite de > límite. LIMIT corta la
+        # comprobación tras límite+1 filas; no se cuenta el corpus completo.
+        probe_limit = max(1, int(limite) + 1)
+        muestra = cursor.execute(
+            f"SELECT 1 FROM largo_plazo l {where_extra} LIMIT ?",
+            tuple(params_extra) + (probe_limit,),
+        ).fetchall()
+    except (sqlite3.Error, TypeError, ValueError):
         return None
-    if total <= limite:
+    if len(muestra) <= int(limite):
         return None
     grams = _trigramas(query)
     if not grams:
         return None
     match = " OR ".join(f'"{g}"' for g in grams)
     cond = where_extra.replace("WHERE", "AND", 1) if where_extra.strip() else ""
+    cond = cond.replace("rowid <=", "l.rowid <=")
+    fts_table = "largo_plazo_fts"
+    if baseline_rowid is not None:
+        try:
+            from core.memory.growth_stable_fts import REFERENCE_FTS
+            exists = cursor.execute(
+                "SELECT 1 FROM sqlite_master WHERE type='table' AND name=? LIMIT 1",
+                (REFERENCE_FTS,),
+            ).fetchone()
+            if exists:
+                fts_table = REFERENCE_FTS
+        except sqlite3.Error:
+            pass
     try:
         filas = cursor.execute(
-            "SELECT l.rowid FROM largo_plazo_fts f CROSS JOIN largo_plazo l "
-            f"ON l.rowid = f.rowid WHERE largo_plazo_fts MATCH ? {cond} "
-            "ORDER BY bm25(largo_plazo_fts) LIMIT ?",
+            f"SELECT l.rowid FROM {fts_table} f CROSS JOIN largo_plazo l "
+            f"ON l.rowid = f.rowid WHERE {fts_table} MATCH ? {cond} "
+            f"ORDER BY bm25({fts_table}) LIMIT ?",
             (match,) + tuple(params_extra) + (limite,),
         ).fetchall()
     except sqlite3.Error:

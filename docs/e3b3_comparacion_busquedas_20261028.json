@@ -1,0 +1,180 @@
+{
+  "misma_base_b2_vs_b3": {
+    "b2": {
+      "sha256_semilla": "65f78abb0d62f31b87ef77e1e798ec2a2ef01baa6d0e6a32ee089344d5cd20cf",
+      "vistas_comparadas": 108,
+      "llamadas_comparadas_por_version": 216,
+      "respuestas_o_trazas_diferentes": []
+    },
+    "b3": {
+      "sha256_semilla": "172b4f541a6b74d1c94fd1e77b3790bc76b9c186e3c56674763e9b0d8c8c6241",
+      "vistas_comparadas": 207,
+      "llamadas_comparadas_por_version": 414,
+      "respuestas_o_trazas_diferentes": []
+    }
+  },
+  "comparacion_base_crecida": {
+    "vistas_comunes": 108,
+    "casos_comunes": 36,
+    "metricas": {
+      "on_acierto_r5": {
+        "perdidas": [],
+        "ganancias": []
+      },
+      "on_acierto_r1": {
+        "perdidas": [],
+        "ganancias": []
+      },
+      "off_acierto_r5": {
+        "perdidas": [],
+        "ganancias": []
+      },
+      "off_acierto_r1": {
+        "perdidas": [],
+        "ganancias": []
+      }
+    },
+    "nota": "las semillas tienen distinta cantidad de recuerdos; no es comparación de código aislado"
+  },
+  "b3_por_idioma_y_tipo": {
+    "zh": {
+      "nombre": {
+        "casos": 18,
+        "on_r5": 18,
+        "off_r5": 18,
+        "on_r1": 18,
+        "off_r1": 18,
+        "on_expansion_alguna": 0,
+        "solo_on": 0,
+        "solo_off": 0
+      },
+      "puente_completo": {
+        "casos": 18,
+        "on_r5": 0,
+        "off_r5": 0,
+        "on_r1": 0,
+        "off_r1": 0,
+        "on_expansion_alguna": 18,
+        "solo_on": 0,
+        "solo_off": 0
+      },
+      "fragmento_sin_nombre": {
+        "casos": 18,
+        "on_r5": 0,
+        "off_r5": 0,
+        "on_r1": 0,
+        "off_r1": 0,
+        "on_expansion_alguna": 0,
+        "solo_on": 0,
+        "solo_off": 0
+      }
+    },
+    "ja": {
+      "nombre": {
+        "casos": 15,
+        "on_r5": 15,
+        "off_r5": 15,
+        "on_r1": 15,
+        "off_r1": 15,
+        "on_expansion_alguna": 0,
+        "solo_on": 0,
+        "solo_off": 0
+      },
+      "puente_completo": {
+        "casos": 15,
+        "on_r5": 0,
+        "off_r5": 0,
+        "on_r1": 0,
+        "off_r1": 0,
+        "on_expansion_alguna": 15,
+        "solo_on": 0,
+        "solo_off": 0
+      },
+      "fragmento_sin_nombre": {
+        "casos": 15,
+        "on_r5": 0,
+        "off_r5": 0,
+        "on_r1": 0,
+        "off_r1": 0,
+        "on_expansion_alguna": 0,
+        "solo_on": 0,
+        "solo_off": 0
+      }
+    },
+    "ko": {
+      "nombre": {
+        "casos": 16,
+        "on_r5": 16,
+        "off_r5": 16,
+        "on_r1": 16,
+        "off_r1": 16,
+        "on_expansion_alguna": 14,
+        "solo_on": 0,
+        "solo_off": 0
+      },
+      "puente_completo": {
+        "casos": 16,
+        "on_r5": 16,
+        "off_r5": 16,
+        "on_r1": 16,
+        "off_r1": 16,
+        "on_expansion_alguna": 16,
+        "solo_on": 0,
+        "solo_off": 0
+      },
+      "fragmento_sin_nombre": {
+        "casos": 16,
+        "on_r5": 0,
+        "off_r5": 0,
+        "on_r1": 0,
+        "off_r1": 0,
+        "on_expansion_alguna": 0,
+        "solo_on": 0,
+        "solo_off": 0
+      }
+    },
+    "ru": {
+      "nombre": {
+        "casos": 20,
+        "on_r5": 20,
+        "off_r5": 20,
+        "on_r1": 20,
+        "off_r1": 20,
+        "on_expansion_alguna": 20,
+        "solo_on": 0,
+        "solo_off": 0
+      },
+      "puente_completo": {
+        "casos": 20,
+        "on_r5": 20,
+        "off_r5": 20,
+        "on_r1": 20,
+        "off_r1": 20,
+        "on_expansion_alguna": 20,
+        "solo_on": 0,
+        "solo_off": 0
+      },
+      "fragmento_sin_nombre": {
+        "casos": 20,
+        "on_r5": 0,
+        "off_r5": 0,
+        "on_r1": 0,
+        "off_r1": 0,
+        "on_expansion_alguna": 0,
+        "solo_on": 0,
+        "solo_off": 0
+      }
+    }
+  },
+  "b3_expansion_chino_japones": {
+    "puentes_chino_japones": 33,
+    "expansion_al_nodo_correcto": 33,
+    "origen_esperado_concept_hub": 33,
+    "sin_nodo_en_top5": 33,
+    "nota": "la expansión y el origen son trazas internas, no equivalen a un resultado entregado"
+  },
+  "consultas_mcp_totales": 1260,
+  "sin_regresion_detectada": true,
+  "problemas": [],
+  "limitaciones": "FastMCP en proceso; frases sintéticas, nombre dentro del puente completo, fragmentos genéricos."
+}

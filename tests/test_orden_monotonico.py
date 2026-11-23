@@ -32,9 +32,8 @@ if _RAIZ not in sys.path:
 def _db_path():
     """Prioriza BIORAG_PATH (la suite lo apunta a la copia aislada), igual que
     tests/test_sdm_*.py. Nunca abre la DB viva por efecto colateral."""
-    return os.environ.get("BIORAG_PATH") or os.path.join(
-        _RAIZ, "MemoryBioRAG_Data", "memory_biorag.db"
-    )
+    from core.paths import resolve_db_path
+    return resolve_db_path()
 
 
 # Queries que en la corrida 2026-09-02 produjeron scores no monotónicos o que ejercitan

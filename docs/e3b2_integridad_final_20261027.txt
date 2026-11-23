@@ -1,0 +1,35 @@
+E3B2 — integridad y verificación final
+Fecha local: 2026-10-27T23:12:57-04:00
+Referencia Git B1: c0ef030e336f963b7cd913e3693adda311750ea5
+SHA-256 de fuentes, candidate, datos y archivos protegidos:
+104dd2902aaf24c3ce93624492ea95a719acbdcca50f4f6bc123ac8317749796  snapshots/qa_escape_qcr_20260811.db
+a61913ce074cd02323c13589040b7ab1e5e4f36b18bbe62c12f9c1d363324e9a  /tmp/viva_e3a.db
+c76a71465f7a9be647094d79f00ffcebd742b00a6c12fa4ae90cf2c3d0654f4c  scripts/casos_qa_baseline_v1.jsonl
+d3665a8e895ba061354ddd7d9c4fe44614956ad79d663433c6ef70e59aa78a6a  scripts/casos_qa_multilingue_e3a.jsonl
+ecadfca36f142e5f9cb00d86cce8c90bff29849c6d482c5034587d8f0a04b1dc  scripts/casos_qa_multilingue_sustantivos_e3a.jsonl
+fed44d525fe037a4ffd596a5b5bda24129ca22727474518b5425dd805954c35c  scripts/casos_qa_guardado_nativo_e3b2.jsonl
+b188d7430e8e37dcbcde1dcb949cc5255c7d205c1b7c1cc9de3ef726e4545218  core/mcp_server/write.py
+eaf26c15feafe47c574a381ad6e7f1118439c825e893a95db6cbce94d2ef7e36  core/mcp_server/_shared.py
+c0f174ae384a3db8e060970b6045be51b1f8f8842f8882eb4b4e3e34a8ade1df  core/memory/neurona_examen.py
+3bbc51676ada7346d01dfac3c4f623d537843c009b089eb7186ab94d1f75b593  VERSION
+9d08efea39f592fb04f64408e1ace88bae3f0278ccf79bbfaea2f438920539ea  README.md
+cac90c3769b00bda0eead251fcbb53b1b4674c98c2728b5165ebfcc73eae78da  CHANGELOG.md
+Backup privado de la viva (no se incluye en el repositorio):
+34650056ebcc04427ba3f9b494150026  /tmp/biorag_b2_backup.sql
+Códigos reales de salida:
+  snapshot_normal  0
+  viva_normal      0
+  snapshot_ruido   1
+  viva_ruido       1
+  pytest           0
+Las salidas 1 de ruido corresponden al gate clásico preexistente; se mantiene activo.
+snapshots/qa_escape_qcr_20260811.db: integrity=ok; largo_plazo=866; sin WAL/SHM
+/tmp/viva_e3a.db: integrity=ok; largo_plazo=1357; sin WAL/SHM
+snapshot_normal: global, categorias, qa_honesta, e2b y fallos completos coinciden; 2421.09 s
+snapshot_ruido: global, categorias, qa_honesta, e2b y fallos completos coinciden; 4096.37 s
+viva_normal: global, categorias, qa_honesta, e2b y fallos completos coinciden; 3084.37 s
+viva_ruido: global, categorias, qa_honesta, e2b y fallos completos coinciden; 5641.94 s
+Comparadores: CUMPLEN; no existe estado_hormiga.json en el repositorio al finalizar (las corridas definitivas usaron estados temporales).
+Pytest final:
+648 passed in 466.16s (0:07:46)
+Archivos protegidos sin diff; patch productivo exacto; git diff --check correcto.

@@ -1,0 +1,68 @@
+[
+  {
+    "args": [
+      "guardar",
+      "help_audit_port",
+      "El servicio de prueba utiliza el puerto 8443",
+      "--sustantivos-clave",
+      "servicio,puerto"
+    ],
+    "exit_code": 0,
+    "stdout": "[PMI] Corpus recalculado: 0 nodos, 0 pares, 0.0ms\n[PMI] Corpus recalculado: 0 nodos, 0 pares, 0.0ms\n[PMI] Corpus recalculado: 0 nodos, 0 pares, 0.0ms\n[PMI] Corpus recalculado: 0 nodos, 0 pares, 0.0ms\n[PMI] Corpus recalculado: 0 nodos, 0 pares, 0.0ms\n[PMI] Corpus recalculado: 0 nodos, 0 pares, 0.0ms\n'help_audit_port' guardado en corto plazo.\nSustantivos clave: [servicio, puerto] (2/5)\nCategoria: General.\nConsolidalo con 'sueno' para hacerlo permanente.\n",
+    "stderr": ""
+  },
+  {
+    "args": [
+      "buscar",
+      "help_audit_port"
+    ],
+    "exit_code": 1,
+    "stdout": "No se encontraron coincidencias para la frase.\n\n💡 Sugerencia: Puedes refinar la búsqueda especificando su núcleo temático con --sustantivos-clave \"termino1,termino2\"\n",
+    "stderr": ""
+  },
+  {
+    "args": [
+      "sueno"
+    ],
+    "exit_code": 0,
+    "stdout": "\n--- Iniciando Ciclo de Consolidación (Sueño) ---\n[PMI] Corpus recalculado: 1 nodos, 0 pares, 0.1ms\n[SDM] 1 vectores reindexados (full periódico).\n[PPMI] 1 nodos reindexados con PPMI+SVD+Retrofitting (full periódico).\n[MemoryBioRAG] Proceso de consolidación y equilibrio sináptico completado con éxito.\n[TRACE] 1.8 Snap: 1 → ['help_audit_port']\n",
+    "stderr": ""
+  },
+  {
+    "args": [
+      "buscar",
+      "help_audit_port"
+    ],
+    "exit_code": 0,
+    "stdout": "[TRACE] 1.8 Snap: 1 → ['help_audit_port']\n[MemoryBioRAG] 1 coincidencias encontradas (pagina 1/1)\n  (frase: help_audit_port)\n============================================================\n\n--- #1: help_audit_port (peso:0.98, estado:activo, score:0.89) ---\nEl servicio de prueba utiliza el puerto 8443\n\n============================================================\n",
+    "stderr": ""
+  },
+  {
+    "args": [
+      "estado"
+    ],
+    "exit_code": 0,
+    "stdout": "Nodos activos:      1\nNodos dormidos:     0\nMemoria de trabajo: 0 items\nEnergia sinaptica:  0.98\nNodos con sustantivos clave: 1/1 (100.0%)\n",
+    "stderr": ""
+  },
+  {
+    "args": [
+      "comunicar",
+      "agent_b",
+      "Mensaje de prueba"
+    ],
+    "exit_code": 0,
+    "stdout": "[BioRAG] Mensaje de desconocido para todos registrado en la corteza compartida.\n",
+    "stderr": ""
+  },
+  {
+    "args": [
+      "leer_mensajes",
+      "--para",
+      "agent_b"
+    ],
+    "exit_code": 0,
+    "stdout": "[NO LEIDO] #1 2026-11-22 19:08 | desconocido -> todos\n         Mensaje de prueba\n\n",
+    "stderr": ""
+  }
+]

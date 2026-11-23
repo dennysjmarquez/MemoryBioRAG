@@ -1,0 +1,24 @@
+usage: biorag dashboard
+
+Summary:
+Launch the optional local dashboard. May install dependencies and start servers.
+
+What is it for?
+Start the local inspection interfaces, if included. This can install Python and Node
+dependencies, start servers on ports 8001 and 3000, and open a browser. It is not
+required for CLI or MCP use.
+
+Options:
+  No additional options. Use --help to inspect this command without launching it.
+
+Examples:
+  biorag dashboard --help
+
+Expected output:
+Without --help: service startup diagnostics; dependency installation may occur. Startup
+was not executed in this audit (not verified).
+Runtime messages retain their existing language (often Spanish); JSON keys are unchanged.
+
+See also:
+  biorag buscar --help
+  biorag estado --help

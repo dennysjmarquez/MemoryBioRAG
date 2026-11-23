@@ -1,0 +1,25 @@
+Usage: biorag listar [--pagina N]
+
+Summary:
+List permanent concepts in pages of 10 with content previews.
+
+What is it for?
+Browse permanent concepts page by page when you do not yet know what to search for.
+
+`corteza` (cortex: permanent memory); `sueno` (sleep: consolidation); `sustantivos clave` (key nouns: the core topic of a memory).
+
+Options:
+--pagina N              Page number, starting at 1.
+
+Examples:
+  biorag listar
+  biorag listar --pagina 2
+
+Expected output:
+A page of permanent concept names and content previews.
+Runtime messages retain their existing language (often Spanish); JSON keys are unchanged.
+
+See also:
+  biorag buscar --help
+  biorag guardar --help
+  biorag sueno --help

@@ -1,0 +1,23 @@
+Usage: biorag corteza
+
+Summary:
+List permanent memory nodes, including active and dormant nodes.
+
+What is it for?
+Inspect permanent memory nodes, including their state. This can print a large list.
+
+`corteza` (cortex: permanent memory); `sueno` (sleep: consolidation); `sustantivos clave` (key nouns: the core topic of a memory).
+
+Options:
+No additional options.
+
+Examples:
+  biorag corteza
+
+Expected output:
+Permanent node names, weights and states.
+Runtime messages retain their existing language (often Spanish); JSON keys are unchanged.
+
+See also:
+  biorag buscar --help
+  biorag estado --help

@@ -1,0 +1,28 @@
+$ python biorag.py guardar costas_test "La costa tiene un faro de piedra." --sustantivos-clave "海岸,mar"
+[PMI] Corpus recalculado: 0 nodos, 0 pares, 0.0ms
+[PMI] Corpus recalculado: 0 nodos, 0 pares, 0.0ms
+[PMI] Corpus recalculado: 0 nodos, 0 pares, 0.0ms
+'costas_test' guardado en corto plazo.
+Sustantivos clave: [海岸, mar] (2/5)
+Categoria: General.
+Consolidalo con 'sueno' para hacerlo permanente.
+$ python biorag.py sueno
+
+--- Iniciando Ciclo de Consolidación (Sueño) ---
+[PMI] Corpus recalculado: 1 nodos, 0 pares, 0.1ms
+[SDM] 1 vectores reindexados (full periódico).
+[PPMI] 1 nodos reindexados con PPMI+SVD+Retrofitting (full periódico).
+[MemoryBioRAG] Proceso de consolidación y equilibrio sináptico completado con éxito.
+[TRACE] 1.8 Snap: 1 → ['costas_test']
+[TRACE] 1.8 Snap: 1 → ['costas_test']
+[TRACE] 1.8 Snap: 1 → ['costas_test']
+$ python biorag.py buscar costas_test
+[TRACE] 1.8 Snap: 1 → ['costas_test']
+[MemoryBioRAG] 1 coincidencias encontradas (pagina 1/1)
+  (frase: costas_test)
+============================================================
+
+--- #1: costas_test (peso:0.98, estado:activo, score:0.75) ---
+La costa tiene un faro de piedra.
+
+============================================================

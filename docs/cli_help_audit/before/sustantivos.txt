@@ -1,0 +1,11 @@
+python3 biorag.py sustantivos <concepto>
+    Consulta los sustantivos clave asignados a un nodo de la corteza (alias: sustantivo).
+    Ej: biorag.py sustantivos relatividad
+
+¿Para qué me sirve? Úsalo para ver de qué tema trata un nodo según sus sustantivos
+clave. Ayuda a diagnosticar por qué se encuentra, o no, en una búsqueda.
+
+Ejemplos:
+  Puedes sustituir «biorag» por «python3 biorag.py».
+  Adapta conceptos y rutas a tus datos; los nodos referidos deben existir.
+  biorag sustantivos servicio_puerto_actual

@@ -1,0 +1,12 @@
+python3 biorag.py familiaridad <texto>
+    Escanea un texto en busca de conceptos familiares en la corteza.
+    Busca en clave, contenido y sustantivos clave de los recuerdos activos.
+    Ej: biorag.py familiaridad "necesito ayuda con formularios Angular"
+
+¿Para qué me sirve? Úsalo para detectar qué conceptos de un texto ya conoce la memoria.
+Te orienta sobre qué buscar después; no verifica que el texto sea verdadero.
+
+Ejemplos:
+  Puedes sustituir «biorag» por «python3 biorag.py».
+  Adapta conceptos y rutas a tus datos; los nodos referidos deben existir.
+  biorag familiaridad "Necesito revisar la configuración del servicio"

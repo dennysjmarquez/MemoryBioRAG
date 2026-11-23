@@ -1,0 +1,102 @@
+{
+  "root": {
+    "returncode": 0,
+    "stdout_bytes": 1810,
+    "stderr_bytes": 0
+  },
+  "buscar": {
+    "returncode": 0,
+    "stdout_bytes": 2476,
+    "stderr_bytes": 0
+  },
+  "listar": {
+    "returncode": 0,
+    "stdout_bytes": 516,
+    "stderr_bytes": 0
+  },
+  "corteza": {
+    "returncode": 0,
+    "stdout_bytes": 550,
+    "stderr_bytes": 0
+  },
+  "estado": {
+    "returncode": 0,
+    "stdout_bytes": 552,
+    "stderr_bytes": 0
+  },
+  "familiaridad": {
+    "returncode": 0,
+    "stdout_bytes": 643,
+    "stderr_bytes": 0
+  },
+  "sustantivos": {
+    "returncode": 0,
+    "stdout_bytes": 524,
+    "stderr_bytes": 0
+  },
+  "guardar": {
+    "returncode": 0,
+    "stdout_bytes": 1912,
+    "stderr_bytes": 0
+  },
+  "correcciones": {
+    "returncode": 0,
+    "stdout_bytes": 2272,
+    "stderr_bytes": 0
+  },
+  "agregar_sustantivos": {
+    "returncode": 0,
+    "stdout_bytes": 806,
+    "stderr_bytes": 0
+  },
+  "asociar": {
+    "returncode": 0,
+    "stdout_bytes": 722,
+    "stderr_bytes": 0
+  },
+  "sueno": {
+    "returncode": 0,
+    "stdout_bytes": 848,
+    "stderr_bytes": 0
+  },
+  "comunicar": {
+    "returncode": 0,
+    "stdout_bytes": 778,
+    "stderr_bytes": 0
+  },
+  "leer_mensajes": {
+    "returncode": 0,
+    "stdout_bytes": 780,
+    "stderr_bytes": 0
+  },
+  "dashboard": {
+    "returncode": 0,
+    "stdout_bytes": 805,
+    "stderr_bytes": 0
+  },
+  "update": {
+    "returncode": 0,
+    "stdout_bytes": 1173,
+    "stderr_bytes": 0
+  },
+  "recovery": {
+    "returncode": 0,
+    "stdout_bytes": 1092,
+    "stderr_bytes": 0
+  },
+  "correcciones__registrar": {
+    "returncode": 0,
+    "stdout_bytes": 2655,
+    "stderr_bytes": 0
+  },
+  "correcciones__revisar": {
+    "returncode": 0,
+    "stdout_bytes": 787,
+    "stderr_bytes": 0
+  },
+  "correcciones__confirmar": {
+    "returncode": 0,
+    "stdout_bytes": 1247,
+    "stderr_bytes": 0
+  }
+}

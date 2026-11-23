@@ -1,0 +1,132 @@
+{"id": "zh-01", "idioma": "zh", "tipo": "literal", "concepto": "海岸灯塔", "contenido": "海岸灯塔每晚照亮礁石。", "query": "海岸灯塔"}
+{"id": "zh-02", "idioma": "zh", "tipo": "literal", "concepto": "蓝色望远镜", "contenido": "蓝色望远镜从屋顶观察月亮。", "query": "蓝色望远镜"}
+{"id": "zh-03", "idioma": "zh", "tipo": "literal", "concepto": "银色指南针", "contenido": "银色指南针指向北方。", "query": "银色指南针"}
+{"id": "zh-04", "idioma": "zh", "tipo": "literal", "concepto": "桃木书架", "contenido": "桃木书架放在窗边。", "query": "桃木书架"}
+{"id": "zh-05", "idioma": "zh", "tipo": "literal", "concepto": "红色风筝", "contenido": "红色风筝在河岸升空。", "query": "红色风筝"}
+{"id": "zh-06", "idioma": "zh", "tipo": "fragmento", "concepto": "石桥照片", "contenido": "石桥照片拍摄于清晨的薄雾。", "query": "清晨的薄雾"}
+{"id": "zh-07", "idioma": "zh", "tipo": "fragmento", "concepto": "烘焙面包", "contenido": "烘焙面包使用黑麦面粉。", "query": "黑麦面粉"}
+{"id": "zh-08", "idioma": "zh", "tipo": "fragmento", "concepto": "旅行日记", "contenido": "旅行日记记录山村的雨夜。", "query": "山村的雨夜"}
+{"id": "zh-09", "idioma": "zh", "tipo": "fragmento", "concepto": "铜制水壶", "contenido": "铜制水壶放在燃烧的壁炉旁边。", "query": "燃烧的壁炉"}
+{"id": "zh-10", "idioma": "zh", "tipo": "fragmento", "concepto": "旧船模型", "contenido": "旧船模型陈列在蓝色柜子里。", "query": "蓝色柜子"}
+{"id": "zh-11", "idioma": "zh", "tipo": "pregunta", "concepto": "蜂蜜茶", "contenido": "蜂蜜茶用于缓解冬日的喉咙不适。", "query": "冬天喉咙不舒服时喝什么？"}
+{"id": "zh-12", "idioma": "zh", "tipo": "pregunta", "concepto": "雨水收集桶", "contenido": "雨水收集桶储存花园浇灌用水。", "query": "花园浇灌的雨水储存在哪里？"}
+{"id": "zh-13", "idioma": "zh", "tipo": "pregunta", "concepto": "小提琴课程", "contenido": "小提琴课程每周二在音乐教室举行。", "query": "周二在音乐教室学习什么？"}
+{"id": "zh-14", "idioma": "zh", "tipo": "pregunta", "concepto": "瓷花盆", "contenido": "瓷花盆里的薄荷需要充足阳光。", "query": "薄荷放在什么花盆里？"}
+{"id": "zh-15", "idioma": "zh", "tipo": "pregunta", "concepto": "生日蛋糕", "contenido": "生日蛋糕使用草莓和奶油装饰。", "query": "什么蛋糕上有草莓和奶油？"}
+{"id": "zh-16", "idioma": "zh", "tipo": "pregunta", "concepto": "图书馆地图", "contenido": "图书馆地图标明二楼的历史书区。", "query": "二楼历史书区的位置画在哪里？"}
+{"id": "zh-17", "idioma": "zh", "tipo": "pregunta", "concepto": "密码箱", "contenido": "密码箱的密码是六位数字。", "query": "六位数字的箱子密码"}
+{"id": "zh-18", "idioma": "zh", "tipo": "pregunta", "concepto": "黄色雨伞", "contenido": "黄色雨伞挂在门后的木钩上。", "query": "门后挂着哪把伞？"}
+{"id": "zh-19", "idioma": "zh", "tipo": "literal", "concepto": "竹笛", "contenido": "竹笛发出清亮的音色。", "query": "竹笛"}
+{"id": "zh-20", "idioma": "zh", "tipo": "literal", "concepto": "陶鼓", "contenido": "陶鼓发出低沉的节奏。", "query": "陶鼓"}
+{"id": "zh-n01", "idioma": "zh", "tipo": "negativo", "concepto": null, "contenido": null, "query": "穿靴子的鸭嘴兽在哪里下象棋？"}
+{"id": "zh-n02", "idioma": "zh", "tipo": "negativo", "concepto": null, "contenido": null, "query": "哪架萨克斯管埋在沙漠的冰川里？"}
+{"id": "ja-01", "idioma": "ja", "tipo": "literal", "concepto": "海辺の灯台", "contenido": "海辺の灯台は夜に岩場を照らす。", "query": "海辺の灯台"}
+{"id": "ja-02", "idioma": "ja", "tipo": "literal", "concepto": "赤い望遠鏡", "contenido": "赤い望遠鏡で火星を観測する。", "query": "赤い望遠鏡"}
+{"id": "ja-03", "idioma": "ja", "tipo": "literal", "concepto": "真鍮の方位磁針", "contenido": "真鍮の方位磁針は北を指す。", "query": "真鍮の方位磁針"}
+{"id": "ja-04", "idioma": "ja", "tipo": "literal", "concepto": "木の本棚", "contenido": "木の本棚は玄関の近くにある。", "query": "木の本棚"}
+{"id": "ja-05", "idioma": "ja", "tipo": "literal", "concepto": "青い凧", "contenido": "青い凧が海風の中を飛ぶ。", "query": "青い凧"}
+{"id": "ja-06", "idioma": "ja", "tipo": "fragmento", "concepto": "古い橋の写真", "contenido": "古い橋の写真は夕方の霧の中で撮った。", "query": "夕方の霧"}
+{"id": "ja-07", "idioma": "ja", "tipo": "fragmento", "concepto": "手作りのパン", "contenido": "手作りのパンには全粒粉を使った。", "query": "全粒粉"}
+{"id": "ja-08", "idioma": "ja", "tipo": "fragmento", "concepto": "旅の手帳", "contenido": "旅の手帳には雪の日の山道を記した。", "query": "雪の日の山道"}
+{"id": "ja-09", "idioma": "ja", "tipo": "fragmento", "concepto": "鉄のやかん", "contenido": "鉄のやかんは小さな暖炉の横にある。", "query": "小さな暖炉"}
+{"id": "ja-10", "idioma": "ja", "tipo": "fragmento", "concepto": "帆船の模型", "contenido": "帆船の模型は緑の棚に飾られている。", "query": "緑の棚"}
+{"id": "ja-11", "idioma": "ja", "tipo": "pregunta", "concepto": "生姜のお茶", "contenido": "生姜のお茶を寒い朝に飲む。", "query": "寒い朝に飲む生姜の飲み物は何？"}
+{"id": "ja-12", "idioma": "ja", "tipo": "pregunta", "concepto": "庭の水桶", "contenido": "庭の水桶には植物に与える雨水をためる。", "query": "植物に与える雨水はどこにためる？"}
+{"id": "ja-13", "idioma": "ja", "tipo": "pregunta", "concepto": "ピアノ教室", "contenido": "ピアノ教室は毎週水曜に音楽室で開かれる。", "query": "水曜日に音楽室で習う楽器は？"}
+{"id": "ja-14", "idioma": "ja", "tipo": "pregunta", "concepto": "青い植木鉢", "contenido": "青い植木鉢ではローズマリーを育てる。", "query": "ローズマリーを育てている鉢は？"}
+{"id": "ja-15", "idioma": "ja", "tipo": "pregunta", "concepto": "誕生日のタルト", "contenido": "誕生日のタルトは桃とクリームで飾る。", "query": "桃とクリームで飾る誕生日のお菓子は？"}
+{"id": "ja-16", "idioma": "ja", "tipo": "pregunta", "concepto": "駅の案内図", "contenido": "駅の案内図は地下の出口を示す。", "query": "地下の出口の位置が書かれているのは？"}
+{"id": "ja-17", "idioma": "ja", "tipo": "pregunta", "concepto": "南京錠", "contenido": "南京錠には四桁の番号を使う。", "query": "四桁番号の鍵"}
+{"id": "ja-18", "idioma": "ja", "tipo": "pregunta", "concepto": "黄色い傘", "contenido": "黄色い傘は扉の後ろのフックに掛ける。", "query": "扉の後ろに掛けた傘は？"}
+{"id": "ja-19", "idioma": "ja", "tipo": "contraste_dakuten", "concepto": "ガラス", "contenido": "ガラスは透明な容器の材料。", "query": "ガラス"}
+{"id": "ja-20", "idioma": "ja", "tipo": "contraste_dakuten", "concepto": "カラス", "contenido": "カラスは黒い羽を持つ鳥。", "query": "カラス"}
+{"id": "ja-n01", "idioma": "ja", "tipo": "negativo", "concepto": null, "contenido": null, "query": "長靴を履いたカモノハシはどこで将棋を指す？"}
+{"id": "ja-n02", "idioma": "ja", "tipo": "negativo", "concepto": null, "contenido": null, "query": "砂漠の氷河に埋めたサックスはどれ？"}
+{"id": "ko-01", "idioma": "ko", "tipo": "literal", "concepto": "바닷가 등대", "contenido": "바닷가 등대가 밤마다 암초를 비춘다.", "query": "바닷가 등대"}
+{"id": "ko-02", "idioma": "ko", "tipo": "literal", "concepto": "초록 망원경", "contenido": "초록 망원경으로 목성을 관찰한다.", "query": "초록 망원경"}
+{"id": "ko-03", "idioma": "ko", "tipo": "literal", "concepto": "구리 나침반", "contenido": "구리 나침반은 북쪽을 가리킨다.", "query": "구리 나침반"}
+{"id": "ko-04", "idioma": "ko", "tipo": "literal", "concepto": "작은 책장", "contenido": "작은 책장은 거실 구석에 있다.", "query": "작은 책장"}
+{"id": "ko-05", "idioma": "ko", "tipo": "literal", "concepto": "노란 연", "contenido": "노란 연이 들판 위를 날아간다.", "query": "노란 연"}
+{"id": "ko-06", "idioma": "ko", "tipo": "fragmento", "concepto": "돌다리 사진", "contenido": "돌다리 사진은 여름 안개 속에서 찍었다.", "query": "여름 안개"}
+{"id": "ko-07", "idioma": "ko", "tipo": "fragmento", "concepto": "호밀 빵", "contenido": "호밀 빵에는 해바라기 씨를 넣었다.", "query": "해바라기 씨"}
+{"id": "ko-08", "idioma": "ko", "tipo": "fragmento", "concepto": "여행 수첩", "contenido": "여행 수첩에는 비 오는 항구를 적었다.", "query": "비 오는 항구"}
+{"id": "ko-09", "idioma": "ko", "tipo": "fragmento", "concepto": "철 주전자", "contenido": "철 주전자는 작은 난로 옆에 있다.", "query": "작은 난로"}
+{"id": "ko-10", "idioma": "ko", "tipo": "fragmento", "concepto": "기차 모형", "contenido": "기차 모형은 흰색 선반에 전시한다.", "query": "흰색 선반"}
+{"id": "ko-11", "idioma": "ko", "tipo": "pregunta", "concepto": "유자차", "contenido": "유자차는 추운 저녁에 마신다.", "query": "추운 저녁에 마시는 유자 음료는?"}
+{"id": "ko-12", "idioma": "ko", "tipo": "pregunta", "concepto": "물 저장통", "contenido": "물 저장통에는 정원에 줄 빗물을 모은다.", "query": "정원에 줄 빗물은 어디에 모으나요?"}
+{"id": "ko-13", "idioma": "ko", "tipo": "pregunta", "concepto": "첼로 수업", "contenido": "첼로 수업은 매주 목요일 음악실에서 열린다.", "query": "목요일 음악실에서 배우는 악기는?"}
+{"id": "ko-14", "idioma": "ko", "tipo": "pregunta", "concepto": "노란 화분", "contenido": "노란 화분에서는 바질을 기른다.", "query": "바질을 기르는 화분은?"}
+{"id": "ko-15", "idioma": "ko", "tipo": "pregunta", "concepto": "생일 파이", "contenido": "생일 파이는 사과와 크림으로 장식한다.", "query": "사과와 크림으로 장식하는 생일 음식은?"}
+{"id": "ko-16", "idioma": "ko", "tipo": "pregunta", "concepto": "박물관 안내도", "contenido": "박물관 안내도에는 지하 전시실이 표시되어 있다.", "query": "지하 전시실의 위치는 어디에 표시되어 있나요?"}
+{"id": "ko-17", "idioma": "ko", "tipo": "pregunta", "concepto": "자물쇠", "contenido": "자물쇠는 다섯 자리 번호로 연다.", "query": "다섯 자리 번호의 잠금장치"}
+{"id": "ko-18", "idioma": "ko", "tipo": "pregunta", "concepto": "빨간 우산", "contenido": "빨간 우산을 문 뒤의 고리에 걸었다.", "query": "문 뒤에 걸린 우산은?"}
+{"id": "ko-19", "idioma": "ko", "tipo": "literal", "concepto": "대나무 피리", "contenido": "대나무 피리는 맑은 소리를 낸다.", "query": "대나무 피리"}
+{"id": "ko-20", "idioma": "ko", "tipo": "literal", "concepto": "작은 북", "contenido": "작은 북은 낮은 리듬을 낸다.", "query": "작은 북"}
+{"id": "ko-n01", "idioma": "ko", "tipo": "negativo", "concepto": null, "contenido": null, "query": "장화를 신은 오리너구리는 어디서 체스를 두나요?"}
+{"id": "ko-n02", "idioma": "ko", "tipo": "negativo", "concepto": null, "contenido": null, "query": "사막의 빙하에 묻힌 색소폰은 무엇인가요?"}
+{"id": "ru-01", "idioma": "ru", "tipo": "literal", "concepto": "морской маяк", "contenido": "Морской маяк освещает скалы каждую ночь.", "query": "морской маяк"}
+{"id": "ru-02", "idioma": "ru", "tipo": "literal", "concepto": "жёлтый телескоп", "contenido": "Жёлтый телескоп наблюдает Сатурн с балкона.", "query": "жёлтый телескоп"}
+{"id": "ru-03", "idioma": "ru", "tipo": "literal", "concepto": "латунный компас", "contenido": "Латунный компас указывает на север.", "query": "латунный компас"}
+{"id": "ru-04", "idioma": "ru", "tipo": "literal", "concepto": "дубовая полка", "contenido": "Дубовая полка стоит у двери.", "query": "дубовая полка"}
+{"id": "ru-05", "idioma": "ru", "tipo": "literal", "concepto": "зелёный змей", "contenido": "Зелёный змей летает над полем.", "query": "зелёный змей"}
+{"id": "ru-06", "idioma": "ru", "tipo": "fragmento", "concepto": "снимок моста", "contenido": "Снимок моста сделан в зимнем тумане.", "query": "зимнем тумане"}
+{"id": "ru-07", "idioma": "ru", "tipo": "fragmento", "concepto": "ржаной хлеб", "contenido": "В ржаной хлеб добавили тыквенные семечки.", "query": "тыквенные семечки"}
+{"id": "ru-08", "idioma": "ru", "tipo": "fragmento", "concepto": "дорожный дневник", "contenido": "В дорожном дневнике описан осенний порт.", "query": "осенний порт"}
+{"id": "ru-09", "idioma": "ru", "tipo": "fragmento", "concepto": "медный чайник", "contenido": "Медный чайник стоит возле старой печи.", "query": "старой печи"}
+{"id": "ru-10", "idioma": "ru", "tipo": "fragmento", "concepto": "модель корабля", "contenido": "Модель корабля находится в стеклянном шкафу.", "query": "стеклянном шкафу"}
+{"id": "ru-11", "idioma": "ru", "tipo": "pregunta", "concepto": "мятный чай", "contenido": "Мятный чай пьют тёплым вечером.", "query": "Какой чай пьют тёплым вечером?"}
+{"id": "ru-12", "idioma": "ru", "tipo": "pregunta", "concepto": "бочка для воды", "contenido": "В бочке для воды собирают дождь для огорода.", "query": "Где собирают дождевую воду для огорода?"}
+{"id": "ru-13", "idioma": "ru", "tipo": "pregunta", "concepto": "урок гитары", "contenido": "Урок гитары проходит по пятницам в музыкальном классе.", "query": "Какому инструменту учат по пятницам в музыкальном классе?"}
+{"id": "ru-14", "idioma": "ru", "tipo": "pregunta", "concepto": "красный горшок", "contenido": "В красном горшке растёт лаванда.", "query": "В каком горшке растёт лаванда?"}
+{"id": "ru-15", "idioma": "ru", "tipo": "pregunta", "concepto": "праздничный пирог", "contenido": "Праздничный пирог украшен вишней и сливками.", "query": "Что украшено вишней и сливками на праздник?"}
+{"id": "ru-16", "idioma": "ru", "tipo": "pregunta", "concepto": "план музея", "contenido": "План музея показывает зал древних монет на втором этаже.", "query": "Где указан зал древних монет на втором этаже?"}
+{"id": "ru-17", "idioma": "ru", "tipo": "pregunta", "concepto": "кодовый замок", "contenido": "Кодовый замок открывается шестизначным числом.", "query": "шестизначное число для замка"}
+{"id": "ru-18", "idioma": "ru", "tipo": "pregunta", "concepto": "синий зонт", "contenido": "Синий зонт висит на крючке за дверью.", "query": "Какой зонт висит за дверью?"}
+{"id": "ru-19", "idioma": "ru", "tipo": "literal", "concepto": "деревянная флейта", "contenido": "Деревянная флейта издаёт чистый звук.", "query": "деревянная флейта"}
+{"id": "ru-20", "idioma": "ru", "tipo": "literal", "concepto": "большой барабан", "contenido": "Большой барабан отбивает медленный ритм.", "query": "большой барабан"}
+{"id": "ru-n01", "idioma": "ru", "tipo": "negativo", "concepto": null, "contenido": null, "query": "Где утконос в сапогах играет в шахматы?"}
+{"id": "ru-n02", "idioma": "ru", "tipo": "negativo", "concepto": null, "contenido": null, "query": "Какой саксофон зарыт в леднике в пустыне?"}
+{"id": "en-01", "idioma": "en", "tipo": "literal", "concepto": "coastal lighthouse", "contenido": "The coastal lighthouse illuminates the rocks at night.", "query": "coastal lighthouse"}
+{"id": "en-02", "idioma": "en", "tipo": "literal", "concepto": "orange telescope", "contenido": "The orange telescope observes Jupiter from the garden.", "query": "orange telescope"}
+{"id": "en-03", "idioma": "en", "tipo": "literal", "concepto": "bronze compass", "contenido": "The bronze compass points north.", "query": "bronze compass"}
+{"id": "en-04", "idioma": "en", "tipo": "literal", "concepto": "walnut bookshelf", "contenido": "The walnut bookshelf stands beside the stairs.", "query": "walnut bookshelf"}
+{"id": "en-05", "idioma": "en", "tipo": "literal", "concepto": "purple kite", "contenido": "The purple kite flies above the meadow.", "query": "purple kite"}
+{"id": "en-06", "idioma": "en", "tipo": "fragmento", "concepto": "bridge photograph", "contenido": "The bridge photograph was taken in spring fog.", "query": "spring fog"}
+{"id": "en-07", "idioma": "en", "tipo": "fragmento", "concepto": "seeded bread", "contenido": "The seeded bread contains pumpkin seeds.", "query": "pumpkin seeds"}
+{"id": "en-08", "idioma": "en", "tipo": "fragmento", "concepto": "travel journal", "contenido": "The travel journal describes a rainy harbor.", "query": "rainy harbor"}
+{"id": "en-09", "idioma": "en", "tipo": "fragmento", "concepto": "copper kettle", "contenido": "The copper kettle sits next to the stone fireplace.", "query": "stone fireplace"}
+{"id": "en-10", "idioma": "en", "tipo": "fragmento", "concepto": "model airplane", "contenido": "The model airplane is displayed inside the wooden cabinet.", "query": "wooden cabinet"}
+{"id": "en-11", "idioma": "en", "tipo": "pregunta", "concepto": "chamomile tea", "contenido": "Chamomile tea is served on quiet evenings.", "query": "Which tea is served on quiet evenings?"}
+{"id": "en-12", "idioma": "en", "tipo": "pregunta", "concepto": "rain barrel", "contenido": "The rain barrel collects water for the vegetable garden.", "query": "Where is rainwater collected for the vegetable garden?"}
+{"id": "en-13", "idioma": "en", "tipo": "pregunta", "concepto": "flute lesson", "contenido": "The flute lesson takes place on Mondays in the music room.", "query": "Which instrument is taught on Mondays in the music room?"}
+{"id": "en-14", "idioma": "en", "tipo": "pregunta", "concepto": "ceramic planter", "contenido": "The ceramic planter contains a rosemary plant.", "query": "What planter contains rosemary?"}
+{"id": "en-15", "idioma": "en", "tipo": "pregunta", "concepto": "birthday tart", "contenido": "The birthday tart is decorated with raspberries and cream.", "query": "What birthday dessert has raspberries and cream?"}
+{"id": "en-16", "idioma": "en", "tipo": "pregunta", "concepto": "museum map", "contenido": "The museum map shows the fossil room on the ground floor.", "query": "Where is the ground floor fossil room shown?"}
+{"id": "en-17", "idioma": "en", "tipo": "pregunta", "concepto": "combination lock", "contenido": "The combination lock opens with a seven-digit code.", "query": "seven digit code for the lock"}
+{"id": "en-18", "idioma": "en", "tipo": "pregunta", "concepto": "green umbrella", "contenido": "The green umbrella hangs on a hook behind the door.", "query": "Which umbrella hangs behind the door?"}
+{"id": "en-19", "idioma": "en", "tipo": "literal", "concepto": "wooden flute", "contenido": "The wooden flute produces a clear tone.", "query": "wooden flute"}
+{"id": "en-20", "idioma": "en", "tipo": "literal", "concepto": "small drum", "contenido": "The small drum makes a slow rhythm.", "query": "small drum"}
+{"id": "en-n01", "idioma": "en", "tipo": "negativo", "concepto": null, "contenido": null, "query": "Where does the platypus in boots play chess?"}
+{"id": "en-n02", "idioma": "en", "tipo": "negativo", "concepto": null, "contenido": null, "query": "Which saxophone is buried in a desert glacier?"}
+{"id": "es-01", "idioma": "es", "tipo": "literal", "concepto": "faro costero", "contenido": "El faro costero ilumina las rocas cada noche.", "query": "faro costero"}
+{"id": "es-02", "idioma": "es", "tipo": "literal", "concepto": "telescopio violeta", "contenido": "El telescopio violeta observa Venus desde el balcón.", "query": "telescopio violeta"}
+{"id": "es-03", "idioma": "es", "tipo": "literal", "concepto": "brújula de plata", "contenido": "La brújula de plata señala el norte.", "query": "brújula de plata"}
+{"id": "es-04", "idioma": "es", "tipo": "literal", "concepto": "estante de nogal", "contenido": "El estante de nogal está junto a la ventana.", "query": "estante de nogal"}
+{"id": "es-05", "idioma": "es", "tipo": "literal", "concepto": "cometa naranja", "contenido": "La cometa naranja vuela sobre la pradera.", "query": "cometa naranja"}
+{"id": "es-06", "idioma": "es", "tipo": "fragmento", "concepto": "foto del puente", "contenido": "La foto del puente fue tomada con neblina de otoño.", "query": "neblina de otoño"}
+{"id": "es-07", "idioma": "es", "tipo": "fragmento", "concepto": "pan de centeno", "contenido": "El pan de centeno contiene semillas de girasol.", "query": "semillas de girasol"}
+{"id": "es-08", "idioma": "es", "tipo": "fragmento", "concepto": "diario de viaje", "contenido": "El diario de viaje describe una aldea nevada.", "query": "aldea nevada"}
+{"id": "es-09", "idioma": "es", "tipo": "fragmento", "concepto": "tetera de cobre", "contenido": "La tetera de cobre está junto a la chimenea de piedra.", "query": "chimenea de piedra"}
+{"id": "es-10", "idioma": "es", "tipo": "fragmento", "concepto": "maqueta de tren", "contenido": "La maqueta de tren está dentro del armario blanco.", "query": "armario blanco"}
+{"id": "es-11", "idioma": "es", "tipo": "pregunta", "concepto": "té de manzanilla", "contenido": "El té de manzanilla se toma en tardes tranquilas.", "query": "¿Qué té se toma en tardes tranquilas?"}
+{"id": "es-12", "idioma": "es", "tipo": "pregunta", "concepto": "depósito de lluvia", "contenido": "El depósito de lluvia recoge agua para la huerta.", "query": "¿Dónde se recoge agua de lluvia para la huerta?"}
+{"id": "es-13", "idioma": "es", "tipo": "pregunta", "concepto": "clase de violonchelo", "contenido": "La clase de violonchelo se dicta los sábados en el salón de música.", "query": "¿Qué instrumento se estudia los sábados en el salón de música?"}
+{"id": "es-14", "idioma": "es", "tipo": "pregunta", "concepto": "maceta de barro", "contenido": "La maceta de barro contiene una planta de albahaca.", "query": "¿Qué maceta contiene albahaca?"}
+{"id": "es-15", "idioma": "es", "tipo": "pregunta", "concepto": "tarta de cumpleaños", "contenido": "La tarta de cumpleaños se decora con cerezas y crema.", "query": "¿Qué postre de cumpleaños tiene cerezas y crema?"}
+{"id": "es-16", "idioma": "es", "tipo": "pregunta", "concepto": "plano del museo", "contenido": "El plano del museo muestra la sala de fósiles en la planta baja.", "query": "¿Dónde se muestra la sala de fósiles de la planta baja?"}
+{"id": "es-17", "idioma": "es", "tipo": "pregunta", "concepto": "candado de combinación", "contenido": "El candado de combinación abre con un código de ocho dígitos.", "query": "código de ocho dígitos para el candado"}
+{"id": "es-18", "idioma": "es", "tipo": "pregunta", "concepto": "paraguas verde", "contenido": "El paraguas verde cuelga de un gancho detrás de la puerta.", "query": "¿Qué paraguas cuelga detrás de la puerta?"}
+{"id": "es-19", "idioma": "es", "tipo": "literal", "concepto": "flauta de madera", "contenido": "La flauta de madera produce un sonido claro.", "query": "flauta de madera"}
+{"id": "es-20", "idioma": "es", "tipo": "literal", "concepto": "tambor pequeño", "contenido": "El tambor pequeño marca un ritmo lento.", "query": "tambor pequeño"}
+{"id": "es-n01", "idioma": "es", "tipo": "negativo", "concepto": null, "contenido": null, "query": "¿Dónde juega ajedrez el ornitorrinco con botas?"}
+{"id": "es-n02", "idioma": "es", "tipo": "negativo", "concepto": null, "contenido": null, "query": "¿Qué saxofón está enterrado en un glaciar del desierto?"}

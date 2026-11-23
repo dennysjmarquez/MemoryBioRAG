@@ -1,0 +1,19 @@
+usage: biorag recovery [-h] --receipt RECEIPT [--stage]
+
+Inspect an update backup or stage a separate restored copy without replacing live memory.
+
+options:
+  -h, --help         show this help message and exit
+  --receipt RECEIPT  JSON update receipt reported on failure, stored in
+                     update-receipts beside the database
+  --stage            Authorize recovery copies; never replace the current
+                     database
+
+Why use it? After an update failure, inspect the backup referenced by its update
+receipt. With --stage, preserve a snapshot of the present and restore the old backup to
+a separate file. This never overwrites live memory or activates an older program
+version.
+
+Examples:
+  biorag recovery --receipt /path/update-receipts/receipt.json
+  biorag recovery --receipt /path/update-receipts/receipt.json --stage

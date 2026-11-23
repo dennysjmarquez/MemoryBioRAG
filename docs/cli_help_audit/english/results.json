@@ -1,0 +1,182 @@
+{
+  "root": {
+    "returncode": 0,
+    "purpose": true,
+    "examples": true,
+    "internal_names": [],
+    "private_module_routes": false,
+    "biorag_path": true,
+    "node_warning": false
+  },
+  "buscar": {
+    "returncode": 0,
+    "purpose": true,
+    "examples": true,
+    "internal_names": [],
+    "private_module_routes": false,
+    "biorag_path": true,
+    "node_warning": false
+  },
+  "listar": {
+    "returncode": 0,
+    "purpose": true,
+    "examples": true,
+    "internal_names": [],
+    "private_module_routes": false,
+    "biorag_path": false,
+    "node_warning": false
+  },
+  "corteza": {
+    "returncode": 0,
+    "purpose": true,
+    "examples": true,
+    "internal_names": [],
+    "private_module_routes": false,
+    "biorag_path": false,
+    "node_warning": false
+  },
+  "estado": {
+    "returncode": 0,
+    "purpose": true,
+    "examples": true,
+    "internal_names": [],
+    "private_module_routes": false,
+    "biorag_path": false,
+    "node_warning": false
+  },
+  "familiaridad": {
+    "returncode": 0,
+    "purpose": true,
+    "examples": true,
+    "internal_names": [],
+    "private_module_routes": false,
+    "biorag_path": false,
+    "node_warning": false
+  },
+  "sustantivos": {
+    "returncode": 0,
+    "purpose": true,
+    "examples": true,
+    "internal_names": [],
+    "private_module_routes": false,
+    "biorag_path": false,
+    "node_warning": true
+  },
+  "guardar": {
+    "returncode": 0,
+    "purpose": true,
+    "examples": true,
+    "internal_names": [],
+    "private_module_routes": false,
+    "biorag_path": true,
+    "node_warning": false
+  },
+  "correcciones": {
+    "returncode": 0,
+    "purpose": true,
+    "examples": true,
+    "internal_names": [],
+    "private_module_routes": false,
+    "biorag_path": true,
+    "node_warning": true
+  },
+  "agregar_sustantivos": {
+    "returncode": 0,
+    "purpose": true,
+    "examples": true,
+    "internal_names": [],
+    "private_module_routes": false,
+    "biorag_path": true,
+    "node_warning": true
+  },
+  "asociar": {
+    "returncode": 0,
+    "purpose": true,
+    "examples": true,
+    "internal_names": [],
+    "private_module_routes": false,
+    "biorag_path": true,
+    "node_warning": true
+  },
+  "sueno": {
+    "returncode": 0,
+    "purpose": true,
+    "examples": true,
+    "internal_names": [],
+    "private_module_routes": false,
+    "biorag_path": true,
+    "node_warning": false
+  },
+  "comunicar": {
+    "returncode": 0,
+    "purpose": true,
+    "examples": true,
+    "internal_names": [],
+    "private_module_routes": false,
+    "biorag_path": true,
+    "node_warning": false
+  },
+  "leer_mensajes": {
+    "returncode": 0,
+    "purpose": true,
+    "examples": true,
+    "internal_names": [],
+    "private_module_routes": false,
+    "biorag_path": true,
+    "node_warning": false
+  },
+  "dashboard": {
+    "returncode": 0,
+    "purpose": true,
+    "examples": true,
+    "internal_names": [],
+    "private_module_routes": false,
+    "biorag_path": false,
+    "node_warning": false
+  },
+  "update": {
+    "returncode": 0,
+    "purpose": true,
+    "examples": true,
+    "internal_names": [],
+    "private_module_routes": false,
+    "biorag_path": true,
+    "node_warning": false
+  },
+  "recovery": {
+    "returncode": 0,
+    "purpose": true,
+    "examples": true,
+    "internal_names": [],
+    "private_module_routes": false,
+    "biorag_path": false,
+    "node_warning": false
+  },
+  "correcciones__registrar": {
+    "returncode": 0,
+    "purpose": true,
+    "examples": true,
+    "internal_names": [],
+    "private_module_routes": false,
+    "biorag_path": true,
+    "node_warning": false
+  },
+  "correcciones__revisar": {
+    "returncode": 0,
+    "purpose": true,
+    "examples": true,
+    "internal_names": [],
+    "private_module_routes": false,
+    "biorag_path": true,
+    "node_warning": false
+  },
+  "correcciones__confirmar": {
+    "returncode": 0,
+    "purpose": true,
+    "examples": true,
+    "internal_names": [],
+    "private_module_routes": false,
+    "biorag_path": true,
+    "node_warning": false
+  }
+}

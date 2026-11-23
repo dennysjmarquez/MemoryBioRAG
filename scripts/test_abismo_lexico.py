@@ -21,7 +21,7 @@ Sensibilidad al tamaño del corpus y freno de seguridad:
 
 Uso:
     python3 scripts/test_abismo_lexico.py
-    BIORAG_PATH=MemoryBioRAG_Data/memory_biorag.db python3 scripts/test_abismo_lexico.py
+    BIORAG_PATH=snapshots/qa_escape_qcr_20260811.db python3 scripts/test_abismo_lexico.py
 """
 
 import sys

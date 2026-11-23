@@ -1,0 +1,23 @@
+usage: biorag update [-h] [--channel {dev,stable}] [--dry-run] [--yes]
+                     [--db DB]
+
+Plan or apply a conservative Git-based program update without switching branches.
+
+options:
+  -h, --help            show this help message and exit
+  --channel {dev,stable}
+                        dev: upstream of the installed branch; stable: policy-
+                        approved official tag; both require fast-forward
+  --dry-run             Plan without applying; equivalent to the default mode
+  --yes                 Authorize applying the update; otherwise only plan
+  --db DB               Database outside the checkout; defaults to BIORAG_PATH
+                        or the canonical path
+
+Why use it? Update the program and prepare its components in one command. Without --yes
+this only plans and may access the network. Stop the MCP server (the process connecting
+your agent to memory tools) and background maintenance daemon before applying. A clean
+Git checkout has no local changes; an external database is stored outside that checkout.
+
+Examples:
+  biorag update --dry-run
+  biorag update --yes --db /path/copy.db

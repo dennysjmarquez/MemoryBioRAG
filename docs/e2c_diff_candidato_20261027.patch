@@ -1,0 +1,13 @@
+diff --git a/core/memory/search.py b/core/memory/search.py
+index dabb618..54a22f8 100644
+--- a/core/memory/search.py
++++ b/core/memory/search.py
+@@ -1746,7 +1746,7 @@ def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None,
+         # (bm25 > 0.001 o concepto_ratio > 0.001) Y no hay señal fuerte de sinónimo
+         tematico_score = 0.0
+         bm25_val = bm25_norm_map.get(concepto, 0.0)
+-        if _perfiles_tematicos and _todas_dims and (bm25_val > 0.001 or concepto_ratio > 0.001) and sinonimos_ratio < 0.5:
++        if _perfiles_tematicos and _todas_dims and (bm25_val > 0.001 or concepto_ratio > 0.001):
+             sims = []
+             for _, (other_concepto, _, _, _, _, _) in enumerate(todos[:15]):
+                 if other_concepto != concepto and concepto and other_concepto:

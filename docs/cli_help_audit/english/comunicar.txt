@@ -1,0 +1,17 @@
+biorag comunicar <destination> <message>
+    Store an inter-agent message. AGENT_NAME identifies the sender.
+    Options:
+    Use todos for an explicit shared broadcast.
+    Recipient routing is currently restricted: an unknown ID becomes todos.
+    Arbitrary private destinations are not supported by the current engine.
+
+Why use it? Leave a message in the shared memory database. The recipient must read it;
+there is no immediate external notification. AGENT_NAME identifies the sender. Current
+routing restricts recipient IDs: unknown IDs are broadcast to todos, not delivered
+privately. Use todos for an explicit broadcast.
+
+Changes memory or state. To test on a disposable copy, use: BIORAG_PATH=/path/copy.db
+biorag comunicar ...
+
+Examples:
+  AGENT_NAME=agent_a biorag comunicar todos "Please review the test service"

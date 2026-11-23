@@ -1,0 +1,219 @@
+[
+  {
+    "args": [
+      "guardar",
+      "servicio_puerto_anterior",
+      "The test service uses port 8080",
+      "--sustantivos-clave",
+      "service,port"
+    ],
+    "exit_code": 0,
+    "stdout": "[PMI] Corpus recalculado: 0 nodos, 0 pares, 0.0ms\n[PMI] Corpus recalculado: 0 nodos, 0 pares, 0.0ms\n[PMI] Corpus recalculado: 0 nodos, 0 pares, 0.0ms\n[PMI] Corpus recalculado: 0 nodos, 0 pares, 0.0ms\n[PMI] Corpus recalculado: 0 nodos, 0 pares, 0.0ms\n[PMI] Corpus recalculado: 0 nodos, 0 pares, 0.0ms\n'servicio_puerto_anterior' guardado en corto plazo.\nSustantivos clave: [service, port] (2/5)\nCategoria: General.\nConsolidalo con 'sueno' para hacerlo permanente.\n",
+    "stderr": ""
+  },
+  {
+    "args": [
+      "guardar",
+      "servicio_puerto_actual",
+      "The test service uses port 8443",
+      "--sustantivos-clave",
+      "service,port"
+    ],
+    "exit_code": 0,
+    "stdout": "[PMI] Corpus recalculado: 0 nodos, 0 pares, 0.0ms\n[PMI] Corpus recalculado: 0 nodos, 0 pares, 0.0ms\n[PMI] Corpus recalculado: 0 nodos, 0 pares, 0.0ms\n[PMI] Corpus recalculado: 0 nodos, 0 pares, 0.0ms\n[PMI] Corpus recalculado: 0 nodos, 0 pares, 0.0ms\n[PMI] Corpus recalculado: 0 nodos, 0 pares, 0.0ms\n'servicio_puerto_actual' guardado en corto plazo.\nSustantivos clave: [service, port] (2/5)\nCategoria: General.\nConsolidalo con 'sueno' para hacerlo permanente.\n",
+    "stderr": ""
+  },
+  {
+    "args": [
+      "buscar",
+      "servicio_puerto_actual"
+    ],
+    "exit_code": 1,
+    "stdout": "No se encontraron coincidencias para la frase.\n\n💡 Sugerencia: Puedes refinar la búsqueda especificando su núcleo temático con --sustantivos-clave \"termino1,termino2\"\n",
+    "stderr": ""
+  },
+  {
+    "args": [
+      "sueno"
+    ],
+    "exit_code": 0,
+    "stdout": "\n--- Iniciando Ciclo de Consolidación (Sueño) ---\n[PMI] Corpus recalculado: 2 nodos, 0 pares, 0.2ms\n[SDM] 2 vectores reindexados (full periódico).\n[PPMI] 2 nodos reindexados con PPMI+SVD+Retrofitting (full periódico).\n[MemoryBioRAG] Proceso de consolidación y equilibrio sináptico completado con éxito.\n[TRACE] 1.8 Snap: 1 → ['servicio_puerto_anterior']\n[TRACE] 1.8 Snap: 1 → ['servicio_puerto_actual']\n[TRACE] 1.8 Snap: 1 → ['servicio_puerto_actual']\n",
+    "stderr": ""
+  },
+  {
+    "args": [
+      "buscar",
+      "servicio_puerto_actual"
+    ],
+    "exit_code": 0,
+    "stdout": "[TRACE] 1.8 Snap: 1 → ['servicio_puerto_actual']\n[MemoryBioRAG] 2 coincidencias encontradas (pagina 1/1)\n  (frase: servicio_puerto_actual)\n============================================================\n\n--- #1: servicio_puerto_actual (peso:0.98, estado:activo, score:0.93) ---\nThe test service uses port 8443\n\n--- #2: servicio_puerto_anterior (peso:0.98, estado:activo, score:0.22) ---\nThe test service uses port 8080\n\n============================================================\n",
+    "stderr": ""
+  },
+  {
+    "args": [
+      "listar"
+    ],
+    "exit_code": 0,
+    "stdout": "[MemoryBioRAG] Corteza: 2 nodos (pagina 1/1)\n======================================================================\n  [ACTIVO] servicio_puerto_actual (peso:0.98) · Sustantivos: [service,port]\n         The test service uses port 8443\n\n  [ACTIVO] servicio_puerto_anterior (peso:0.98) · Sustantivos: [service,port]\n         The test service uses port 8080\n\n======================================================================\n",
+    "stderr": ""
+  },
+  {
+    "args": [
+      "corteza"
+    ],
+    "exit_code": 0,
+    "stdout": "CONCEPTO                  CATEGORIA    PESO   ESTADO    SUSTANTIVOS CLAVE         ASOCIACIONES\n---------------------------------------------------------------------------------------------------------\nservicio_puerto_actual    11           0.98   activo    [service,port]            servicio_puerto_anterior\nservicio_puerto_anterior  11           0.98   activo    [service,port]            servicio_puerto_actual\n---------------------------------------------------------------------------------------------------------\nTotal: 2 nodos corticales.\n",
+    "stderr": ""
+  },
+  {
+    "args": [
+      "estado"
+    ],
+    "exit_code": 0,
+    "stdout": "Nodos activos:      2\nNodos dormidos:     0\nMemoria de trabajo: 0 items\nEnergia sinaptica:  1.96\nNodos con sustantivos clave: 2/2 (100.0%)\n",
+    "stderr": ""
+  },
+  {
+    "args": [
+      "familiaridad",
+      "servicio_puerto_actual"
+    ],
+    "exit_code": 0,
+    "stdout": "[Nota de Familiaridad: Te resulta familiar el concepto \"servicio_puerto_actual\"]\n",
+    "stderr": ""
+  },
+  {
+    "args": [
+      "sustantivos",
+      "servicio_puerto_actual"
+    ],
+    "exit_code": 0,
+    "stdout": "Sustantivos clave de 'servicio_puerto_actual': [service, port] (2/5)\n",
+    "stderr": ""
+  },
+  {
+    "args": [
+      "agregar_sustantivos",
+      "servicio_puerto_actual",
+      "service,port"
+    ],
+    "exit_code": 0,
+    "stdout": "Sustantivos clave actualizados para 'servicio_puerto_actual': service,port (anteriores: service,port)\n",
+    "stderr": ""
+  },
+  {
+    "args": [
+      "asociar",
+      "servicio_puerto_anterior",
+      "servicio_puerto_actual"
+    ],
+    "exit_code": 0,
+    "stdout": "[MemoryBioRAG] Sinapsis establecida: 'servicio_puerto_anterior' <--> 'servicio_puerto_actual'\n",
+    "stderr": ""
+  },
+  {
+    "args": [
+      "comunicar",
+      "todos",
+      "Please review the test service"
+    ],
+    "exit_code": 0,
+    "stdout": "[BioRAG] Mensaje de agent_a para todos registrado en la corteza compartida.\n",
+    "stderr": ""
+  },
+  {
+    "args": [
+      "leer_mensajes",
+      "--no-leidos"
+    ],
+    "exit_code": 0,
+    "stdout": "[NO LEIDO] #1 2026-11-22 19:24 | agent_a -> todos\n         Please review the test service\n\n",
+    "stderr": ""
+  },
+  {
+    "args": [
+      "correcciones",
+      "registrar",
+      "--db",
+      "/tmp/help-completion-7wmrgo1d/memory.db",
+      "--id",
+      "cambio-puerto-001",
+      "--mensaje",
+      "The service port changed from 8080 to 8443",
+      "--nodo-anterior",
+      "servicio_puerto_anterior",
+      "--nodo-sucesor",
+      "servicio_puerto_actual",
+      "--entidad",
+      "service",
+      "--atributo",
+      "port",
+      "--ambito",
+      "test",
+      "--valor-anterior",
+      "8080",
+      "--valor-nuevo",
+      "8443",
+      "--observado-en",
+      "1767225600",
+      "--efectivo-desde",
+      "1767225600",
+      "--anterior-desde",
+      "1735689600"
+    ],
+    "exit_code": 0,
+    "stdout": "{\n  \"status\": \"pending_confirmation\",\n  \"id\": \"cambio-puerto-001\",\n  \"confirmed\": false,\n  \"receipt\": null\n}\n",
+    "stderr": ""
+  },
+  {
+    "args": [
+      "correcciones",
+      "revisar",
+      "--db",
+      "/tmp/help-completion-7wmrgo1d/memory.db",
+      "--id",
+      "cambio-puerto-001"
+    ],
+    "exit_code": 0,
+    "stdout": "{\n  \"digest\": \"649e8e3c1a148e8c3ee44b15860c5e87a9ff9e31d2bc2fce96ad9079f1e5bd98\",\n  \"evidence\": {\n    \"id\": \"cambio-puerto-001\",\n    \"payload\": {\n      \"effective_at\": 1767225600.0,\n      \"fields\": {\n        \"attribute\": \"port\",\n        \"entity\": \"service\",\n        \"new\": \"8443\",\n        \"old\": \"8080\",\n        \"scope\": \"test\"\n      },\n      \"message\": \"The service port changed from 8080 to 8443\",\n      \"new_node\": \"servicio_puerto_actual\",\n      \"observed_at\": 1767225600.0,\n      \"old_node\": \"servicio_puerto_anterior\",\n      \"previous_from\": 1735689600.0,\n      \"spans\": null\n    },\n    \"created_by\": \"local-cli\",\n    \"context\": [],\n    \"edges\": [],\n    \"nodes\": [\n      [\n        \"servicio_puerto_anterior\",\n        \"The test service uses port 8080\"\n      ],\n      [\n        \"servicio_puerto_actual\",\n        \"The test service uses port 8443\"\n      ]\n    ],\n    \"policy\": \"trusted-local-single-valued-v2\",\n    \"bootstrap_predecessor\": true\n  },\n  \"approval\": null\n}\n",
+    "stderr": ""
+  },
+  {
+    "args": [
+      "correcciones",
+      "confirmar",
+      "--db",
+      "/tmp/help-completion-7wmrgo1d/memory.db",
+      "--id",
+      "cambio-puerto-001",
+      "--digest",
+      "649e8e3c1a148e8c3ee44b15860c5e87a9ff9e31d2bc2fce96ad9079f1e5bd98",
+      "--request-id",
+      "aprobacion-001"
+    ],
+    "exit_code": 0,
+    "stdout": "{\n  \"status\": \"approved\",\n  \"proposal_id\": \"cambio-puerto-001\",\n  \"request_id\": \"aprobacion-001\",\n  \"principal\": \"local-cli\",\n  \"claim_id\": \"ctx:491ec565050de4e4e27089f0bfa5975fc0893b067ecaceb5870bb6cc10ec601c\",\n  \"source\": \"approval:aprobacion-001\",\n  \"bootstrap_predecessor\": true\n}\n",
+    "stderr": ""
+  },
+  {
+    "args": [
+      "recovery",
+      "--receipt",
+      "/tmp/help-completion-7wmrgo1d/receipt.json"
+    ],
+    "exit_code": 0,
+    "stdout": "{\n  \"status\": \"recovery_required\",\n  \"receipt\": \"/tmp/help-completion-7wmrgo1d/receipt.json\",\n  \"database\": \"/tmp/help-completion-7wmrgo1d/memory.db\",\n  \"backup\": \"/tmp/help-completion-7wmrgo1d/backups/memory.db.pre-update-npjki9e0.db\",\n  \"restore_tested\": true,\n  \"current_matches_backup\": true,\n  \"automatic_restore_allowed\": false,\n  \"reason\": \"No se infiere compatibilidad de código/dependencias de una DB idéntica\",\n  \"next\": \"Usar --stage para restaurar en copia separada, preservando DB actual. Verificar versión compatible antes de elegir una DB.\"\n}\n",
+    "stderr": ""
+  },
+  {
+    "args": [
+      "recovery",
+      "--receipt",
+      "/tmp/help-completion-7wmrgo1d/receipt.json",
+      "--stage"
+    ],
+    "exit_code": 0,
+    "stdout": "{\n  \"status\": \"staged\",\n  \"receipt\": \"/tmp/help-completion-7wmrgo1d/receipt.json\",\n  \"database\": \"/tmp/help-completion-7wmrgo1d/memory.db\",\n  \"backup\": \"/tmp/help-completion-7wmrgo1d/backups/memory.db.pre-update-npjki9e0.db\",\n  \"restore_tested\": true,\n  \"current_matches_backup\": true,\n  \"automatic_restore_allowed\": false,\n  \"reason\": \"No se infiere compatibilidad de código/dependencias de una DB idéntica\",\n  \"next\": \"Ambas versiones conservadas. No cambiar BIORAG_PATH ni reiniciar hasta validar código, dependencias y datos elegidos. No se fusionan recuerdos automáticamente.\",\n  \"current_snapshot\": \"/tmp/help-completion-7wmrgo1d/backups/memory.db.pre-recovery-fyyd8p7z.db\",\n  \"restored_snapshot\": \"/tmp/help-completion-7wmrgo1d/recovery/staged-jx168157/restored.db\",\n  \"live_database_unchanged\": true,\n  \"code_dependencies_reverted\": false\n}\n",
+    "stderr": ""
+  }
+]

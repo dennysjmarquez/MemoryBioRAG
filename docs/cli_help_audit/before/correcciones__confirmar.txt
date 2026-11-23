@@ -1,0 +1,24 @@
+usage: biorag correcciones confirmar [-h] [--db DB] --id ID --digest DIGEST
+                                     --request-id REQUEST_ID
+
+¿Para qué me sirve? Úsalo solo después de revisar y decidir que la sustitución es
+correcta. Registra la aprobación usando el digest revisado y un request-id para
+reintentos sin duplicados. Conserva el historial; no verifica por sí solo la verdad de
+la evidencia.
+
+options:
+  -h, --help            show this help message and exit
+  --db DB               DB existente; por defecto BIORAG_PATH o ruta canónica
+  --id ID               Identificador estable de la propuesta
+  --digest DIGEST       Digest obtenido al revisar; no inventarlo
+  --request-id REQUEST_ID
+                        ID de confirmación; reutilizarlo para reintento
+                        idéntico
+
+Ejemplos:
+  Puedes sustituir «biorag» por «python3 biorag.py».
+  Adapta conceptos y rutas a tus datos; los nodos referidos deben existir.
+  Usa una copia de prueba. Fechas UNIX ilustrativas: no inventes fechas reales.
+  DIGEST_DE_LA_REVISION se reemplaza por el digest de revisar.
+  biorag correcciones confirmar --db /ruta/copia_prueba.db \
+    --id cambio-puerto-001 --digest DIGEST_DE_LA_REVISION --request-id aprobacion-001

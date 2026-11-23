@@ -16,7 +16,9 @@ import time
 from typing import Annotated, Any, Optional, List
 
 from pydantic import Field
+from core.contextual.perspective import DESCRIPTION as PERSPECTIVE_DESCRIPTION
 
+from core.identidad_unicode import normalizar_identidad
 from core.mcp_server._shared import (
     LIMITE_MCP,
     MAX_ASOCIACIONES_FLAT,
@@ -26,10 +28,18 @@ from core.mcp_server._shared import (
     _get_cerebro,
     _interceptar,
     _resolver_dimensiones,
+    _sustantivo_valido,
 )
 from core.sinapsis import _tokenizar
 
 logger = logging.getLogger("mcp_server")
+
+_PERSPECTIVE_DISABLED_DESCRIPTION = (
+    "Prototipo temporal desactivado por defecto. contexto_vigencia se ignora mientras "
+    "BIORAG_TEMPORAL_PROTOTYPE=0. Para activarlo, define BIORAG_TEMPORAL_PROTOTYPE=1 "
+    "y reinicia "
+    "el servidor; entonces recordar y buscar exigirán contexto_vigencia.mode explícito."
+)
 
 
 def _serializar_asociaciones(asociaciones, asociados, max_items) -> dict:
@@ -131,7 +141,23 @@ def _recordar_impl(
     ordenar_por: str = "relevancia",
     asociaciones_max: Optional[int] = None,
     sustantivos_clave: Optional[str] = None,
+    contexto_vigencia: Optional[dict] = None,
 ) -> str:
+    # Gate experimental: mismo servidor real, sin cambiar el contrato estable.
+    temporal_prototype = os.environ.get('BIORAG_TEMPORAL_PROTOTYPE', '0') == '1'
+    if temporal_prototype:
+        from core.contextual.perspective import validate, PerspectiveError
+        try:
+            contexto_vigencia = validate(contexto_vigencia)
+        except PerspectiveError as exc:
+            code = str(exc).split(':', 1)[0]
+            return json.dumps({
+                'status': 'error', 'codigo': code, 'mensaje': str(exc),
+                'parametro_faltante': ('contexto_vigencia.mode' if code == 'CONTEXTO_VIGENCIA_REQUERIDO' else 'contexto_vigencia'),
+                'busqueda_ejecutada': False,
+                # Alias del prototipo anterior para consumidores ya conectados.
+                'error': code, 'instrucciones': str(exc),
+            }, ensure_ascii=False)
     if limite is None:
         limite = LIMITE_MCP
 
@@ -146,9 +172,10 @@ def _recordar_impl(
             return None
         if not isinstance(s, str):
             s = str(s)
-        # Limitar longitud total a 500
+        # Mantener el límite antes de procesar texto de longitud arbitraria.
         if len(s) > 500:
             s = s[:500]
+        s = normalizar_identidad(s)
         # Truncar palabras individuales a 64 caracteres
         palabras = s.split()
         palabras_sanas = [p[:64] for p in palabras]
@@ -163,6 +190,7 @@ def _recordar_impl(
             parafrasis = str(parafrasis)
         if len(parafrasis) > 500:
             parafrasis = parafrasis[:500]
+        parafrasis = normalizar_identidad(parafrasis)
         partes = parafrasis.split(",")
         parafrasis = ",".join([_sanitizar_string(p.strip()) for p in partes if p.strip()])
             
@@ -172,6 +200,7 @@ def _recordar_impl(
             rafaga_palabras = str(rafaga_palabras)
         if len(rafaga_palabras) > 500:
             rafaga_palabras = rafaga_palabras[:500]
+        rafaga_palabras = normalizar_identidad(rafaga_palabras)
         partes = rafaga_palabras.split(",")
         rafaga_palabras = ",".join([_sanitizar_string(p.strip()) for p in partes if p.strip()])
 
@@ -203,9 +232,10 @@ def _recordar_impl(
     if sustantivos_clave is not None:
         sk_raw = str(sustantivos_clave).strip()
         if sk_raw != "":
-            from core.memory_store import normalizar_sustantivos_clave
-            sustantivos_clave_norm = normalizar_sustantivos_clave(sk_raw)
-            sk_unicos = [t for t in sustantivos_clave_norm.split(",") if t] if sustantivos_clave_norm else []
+            from core.memory_store import normalizar_sustantivos_clave, normalizar_sustantivos_clave_exacto
+            sustantivos_clave_exactos = normalizar_sustantivos_clave_exacto(sk_raw)
+            sk_unicos = [t for t in sustantivos_clave_exactos.split(",") if t] if sustantivos_clave_exactos else []
+            sustantivos_clave_norm = normalizar_sustantivos_clave(sustantivos_clave_exactos)
             if not sk_unicos and query_tiene_texto:
                 return json.dumps({
                     "status": "error",
@@ -232,7 +262,7 @@ def _recordar_impl(
                 }, ensure_ascii=False)
 
             for _sk_term in sk_unicos:
-                if not re.fullmatch(r"[a-z0-9_ñ]{2,15}", _sk_term):
+                if not _sustantivo_valido(_sk_term):
                     return json.dumps({
                         "status": "error",
                         "codigo": "SUSTANTIVOS_CLAVE_FORMATO_INVALIDO",
@@ -710,6 +740,16 @@ def _recordar_impl(
                     )
                 resultados = resultados_filtrados
 
+        competencia_contextual = None
+        if contexto_vigencia is not None:
+            if temporal_prototype:
+                from core.contextual.perspective import apply as reorder
+            else:
+                from core.contextual.search import reorder
+            resultados, competencia_contextual = reorder(cerebro.conn, resultados, contexto_vigencia)
+            if temporal_prototype and competencia_contextual.get('status') in ('VIGENCIA_NO_RESUELTA', 'HISTORIA_NO_RESUELTA'):
+                _warnings.append(competencia_contextual['status'] + ': resultados exploratorios; NO afirmar que Top-1 sea vigente o histórico. Revisar evidencia y contexto.')
+
         # Canal 2 — Asociaciones enriquecidas (grafo sináptico real, con fuerza de arista).
         # NO toca score_hibrido ni el ranking: es campo aparte, adjunto a cada resultado.
         # Si asociados=true, se consulta la tabla sinapsis con filtro de peso/tipo.
@@ -853,6 +893,7 @@ def _recordar_impl(
             "profundidad": profundidad,
             "trazabilidad": trazabilidad,
             "advertencia_temporal": ordenar_por in ("recencia", "antiguedad"),
+            **({"competencia_contextual": competencia_contextual} if contexto_vigencia is not None else {}),
         }, ensure_ascii=False)
 
         # Guardar params completos de la búsqueda en log_busquedas
@@ -1412,6 +1453,9 @@ def register(mcp: Any) -> None:
         sustantivos_clave: Annotated[Optional[str], Field(
             description=SUSTANTIVOS_CLAVE_BUSQUEDA_DESCRIPTION
         )] = None,
+        contexto_vigencia: Annotated[Optional[dict], Field(
+            description=(PERSPECTIVE_DESCRIPTION if os.environ.get('BIORAG_TEMPORAL_PROTOTYPE', '0') == '1' else _PERSPECTIVE_DISABLED_DESCRIPTION)
+        )] = None,
     ) -> str:
         return _recordar_impl(
             query, deep, cat, completo, asociados, limite, preview_chars,
@@ -1419,6 +1463,7 @@ def register(mcp: Any) -> None:
             dimensiones, dias, desde, hasta, autor, modo_estricto,
             buscar_por_rol=buscar_por_rol, usar_inferencia=usar_inferencia,
             ordenar_por=ordenar_por, sustantivos_clave=sustantivos_clave,
+            contexto_vigencia=contexto_vigencia,
         )
 
     @mcp.tool(
@@ -1446,6 +1491,9 @@ def register(mcp: Any) -> None:
         )],
         sustantivos_clave: Annotated[Optional[str], Field(
             description=SUSTANTIVOS_CLAVE_BUSQUEDA_DESCRIPTION
+        )] = None,
+        contexto_vigencia: Annotated[Optional[dict], Field(
+            description=(PERSPECTIVE_DESCRIPTION if os.environ.get('BIORAG_TEMPORAL_PROTOTYPE', '0') == '1' else _PERSPECTIVE_DISABLED_DESCRIPTION)
         )] = None,
         dimensiones: Annotated[Any, Field(
             description=(
@@ -1520,4 +1568,5 @@ def register(mcp: Any) -> None:
             buscar_por_rol=buscar_por_rol, usar_inferencia=usar_inferencia,
             asociaciones_max=asociaciones_max,
             sustantivos_clave=sustantivos_clave,
+            contexto_vigencia=contexto_vigencia,
         )

@@ -1,0 +1,710 @@
+{
+  "semilla_sha256": "172b4f541a6b74d1c94fd1e77b3790bc76b9c186e3c56674763e9b0d8c8c6241",
+  "archivo_motor_sha256": "a633d7ddbd1c57dafe5e1287ff36b295fbd3b7aadd78d2f2004ce2162b293368",
+  "concept_hub_en_origenes_no_literales": false,
+  "casos": [
+    {
+      "id": "zh-01",
+      "idioma": "zh",
+      "query": "海岸灯塔是什么意思？",
+      "token_motor": [
+        "海岸灯塔是什么意思"
+      ],
+      "prefijo_en_concepto_contenido_sinonimos_sustantivos": [
+        false,
+        false,
+        false,
+        false
+      ],
+      "canonical_detectado": true,
+      "origen": [
+        "concept_hub",
+        1.0
+      ],
+      "top5": [],
+      "respuesta_y_traza_identicas_a_b2": true
+    },
+    {
+      "id": "zh-02",
+      "idioma": "zh",
+      "query": "蓝色望远镜是什么意思？",
+      "token_motor": [
+        "蓝色望远镜是什么意思"
+      ],
+      "prefijo_en_concepto_contenido_sinonimos_sustantivos": [
+        false,
+        false,
+        false,
+        false
+      ],
+      "canonical_detectado": true,
+      "origen": [
+        "concept_hub",
+        1.0
+      ],
+      "top5": [],
+      "respuesta_y_traza_identicas_a_b2": true
+    },
+    {
+      "id": "zh-03",
+      "idioma": "zh",
+      "query": "银色指南针是什么意思？",
+      "token_motor": [
+        "银色指南针是什么意思"
+      ],
+      "prefijo_en_concepto_contenido_sinonimos_sustantivos": [
+        false,
+        false,
+        false,
+        false
+      ],
+      "canonical_detectado": true,
+      "origen": [
+        "concept_hub",
+        1.0
+      ],
+      "top5": [],
+      "respuesta_y_traza_identicas_a_b2": true
+    },
+    {
+      "id": "zh-04",
+      "idioma": "zh",
+      "query": "桃木书架是什么意思？",
+      "token_motor": [
+        "桃木书架是什么意思"
+      ],
+      "prefijo_en_concepto_contenido_sinonimos_sustantivos": [
+        false,
+        false,
+        false,
+        false
+      ],
+      "canonical_detectado": true,
+      "origen": [
+        "concept_hub",
+        1.0
+      ],
+      "top5": [],
+      "respuesta_y_traza_identicas_a_b2": true
+    },
+    {
+      "id": "zh-05",
+      "idioma": "zh",
+      "query": "红色风筝是什么意思？",
+      "token_motor": [
+        "红色风筝是什么意思"
+      ],
+      "prefijo_en_concepto_contenido_sinonimos_sustantivos": [
+        false,
+        false,
+        false,
+        false
+      ],
+      "canonical_detectado": true,
+      "origen": [
+        "concept_hub",
+        1.0
+      ],
+      "top5": [],
+      "respuesta_y_traza_identicas_a_b2": true
+    },
+    {
+      "id": "zh-06",
+      "idioma": "zh",
+      "query": "石桥照片是什么意思？",
+      "token_motor": [
+        "石桥照片是什么意思"
+      ],
+      "prefijo_en_concepto_contenido_sinonimos_sustantivos": [
+        false,
+        false,
+        false,
+        false
+      ],
+      "canonical_detectado": true,
+      "origen": [
+        "concept_hub",
+        1.0
+      ],
+      "top5": [],
+      "respuesta_y_traza_identicas_a_b2": true
+    },
+    {
+      "id": "zh-07",
+      "idioma": "zh",
+      "query": "烘焙面包是什么意思？",
+      "token_motor": [
+        "烘焙面包是什么意思"
+      ],
+      "prefijo_en_concepto_contenido_sinonimos_sustantivos": [
+        false,
+        false,
+        false,
+        false
+      ],
+      "canonical_detectado": true,
+      "origen": [
+        "concept_hub",
+        1.0
+      ],
+      "top5": [],
+      "respuesta_y_traza_identicas_a_b2": true
+    },
+    {
+      "id": "zh-08",
+      "idioma": "zh",
+      "query": "旅行日记是什么意思？",
+      "token_motor": [
+        "旅行日记是什么意思"
+      ],
+      "prefijo_en_concepto_contenido_sinonimos_sustantivos": [
+        false,
+        false,
+        false,
+        false
+      ],
+      "canonical_detectado": true,
+      "origen": [
+        "concept_hub",
+        1.0
+      ],
+      "top5": [],
+      "respuesta_y_traza_identicas_a_b2": true
+    },
+    {
+      "id": "zh-09",
+      "idioma": "zh",
+      "query": "铜制水壶是什么意思？",
+      "token_motor": [
+        "铜制水壶是什么意思"
+      ],
+      "prefijo_en_concepto_contenido_sinonimos_sustantivos": [
+        false,
+        false,
+        false,
+        false
+      ],
+      "canonical_detectado": true,
+      "origen": [
+        "concept_hub",
+        1.0
+      ],
+      "top5": [],
+      "respuesta_y_traza_identicas_a_b2": true
+    },
+    {
+      "id": "zh-10",
+      "idioma": "zh",
+      "query": "旧船模型是什么意思？",
+      "token_motor": [
+        "旧船模型是什么意思"
+      ],
+      "prefijo_en_concepto_contenido_sinonimos_sustantivos": [
+        false,
+        false,
+        false,
+        false
+      ],
+      "canonical_detectado": true,
+      "origen": [
+        "concept_hub",
+        1.0
+      ],
+      "top5": [],
+      "respuesta_y_traza_identicas_a_b2": true
+    },
+    {
+      "id": "zh-12",
+      "idioma": "zh",
+      "query": "雨水收集桶是什么意思？",
+      "token_motor": [
+        "雨水收集桶是什么意思"
+      ],
+      "prefijo_en_concepto_contenido_sinonimos_sustantivos": [
+        false,
+        false,
+        false,
+        false
+      ],
+      "canonical_detectado": true,
+      "origen": [
+        "concept_hub",
+        1.0
+      ],
+      "top5": [],
+      "respuesta_y_traza_identicas_a_b2": true
+    },
+    {
+      "id": "zh-13",
+      "idioma": "zh",
+      "query": "小提琴课程是什么意思？",
+      "token_motor": [
+        "小提琴课程是什么意思"
+      ],
+      "prefijo_en_concepto_contenido_sinonimos_sustantivos": [
+        false,
+        false,
+        false,
+        false
+      ],
+      "canonical_detectado": true,
+      "origen": [
+        "concept_hub",
+        1.0
+      ],
+      "top5": [],
+      "respuesta_y_traza_identicas_a_b2": true
+    },
+    {
+      "id": "zh-14",
+      "idioma": "zh",
+      "query": "瓷花盆是什么意思？",
+      "token_motor": [
+        "瓷花盆是什么意思"
+      ],
+      "prefijo_en_concepto_contenido_sinonimos_sustantivos": [
+        false,
+        false,
+        false,
+        false
+      ],
+      "canonical_detectado": true,
+      "origen": [
+        "concept_hub",
+        1.0
+      ],
+      "top5": [],
+      "respuesta_y_traza_identicas_a_b2": true
+    },
+    {
+      "id": "zh-15",
+      "idioma": "zh",
+      "query": "生日蛋糕是什么意思？",
+      "token_motor": [
+        "生日蛋糕是什么意思"
+      ],
+      "prefijo_en_concepto_contenido_sinonimos_sustantivos": [
+        false,
+        false,
+        false,
+        false
+      ],
+      "canonical_detectado": true,
+      "origen": [
+        "concept_hub",
+        1.0
+      ],
+      "top5": [],
+      "respuesta_y_traza_identicas_a_b2": true
+    },
+    {
+      "id": "zh-16",
+      "idioma": "zh",
+      "query": "图书馆地图是什么意思？",
+      "token_motor": [
+        "图书馆地图是什么意思"
+      ],
+      "prefijo_en_concepto_contenido_sinonimos_sustantivos": [
+        false,
+        false,
+        false,
+        false
+      ],
+      "canonical_detectado": true,
+      "origen": [
+        "concept_hub",
+        1.0
+      ],
+      "top5": [],
+      "respuesta_y_traza_identicas_a_b2": true
+    },
+    {
+      "id": "zh-18",
+      "idioma": "zh",
+      "query": "黄色雨伞是什么意思？",
+      "token_motor": [
+        "黄色雨伞是什么意思"
+      ],
+      "prefijo_en_concepto_contenido_sinonimos_sustantivos": [
+        false,
+        false,
+        false,
+        false
+      ],
+      "canonical_detectado": true,
+      "origen": [
+        "concept_hub",
+        1.0
+      ],
+      "top5": [],
+      "respuesta_y_traza_identicas_a_b2": true
+    },
+    {
+      "id": "zh-19",
+      "idioma": "zh",
+      "query": "竹笛是什么意思？",
+      "token_motor": [
+        "竹笛是什么意思"
+      ],
+      "prefijo_en_concepto_contenido_sinonimos_sustantivos": [
+        false,
+        false,
+        false,
+        false
+      ],
+      "canonical_detectado": true,
+      "origen": [
+        "concept_hub",
+        1.0
+      ],
+      "top5": [],
+      "respuesta_y_traza_identicas_a_b2": true
+    },
+    {
+      "id": "zh-20",
+      "idioma": "zh",
+      "query": "陶鼓是什么意思？",
+      "token_motor": [
+        "陶鼓是什么意思"
+      ],
+      "prefijo_en_concepto_contenido_sinonimos_sustantivos": [
+        false,
+        false,
+        false,
+        false
+      ],
+      "canonical_detectado": true,
+      "origen": [
+        "concept_hub",
+        1.0
+      ],
+      "top5": [],
+      "respuesta_y_traza_identicas_a_b2": true
+    },
+    {
+      "id": "ja-01",
+      "idioma": "ja",
+      "query": "海辺の灯台とは何ですか。",
+      "token_motor": [
+        "海辺の灯台とは何ですか"
+      ],
+      "prefijo_en_concepto_contenido_sinonimos_sustantivos": [
+        false,
+        false,
+        false,
+        false
+      ],
+      "canonical_detectado": true,
+      "origen": [
+        "concept_hub",
+        1.0
+      ],
+      "top5": [],
+      "respuesta_y_traza_identicas_a_b2": true
+    },
+    {
+      "id": "ja-02",
+      "idioma": "ja",
+      "query": "赤い望遠鏡とは何ですか。",
+      "token_motor": [
+        "赤い望遠鏡とは何ですか"
+      ],
+      "prefijo_en_concepto_contenido_sinonimos_sustantivos": [
+        false,
+        false,
+        false,
+        false
+      ],
+      "canonical_detectado": true,
+      "origen": [
+        "concept_hub",
+        1.0
+      ],
+      "top5": [],
+      "respuesta_y_traza_identicas_a_b2": true
+    },
+    {
+      "id": "ja-03",
+      "idioma": "ja",
+      "query": "真鍮の方位磁針とは何ですか。",
+      "token_motor": [
+        "真鍮の方位磁針とは何ですか"
+      ],
+      "prefijo_en_concepto_contenido_sinonimos_sustantivos": [
+        false,
+        false,
+        false,
+        false
+      ],
+      "canonical_detectado": true,
+      "origen": [
+        "concept_hub",
+        1.0
+      ],
+      "top5": [],
+      "respuesta_y_traza_identicas_a_b2": true
+    },
+    {
+      "id": "ja-04",
+      "idioma": "ja",
+      "query": "木の本棚とは何ですか。",
+      "token_motor": [
+        "木の本棚とは何ですか"
+      ],
+      "prefijo_en_concepto_contenido_sinonimos_sustantivos": [
+        false,
+        false,
+        false,
+        false
+      ],
+      "canonical_detectado": true,
+      "origen": [
+        "concept_hub",
+        1.0
+      ],
+      "top5": [],
+      "respuesta_y_traza_identicas_a_b2": true
+    },
+    {
+      "id": "ja-07",
+      "idioma": "ja",
+      "query": "手作りのパンとは何ですか。",
+      "token_motor": [
+        "手作りのパンとは何ですか"
+      ],
+      "prefijo_en_concepto_contenido_sinonimos_sustantivos": [
+        false,
+        false,
+        false,
+        false
+      ],
+      "canonical_detectado": true,
+      "origen": [
+        "concept_hub",
+        1.0
+      ],
+      "top5": [],
+      "respuesta_y_traza_identicas_a_b2": true
+    },
+    {
+      "id": "ja-09",
+      "idioma": "ja",
+      "query": "鉄のやかんとは何ですか。",
+      "token_motor": [
+        "鉄のやかんとは何ですか"
+      ],
+      "prefijo_en_concepto_contenido_sinonimos_sustantivos": [
+        false,
+        false,
+        false,
+        false
+      ],
+      "canonical_detectado": true,
+      "origen": [
+        "concept_hub",
+        1.0
+      ],
+      "top5": [],
+      "respuesta_y_traza_identicas_a_b2": true
+    },
+    {
+      "id": "ja-10",
+      "idioma": "ja",
+      "query": "帆船の模型とは何ですか。",
+      "token_motor": [
+        "帆船の模型とは何ですか"
+      ],
+      "prefijo_en_concepto_contenido_sinonimos_sustantivos": [
+        false,
+        false,
+        false,
+        false
+      ],
+      "canonical_detectado": true,
+      "origen": [
+        "concept_hub",
+        1.0
+      ],
+      "top5": [],
+      "respuesta_y_traza_identicas_a_b2": true
+    },
+    {
+      "id": "ja-11",
+      "idioma": "ja",
+      "query": "生姜のお茶とは何ですか。",
+      "token_motor": [
+        "生姜のお茶とは何ですか"
+      ],
+      "prefijo_en_concepto_contenido_sinonimos_sustantivos": [
+        false,
+        false,
+        false,
+        false
+      ],
+      "canonical_detectado": true,
+      "origen": [
+        "concept_hub",
+        1.0
+      ],
+      "top5": [],
+      "respuesta_y_traza_identicas_a_b2": true
+    },
+    {
+      "id": "ja-12",
+      "idioma": "ja",
+      "query": "庭の水桶とは何ですか。",
+      "token_motor": [
+        "庭の水桶とは何ですか"
+      ],
+      "prefijo_en_concepto_contenido_sinonimos_sustantivos": [
+        false,
+        false,
+        false,
+        false
+      ],
+      "canonical_detectado": true,
+      "origen": [
+        "concept_hub",
+        1.0
+      ],
+      "top5": [],
+      "respuesta_y_traza_identicas_a_b2": true
+    },
+    {
+      "id": "ja-13",
+      "idioma": "ja",
+      "query": "ピアノ教室とは何ですか。",
+      "token_motor": [
+        "ピアノ教室とは何ですか"
+      ],
+      "prefijo_en_concepto_contenido_sinonimos_sustantivos": [
+        false,
+        false,
+        false,
+        false
+      ],
+      "canonical_detectado": true,
+      "origen": [
+        "concept_hub",
+        1.0
+      ],
+      "top5": [],
+      "respuesta_y_traza_identicas_a_b2": true
+    },
+    {
+      "id": "ja-14",
+      "idioma": "ja",
+      "query": "青い植木鉢とは何ですか。",
+      "token_motor": [
+        "青い植木鉢とは何ですか"
+      ],
+      "prefijo_en_concepto_contenido_sinonimos_sustantivos": [
+        false,
+        false,
+        false,
+        false
+      ],
+      "canonical_detectado": true,
+      "origen": [
+        "concept_hub",
+        1.0
+      ],
+      "top5": [],
+      "respuesta_y_traza_identicas_a_b2": true
+    },
+    {
+      "id": "ja-15",
+      "idioma": "ja",
+      "query": "誕生日のタルトとは何ですか。",
+      "token_motor": [
+        "誕生日のタルトとは何ですか"
+      ],
+      "prefijo_en_concepto_contenido_sinonimos_sustantivos": [
+        false,
+        false,
+        false,
+        false
+      ],
+      "canonical_detectado": true,
+      "origen": [
+        "concept_hub",
+        1.0
+      ],
+      "top5": [],
+      "respuesta_y_traza_identicas_a_b2": true
+    },
+    {
+      "id": "ja-16",
+      "idioma": "ja",
+      "query": "駅の案内図とは何ですか。",
+      "token_motor": [
+        "駅の案内図とは何ですか"
+      ],
+      "prefijo_en_concepto_contenido_sinonimos_sustantivos": [
+        false,
+        false,
+        false,
+        false
+      ],
+      "canonical_detectado": true,
+      "origen": [
+        "concept_hub",
+        1.0
+      ],
+      "top5": [],
+      "respuesta_y_traza_identicas_a_b2": true
+    },
+    {
+      "id": "ja-17",
+      "idioma": "ja",
+      "query": "南京錠とは何ですか。",
+      "token_motor": [
+        "南京錠とは何ですか"
+      ],
+      "prefijo_en_concepto_contenido_sinonimos_sustantivos": [
+        false,
+        false,
+        false,
+        false
+      ],
+      "canonical_detectado": true,
+      "origen": [
+        "concept_hub",
+        1.0
+      ],
+      "top5": [],
+      "respuesta_y_traza_identicas_a_b2": true
+    },
+    {
+      "id": "ja-19",
+      "idioma": "ja",
+      "query": "ガラスとは何ですか。",
+      "token_motor": [
+        "ガラスとは何ですか"
+      ],
+      "prefijo_en_concepto_contenido_sinonimos_sustantivos": [
+        false,
+        false,
+        false,
+        false
+      ],
+      "canonical_detectado": true,
+      "origen": [
+        "concept_hub",
+        1.0
+      ],
+      "top5": [],
+      "respuesta_y_traza_identicas_a_b2": true
+    }
+  ],
+  "resumen": {
+    "total": 33,
+    "un_token": 33,
+    "sin_prefijo_en_cuatro_campos": 33,
+    "canonical_detectado": 33,
+    "origen_concept_hub": 33,
+    "sin_resultados": 33,
+    "identicas_a_b2": 33
+  },
+  "interpretacion": "La traza y el predicado son compatibles con el descarte por PALABRA_PREFIJO; no se instrumentó ni modificó el punto interno del descarte."
+}

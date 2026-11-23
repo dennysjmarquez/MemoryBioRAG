@@ -1,0 +1,31 @@
+usage: biorag sueno [energy_limit]
+
+Summary:
+Consolidate working memory and apply memory maintenance.
+
+What is it for?
+Consolidate working memories into permanent memory and run maintenance adjustments. This
+changes stored data; it is not a preview.
+
+  - `corteza` (cortex: permanent memory)
+  - `sueno` (sleep: consolidation)
+  - `sustantivos clave` (key nouns: the core topic of a memory)
+
+Before you start:
+Changes memory or state. To test on a disposable copy, use: BIORAG_PATH=/path/copy.db
+biorag sueno ...
+
+Options:
+  energy_limit           Optional numerical energy limit.
+
+Examples:
+  biorag sueno
+
+Expected output:
+Consolidation and maintenance progress; details vary with stored data.
+Runtime messages retain their existing language (often Spanish); JSON keys are unchanged.
+
+See also:
+  biorag guardar --help
+  biorag buscar --help
+  biorag estado --help

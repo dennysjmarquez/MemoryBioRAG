@@ -1,0 +1,48 @@
+usage: biorag correcciones [-h] {registrar,revisar,confirmar} ...
+
+Registrar propuestas, revisar evidencia y confirmar sin borrar historia.
+
+¿Para qué me sirve? Úsalo cuando necesitas conservar un dato anterior y dejar
+establecido qué dato lo sustituye, para distinguirlos en consultas de vigencia. No sirve
+para editar el texto de un recuerdo.
+
+Diferencia con actualizar un nodo:
+Actualizar cambia el contenido de ese recuerdo. Una corrección contextual conserva dos
+recuerdos y registra que un dato sustituye a otro para un contexto y desde una fecha; no
+borra ni reescribe sus textos.
+
+Ejemplo concreto:
+Un recuerdo dice «el servicio usa el puerto 8080» y otro dice «ahora usa el 8443». Aquí
+puedes dejar aprobada la relación: para ese servicio y entorno, desde la fecha indicada,
+el 8443 sustituye al 8080. El recuerdo del 8080 se conserva como antecedente.
+
+Antes de empezar:
+Ambos recuerdos deben existir. Registrar crea una propuesta; revisar permite
+comprobarla; confirmar aprueba la relación, no la verdad del dato.
+
+Dónde tiene efecto:
+Sirve como evidencia en las búsquedas MCP recordar/buscar con el contexto
+correspondiente y mode vigente, historico o ambos. No modifica todas las búsquedas ni
+garantiza que el dato nuevo siempre aparezca primero.
+
+positional arguments:
+  {registrar,revisar,confirmar}
+    registrar           Crear propuesta; NO aprueba ni sustituye recuerdos
+    revisar             Mostrar evidencia completa y digest para revisión
+    confirmar           Aprobar explícitamente la evidencia revisada
+
+options:
+  -h, --help            show this help message and exit
+
+Flujo: registrar → revisar → confirmar con el digest revisado. 
+Fechas en segundos UNIX. BIORAG_CORRECTIONS=0 deshabilita operaciones.
+Salida JSON; errores en stderr. No se interpreta el idioma del mensaje.
+
+Ejemplos:
+  Puedes sustituir «biorag» por «python3 biorag.py».
+  Adapta conceptos y rutas a tus datos; los nodos referidos deben existir.
+  Usa una copia de prueba. Fechas UNIX ilustrativas: no inventes fechas reales.
+  DIGEST_DE_LA_REVISION se reemplaza por el digest de revisar.
+  biorag correcciones registrar --help
+  biorag correcciones revisar --db /ruta/copia_prueba.db --id cambio-puerto-001
+  biorag correcciones confirmar --help

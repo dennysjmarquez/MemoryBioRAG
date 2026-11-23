@@ -3,6 +3,7 @@ import os
 
 import pytest
 
+from core.memory import constants
 from core.memory_store import SQLiteMemoryBioRAG
 from core.sdm import indexar_nodo_sdm, rescatar_fallback_sdm
 
@@ -11,6 +12,7 @@ from core.sdm import indexar_nodo_sdm, rescatar_fallback_sdm
 def cerebro_sdm(tmp_path, monkeypatch):
     monkeypatch.setenv("BIORAG_SDM_FALLBACK", "1")
     monkeypatch.setenv("BIORAG_SDM_FALLBACK_SIM_MIN", "0.05")
+    monkeypatch.setattr(constants, "SDM_FALLBACK_ACTIVO", True)
     db = str(tmp_path / "sdm_e1.db")
     c = SQLiteMemoryBioRAG(db)
     c.percibir_corto_plazo(

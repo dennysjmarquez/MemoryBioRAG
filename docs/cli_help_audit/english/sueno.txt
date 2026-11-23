@@ -1,0 +1,13 @@
+biorag sueno [energy_limit]
+    Consolidate working memory and apply memory maintenance.
+    Options:
+    energy_limit           Optional numerical energy limit.
+
+Why use it? Consolidate working memories into permanent memory and run maintenance
+adjustments. This changes stored data; it is not a preview.
+
+Changes memory or state. To test on a disposable copy, use: BIORAG_PATH=/path/copy.db
+biorag sueno ...
+
+Examples:
+  biorag sueno

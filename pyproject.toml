@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=61.0", "wheel"]
+requires = ["setuptools>=77.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -7,8 +7,8 @@ name = "memory-biorag"
 version = "36.2.0"
 description = "BioRAG — Memoria cognitiva biomimética persistente para agentes de IA"
 readme = "README.md"
-requires-python = ">=3.10"
-license = { text = "Apache-2.0" }
+requires-python = ">=3.11,<3.13"
+license = "Apache-2.0"
 authors = [
     { name = "Dennys José Márquez Reyes", email = "dennysjmarquez@gmail.com" }
 ]
@@ -26,31 +26,33 @@ classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
     "Intended Audience :: Science/Research",
-    "License :: OSI Approved :: Apache Software License",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Operating System :: OS Independent",
     "Topic :: Scientific/Engineering :: Artificial Intelligence"
 ]
 dependencies = [
-    "numpy>=1.24.0",
-    "pydantic>=2.0.0",
-    "nltk>=3.8,<3.10",
-    "mcp>=1.0.0,<2",
-    "python-dotenv>=1.0.0",
-    "fastapi>=0.104.0",
-    "uvicorn>=0.24.0",
+    "numpy==2.4.6",
+    "pydantic==2.13.5",
+    "nltk==3.9.4",
+    "mcp==1.30.0",
+    "python-dotenv==1.2.3",
+    "fastapi==0.141.1",
+    "uvicorn==0.52.4",
     "psutil==7.2.2"
 ]
 
 [project.optional-dependencies]
 dev = [
-    "pytest>=7.0.0"
+    "pytest==9.1.1"
+]
+research = [
+    "scipy==1.17.1"
 ]
 
 [project.scripts]
-biorag = "biorag:main"
+biorag = "core.cli:main"
 biorag-mcp = "mcp_server:main"
 
 [tool.setuptools]
@@ -58,7 +60,7 @@ py-modules = ["biorag", "mcp_server", "install"]
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["core*"]
+include = ["core*", "config*", "middleware*"]
 
 [tool.pytest.ini_options]
 # pythonpath agrega la raíz del proyecto a sys.path automáticamente.

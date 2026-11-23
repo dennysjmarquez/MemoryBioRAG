@@ -1,0 +1,17 @@
+{
+  "repository_snapshot_sha256": "104dd2902aaf24c3ce93624492ea95a719acbdcca50f4f6bc123ac8317749796",
+  "qa_backup_snapshot_sha256": "aa7ac66f9fe76d194eeaf578b4e14ba965e94eab40247dace35854df094aa25c",
+  "repository_git_blob": "ecc15b7513ff6ddd1356e934a0aa13821337bca4",
+  "repository_snapshot_matches_HEAD": true,
+  "backup_length_equals_source": true,
+  "differing_offsets": [
+    27,
+    42,
+    43,
+    95,
+    98,
+    99
+  ],
+  "all_differences_in_sqlite_header": true,
+  "explanation": "SQLite backup changed header metadata; never compare backup raw hash with original as an unchanged-source test. QA backup compared against its own pre-run hash; repository file matches tracked Git blob."
+}

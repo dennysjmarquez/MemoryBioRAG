@@ -1,0 +1,50 @@
+[
+  {
+    "id": "0514",
+    "query": "perfil",
+    "esperado": "dennys-identidad-profunda",
+    "estado": "activo",
+    "pos_activos": 9,
+    "pos_profundo": 9
+  },
+  {
+    "id": "0674",
+    "query": "filtro-arquitecto-prolijo",
+    "esperado": "compuerta-pre-validacion",
+    "estado": "activo",
+    "pos_activos": 18,
+    "pos_profundo": 18
+  },
+  {
+    "id": "0692",
+    "query": "metodologia",
+    "esperado": "dennys-working-style",
+    "estado": "activo",
+    "pos_activos": 6,
+    "pos_profundo": 5
+  },
+  {
+    "id": "0710",
+    "query": "agente",
+    "esperado": "aforismo_criterio_agente",
+    "estado": "activo",
+    "pos_activos": 6,
+    "pos_profundo": 6
+  },
+  {
+    "id": "0734",
+    "query": "regla",
+    "esperado": "plan_mode_biorag",
+    "estado": "dormido",
+    "pos_activos": 0,
+    "pos_profundo": 21
+  },
+  {
+    "id": "0805",
+    "query": "cv",
+    "esperado": "cv_seccion_d_test_vinculacion",
+    "estado": "activo",
+    "pos_activos": 13,
+    "pos_profundo": 13
+  }
+]

@@ -1,0 +1,55 @@
+BioRAG — local memory for agents
+
+Usage: biorag <command> [options]
+       python3 biorag.py <command> [options]
+
+Why use it? Store, retrieve and maintain memory shared by your local agents.
+
+Read and search memory:
+  buscar                 Retrieve memories; see buscar --help
+  listar                 Browse concepts page by page
+  corteza                Inspect permanent nodes
+  estado                 Show memory statistics
+  familiaridad           Recognize concepts in text
+  sustantivos            Inspect a node's topic keywords
+
+Write and organize memory:
+  guardar                Save a memory with topic keywords
+  correcciones           Propose, review and approve fact replacements
+  agregar_sustantivos    Assign or update topic keywords
+  asociar                Associate two concepts
+  sueno                  Consolidate memory; changes data
+
+Communication and interfaces:
+  comunicar              Leave a shared message
+  leer_mensajes          Read shared messages
+  dashboard              Start the local interface, if installed
+
+Update and recover the system:
+  update                 Plan an update; --yes authorizes applying it
+  recovery               Plan recovery; --stage creates separate copies
+
+Help: biorag help <command>  |  biorag <command> --help
+You can replace biorag with python3 biorag.py in the examples.
+
+Key concepts:
+  Working memory: guardar stores new memories here; run sueno before buscar.
+  Cortex (permanent memory): consolidated memories used by buscar/listar/corteza.
+  Dormant node: an inactive memory; buscar --deep can wake a retrieved node.
+
+Database: BIORAG_PATH selects your database; use a disposable copy for testing.
+  Example: BIORAG_PATH=/path/copy.db biorag estado
+  Commands may initialize or prepare schema when opening a database; help does not.
+
+Examples:
+  biorag guardar --help
+  biorag buscar --help
+  biorag update --dry-run
+  biorag recovery --help
+
+Before applying update, stop the MCP server (agent-to-memory tools process)
+and the daemon (background maintenance process). Use the same Python environment.
+Update requires a clean Git checkout (no local changes) and an external database
+(outside the checkout). Planning may access the network.
+Recovery --stage never overwrites live memory or rolls back Git/pip.
+The six contexto_vigencia modes belong to MCP recordar/buscar, not CLI buscar.

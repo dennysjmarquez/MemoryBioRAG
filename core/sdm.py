@@ -484,8 +484,10 @@ def buscar_sdm(cerebro, query: str = "", radio_max: int = None, limite: int = 10
     1. Query por texto (vector_fijo=None): genera vector desde el query text.
     2. Query por ejemplo (vector_fijo=bytes): usa el vector proporcionado directamente.
 
-    reindex_if_empty: el path caliente de búsqueda (Fallback 2.5) pasa False para
-    no mutar la DB ni pagar un full-reindex de 800+ nodos por consulta vacía.
+    reindex_if_empty: el fallback legacy lo pasa False para no mutar la DB ni
+    pagar un full-reindex cuando el índice está vacío. Esto no elimina el coste
+    de la búsqueda: el SELECT siguiente lee y compara todos los vectores (O(N)).
+    Por eso el fallback en línea está desactivado por defecto.
 
     Retorna lista de dicts: [{'concepto': str, 'distancia': int, 'similitud': float}]
     """
@@ -530,8 +532,10 @@ def rescatar_fallback_sdm(cerebro, query: str, *, limite: int = 5,
                           sim_min=None, radio_max=None) -> list:
     """Fallback 2.5: rescate Hamming/Jaccard cuando el pool léxico es pobre.
 
-    POR QUÉ no reindexa: E1 es generación en el path caliente. Un full-reindex
-    aquí mutaría la copia de eval. Si no hay vectores, no hay señal.
+    Este fallback está activo por defecto por resiliencia; buscar_sdm compara
+    todos los vectores SDM (O(N)). Aceptamos ese coste temporal mientras se
+    implementa un índice Hamming/LSH. BIORAG_SDM_FALLBACK=0 lo desactiva.
+    No reindexa la base durante la búsqueda; si no hay vectores, no hay señal.
 
     sim_min recorta ruido en consultas negativas (Gate FP 0%).
     """

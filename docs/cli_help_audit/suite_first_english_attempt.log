@@ -1,0 +1,39 @@
+...................................................................... [  6%]
+.................................F...................................... [ 13%]
+......................................................................... [ 21%]
+.................................................................... [ 27%]
+........................................................................ [ 34%]
+........................................................................ [ 41%]
+........................................................................ [ 49%]
+.....................................................................sss [ 56%]
+sssssssssssssss......................................................... [ 63%]
+........................................................................ [ 70%]
+..................................................................... [ 77%]
+........................................................................ [ 84%]
+...................................................................... [ 91%]
+........................................................................ [ 98%]
+...................                                                      [100%]
+=================================== FAILURES ===================================
+_ TestCmdVisibilidadYAyuda.test_help_docstring_contiene_guia_pedagogica_completa _
+
+self = <test_biorag_cli.TestCmdVisibilidadYAyuda object at 0x7f14aef24c90>
+
+    def test_help_docstring_contiene_guia_pedagogica_completa(self):
+        """RF-25: El docstring principal contiene la guía de núcleo temático y comandos."""
+        doc = biorag.__doc__ or ""
+        assert "--sustantivos-clave" in doc
+        assert "sustantivos" in doc
+        assert "agregar_sustantivos" in doc
+>       assert "núcleo temático" in doc.lower() or "nucleo tematico" in doc.lower() or "trata" in doc.lower()
+E       AssertionError: assert ('núcleo temático' in 'biorag cli — local memory tools. command names and flags are preserved for compatibility.\n\n  python3 biorag.py busc... use --help to inspect this command without launching it.\n\nproject: https://github.com/dennysjmarquez/memorybiorag\n' or 'nucleo tematico' in 'biorag cli — local memory tools. command names and flags are preserved for compatibility.\n\n  python3 biorag.py busc... use --help to inspect this command without launching it.\n\nproject: https://github.com/dennysjmarquez/memorybiorag\n' or 'trata' in 'biorag cli — local memory tools. command names and flags are preserved for compatibility.\n\n  python3 biorag.py busc... use --help to inspect this command without launching it.\n\nproject: https://github.com/dennysjmarquez/memorybiorag\n')
+E        +  where 'biorag cli — local memory tools. command names and flags are preserved for compatibility.\n\n  python3 biorag.py busc... use --help to inspect this command without launching it.\n\nproject: https://github.com/dennysjmarquez/memorybiorag\n' = <built-in method lower of str object at 0x3c0d5f80>()
+E        +    where <built-in method lower of str object at 0x3c0d5f80> = 'BioRAG CLI — local memory tools. Command names and flags are preserved for compatibility.\n\n  python3 biorag.py busc... Use --help to inspect this command without launching it.\n\nProject: https://github.com/dennysjmarquez/MemoryBioRAG\n'.lower
+E        +  and   'biorag cli — local memory tools. command names and flags are preserved for compatibility.\n\n  python3 biorag.py busc... use --help to inspect this command without launching it.\n\nproject: https://github.com/dennysjmarquez/memorybiorag\n' = <built-in method lower of str object at 0x3c0d5f80>()
+E        +    where <built-in method lower of str object at 0x3c0d5f80> = 'BioRAG CLI — local memory tools. Command names and flags are preserved for compatibility.\n\n  python3 biorag.py busc... Use --help to inspect this command without launching it.\n\nProject: https://github.com/dennysjmarquez/MemoryBioRAG\n'.lower
+E        +  and   'biorag cli — local memory tools. command names and flags are preserved for compatibility.\n\n  python3 biorag.py busc... use --help to inspect this command without launching it.\n\nproject: https://github.com/dennysjmarquez/memorybiorag\n' = <built-in method lower of str object at 0x3c0d5f80>()
+E        +    where <built-in method lower of str object at 0x3c0d5f80> = 'BioRAG CLI — local memory tools. Command names and flags are preserved for compatibility.\n\n  python3 biorag.py busc... Use --help to inspect this command without launching it.\n\nProject: https://github.com/dennysjmarquez/MemoryBioRAG\n'.lower
+
+tests/test_biorag_cli.py:456: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_biorag_cli.py::TestCmdVisibilidadYAyuda::test_help_docstring_contiene_guia_pedagogica_completa
+1 failed, 998 passed, 18 skipped, 82 subtests passed in 168.77s (0:02:48)

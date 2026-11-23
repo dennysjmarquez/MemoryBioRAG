@@ -77,7 +77,7 @@ def auditar_rutas_interfaces():
         "MCP_server": {
             "file": "mcp_server.py",
             "calls": "SQLiteMemoryBioRAG.buscar_por_frase / recordar",
-            "db_resolution": "os.getenv('BIORAG_PATH', 'MemoryBioRAG_Data/memory_biorag.db')",
+            "db_resolution": "os.environ.get('BIORAG_PATH') or str(Path.home() / '.biorag' / 'memory_biorag.db')",
             "uses_core_pipeline": True,
         },
         "CLI_daemon": {

@@ -1,0 +1,9 @@
+Directa: casos diferentes 0
+MCP A: casos diferentes 0
+Pendiente hueco 1: 14
+zh: guardados 0→0/20; rechazos B2 {'BRIDGES_INVALIDOS': 20}
+ja: guardados 0→0/20; rechazos B2 {'BRIDGES_INVALIDOS': 20}
+ko: guardados 0→16/20; rechazos B2 {'BRIDGES_INVALIDOS': 3, 'SUSTANTIVOS_CLAVE_FORMATO_INVALIDO': 1}
+ru: guardados 0→20/20; rechazos B2 {}
+Multilingüe y guardado: CUMPLE
+Las cuatro QA oficiales y pytest se validan aparte.

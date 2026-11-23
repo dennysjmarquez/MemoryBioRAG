@@ -1,0 +1,33 @@
+python3 biorag.py buscar <concepto> [--sustantivos-clave "s1,s2"] [--deep] [--todos] [--tokens "raiz1,raiz2"] [--pagina N] [--modo strict|relaxed] [--cat tipo] [--completo] [--asociados]
+    Busca un recuerdo en la corteza. Por defecto usa busqueda hibrida:
+      - FTS5 con trigram tokenizer: tolera typos y variaciones morfologicas
+        automaticamente. "formulariox" encuentra "formularios".
+      - 60% calidad textual BM25 + 25% peso sinaptico + 15% riqueza de asociaciones
+      - Los sinonimos del nodo (definidos en guardar --syn) se indexan y buscan tambien
+    --sustantivos-clave Lista de 1-5 sustantivos nucleares para sesgar y focalizar
+                        la búsqueda hacia el centro de gravedad deseado (alias: --sustantivos).
+    --deep              Busca tambien en nodos dormidos. Si encuentra uno, lo despierta.
+    --todos             Devuelve TODAS las coincidencias ordenadas por relevancia.
+    --tokens            Lista de raices stemmeadas separadas por comas (busqueda multi-token).
+                        Activa Soft AND: deben coincidir todas en el mismo recuerdo (strict)
+                        o al menos una (relaxed). Ej: "puert,marron" para buscar "puerta marroncita".
+    --pagina N          Pagina de resultados 1-indexada (defecto: 1).
+    --modo M            strict | relaxed. strict solo devuelve recuerdos que matchean TODOS
+                        los tokens. relaxed devuelve cualquier match parcial. Defecto: relaxed.
+    --completo          Muestra el contenido completo sin truncar y sus sustantivos clave.
+    --asociados         Muestra los nodos asociados y sus sustantivos clave.
+    --cat T             Filtrar por categoria (ej: --cat proyecto, --cat leccion).
+    Ej: biorag.py buscar formularios --sustantivos-clave "angular,formularios"
+        biorag.py buscar angular --deep
+        biorag.py buscar agente --todos
+        biorag.py buscar "formularios con tabs" --completo --asociados
+
+¿Para qué me sirve? Úsalo para recuperar un recuerdo sin recorrer toda la memoria. Por
+ejemplo, busca cómo resolviste un problema antes de guardar otra solución. Encontrar un
+resultado no demuestra que siga vigente; revisa su contenido.
+
+Ejemplos:
+  Puedes sustituir «biorag» por «python3 biorag.py».
+  Adapta conceptos y rutas a tus datos; los nodos referidos deben existir.
+  biorag buscar "configuración del servicio" --sustantivos-clave "servicio,configuracion"
+  biorag buscar servicio --completo --asociados

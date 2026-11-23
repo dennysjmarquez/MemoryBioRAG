@@ -1,0 +1,14 @@
+python3 biorag.py agregar_sustantivos <concepto> "sustantivo1,sustantivo2"
+    Asigna o actualiza los sustantivos clave de un nodo existente en la corteza
+    (aliases: agregar-sustantivos, asignar_sustantivos).
+    Ej: biorag.py agregar_sustantivos relatividad "relatividad,energia,masa"
+
+¿Para qué me sirve? Úsalo cuando un recuerdo existente necesita un núcleo temático mejor
+definido para encontrarlo. Asigna o actualiza sus sustantivos clave; no es el comando
+para corregir la vigencia de un hecho.
+
+Ejemplos:
+  Puedes sustituir «biorag» por «python3 biorag.py».
+  Adapta conceptos y rutas a tus datos; los nodos referidos deben existir.
+  Estas operaciones pueden modificar memoria o estado; prueba primero en una copia.
+  biorag agregar_sustantivos servicio_puerto_actual "servicio,puerto"
