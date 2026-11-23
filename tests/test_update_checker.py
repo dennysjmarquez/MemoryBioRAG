@@ -39,13 +39,16 @@ def _checker(
         fetch_policy = lambda: value
     if fetch_tags is None:
         fetch_tags = lambda: list(DEFAULT_TAGS if tags is None else tags)
-    return UpdateChecker(
+    c = UpdateChecker(
         current_version=current,
         enabled=True,
         fetch_policy=fetch_policy,
         fetch_tags=fetch_tags,
         channel=channel,
     )
+    # Aislar para tests de red/tag puro (no disparar aviso de DB viva en tests de política)
+    c._db_path = ":memory:"
+    return c
 
 
 def test_manifiesto_ejemplo_no_recomienda_tag_sin_aprobacion():
@@ -448,6 +451,10 @@ def test_recurso_version_expone_estado_404_sin_otra_peticion():
 def test_dev_channel_detecta_commits_nuevos(monkeypatch):
     """DEV checker detects new upstream commits via git rev-list."""
     monkeypatch.setattr(
+        update_checker, "_check_database_update_status",
+        lambda db, root: None,
+    )
+    monkeypatch.setattr(
         update_checker, "_dev_upstream_status",
         lambda root: {"behind": 5, "upstream_ref": "abc123def456"},
     )
@@ -455,6 +462,7 @@ def test_dev_channel_detecta_commits_nuevos(monkeypatch):
         current_version="36.2.0",
         enabled=True,
         channel="dev",
+        db_path=":memory:",
     )
     status = checker.check_once()
 
@@ -475,6 +483,10 @@ def test_dev_channel_detecta_commits_nuevos(monkeypatch):
 def test_dev_channel_actualizado_no_notifica(monkeypatch):
     """DEV checker: 0 commits behind = no notification."""
     monkeypatch.setattr(
+        update_checker, "_check_database_update_status",
+        lambda db, root: None,
+    )
+    monkeypatch.setattr(
         update_checker, "_dev_upstream_status",
         lambda root: {"behind": 0, "upstream_ref": "abc123def456"},
     )
@@ -482,6 +494,7 @@ def test_dev_channel_actualizado_no_notifica(monkeypatch):
         current_version="36.2.0",
         enabled=True,
         channel="dev",
+        db_path=":memory:",
     )
     status = checker.check_once()
 
@@ -492,6 +505,10 @@ def test_dev_channel_actualizado_no_notifica(monkeypatch):
 
 def test_dev_channel_re_notifica_si_upstream_cambia(monkeypatch):
     """DEV checker re-notifies when upstream ref changes (new push)."""
+    monkeypatch.setattr(
+        update_checker, "_check_database_update_status",
+        lambda db, root: None,
+    )
     refs = iter(["aaa111bbb222", "ccc333ddd444"])
     monkeypatch.setattr(
         update_checker, "_dev_upstream_status",
@@ -501,6 +518,7 @@ def test_dev_channel_re_notifica_si_upstream_cambia(monkeypatch):
         current_version="36.2.0",
         enabled=True,
         channel="dev",
+        db_path=":memory:",
     )
     checker.check_once()
     notice1 = checker.take_notice()
@@ -514,6 +532,10 @@ def test_dev_channel_re_notifica_si_upstream_cambia(monkeypatch):
 def test_dev_channel_error_de_red_no_rompe(monkeypatch):
     """DEV checker handles fetch failures gracefully."""
     monkeypatch.setattr(
+        update_checker, "_check_database_update_status",
+        lambda db, root: None,
+    )
+    monkeypatch.setattr(
         update_checker, "_dev_upstream_status",
         lambda root: {"error": "fetch_failed"},
     )
@@ -521,6 +543,7 @@ def test_dev_channel_error_de_red_no_rompe(monkeypatch):
         current_version="36.2.0",
         enabled=True,
         channel="dev",
+        db_path=":memory:",
     )
     status = checker.check_once()
 
@@ -550,3 +573,44 @@ def test_detect_channel_dev(monkeypatch):
         })(),
     )
     assert update_checker._detect_channel(Path("/fake")) == "dev"
+
+
+def test_database_sin_update_id_dispara_aviso_actualizacion(monkeypatch):
+    """Si la DB no tiene registrado el update_id en la tabla data, se avisa inmediatamente."""
+    monkeypatch.setattr(
+        update_checker, "_check_database_update_status",
+        lambda db, root: {
+            "motivo": "db_no_actualizada",
+            "detalle": "La base de datos no tiene registrado el sello de actualización.",
+            "mensaje": "BioRAG database is not synchronized with installed code (missing update marker in data table). Run: biorag update",
+        },
+    )
+    checker = UpdateChecker(current_version="36.2.0", enabled=True, channel="dev")
+    status = checker.check_once()
+
+    assert status["estado"] == "actualizacion_disponible"
+    assert status["version_remota"] == "db_sync_required"
+    assert status["actualizacion_disponible"] is True
+    notice = checker.take_notice()
+    assert notice is not None
+    assert "missing update marker in data table" in notice
+    assert "biorag update" in notice
+
+
+def test_database_commit_desfasado_dispara_aviso_actualizacion(monkeypatch):
+    """Si la DB tiene un commit anterior al instalado, se avisa para sincronizar."""
+    monkeypatch.setattr(
+        update_checker, "_check_database_update_status",
+        lambda db, root: {
+            "motivo": "db_commit_desfasado",
+            "detalle": "La base de datos está en commit abc12345 pero el código está en def67890.",
+            "mensaje": "BioRAG database update marker differs from installed code. To synchronize, run: biorag update",
+        },
+    )
+    checker = UpdateChecker(current_version="36.2.0", enabled=True, channel="dev")
+    status = checker.check_once()
+
+    assert status["estado"] == "actualizacion_disponible"
+    notice = checker.take_notice()
+    assert notice is not None
+    assert "differs from installed code" in notice

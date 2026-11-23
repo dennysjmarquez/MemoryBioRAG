@@ -111,6 +111,67 @@ def _dev_upstream_status(root: Path) -> dict[str, Any]:
     return {"behind": behind, "upstream_ref": upstream_ref}
 
 
+def _check_database_update_status(db_path: Path | str | None, install_root: Path) -> dict[str, Any] | None:
+    """Verifica si la base de datos local tiene sellado el ciclo de actualización actual.
+
+    Retorna un diccionario de aviso si la base de datos no tiene registrado el update_id
+    o si no concuerda con el código instalado, permitiendo notificar inmediatamente.
+    """
+    if db_path is None:
+        try:
+            from core.paths import resolve_db_path
+            db_path = resolve_db_path()
+        except Exception:
+            return None
+
+    path = Path(db_path).expanduser().resolve()
+    if not path.exists():
+        return None
+
+    try:
+        head_commit = subprocess.run(
+            ["git", "-C", str(install_root), "rev-parse", "HEAD"],
+            capture_output=True, text=True, timeout=5,
+        ).stdout.strip()
+    except Exception:
+        head_commit = None
+
+    try:
+        from core.schema_status import inspect_database
+        report = inspect_database(path, expected_update_id=head_commit)
+        status = report.get("status")
+        applied_id = report.get("applied_update_id")
+
+        if status == "update_id_not_recorded" or applied_id is None:
+            return {
+                "motivo": "db_no_actualizada",
+                "detalle": "La base de datos no tiene registrado el sello de actualización.",
+                "mensaje": (
+                    "BioRAG database is not synchronized with installed code "
+                    "(missing update marker in data table). Run: biorag update"
+                ),
+            }
+        elif status == "prepared_for_different_update" or (head_commit and applied_id != head_commit):
+            return {
+                "motivo": "db_commit_desfasado",
+                "detalle": f"La base de datos está en commit {applied_id[:8] if applied_id else 'desconocido'} pero el código está en {head_commit[:8] if head_commit else 'desconocido'}.",
+                "mensaje": (
+                    f"BioRAG database update marker ({applied_id[:8] if applied_id else 'none'}) "
+                    f"differs from installed code ({head_commit[:8] if head_commit else 'unknown'}). "
+                    "To synchronize, run: biorag update"
+                ),
+            }
+        elif status == "schema_drift":
+            return {
+                "motivo": "db_schema_drift",
+                "detalle": "Hay tablas o columnas pendientes en la base de datos.",
+                "mensaje": "BioRAG database schema requires update. Run: biorag update",
+            }
+    except Exception:
+        pass
+    return None
+
+
 def _github_json(url: str, read_limit: int) -> Any:
     request = Request(
         url,
@@ -182,6 +243,7 @@ class UpdateChecker:
         interval_seconds: float = _DEFAULT_INTERVAL_SECONDS,
         install_root: Path | str | None = None,
         channel: str | None = None,
+        db_path: Path | str | None = None,
     ) -> None:
         self.current_version = _canonical_version(current_version or installed_version())
         self.enabled = _updates_enabled_from_env() if enabled is None else enabled
@@ -194,6 +256,7 @@ class UpdateChecker:
         self._pending_notice: str | None = None
         self._notified_tag: str | None = None
         self._install_root = Path(install_root) if install_root else Path(__file__).resolve().parents[2]
+        self._db_path = db_path
         self._channel = channel or _detect_channel(self._install_root)
         self._status: dict[str, Any] = {
             "estado": "deshabilitado" if not self.enabled else "pendiente",
@@ -259,9 +322,30 @@ class UpdateChecker:
             return dict(self._status)
 
     def check_once(self) -> dict[str, Any]:
-        """Consulta disponibilidad de actualizaciones según el canal detectado."""
+        """Consulta disponibilidad de actualizaciones según el canal detectado y la base de datos."""
         if not self.enabled:
             return self.status()
+
+        # 1. Chequeo prioritario de la Base de Datos: ¿está sellada y sincronizada?
+        db_issue = _check_database_update_status(self._db_path, self._install_root)
+        if db_issue is not None:
+            with self._lock:
+                self._status = {
+                    "estado": "actualizacion_disponible",
+                    "detalle": db_issue["detalle"],
+                    "version_instalada": self.current_version,
+                    "version_remota": "db_sync_required",
+                    "actualizacion_disponible": True,
+                    "url_tag": None,
+                    "ultima_comprobacion": datetime.now(timezone.utc).isoformat(),
+                    "canal": self._channel,
+                }
+                if self._notified_tag != db_issue["motivo"]:
+                    self._pending_notice = db_issue["mensaje"]
+                    self._notified_tag = db_issue["motivo"]
+                return dict(self._status)
+
+        # 2. Si la DB está sincronizada, verificar upstream según canal
         if self._channel == "dev":
             return self._check_dev()
         return self._check_stable()
