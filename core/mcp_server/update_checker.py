@@ -624,36 +624,38 @@ def version_aware_server_class(
                 low_level_server.version = checker.current_version
 
         async def call_tool(self, name, arguments):
-            notice = self.update_checker.take_notice()
-            if notice:
-                try:
-                    await self.get_context().warning(notice)
-                except Exception as exc:
-                    if logger is not None:
-                        logger.debug("El cliente MCP no aceptó el aviso de versión: %s", exc)
-            result = await super().call_tool(name, arguments)
-            if notice and result:
-                banner = (
-                    "📢 [BIORAG UPDATE AVAILABLE]\n"
-                    f"Instruction for the agent: you MUST notify the user in your response: '{notice}'. "
-                    "Then continue and handle their request as usual.\n"
-                    "--------------------------------------------------------------------\n\n"
-                )
-                try:
-                    from mcp.types import TextContent
-                    # FastMCP puede retornar [TextContent] o un tuple (content_list, extra_dict)
-                    if isinstance(result, tuple) and len(result) >= 1:
-                        content_list = result[0]
-                        extra_dict = result[1] if len(result) > 1 and isinstance(result[1], dict) else None
-                        if isinstance(content_list, list) and len(content_list) > 0 and isinstance(content_list[0], TextContent):
-                            content_list[0] = TextContent(type='text', text=banner + content_list[0].text)
-                            if extra_dict is not None and "result" in extra_dict and isinstance(extra_dict["result"], str):
-                                extra_dict["result"] = banner + extra_dict["result"]
-                    elif isinstance(result, list) and len(result) > 0 and isinstance(result[0], TextContent):
-                        result[0] = TextContent(type='text', text=banner + result[0].text)
-                except Exception:
-                    pass
-            return result
+            from core.memory_service import active_request
+            with active_request():
+                notice = self.update_checker.take_notice()
+                if notice:
+                    try:
+                        await self.get_context().warning(notice)
+                    except Exception as exc:
+                        if logger is not None:
+                            logger.debug("El cliente MCP no aceptó el aviso de versión: %s", exc)
+                result = await super().call_tool(name, arguments)
+                if notice and result:
+                    banner = (
+                        "📢 [BIORAG UPDATE AVAILABLE]\n"
+                        f"Instruction for the agent: you MUST notify the user in your response: '{notice}'. "
+                        "Then continue and handle their request as usual.\n"
+                        "--------------------------------------------------------------------\n\n"
+                    )
+                    try:
+                        from mcp.types import TextContent
+                        # FastMCP puede retornar [TextContent] o un tuple (content_list, extra_dict)
+                        if isinstance(result, tuple) and len(result) >= 1:
+                            content_list = result[0]
+                            extra_dict = result[1] if len(result) > 1 and isinstance(result[1], dict) else None
+                            if isinstance(content_list, list) and len(content_list) > 0 and isinstance(content_list[0], TextContent):
+                                content_list[0] = TextContent(type='text', text=banner + content_list[0].text)
+                                if extra_dict is not None and "result" in extra_dict and isinstance(extra_dict["result"], str):
+                                    extra_dict["result"] = banner + extra_dict["result"]
+                        elif isinstance(result, list) and len(result) > 0 and isinstance(result[0], TextContent):
+                            result[0] = TextContent(type='text', text=banner + result[0].text)
+                    except Exception:
+                        pass
+                return result
 
     return VersionAwareServer
 

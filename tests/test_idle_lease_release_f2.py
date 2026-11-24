@@ -233,5 +233,30 @@ class IdleLeaseReleaseTests(unittest.TestCase):
                 self.assertFalse(getattr(cerebro, '_conn_released', False))
 
 
+    # ------------------------------------------------------------------
+    # Test 10 (T3): in-flight request prevents idle timer from closing connection
+    # ------------------------------------------------------------------
+    def test_in_flight_request_prevents_idle_close(self):
+        """A request running longer than IDLE_TIMEOUT must NOT have its DB connection closed."""
+        import tempfile
+        svc = self._svc
+        with tempfile.TemporaryDirectory() as tmp:
+            db = self._make_db(Path(tmp))
+            with patch.object(svc, '_IDLE_TIMEOUT', 1):
+                cerebro = svc.get_cerebro(str(db))
+                # Start an active request that takes 2.2s (longer than the 1s timeout)
+                with svc.active_request():
+                    time.sleep(1.5)
+                    # Connection must still be open and usable
+                    self.assertFalse(getattr(cerebro, '_conn_released', False),
+                                     "Connection closed while request was in-flight!")
+                    row = cerebro.conn.execute("SELECT v FROM t").fetchone()
+                    self.assertEqual(row[0], "hello")
+                # Once the request finishes, idle timer should fire after another timeout
+                time.sleep(1.5)
+                self.assertTrue(getattr(cerebro, '_conn_released', False),
+                                "Connection should close after in-flight request finishes and idle period elapses")
+
+
 if __name__ == "__main__":
     unittest.main()

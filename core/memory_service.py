@@ -29,6 +29,7 @@ import os
 import re
 import threading
 import unicodedata
+from contextlib import contextmanager
 from typing import Optional
 
 from core.identidad_unicode import normalizar_identidad
@@ -40,6 +41,8 @@ _lock = threading.RLock()
 _cerebro = None
 _path = None
 _idle_timer: Optional[threading.Timer] = None
+_in_flight_count = 0
+_in_flight_lock = threading.Lock()
 
 # Idle timeout: seconds of inactivity before releasing the SQLite connection.
 # Set to 0 to disable idle release (e.g. for tests or CLI).
@@ -47,8 +50,25 @@ _IDLE_TIMEOUT = int(os.environ.get("BIORAG_IDLE_TIMEOUT_SECONDS", "30"))
 
 
 # ---------------------------------------------------------------------------
-# Internal helpers
+# Internal helpers & request tracking
 # ---------------------------------------------------------------------------
+
+@contextmanager
+def active_request():
+    """Rastrea peticiones en curso para que el timer de reposo no cierre la conexión a mitad de ejecución."""
+    global _in_flight_count
+    with _in_flight_lock:
+        _in_flight_count += 1
+    try:
+        yield
+    finally:
+        with _in_flight_lock:
+            _in_flight_count -= 1
+            is_zero = (_in_flight_count == 0)
+        if is_zero:
+            with _lock:
+                _schedule_idle_release()
+
 
 def _cancel_idle_timer() -> None:
     """Cancel any pending idle timer (must be called under _lock)."""
@@ -74,6 +94,11 @@ def _idle_release_callback() -> None:
     with _lock:
         global _idle_timer
         _idle_timer = None
+        with _in_flight_lock:
+            if _in_flight_count > 0:
+                # Petición en vuelo: no cerrar, rearmar el timer y salir
+                _schedule_idle_release()
+                return
         if _cerebro is None or getattr(_cerebro, '_conn_released', False):
             return
         try:
@@ -195,9 +220,11 @@ def _reopen_connection() -> bool:
 
 def reset_cerebro():
     """Tests / cambio de BIORAG_PATH: suelta el singleton."""
-    global _cerebro, _path
+    global _cerebro, _path, _in_flight_count
     with _lock:
         _cancel_idle_timer()
+        with _in_flight_lock:
+            _in_flight_count = 0
         if _cerebro is not None:
             try:
                 _cerebro._persistente = False
