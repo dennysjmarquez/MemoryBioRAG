@@ -47,6 +47,24 @@ class WindowsLockWrapperTests(unittest.TestCase):
             with self.assertRaises(BlockingIOError):
                 database_access._windows_lock(self.temp, exclusive=True)
 
+    def test_updater_lock_windows_flow(self):
+        from core import updater
+        from pathlib import Path
+        import os
+        with tempfile.TemporaryDirectory() as td:
+            gitdir = Path(td)
+            with patch.object(updater.os, 'name', 'nt'):
+                with updater.update_lock(gitdir):
+                    self.assertTrue((gitdir / 'biorag-update.lock').exists())
+                    # Intentar adquirir concurrentemente simulando contention en Windows (error 33)
+                    self.kernel.LockFileEx.return_value = 0
+                    with patch.object(ctypes, 'get_last_error', return_value=33, create=True):
+                        with self.assertRaisesRegex(updater.UpdateError, "UPDATE_LOCKED"):
+                            with updater.update_lock(gitdir):
+                                pass
+            self.assertFalse((gitdir / 'biorag-update.lock').exists())
+
+
 
 if __name__ == '__main__':
     unittest.main()

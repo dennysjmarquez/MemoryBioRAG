@@ -5,6 +5,7 @@ import json
 from pathlib import Path
 import sqlite3
 import subprocess
+import sys
 import tempfile
 import unittest
 from unittest.mock import patch
@@ -344,6 +345,36 @@ class GitUpdaterTests(unittest.TestCase):
             with self.assertRaisesRegex(updater.UpdateError,'UPDATE_LOCKED'):
                 updater.apply(self.root,database=self.db)
         self.assertFalse((gitdir/'biorag-update.lock').exists())
+
+    def test_lock_released_on_process_crash(self):
+        _, gitdir = updater.preflight(self.root)
+        code = f"""import os, time, sys
+from pathlib import Path
+from core import updater
+gitdir = Path({repr(str(gitdir))})
+with updater.update_lock(gitdir):
+    sys.stdout.write("ACQUIRED\\n")
+    sys.stdout.flush()
+    time.sleep(30)
+"""
+        proc = subprocess.Popen([sys.executable, "-c", code], stdout=subprocess.PIPE, text=True)
+        try:
+            line = proc.stdout.readline()
+            self.assertEqual(line.strip(), "ACQUIRED")
+            # Con el subproceso vivo, otro proceso debe fallar con UPDATE_LOCKED
+            with self.assertRaisesRegex(updater.UpdateError, "UPDATE_LOCKED"):
+                with updater.update_lock(gitdir):
+                    pass
+            # Simulamos caída abrupta / crash (SIGKILL o terminate en Windows)
+            proc.kill()
+            proc.wait()
+            # El lock debe ser adquirido inmediatamente sin requerir borrar el archivo a mano
+            with updater.update_lock(gitdir):
+                pass
+        finally:
+            if proc.poll() is None:
+                proc.kill()
+                proc.wait()
 
     def test_downgrade_is_refused(self):
         self.git('update-ref','refs/heads/current',self.target)

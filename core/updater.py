@@ -117,14 +117,48 @@ def plan(root, channel='dev', *, database=None):
 
 @contextmanager
 def update_lock(gitdir):
-    path=gitdir/'biorag-update.lock'
-    try:fd=os.open(path,os.O_WRONLY|os.O_CREAT|os.O_EXCL,0o600)
-    except FileExistsError as exc:
-        raise UpdateError('UPDATE_LOCKED: An update may be running or the lock may be stale; verify before removing it.') from exc
+    path = gitdir / 'biorag-update.lock'
+    fd = os.open(path, os.O_RDWR | os.O_CREAT, 0o600)
+    file = os.fdopen(fd, 'r+')
+    overlapped = None
     try:
-        with os.fdopen(fd,'w') as file:file.write(str(os.getpid()))
+        if os.name == 'posix':
+            import fcntl
+            try:
+                fcntl.flock(file, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            except (BlockingIOError, OSError) as exc:
+                raise UpdateError('UPDATE_LOCKED: An update is currently running in another process.') from exc
+        elif os.name == 'nt':
+            from core.database_access import _windows_lock
+            try:
+                overlapped = _windows_lock(file, exclusive=True)
+            except (BlockingIOError, OSError) as exc:
+                raise UpdateError('UPDATE_LOCKED: An update is currently running in another process.') from exc
+        else:
+            raise UpdateError('UPDATE_PLATFORM_UNSUPPORTED: no tested OS lock backend')
+
+        file.seek(0)
+        file.truncate(0)
+        file.write(str(os.getpid()))
+        file.flush()
         yield
-    finally:path.unlink(missing_ok=True)
+    finally:
+        try:
+            if os.name == 'nt' and overlapped is not None:
+                from core.database_access import _unlock
+                _unlock(file, overlapped)
+            elif os.name == 'posix':
+                import fcntl
+                try:
+                    fcntl.flock(file, fcntl.LOCK_UN)
+                except OSError:
+                    pass
+        finally:
+            file.close()
+            try:
+                path.unlink(missing_ok=True)
+            except OSError:
+                pass
 
 
 @contextmanager
