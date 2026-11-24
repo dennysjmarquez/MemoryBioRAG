@@ -125,7 +125,7 @@
 
 ---
 
-### Fase F2: Desalojo y Gestión de Inactividad [COMPLETADO - PENDIENTE DE AUDITORÍA]
+### Fase F2: Desalojo y Gestión de Inactividad [COMPLETADO - AUDITORÍA T1-T5 IMPLEMENTADA]
 
 #### Mediciones empíricas (2026-11-24, ASUS ROG Strix G731GT, DB 135 MB):
 | Medición | Resultado |
@@ -135,27 +135,42 @@
 | Re-open completo (managed_connect + PRAGMAs + 3 funciones SQL) | 1.971 ms (avg), 1.097 ms (min) |
 | `SQLiteMemoryBioRAG.__init__` completo (reconstrucción total) | 11,649 ms (~11.6 s) — evitado |
 
-#### Implementación (commits `e071718` + `699e6c4`):
-1. **Fix WAL/SHM huérfanos del restore temporal** (`core/updater.py`): bloque `finally` de `restore_database_backup()` limpia `<temporary>-wal` y `<temporary>-shm`. Test: `test_restore_database_backup_leaves_no_wal_shm_orphans`.
-2. **Idle Lease Release** (`core/memory_service.py` + `core/mcp_server/_shared.py`):
+#### Implementación y resolución de auditoría (T1 a T5):
+1. **Fix WAL/SHM huérfanos del restore temporal** (`core/updater.py`, commit `e071718`): bloque `finally` de `restore_database_backup()` limpia `<temporary>-wal` y `<temporary>-shm`. Test: `test_restore_database_backup_leaves_no_wal_shm_orphans`.
+2. **T1/T1b: Idle Lease Release base** (`core/memory_service.py`, commit `699e6c4`):
    - `BIORAG_IDLE_TIMEOUT_SECONDS` (default 30): tras N s de inactividad, `_idle_release_callback()` llama `conn.close()` (libera lease compartido), marca `_conn_released = True`.
    - `_reopen_connection()`: re-abre solo la conexión SQLite (~2 ms), aplica PRAGMAs y re-registra 3 funciones SQL personalizadas.
-   - Si `user_version` cambió durante inactividad: `get_cerebro()` devuelve `RELOADING_SENTINEL`; `_shared._get_cerebro()` traduce a `None` para clientes MCP.
-   - `BIORAG_IDLE_TIMEOUT_SECONDS=0` desactiva el idle release.
-   - `reset_cerebro()` cancela el timer activo.
+3. **T3: Peticiones en vuelo protegidas contra cierre prematuro** (`core/memory_service.py`, commit `cc2f444`):
+   - Context manager `active_request()` con contador `_in_flight_count` y `_in_flight_lock` reentrante (`threading.RLock`).
+   - Si el timer de reposo expira mientras una petición está activa, posterga la liberación y se re-arma.
+   - Envoltorio global en FastMCP `VersionAwareServer.call_tool` protege el 100% de las herramientas MCP.
+4. **T2/T4: Mapeo de mantenimiento y recarga a respuesta estructurada `BioragBusy`** (`core/memory_service.py` + `core/mcp_server/`, commit `79ddbd6`):
+   - Re-apertura fallida por mantenimiento exclusivo lanza `BioragBusy("BioRAG is updating, retry in a few seconds", status="retry")` en vez de devolver `True` con conexión cerrada.
+   - Cambio de esquema (`user_version`) durante reposo lanza `BioragBusy("BioRAG is reloading after update, retry in a few seconds", status="retry")` y lanza rebuild en background thread (asíncrono, no bloquea al cliente).
+   - FastMCP `call_tool` captura `BioragBusy` (y `ToolError` envolviéndola) y retorna JSON estructurado `{"status": "retry", "message": ...}`.
+5. **T5: Compuerta de mantenimiento pendiente y anti-inanición** (`core/database_access.py` + `core/memory_service.py`, commit `542338f`):
+   - `maintenance(database, timeout=30)` crea atómicamente `.maintenance.pending` antes de solicitar el lock exclusivo y reintenta con backoff hasta el timeout.
+   - `active_request()` y `get_cerebro()` detectan `.maintenance.pending` y rechazan inmediatamente nuevas peticiones con `BioragBusy` ('retry'), drenando la conexión tan pronto `_in_flight_count == 0`.
+   - El updater obtiene el lock exclusivo en < 1s incluso bajo ráfagas continuas de tráfico (sin inanición).
 
-#### Tests (9 casos en `tests/test_idle_lease_release_f2.py`):
-  - `test_idle_timer_armed_after_get_cerebro`
-  - `test_connection_released_after_idle_timeout`
+#### Tests (13 casos en `tests/test_idle_lease_release_f2.py`):
+  - `test_connection_released_after_idle_timeout` (T1)
+  - `test_reopened_connection_is_functional` (T1b)
   - `test_connection_restored_without_full_rebuild` (re-open < 500 ms)
-  - `test_reopened_connection_is_functional`
-  - `test_schema_change_during_idle_returns_reloading_sentinel`
-  - `test_mcp_shared_get_cerebro_returns_none_when_reloading`
+  - `test_idle_timer_armed_after_get_cerebro`
   - `test_idle_timer_reset_on_each_access`
   - `test_reset_cerebro_cancels_idle_timer`
   - `test_zero_idle_timeout_disables_idle_release`
+  - `test_in_flight_request_prevents_idle_close` (T3)
+  - `test_reopen_during_maintenance_raises_biorag_busy` (T2)
+  - `test_schema_change_during_idle_raises_biorag_busy` (T4)
+  - `test_mcp_shared_get_cerebro_raises_biorag_busy_when_reloading` (T4)
+  - `test_mcp_call_tool_catches_biorag_busy_and_returns_structured_retry` (T2/T4)
+  - `test_continuous_traffic_does_not_starve_maintenance` (T5)
 
-#### Resultado: **73 passed, 4 subtests passed in 26.91s** (5 suites combinadas). Estado: **COMPLETADO**.
+#### Resultado: **77 passed, 4 subtests passed in 28.46s** (5 suites combinadas).
+- Plataforma: Linux POSIX verificada en hardware ASUS ROG Strix G731GT. `[NO VERIFICADO EN WINDOWS NATIVO]` para locks Win32 de compuerta.
+- Estado F2: **COMPLETADO Y RESUELTO**.
 
 ---
 
