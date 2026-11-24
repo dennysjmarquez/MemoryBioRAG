@@ -139,7 +139,7 @@ class IdleLeaseReleaseTests(unittest.TestCase):
         """If user_version changes during idle, get_cerebro raises BioragBusy for reload."""
         import tempfile
         svc = self._svc
-        with tempfile.TemporaryDirectory() as tmp:
+        with tempfile.TemporaryDirectory(ignore_cleanup_errors=True) as tmp:
             db = self._make_db(Path(tmp))
             with patch.object(svc, '_IDLE_TIMEOUT', 1):
                 cerebro = svc.get_cerebro(str(db))
@@ -162,7 +162,7 @@ class IdleLeaseReleaseTests(unittest.TestCase):
         import tempfile
         svc = self._svc
         from core.mcp_server._shared import _get_cerebro as shared_get
-        with tempfile.TemporaryDirectory() as tmp:
+        with tempfile.TemporaryDirectory(ignore_cleanup_errors=True) as tmp:
             db = self._make_db(Path(tmp))
             with patch.dict(os.environ, {"BIORAG_PATH": str(db)}):
                 with patch.object(svc, '_IDLE_TIMEOUT', 1):
@@ -320,6 +320,63 @@ class IdleLeaseReleaseTests(unittest.TestCase):
         data = json.loads(result[0].text)
         self.assertEqual(data["status"], "retry")
         self.assertIn("BioRAG is updating", data["message"])
+
+
+    # ------------------------------------------------------------------
+    # Test 13 (T5): continuous traffic does not starve maintenance (anti-starvation gate)
+    # ------------------------------------------------------------------
+    def test_continuous_traffic_does_not_starve_maintenance(self):
+        """Under continuous query traffic, maintenance must acquire exclusive lock within timeout."""
+        import tempfile
+        import threading
+        from core.database_access import maintenance
+        svc = self._svc
+        with tempfile.TemporaryDirectory() as tmp:
+            db = self._make_db(Path(tmp))
+            cerebro = svc.get_cerebro(str(db))
+
+            stop_traffic = threading.Event()
+            client_errors = []
+            successful_queries = 0
+            retried_queries = 0
+
+            def client_loop():
+                nonlocal successful_queries, retried_queries
+                while not stop_traffic.is_set():
+                    try:
+                        with svc.active_request():
+                            c = svc.get_cerebro(str(db))
+                            row = c.conn.execute("SELECT v FROM t").fetchone()
+                            if row and row[0] == "hello":
+                                successful_queries += 1
+                    except svc.BioragBusy:
+                        retried_queries += 1
+                    except Exception as exc:
+                        client_errors.append(exc)
+                    time.sleep(0.05)
+
+            # Start continuous background traffic
+            traffic_thread = threading.Thread(target=client_loop, daemon=True)
+            traffic_thread.start()
+            time.sleep(0.2)  # let some queries run
+
+            # Updater attempts to enter maintenance
+            maintenance_entered = False
+            t0 = time.perf_counter()
+            try:
+                with maintenance(db, timeout=3):
+                    maintenance_entered = True
+                    # Hold maintenance briefly while traffic is still trying
+                    time.sleep(0.3)
+            finally:
+                stop_traffic.set()
+                traffic_thread.join(timeout=2)
+
+            elapsed = time.perf_counter() - t0
+            self.assertTrue(maintenance_entered, "Maintenance timed out: starved by continuous traffic!")
+            self.assertEqual(client_errors, [], f"Client encountered unexpected errors: {client_errors}")
+            self.assertGreater(successful_queries + retried_queries, 0)
+            self.assertLess(elapsed, 3.5, f"Maintenance took too long: {elapsed:.2f}s")
 
 
 if __name__ == "__main__":

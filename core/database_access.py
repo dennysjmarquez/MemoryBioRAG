@@ -15,6 +15,7 @@ from pathlib import Path
 import secrets
 import sqlite3
 import sys
+import time
 from urllib.parse import unquote, urlsplit
 
 TOKEN_ENV = 'BIORAG_MAINTENANCE_TOKEN'
@@ -39,6 +40,17 @@ def _path(database):
 
 def _lock_path(database):
     return database.with_name(database.name + '.maintenance.lock')
+
+
+def _pending_path(database):
+    return database.with_name(database.name + '.maintenance.pending')
+
+
+def is_maintenance_pending(database):
+    path = _path(database)
+    if path is None:
+        return False
+    return _pending_path(path).exists()
 
 
 def _windows_lock(file, *, exclusive):
@@ -171,7 +183,7 @@ class Lease:
 
 
 @contextmanager
-def maintenance(database):
+def maintenance(database, timeout=30):
     path = _path(database)
     if path is None:
         yield None
@@ -179,25 +191,53 @@ def maintenance(database):
     if _delegated(path):
         yield _LOCAL_TOKEN.get() or os.environ[TOKEN_ENV]
         return
-    lease = Lease(path, exclusive=True)
-    token = secrets.token_hex(32)
-    local_state = _LOCAL_TOKEN.set(token)
+
+    # Signal to active readers/MCP that maintenance is pending (writer-priority gate)
+    pending = _pending_path(path)
+    pending_created = False
     try:
-        lease.file.seek(0)
-        lease.file.truncate()
-        json.dump({'token': token, 'pid': os.getpid()}, lease.file)
-        lease.file.flush()
-        os.fsync(lease.file.fileno())
-        yield token
-    finally:
+        pending.parent.mkdir(parents=True, exist_ok=True)
+        pending.write_text(json.dumps({'pid': os.getpid(), 'time': time.time()}))
+        pending_created = True
+    except OSError:
+        pass
+
+    deadline = time.monotonic() + max(0.1, timeout)
+    lease = None
+    try:
+        while True:
+            try:
+                lease = Lease(path, exclusive=True)
+                break
+            except MaintenanceError:
+                if time.monotonic() >= deadline:
+                    raise
+                time.sleep(0.05)
+
+        token = secrets.token_hex(32)
+        local_state = _LOCAL_TOKEN.set(token)
         try:
-            if lease.file:
-                lease.file.seek(0)
-                lease.file.truncate()
-                lease.file.flush()
+            lease.file.seek(0)
+            lease.file.truncate()
+            json.dump({'token': token, 'pid': os.getpid()}, lease.file)
+            lease.file.flush()
+            os.fsync(lease.file.fileno())
+            yield token
         finally:
-            _LOCAL_TOKEN.reset(local_state)
-            lease.close()
+            try:
+                if lease.file:
+                    lease.file.seek(0)
+                    lease.file.truncate()
+                    lease.file.flush()
+            finally:
+                _LOCAL_TOKEN.reset(local_state)
+                lease.close()
+    finally:
+        if pending_created:
+            try:
+                pending.unlink(missing_ok=True)
+            except OSError:
+                pass
     # Keep the inode: deleting/recreating the lock file breaks exclusion.
 
 

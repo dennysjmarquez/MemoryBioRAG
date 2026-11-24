@@ -42,7 +42,8 @@ _cerebro = None
 _path = None
 _idle_timer: Optional[threading.Timer] = None
 _in_flight_count = 0
-_in_flight_lock = threading.Lock()
+_in_flight_lock = threading.RLock()
+_bg_rebuild_thread: Optional[threading.Thread] = None
 
 # Idle timeout: seconds of inactivity before releasing the SQLite connection.
 # Set to 0 to disable idle release (e.g. for tests or CLI).
@@ -55,8 +56,16 @@ _IDLE_TIMEOUT = int(os.environ.get("BIORAG_IDLE_TIMEOUT_SECONDS", "30"))
 
 @contextmanager
 def active_request():
-    """Rastrea peticiones en curso para que el timer de reposo no cierre la conexión a mitad de ejecución."""
-    global _in_flight_count
+    """Rastrea peticiones en curso y rechaza si hay mantenimiento pendiente para evitar inanición."""
+    global _in_flight_count, _path
+    if _path is not None:
+        from core.database_access import is_maintenance_pending
+        if is_maintenance_pending(_path):
+            with _in_flight_lock:
+                if _in_flight_count == 0:
+                    _idle_release_callback()
+            raise BioragBusy("BioRAG update pending, retry in a few seconds", status="retry")
+
     with _in_flight_lock:
         _in_flight_count += 1
     try:
@@ -66,6 +75,11 @@ def active_request():
             _in_flight_count -= 1
             is_zero = (_in_flight_count == 0)
         if is_zero:
+            if _path is not None:
+                from core.database_access import is_maintenance_pending
+                if is_maintenance_pending(_path):
+                    _idle_release_callback()
+                    return
             with _lock:
                 _schedule_idle_release()
 
@@ -159,13 +173,15 @@ def _reopen_connection() -> bool:
         _cerebro = None
         _path = None
 
+        global _bg_rebuild_thread
         # Reconstruir en background para que el siguiente intento lo encuentre listo
         def _bg_rebuild():
             try:
                 get_cerebro(target_path)
             except Exception:
                 pass
-        threading.Thread(target=_bg_rebuild, daemon=True).start()
+        _bg_rebuild_thread = threading.Thread(target=_bg_rebuild, daemon=True)
+        _bg_rebuild_thread.start()
 
         raise BioragBusy(
             "BioRAG is reloading after update, retry in a few seconds",
@@ -234,11 +250,14 @@ def _reopen_connection() -> bool:
 
 def reset_cerebro():
     """Tests / cambio de BIORAG_PATH: suelta el singleton."""
-    global _cerebro, _path, _in_flight_count
+    global _cerebro, _path, _in_flight_count, _bg_rebuild_thread
     with _lock:
         _cancel_idle_timer()
         with _in_flight_lock:
             _in_flight_count = 0
+        if _bg_rebuild_thread is not None and _bg_rebuild_thread.is_alive():
+            _bg_rebuild_thread.join(timeout=0.3)
+        _bg_rebuild_thread = None
         if _cerebro is not None:
             try:
                 _cerebro._persistente = False
@@ -279,6 +298,15 @@ def get_cerebro(db_path: Optional[str] = None):
 
     path = resolve_db_path(db_path)
     with _lock:
+        # Check maintenance pending gate
+        if path is not None:
+            from core.database_access import is_maintenance_pending
+            if is_maintenance_pending(path):
+                with _in_flight_lock:
+                    if _in_flight_count <= 1:
+                        _idle_release_callback()
+                raise BioragBusy("BioRAG is updating, retry in a few seconds", status="retry")
+
         # Re-arm idle timer on every access.
         _schedule_idle_release()
 
