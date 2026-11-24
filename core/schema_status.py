@@ -18,6 +18,32 @@ from typing import Any
 from core.database_access import connect_readonly
 
 APPLIED_UPDATE_KEY = "biorag_applied_update_id"
+CURRENT_SCHEMA_VERSION = 1
+
+
+class SchemaVersionError(sqlite3.DatabaseError):
+    """Raised when the database has a newer schema version than the installed code."""
+    pass
+
+
+def check_schema_version(db_or_conn):
+    """Check PRAGMA user_version. Returns int. Raises SchemaVersionError if newer than code."""
+    if hasattr(db_or_conn, 'execute'):
+        row = db_or_conn.execute("PRAGMA user_version").fetchone()
+        version = int(row[0]) if row and row[0] is not None else 0
+    else:
+        path = Path(db_or_conn).expanduser().resolve()
+        if not path.exists() or not path.is_file():
+            return 0
+        with closing(connect_readonly(path, timeout=5)) as conn:
+            row = conn.execute("PRAGMA user_version").fetchone()
+            version = int(row[0]) if row and row[0] is not None else 0
+
+    if version > CURRENT_SCHEMA_VERSION:
+        raise SchemaVersionError(
+            f"SCHEMA_NEWER_THAN_CODE: database schema version {version} is newer than installed BioRAG code version {CURRENT_SCHEMA_VERSION}. Please update BioRAG."
+        )
+    return version
 
 
 def _is_fts_shadow(name: str) -> bool:
@@ -102,6 +128,8 @@ def inspect_database(
         "status": "unknown",
         "applied_update_id": None,
         "expected_update_id": expected_update_id,
+        "schema_version": 0,
+        "current_code_schema_version": CURRENT_SCHEMA_VERSION,
         "missing_objects": [],
         "missing_columns": {},
         "schema_check": "not_run",
@@ -118,6 +146,16 @@ def inspect_database(
 
     try:
         with closing(connect_readonly(path, timeout=10)) as db:
+            user_ver_row = db.execute("PRAGMA user_version").fetchone()
+            schema_version = int(user_ver_row[0]) if user_ver_row and user_ver_row[0] is not None else 0
+            result["schema_version"] = schema_version
+            if schema_version > CURRENT_SCHEMA_VERSION:
+                result.update(
+                    status="schema_newer_than_code",
+                    error=f"SCHEMA_NEWER_THAN_CODE: database schema version {schema_version} > code version {CURRENT_SCHEMA_VERSION}"
+                )
+                return result
+
             objects = expected_objects if expected_objects is not None else expected_core_schema()
             actual_rows = db.execute(
                 "SELECT type, name FROM sqlite_master "

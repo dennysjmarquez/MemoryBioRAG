@@ -95,6 +95,12 @@ class SQLiteMemoryBioRAG:
         self.conn = managed_connect(self.db_path, timeout=60, check_same_thread=False)
         self._persistente = False
         try:
+            from core.schema_status import check_schema_version
+            try:
+                check_schema_version(self.conn)
+            except Exception:
+                self.conn.close()
+                raise
             self.conn.execute("PRAGMA journal_mode=WAL")
             self.conn.execute("PRAGMA synchronous=NORMAL")
             self.conn.execute("PRAGMA busy_timeout=30000")

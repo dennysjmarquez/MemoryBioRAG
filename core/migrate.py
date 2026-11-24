@@ -13,7 +13,7 @@ import sqlite3
 
 from core.contextual.schema import COLUMNS
 from core.database_backup import create_backup, finish_backup, prune_successful, verify_database, validate_update_backup
-from core.schema_status import APPLIED_UPDATE_KEY, valid_update_id
+from core.schema_status import APPLIED_UPDATE_KEY, CURRENT_SCHEMA_VERSION, check_schema_version, valid_update_id
 from core.database_access import connect, connect_readonly
 
 
@@ -29,6 +29,7 @@ def _initialize(path):
 
 
 def migrate(path, *, existing_backup=None):
+    check_schema_version(path)
     from core.database_access import maintenance
     with maintenance(path):
         return _migrate(path, existing_backup=existing_backup)
@@ -63,11 +64,14 @@ def record_applied_update_id(path, update_id):
 def _migrate(path, *, existing_backup=None):
     """Respalda mediante SQLite backup (incluye WAL confirmado) y usa core real.
 
-    Errores se propagan. El respaldo se conserva incluso si la migración falla.
-    No reemplaza la DB viva automáticamente después de un fallo.
+    Errores se propagan. Si owns_backup es True y la migración falla, se restaura
+    automáticamente la base de datos previa desde el respaldo verificado para
+    evitar estados inconsistentes en migraciones sueltas.
     """
     path = Path(path).expanduser().resolve()
     path.parent.mkdir(parents=True, exist_ok=True)
+    check_schema_version(path)
+
     owns_backup = existing_backup is None
     backup = (create_backup(path, purpose='migration') if owns_backup
               else validate_update_backup(existing_backup, path))
@@ -78,13 +82,35 @@ def _migrate(path, *, existing_backup=None):
                 actual = tuple(row[1] for row in db.execute('PRAGMA table_info('+table+')'))
                 if actual != columns:
                     raise sqlite3.DatabaseError('MIGRATION_VERIFICATION_FAILED: '+table)
+
+        # Sellar user_version con BEGIN IMMEDIATE y isolation_level=None
+        raw_conn = sqlite3.connect(str(path), isolation_level=None, timeout=30)
+        try:
+            raw_conn.execute("BEGIN IMMEDIATE")
+            raw_conn.execute(f"PRAGMA user_version = {CURRENT_SCHEMA_VERSION}")
+            raw_conn.execute("COMMIT")
+        finally:
+            raw_conn.close()
+
         verification = verify_database(path)
     except Exception:
-        if owns_backup:finish_backup(backup, success=False)
+        if owns_backup:
+            finish_backup(backup, success=False)
+            # Restauración automática del respaldo verificado ante fallo de migración
+            from core.updater import restore_database_backup
+            try:
+                restore_database_backup(backup, path)
+            except Exception as restore_exc:
+                import sys
+                sys.stderr.write(
+                    f"CRITICAL: Migration failed and automatic restore failed: {restore_exc}\n"
+                    f"Manual recovery snapshot available at: {backup}\n"
+                )
         raise
     if owns_backup:finish_backup(backup, success=True)
     retention = prune_successful(path) if owns_backup else None
     return dict(status='ok', database=str(path), backup=backup,
+                schema_version=CURRENT_SCHEMA_VERSION,
                 contextual_tables=list(COLUMNS), verification=verification, retention=retention)
 
 

@@ -42,6 +42,8 @@
 - `[NO VERIFICADO]` Tiempo exacto de recarga en background del servidor FastMCP ante cambio de `user_version`.
 - `[NO VERIFICADO EN WINDOWS NATIVO]` La suite de pruebas de Windows (`test_database_access_windows.py`) corre bajo simulación/mocking de Win32 API (`ctypes.WinDLL` y `msvcrt`); requiere verificación en runner Windows real.
 
+> **Nota sobre latencia de `PRAGMA user_version` (0.324 ms):** Medido el 2026-11-23 en la ASUS ROG Strix G731GT con Python 3.12 sobre la base de datos real de 135 MB (`/home/dennys/.biorag/memory_biorag.db`) mediante `sqlite3.connect` + `c.execute('PRAGMA user_version;').fetchone()[0]` + `c.close()`. En conexiones ya abiertas y bases de datos pequeñas en memoria, la latencia es típicamente de ~0.002 a 0.02 ms. Ambas magnitudes confirman que la comprobación es prácticamente despreciable en costo.
+
 ---
 
 ## 3.1. Estado de Módulos Preexistentes y Dependencias (`core/process_inspection.py`)
@@ -87,30 +89,36 @@
 1. **`core/schema_status.py` (Estructural):** Inspección de solo lectura (`missing_objects`, `missing_columns`, `integrity_check`, `foreign_key_check`) derivada dinámicamente de `expected_core_schema()` en memoria (sin inventarios manuales duplicados). Detecta `schema_drift` y objetos faltantes.
 2. **`biorag_applied_update_id` (Git Commit ID):** Marcador puntual en la tabla `data` que registra el hash exacto del commit que completó y verificó el ciclo de vida (`lifecycle`). Identifica sincronización entre código instalado y la BD.
 3. **`PRAGMA user_version` (Entero Monotónico de Esquema):**
-   - **Justificación técnica:** 
-     a) **Detección de BD más nueva que el código:** Un SHA de Git no tiene orden temporal o monotónico. Si un usuario conecta una base de datos creada o migrada por una versión futura de BioRAG a un checkout viejo, `PRAGMA user_version > CURRENT_SCHEMA_VERSION` detecta de forma inmediata e indiscutible que la BD es incompatible hacia adelante y bloquea escrituras corruptoras.
-     b) **Detección O(1) de recarga en reposo para MCP (Fase F2):** En lugar de hacer una inspección estructural completa (que tarda varios milisegundos y abre múltiples tablas), un proceso MCP en reposo solo consulta `PRAGMA user_version` (medido: **0.324 ms**). Si coincide con su versión interna, reanuda al instante sin revalidar toda la estructura.
+   - **Semántica de `user_version = 0`:** Representa una base de datos preexistente o "legada sin sello". Sigue funcionando con total normalidad; solo se sella al completar una migración verificada.
+   - **Detección de BD más nueva que el código:** Comprobación estricta en el camino común de apertura (`SQLiteMemoryBioRAG` y `core/migrate.py`): si `user_version > CURRENT_SCHEMA_VERSION`, se aborta con error claro e informativo (`SCHEMA_NEWER_THAN_CODE: database requires a newer BioRAG release`). Esto protege a las versiones nuevas contra escrituras incompatibles.
+   - **Detección O(1) de recarga en reposo para MCP (Fase F2):** Consulta ultrarrápida para verificar si el esquema cambió durante la inactividad.
 
 #### 2. Realidad de la "Migración Atómica" vs Commits Internos:
-- **Medición empírica:** Se midió cuántas llamadas a `.commit()` ocurren durante `_initialize()`:
-  - `SQLiteMemoryBioRAG.__init__`: **15 commits individuales**.
-  - `ensure_contextual_schema`: **1 commit**.
-  - `_initialize` commit final: **1 commit**.
-  - **Total: 17 commits** repartidos en la inicialización de módulos, tablas de metadatos, FTS5 y triggers.
-- **Conclusión arquitectónica inmutable:** No es posible forzar una transacción única `BEGIN IMMEDIATE ... COMMIT` que envuelva todo `_initialize` sin reescribir por completo el bootstrap de SQLiteMemoryBioRAG.
-- **Estrategia Rock Solid aprobada:** La verdadera red de seguridad de la migración es el **respaldo SQLite nativo verificado (`core/database_backup.py`) + restauración automática en rollback**.
+- **Clarificación de métricas:**
+  - **Llamadas a `.commit()` invocadas en código:** 15 en `SQLiteMemoryBioRAG.__init__` + 1 en `ensure_contextual_schema` + 1 en `_initialize` = 17 llamadas.
+  - **Sentencias `COMMIT` reales ejecutadas por SQLite (medición independiente):** 6 sentencias reales en BD nueva (las llamadas sin transacción abierta son no-op para el motor).
+  - **Conclusión unánime:** En cualquier caso, no cabe una transacción única `BEGIN IMMEDIATE ... COMMIT` envolviendo toda la inicialización sin reescribir el bootstrap.
+- **Doble ruta de recuperación ante fallos:**
+  - **Ruta A (`biorag update` / `updater.py`):** Ya cuenta con rollback y restauración automática completa (`restore_database_backup`).
+  - **Ruta B (`python -m core.migrate` suelto):** Actualmente `finish_backup(success=False)` sólo marca metadatos y no sobreescribe la BD. Se implementa en `core/migrate.py` la opción (a) acordada: si `migrate()` falla y es dueño del respaldo (`owns_backup`), **ejecuta restauración automática del respaldo verificado**, de modo que la BD viva nunca quede rota a mitad de camino, y si la restauración fallara, imprime la ruta del respaldo y el comando de recuperación manual.
+
 - **Contrato de F1:**
   - Definir `CURRENT_SCHEMA_VERSION = 1` en `core/schema_status.py`.
-  - En `core/migrate.py`, verificar si `user_version > CURRENT_SCHEMA_VERSION` (rechazar con `SCHEMA_NEWER_THAN_CODE`).
+  - En `core/migrate.py` y `SQLiteMemoryBioRAG.__init__`, verificar si `user_version > CURRENT_SCHEMA_VERSION` (rechazar con `SCHEMA_NEWER_THAN_CODE`).
   - Al completar la verificación del esquema en `_migrate()`:
     - Ejecutar con `isolation_level=None` un `BEGIN IMMEDIATE` para actualizar `PRAGMA user_version = CURRENT_SCHEMA_VERSION` y verificar integridad de cierre.
-  - Asegurar que ante cualquier excepción durante `_migrate()`, el respaldo se restaure automáticamente en la ruta activa sin dejar la BD corrompida.
-  - Reportar en `inspect_database` el valor de `user_version` y alertar si la BD es más nueva que el código instalado.
+  - Si `_migrate()` falla siendo dueño del backup: restaurar automáticamente desde el backup temporal verificado.
+  - Reportar en `inspect_database` el valor de `user_version` y alertar si la BD es más nueva que el código.
 
 - **Criterio de aceptación:**
-  - Prueba de BD más nueva que el código (`user_version > CURRENT_SCHEMA_VERSION` rechaza con error accionable).
-  - Prueba de contención externa con escritor concurrente.
-  - Prueba de migración interrumpida con restauración automática del respaldo.
+  - Prueba de BD con `user_version > CURRENT_SCHEMA_VERSION` rechaza con `SCHEMA_NEWER_THAN_CODE` tanto en `migrate` como en apertura normal.
+  - Prueba de BD con `user_version = 0` sigue operando normalmente.
+  - Prueba de fallo simulado a mitad de `migrate()` restaura automáticamente la BD previa.
+  - Prueba de contención externa concurrente.
+
+- **Resultado empírico medido:**
+  - `pytest tests/test_schema_version_f1.py tests/test_schema_status.py tests/test_contextual_schema_lifecycle.py tests/test_updater_lifecycle.py -q`: **61 passed, 8 subtests passed in 15.77s**.
+  - Estado F1: **COMPLETADO**.
 
 ---
 
