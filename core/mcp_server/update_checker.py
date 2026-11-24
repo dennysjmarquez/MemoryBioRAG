@@ -11,6 +11,7 @@ import os
 import re
 import subprocess
 import threading
+import time
 from datetime import datetime, timezone
 from importlib.metadata import PackageNotFoundError, version as distribution_version
 from pathlib import Path
@@ -27,7 +28,17 @@ _TAGS_PAGE = "https://github.com/dennysjmarquez/MemoryBioRAG-Stable/tree/"
 _DEFAULT_TIMEOUT_SECONDS = 3.0
 _MAX_TAG_PAGES = 10
 _DEFAULT_INTERVAL_SECONDS = 24 * 60 * 60
+# Re-emisión del aviso de base de datos desincronizada. Es una condición que hay
+# que arreglar (no un dato informativo), así que no se agota como el aviso de
+# versión: vuelve a aparecer en cualquier tool cada este intervalo, en la primera
+# tool del proceso, y siempre que cambie el día calendario local del usuario.
+_DB_NOTICE_INTERVAL_SECONDS = 4 * 60 * 60
 _VERSION_PATTERN = re.compile(r"^[vV]?(\d+(?:\.\d+){1,2})$")
+
+
+def _local_date() -> str:
+    """Día calendario local (no UTC): 'cerré y abrí mañana' depende del reloj del usuario."""
+    return datetime.now().astimezone().date().isoformat()
 
 
 def _version_key(value: str) -> tuple[int, int, int] | None:
@@ -259,6 +270,12 @@ class UpdateChecker:
         self._thread: threading.Thread | None = None
         self._pending_notice: str | None = None
         self._notified_tag: str | None = None
+        # Aviso persistente (solo DB desincronizada): no se consume, se silencia
+        # por intervalo. _notice_last_* queda en None hasta la primera emisión.
+        self._notice_persistent = False
+        self._notice_last_mono: float | None = None
+        self._notice_last_date: str | None = None
+        self._notice_interval_seconds = _DB_NOTICE_INTERVAL_SECONDS
         self._install_root = Path(install_root) if install_root else Path(__file__).resolve().parents[2]
         self._db_path = db_path
         self._channel = channel or _detect_channel(self._install_root)
@@ -284,6 +301,7 @@ class UpdateChecker:
                     canal=self._channel,
                 )
                 self._pending_notice = db_issue["mensaje"]
+                self._notice_persistent = True
                 self._notified_tag = db_issue["motivo"]
 
     def start(self) -> None:
@@ -334,6 +352,9 @@ class UpdateChecker:
             }
             if clear_notice:
                 self._pending_notice = None
+                self._notice_persistent = False
+                self._notice_last_mono = None
+                self._notice_last_date = None
                 if not available:
                     self._notified_tag = None
             return dict(self._status)
@@ -357,8 +378,13 @@ class UpdateChecker:
                     "ultima_comprobacion": datetime.now(timezone.utc).isoformat(),
                     "canal": self._channel,
                 }
-                if self._notified_tag != db_issue["motivo"]:
+                if self._notified_tag != db_issue["motivo"] or not self._notice_persistent:
+                    # Se re-arm SIEMPRE que exista la condición: el aviso de DB es
+                    # persistente y take_notice() decide si toca emitirlo (intervalo
+                    # o cambio de día). Silenciarlo aquí era el bug: desaparecía hasta
+                    # reiniciar el proceso y no volvía jamás.
                     self._pending_notice = db_issue["mensaje"]
+                    self._notice_persistent = True
                     self._notified_tag = db_issue["motivo"]
                 return dict(self._status)
 
@@ -397,6 +423,7 @@ class UpdateChecker:
                         f"BioRAG (dev) has {behind} new commit{s} "
                         f"available from upstream. To update, run: biorag update"
                     )
+                    self._notice_persistent = False
                     self._notified_tag = upstream_ref
                 return dict(self._status)
         return self._set_status("actualizado", "Up to date with upstream.")
@@ -519,9 +546,13 @@ class UpdateChecker:
                     f"(installed: v{self.current_version}). "
                     f"To update, run: biorag update"
                 )
+                self._notice_persistent = False
                 self._notified_tag = tag
             elif not available:
                 self._pending_notice = None
+                self._notice_persistent = False
+                self._notice_last_mono = None
+                self._notice_last_date = None
                 self._notified_tag = None
             return dict(self._status)
 
@@ -531,10 +562,31 @@ class UpdateChecker:
             return dict(self._status)
 
     def take_notice(self) -> str | None:
-        """Consume como máximo un aviso por versión; lo llama el middleware MCP."""
+        """Devuelve el aviso pendiente.
+
+        Aviso de versión (no persistente): se consume — una sola vez por tag, como
+        siempre. Aviso de DB desincronizada (persistente): NO se consume; se emite en
+        la primera tool del proceso, luego cada `_notice_interval_seconds` de reloj
+        monótono (inmune a saltos de NTP/reloj) y siempre que cambie el día calendario
+        local. Así sobrevive a un daemon de larga duración sin reiniciarse.
+        """
         with self._lock:
             notice = self._pending_notice
-            self._pending_notice = None
+            if notice is None:
+                return None
+            if not self._notice_persistent:
+                self._pending_notice = None
+                return notice
+
+            now_mono = time.monotonic()
+            today = _local_date()
+            if self._notice_last_date is not None:
+                same_day = today == self._notice_last_date
+                elapsed = now_mono - (self._notice_last_mono or now_mono)
+                if same_day and elapsed < self._notice_interval_seconds:
+                    return None
+            self._notice_last_mono = now_mono
+            self._notice_last_date = today
             return notice
 
 
@@ -582,9 +634,9 @@ def version_aware_server_class(
             result = await super().call_tool(name, arguments)
             if notice and result:
                 banner = (
-                    "📢 [ACTUALIZACIÓN DISPONIBLE DE BIORAG]\n"
-                    f"Instrucción para el agente: Notifica obligatoriamente al usuario en tu respuesta: '{notice}'. "
-                    "Luego continúa y atiende su solicitud.\n"
+                    "📢 [BIORAG UPDATE AVAILABLE]\n"
+                    f"Instruction for the agent: you MUST notify the user in your response: '{notice}'. "
+                    "Then continue and handle their request as usual.\n"
                     "--------------------------------------------------------------------\n\n"
                 )
                 try:

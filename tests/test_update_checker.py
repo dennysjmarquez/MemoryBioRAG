@@ -413,7 +413,7 @@ def test_banner_inyectado_en_text_content_para_visibilidad_del_agente():
 
     result = asyncio.run(server.call_tool("recordar", {}))
     assert isinstance(result, list) and len(result) > 0
-    assert "ACTUALIZACIÓN DISPONIBLE DE BIORAG" in result[0].text
+    assert "BIORAG UPDATE AVAILABLE" in result[0].text
     assert "v36.2.0" in result[0].text
     assert '{"recuerdos": ["usuario_dennys"]}' in result[0].text
 
@@ -444,8 +444,8 @@ def test_banner_inyectado_en_fastmcp_tuple_real():
     result = asyncio.run(server.call_tool("recordar", {}))
     assert isinstance(result, tuple)
     content_list, extra_dict = result
-    assert "ACTUALIZACIÓN DISPONIBLE DE BIORAG" in content_list[0].text
-    assert "ACTUALIZACIÓN DISPONIBLE DE BIORAG" in extra_dict["result"]
+    assert "BIORAG UPDATE AVAILABLE" in content_list[0].text
+    assert "BIORAG UPDATE AVAILABLE" in extra_dict["result"]
     assert "salida normal de recordar" in content_list[0].text
 
 
@@ -644,3 +644,133 @@ def test_database_commit_desfasado_dispara_aviso_actualizacion(monkeypatch):
     notice = checker.take_notice()
     assert notice is not None
     assert "differs from installed code" in notice
+
+
+# ── Aviso de DB persistente (no se consume) ─────────────────────────────────
+
+
+def _db_issue(motivo="db_no_actualizada"):
+    return {
+        "motivo": motivo,
+        "detalle": "The database has no update marker recorded.",
+        "mensaje": (
+            "BioRAG database is not synchronized with installed code "
+            "(missing update marker in data table). Run: biorag update"
+        ),
+    }
+
+
+def test_aviso_db_persistente_no_se_consume_y_respeta_intervalo(monkeypatch):
+    """El aviso de DB no se agota en la primera tool: vence el intervalo y sale otra vez."""
+    monkeypatch.setattr(
+        update_checker, "_check_database_update_status",
+        lambda db, root: _db_issue(),
+    )
+    checker = UpdateChecker(current_version="36.2.0", enabled=True, channel="dev")
+
+    first = checker.take_notice()
+    assert first is not None and "biorag update" in first
+
+    # Tool inmediata siguiente, mismo día: silenciada por el intervalo (sin spam).
+    assert checker.take_notice() is None
+
+    # Vencido el intervalo el aviso sigue vivo: no fue consumido.
+    checker._notice_interval_seconds = 0.0
+    assert checker.take_notice() == first
+
+
+def test_aviso_db_vuelve_al_cambiar_el_dia_local(monkeypatch):
+    """Un día nuevo re-emite el aviso aunque el intervalo de 4h no haya vencido."""
+    monkeypatch.setattr(
+        update_checker, "_check_database_update_status",
+        lambda db, root: _db_issue(),
+    )
+    checker = UpdateChecker(current_version="36.2.0", enabled=True, channel="dev")
+
+    assert checker.take_notice() is not None
+    assert checker.take_notice() is None
+
+    monkeypatch.setattr(update_checker, "_local_date", lambda: "2999-01-01")
+    assert checker.take_notice() is not None
+
+
+def test_aviso_db_desaparece_cuando_la_base_queda_sincronizada(monkeypatch):
+    """Tras `biorag update` el aviso se desarma y deja de emitirse."""
+    state = {"issue": _db_issue()}
+    monkeypatch.setattr(
+        update_checker, "_check_database_update_status",
+        lambda db, root: state["issue"],
+    )
+    monkeypatch.setattr(
+        update_checker, "_dev_upstream_status",
+        lambda root: {"behind": 0, "upstream_ref": None},
+    )
+    checker = UpdateChecker(current_version="36.2.0", enabled=True, channel="dev")
+    checker._notice_interval_seconds = 0.0
+
+    assert checker.take_notice() is not None
+
+    state["issue"] = None
+    checker.check_once()
+    assert checker.take_notice() is None
+
+
+def test_check_once_rearma_el_aviso_de_db_mientras_la_condicion_exista(monkeypatch):
+    """El chequeo periódico no vuelve a silenciar el aviso de DB (era el bug original)."""
+    calls = {"n": 0}
+
+    def issue(db, root):
+        calls["n"] += 1
+        return _db_issue()
+
+    monkeypatch.setattr(update_checker, "_check_database_update_status", issue)
+    checker = UpdateChecker(current_version="36.2.0", enabled=True, channel="dev")
+
+    checker.check_once()
+    checker._notice_interval_seconds = 0.0
+    assert checker.take_notice() is not None
+    assert checker.take_notice() is not None
+    assert calls["n"] >= 2
+
+
+def test_banner_de_db_sale_en_la_primera_tool_y_vuelve_tras_el_intervalo(monkeypatch):
+    """End-to-end por call_tool: primera tool del proceso avisa, no spamea, y vuelve."""
+    from mcp.types import TextContent
+
+    monkeypatch.setattr(
+        update_checker, "_check_database_update_status",
+        lambda db, root: _db_issue(),
+    )
+    checker = UpdateChecker(current_version="36.2.0", enabled=True, channel="dev")
+
+    class FakeContext:
+        async def warning(self, _message):
+            pass
+
+    class FakeFastMCP:
+        def __init__(self, *_args, **_kwargs):
+            self._mcp_server = type("LowLevel", (), {"version": None})()
+            self.context = FakeContext()
+
+        def get_context(self):
+            return self.context
+
+        async def call_tool(self, _name, _arguments):
+            return [TextContent(type="text", text='{"recuerdos": []}')]
+
+    aware_class = update_checker.version_aware_server_class(FakeFastMCP, checker)
+    server = aware_class("biorag")
+
+    first = asyncio.run(server.call_tool("recordar", {}))
+    second = asyncio.run(server.call_tool("recordar", {}))
+
+    # Primera tool de la vida del proceso: sí avisa (aunque nadie llame al oráculo).
+    assert "BIORAG UPDATE AVAILABLE" in first[0].text
+    assert "biorag update" in first[0].text
+    # Tool inmediata siguiente, mismo día: no repite (sin spam).
+    assert "BIORAG UPDATE AVAILABLE" not in second[0].text
+
+    # Vencido el intervalo, el aviso sigue vivo y vuelve a salir en cualquier tool.
+    checker._notice_interval_seconds = 0.0
+    third = asyncio.run(server.call_tool("recordar", {}))
+    assert "BIORAG UPDATE AVAILABLE" in third[0].text
