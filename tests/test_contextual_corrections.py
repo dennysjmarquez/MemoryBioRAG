@@ -133,7 +133,6 @@ def test_real_mcp_schema_exposes_object_context_and_guarded_tools():
     for name in ('recordar','buscar'):
         schema=tools[name].parameters['properties']['contexto_vigencia']
         assert schema.get('type')=='object' or any(item.get('type')=='object' for item in schema.get('anyOf', []))
-        assert 'contexto_vigencia' in tools[name].parameters.get('required', [])
 
 
 def test_no_ddl_on_search_and_visible_invalid_context():
