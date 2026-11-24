@@ -40,6 +40,23 @@
 ### Puntos no verificados hasta el momento:
 - `[NO VERIFICADO]` Duración total de `create_backup` con escritor concurrente activo en la BD de 135 MB.
 - `[NO VERIFICADO]` Tiempo exacto de recarga en background del servidor FastMCP ante cambio de `user_version`.
+- `[NO VERIFICADO EN WINDOWS NATIVO]` La suite de pruebas de Windows (`test_database_access_windows.py`) corre bajo simulación/mocking de Win32 API (`ctypes.WinDLL` y `msvcrt`); requiere verificación en runner Windows real.
+
+---
+
+## 3.1. Estado de Módulos Preexistentes y Dependencias (`core/process_inspection.py`)
+
+1. **Dependencia declarada `psutil` (v7.2.2):**
+   - La restricción informal de "evitar dependencias externas como psutil" queda corregida: `psutil==7.2.2` **ya es una dependencia formal declarada** en `pyproject.toml` y requerida por el core.
+2. **Qué hace hoy `core/process_inspection.py`:**
+   - Realiza un inventario ordenado y seguro de procesos que tienen abierta la BD SQLite o sus archivos asociados (`-wal`, `-shm`, `.maintenance.lock`).
+   - Clasifica procesos por entry point exacto (`daemon`, `worker`, `cli`, `mcp`).
+   - Política `fail-closed`: ante holders desconocidos o procesos sin acceso (`AccessDenied`), rechaza (`UNKNOWN_DATABASE_CONSUMER` / `PROCESS_SCAN_INCOMPLETE`).
+   - `stop_managed_daemon(root)`: detiene de forma ordenada únicamente el daemon registrado en el PID file (`graph_maintenance_daemon.py`).
+   - `stop_known_database_processes(database)`: función capaz de detener procesos MCP/worker verificados, pero **actualmente NO se llama automáticamente sin autorización** en el flujo normal de `exclusive_update`.
+3. **Decisión de Reutilización Arquitectónica:**
+   - **No duplicar:** La Fase de Diagnóstico no reinventará listados de procesos con comandos `lsof` o `netstat`. Reutilizará directamente `inspect_database_processes(database)` de `core/process_inspection.py` para reportar con precisión humana los PIDs que retienen la base de datos si el lock exclusivo expira por timeout.
+   - **Cero matanza indiscriminada:** Se mantiene la política fundamental: `biorag update` **no mata procesos MCP por defecto**. En su lugar, la Fase F2 (Idle Lease Release) permitirá que los procesos MCP suelten la conexión SQLite tras unos segundos de inactividad de forma cooperativa. La detención forzada sólo se utilizaría si existe una orden/flag explícito del usuario.
 
 ---
 
