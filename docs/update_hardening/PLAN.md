@@ -113,12 +113,15 @@
 - **Criterio de aceptación:**
   - Prueba de BD con `user_version > CURRENT_SCHEMA_VERSION` rechaza con `SCHEMA_NEWER_THAN_CODE` tanto en `migrate` como en apertura normal.
   - Prueba de BD con `user_version = 0` sigue operando normalmente.
-  - Prueba de fallo simulado a mitad de `migrate()` restaura automáticamente la BD previa.
+  - Prueba de BD con `user_version < 0` rechaza con `SCHEMA_VERSION_INVALID`.
+  - Prueba de fallo simulado DESPUÉS de mutaciones en `migrate()` restaura automáticamente la BD previa, revierte tablas parciales y limpia `-wal`/`-shm`.
+  - Prueba de fallo en BD inexistente previa limpia archivos parciales sin errores confusos.
   - Prueba de contención externa concurrente.
 
-- **Resultado empírico medido:**
-  - `pytest tests/test_schema_version_f1.py tests/test_schema_status.py tests/test_contextual_schema_lifecycle.py tests/test_updater_lifecycle.py -q`: **61 passed, 8 subtests passed in 15.77s**.
-  - Estado F1: **COMPLETADO**.
+- **Resultado empírico medido tras corrección de auditoría:**
+  - `pytest tests/test_schema_version_f1.py tests/test_database_backup_policy.py tests/test_schema_status.py tests/test_updater_lifecycle.py -q`: **63 passed, 4 subtests passed in 20.24s**.
+  - Ciclo TDD: **Rojo reproducido** (`test_migrate_failure_triggers_automatic_restore` fallaba con `(42, 'CORROMPIDO') != (42, 'ORIGINAL')` por `BACKUP_HANDOFF_INVALID`) -> **Verde confirmado** tras los fixes.
+  - Estado F1: **COMPLETADO Y AUDITADO**.
 
 ---
 

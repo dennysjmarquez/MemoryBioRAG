@@ -27,7 +27,7 @@ class SchemaVersionError(sqlite3.DatabaseError):
 
 
 def check_schema_version(db_or_conn):
-    """Check PRAGMA user_version. Returns int. Raises SchemaVersionError if newer than code."""
+    """Check PRAGMA user_version. Returns int. Raises SchemaVersionError if newer than code or negative."""
     if hasattr(db_or_conn, 'execute'):
         row = db_or_conn.execute("PRAGMA user_version").fetchone()
         version = int(row[0]) if row and row[0] is not None else 0
@@ -39,6 +39,10 @@ def check_schema_version(db_or_conn):
             row = conn.execute("PRAGMA user_version").fetchone()
             version = int(row[0]) if row and row[0] is not None else 0
 
+    if version < 0:
+        raise SchemaVersionError(
+            f"SCHEMA_VERSION_INVALID: negative user_version {version} is not supported."
+        )
     if version > CURRENT_SCHEMA_VERSION:
         raise SchemaVersionError(
             f"SCHEMA_NEWER_THAN_CODE: database schema version {version} is newer than installed BioRAG code version {CURRENT_SCHEMA_VERSION}. Please update BioRAG."

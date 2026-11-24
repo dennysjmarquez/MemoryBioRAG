@@ -130,7 +130,7 @@ def validate_update_backup(backup, database):
     backup=backup.resolve()
     data=json.loads(_metadata_path(backup).read_text())
     if (not isinstance(data,dict) or backup.parent != source.parent/'backups' or data.get('format')!=FORMAT
-            or data.get('source')!=str(source) or data.get('purpose')!='update'
+            or data.get('source')!=str(source) or data.get('purpose') not in {'update', 'migration'}
             or data.get('status')!='pending'):
         raise ValueError('BACKUP_HANDOFF_INVALID')
     verify_database(backup)

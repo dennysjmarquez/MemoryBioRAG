@@ -39,6 +39,21 @@ class SchemaVersionF1Tests(unittest.TestCase):
         self.assertIsNotNone(mem.conn)
         mem.conn.close()
 
+    def test_database_negative_user_version_is_refused(self):
+        """user_version < 0 debe ser rechazado con SCHEMA_VERSION_INVALID."""
+        conn = sqlite3.connect(str(self.db))
+        conn.execute("PRAGMA user_version = -1")
+        conn.close()
+
+        with self.assertRaisesRegex(SchemaVersionError, "SCHEMA_VERSION_INVALID"):
+            check_schema_version(self.db)
+
+        with self.assertRaisesRegex(SchemaVersionError, "SCHEMA_VERSION_INVALID"):
+            SQLiteMemoryBioRAG(str(self.db))
+
+        with self.assertRaisesRegex(SchemaVersionError, "SCHEMA_VERSION_INVALID"):
+            migrate.migrate(self.db)
+
     def test_database_newer_than_code_is_refused(self):
         """user_version > CURRENT_SCHEMA_VERSION debe ser rechazado con SCHEMA_NEWER_THAN_CODE."""
         conn = sqlite3.connect(str(self.db))
@@ -74,24 +89,50 @@ class SchemaVersionF1Tests(unittest.TestCase):
         self.assertEqual(ver, CURRENT_SCHEMA_VERSION)
 
     def test_migrate_failure_triggers_automatic_restore(self):
-        """Fallo a mitad de migrate restaura automáticamente el estado anterior de la BD."""
-        # 1. Crear una BD inicial con datos conocidos
+        """Fallo a mitad de migrate (tras escribir cambios) restaura automáticamente el estado anterior."""
+        # 1. Crear una BD inicial con datos conocidos y esquema base
         conn = sqlite3.connect(str(self.db))
         conn.execute("CREATE TABLE test_original_marker (id INT, valor TEXT)")
-        conn.execute("INSERT INTO test_original_marker VALUES (42, 'preservar_esto')")
+        conn.execute("INSERT INTO test_original_marker VALUES (42, 'ORIGINAL')")
         conn.commit()
         conn.close()
 
-        # 2. Inyectar fallo durante la inicialización de migrate
-        with patch("core.migrate._initialize", side_effect=RuntimeError("INJECTED_MIGRATION_FAILURE")):
-            with self.assertRaisesRegex(RuntimeError, "INJECTED_MIGRATION_FAILURE"):
+        # 2. Inyectar mutación de datos + fallo durante _initialize
+        orig_initialize = migrate._initialize
+        def mutating_and_failing_initialize(path):
+            c = sqlite3.connect(str(path))
+            c.execute("CREATE TABLE junk_partial (id INT)")
+            c.execute("UPDATE test_original_marker SET valor = 'CORROMPIDO' WHERE id = 42")
+            c.commit()
+            c.close()
+            raise RuntimeError("INJECTED_MIGRATION_FAILURE_AFTER_WRITE")
+
+        with patch("core.migrate._initialize", side_effect=mutating_and_failing_initialize):
+            with self.assertRaisesRegex(RuntimeError, "INJECTED_MIGRATION_FAILURE_AFTER_WRITE"):
                 migrate.migrate(self.db)
 
         # 3. La base de datos viva DEBE haber sido restaurada automáticamente
         conn = sqlite3.connect(str(self.db))
         row = conn.execute("SELECT id, valor FROM test_original_marker").fetchone()
+        junk_exists = conn.execute(
+            "SELECT count(*) FROM sqlite_master WHERE type='table' AND name='junk_partial'"
+        ).fetchone()[0]
         conn.close()
-        self.assertEqual(row, (42, 'preservar_esto'), "La base de datos viva no fue restaurada tras fallo en migrate")
+
+        self.assertEqual(row, (42, 'ORIGINAL'), "La base de datos viva no fue restaurada tras fallo en migrate")
+        self.assertEqual(junk_exists, 0, "La tabla parcial junk_partial no fue revertida")
+        self.assertFalse(Path(str(self.db) + "-wal").exists())
+        self.assertFalse(Path(str(self.db) + "-shm").exists())
+
+    def test_migrate_failure_on_nonexistent_db_cleans_up_cleanly(self):
+        """Fallo a mitad de migrate en una BD nueva no intenta restaurar y limpia residuos sin mensajes erróneos."""
+        new_db = self.root / "brand_new.db"
+        with patch("core.migrate._initialize", side_effect=RuntimeError("FAIL_NEW")):
+            with self.assertRaisesRegex(RuntimeError, "FAIL_NEW"):
+                migrate.migrate(new_db)
+        self.assertFalse(new_db.exists())
+        self.assertFalse(Path(str(new_db) + "-wal").exists())
+        self.assertFalse(Path(str(new_db) + "-shm").exists())
 
     def test_external_lock_contention_fails_cleanly(self):
         """Si un proceso externo tiene una transacción abierta (BEGIN IMMEDIATE), migrate falla limpiamente."""

@@ -94,9 +94,8 @@ def _migrate(path, *, existing_backup=None):
 
         verification = verify_database(path)
     except Exception:
-        if owns_backup:
-            finish_backup(backup, success=False)
-            # Restauración automática del respaldo verificado ante fallo de migración
+        if owns_backup and backup is not None:
+            # Restaurar ANTES de marcar el backup como fallido para que su status='pending' sea válido
             from core.updater import restore_database_backup
             try:
                 restore_database_backup(backup, path)
@@ -106,6 +105,12 @@ def _migrate(path, *, existing_backup=None):
                     f"CRITICAL: Migration failed and automatic restore failed: {restore_exc}\n"
                     f"Manual recovery snapshot available at: {backup}\n"
                 )
+            finish_backup(backup, success=False)
+        elif owns_backup and backup is None:
+            # BD nueva que no existía antes: limpiar cualquier archivo parcial creado
+            path.unlink(missing_ok=True)
+            Path(str(path) + "-wal").unlink(missing_ok=True)
+            Path(str(path) + "-shm").unlink(missing_ok=True)
         raise
     if owns_backup:finish_backup(backup, success=True)
     retention = prune_successful(path) if owns_backup else None
