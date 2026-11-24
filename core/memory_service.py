@@ -113,9 +113,7 @@ def _reopen_connection() -> bool:
     """Re-open SQLite connection after idle release.  Called under _lock.
 
     Returns True if the connection was restored and the caller can proceed.
-    Returns False if user_version changed (schema update detected): the
-    singleton has been discarded via reset_cerebro(); caller must signal
-    the MCP client to retry.
+    Raises BioragBusy if maintenance is active or if user_version changed.
     """
     global _cerebro, _path
     if _cerebro is None or not getattr(_cerebro, '_conn_released', False):
@@ -126,8 +124,11 @@ def _reopen_connection() -> bool:
     try:
         new_conn = managed_connect(_path, timeout=60, check_same_thread=False)
     except Exception as exc:
-        logger.warning("BioRAG idle re-open failed: %s", exc)
-        return True  # keep serving with stale conn until next attempt
+        logger.warning("BioRAG idle re-open failed (busy/maintenance): %s", exc)
+        raise BioragBusy(
+            "BioRAG is updating, retry in a few seconds",
+            status="retry",
+        ) from exc
 
     # --- Check user_version for schema change during idle ---
     try:
@@ -138,17 +139,18 @@ def _reopen_connection() -> bool:
     old_ver = getattr(_cerebro, '_schema_version_at_open', 0)
     if new_ver != old_ver:
         # Schema changed while idle (e.g. biorag update ran).
-        # Discard singleton; next get_cerebro() will rebuild (~11.6 s).
+        # Discard singleton and trigger background rebuild.
         logger.info(
             "BioRAG schema updated during idle (user_version %s → %s): "
-            "discarding singleton for clean reload.",
+            "discarding singleton for clean background reload.",
             old_ver, new_ver,
         )
         try:
             new_conn.close()
         except Exception:
             pass
-        # reset_cerebro() needs _lock — we are already under it, use inline reset.
+        target_path = _path
+        _cancel_idle_timer()
         try:
             _cerebro._persistente = False
             _cerebro.cerrar_sistema()
@@ -156,7 +158,19 @@ def _reopen_connection() -> bool:
             pass
         _cerebro = None
         _path = None
-        return False  # signal: singleton gone, caller must rebuild
+
+        # Reconstruir en background para que el siguiente intento lo encuentre listo
+        def _bg_rebuild():
+            try:
+                get_cerebro(target_path)
+            except Exception:
+                pass
+        threading.Thread(target=_bg_rebuild, daemon=True).start()
+
+        raise BioragBusy(
+            "BioRAG is reloading after update, retry in a few seconds",
+            status="retry",
+        )
 
     # --- Restore connection on existing object (no RAM rebuild needed) ---
     # Apply PRAGMAs matching __init__.
@@ -235,7 +249,21 @@ def reset_cerebro():
         _path = None
 
 
-# Sentinel returned when the connection is being rebuilt after a schema update.
+# ---------------------------------------------------------------------------
+# Exceptions & Sentinels
+# ---------------------------------------------------------------------------
+
+class BioragBusy(RuntimeError):
+    """Lanzada cuando BioRAG está ocupado por actualización o recarga."""
+    def __init__(self, message: str = "BioRAG is busy, retry in a few seconds", status: str = "retry"):
+        super().__init__(message)
+        self.message = message
+        self.status = status
+
+    def to_dict(self) -> dict:
+        return {"status": self.status, "message": self.message}
+
+
 RELOADING_SENTINEL = object()
 
 
@@ -267,16 +295,20 @@ def get_cerebro(db_path: Optional[str] = None):
 
         # Singleton exists: re-open connection if released by idle.
         if _cerebro is not None:
-            ok = _reopen_connection()
-            if not ok:
-                # Schema changed during idle: singleton was discarded.
-                # Return sentinel so MCP callers can respond "retry in a few
-                # seconds" without blocking on a full 11.6 s rebuild here.
-                return RELOADING_SENTINEL
+            _reopen_connection()
             return _cerebro
 
         # Build singleton (cold start or post-schema-change rebuild).
-        _cerebro = SQLiteMemoryBioRAG(path)
+        try:
+            _cerebro = SQLiteMemoryBioRAG(path)
+        except Exception as exc:
+            from core.database_access import MaintenanceError
+            if isinstance(exc, MaintenanceError) or "DATABASE_IN_USE_OR_MAINTENANCE" in str(exc):
+                raise BioragBusy(
+                    "BioRAG is updating, retry in a few seconds",
+                    status="retry",
+                ) from exc
+            raise
         _cerebro._persistente = True
         # Snapshot the schema version for idle re-open checks.
         try:

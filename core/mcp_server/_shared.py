@@ -100,17 +100,8 @@ def _sustantivo_valido(termino: str) -> bool:
 
 
 def _get_cerebro() -> SQLiteMemoryBioRAG:
-    """Reusa la corteza (singleton). No reconstruir 6–11s por tool.
-
-    Returns None when the connection is being rebuilt after a schema update
-    during idle (biorag update ran while MCP was inactive).  Callers must
-    check for None and return a structured retry response.
-    """
-    from core.memory_service import RELOADING_SENTINEL
-    result = _svc_get_cerebro(os.environ.get("BIORAG_PATH") or None)
-    if result is RELOADING_SENTINEL:
-        return None
-    return result
+    """Reusa la corteza (singleton). No reconstruir 6–11s por tool."""
+    return _svc_get_cerebro(os.environ.get("BIORAG_PATH") or None)
 
 
 def _interceptar(accion: str, texto: str, cerebro) -> Optional[dict]:

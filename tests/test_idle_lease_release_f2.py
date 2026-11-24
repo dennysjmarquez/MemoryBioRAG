@@ -133,10 +133,10 @@ class IdleLeaseReleaseTests(unittest.TestCase):
                 self.assertEqual(result[0], "hello")
 
     # ------------------------------------------------------------------
-    # Test 5: schema version change detected → RELOADING_SENTINEL
+    # Test 5: schema version change detected → BioragBusy
     # ------------------------------------------------------------------
-    def test_schema_change_during_idle_returns_reloading_sentinel(self):
-        """If user_version changes during idle, get_cerebro returns RELOADING_SENTINEL."""
+    def test_schema_change_during_idle_raises_biorag_busy(self):
+        """If user_version changes during idle, get_cerebro raises BioragBusy for reload."""
         import tempfile
         svc = self._svc
         with tempfile.TemporaryDirectory() as tmp:
@@ -147,17 +147,18 @@ class IdleLeaseReleaseTests(unittest.TestCase):
                 with sqlite3.connect(str(db)) as ext:
                     ext.execute("PRAGMA user_version = 99")
                 time.sleep(1.5)  # idle fires, conn released
-                result = svc.get_cerebro(str(db))
-                self.assertIs(result, svc.RELOADING_SENTINEL,
-                              "Must return RELOADING_SENTINEL when schema changed")
+                with self.assertRaises(svc.BioragBusy) as ctx:
+                    svc.get_cerebro(str(db))
+                self.assertIn("BioRAG is reloading", str(ctx.exception))
+                self.assertEqual(ctx.exception.status, "retry")
                 # Singleton must be cleared.
                 self.assertIsNone(svc._cerebro)
 
     # ------------------------------------------------------------------
-    # Test 6: _get_cerebro() in _shared returns None when RELOADING
+    # Test 6: _get_cerebro() in _shared propagates BioragBusy to MCP layer
     # ------------------------------------------------------------------
-    def test_mcp_shared_get_cerebro_returns_none_when_reloading(self):
-        """_shared._get_cerebro() returns None (not sentinel) for MCP callers."""
+    def test_mcp_shared_get_cerebro_raises_biorag_busy_when_reloading(self):
+        """_shared._get_cerebro() raises BioragBusy so call_tool can map it to retry."""
         import tempfile
         svc = self._svc
         from core.mcp_server._shared import _get_cerebro as shared_get
@@ -169,9 +170,8 @@ class IdleLeaseReleaseTests(unittest.TestCase):
                     with sqlite3.connect(str(db)) as ext:
                         ext.execute("PRAGMA user_version = 99")
                     time.sleep(1.5)
-                    result = shared_get()
-                    self.assertIsNone(result,
-                                      "_get_cerebro() should return None when reloading")
+                    with self.assertRaises(svc.BioragBusy):
+                        shared_get()
 
     # ------------------------------------------------------------------
     # Test 7: idle timer re-armed on each access (extends timeout)
@@ -256,6 +256,70 @@ class IdleLeaseReleaseTests(unittest.TestCase):
                 time.sleep(1.5)
                 self.assertTrue(getattr(cerebro, '_conn_released', False),
                                 "Connection should close after in-flight request finishes and idle period elapses")
+
+
+    # ------------------------------------------------------------------
+    # Test 11 (T2): request arriving during maintenance raises BioragBusy
+    # ------------------------------------------------------------------
+    def test_reopen_during_maintenance_raises_biorag_busy(self):
+        """If maintenance is active in another thread/process when waking from idle, get_cerebro raises BioragBusy."""
+        import tempfile
+        import threading
+        from core.database_access import maintenance
+        svc = self._svc
+        with tempfile.TemporaryDirectory() as tmp:
+            db = self._make_db(Path(tmp))
+            with patch.object(svc, '_IDLE_TIMEOUT', 1):
+                cerebro = svc.get_cerebro(str(db))
+                time.sleep(1.2)  # wait for idle release
+                self.assertTrue(getattr(cerebro, '_conn_released', False))
+
+                # Acquire exclusive maintenance lease in a separate thread so it is not delegated
+                holder_started = threading.Event()
+                holder_stop = threading.Event()
+
+                def hold_maintenance():
+                    with maintenance(db):
+                        holder_started.set()
+                        holder_stop.wait(timeout=5)
+
+                t = threading.Thread(target=hold_maintenance, daemon=True)
+                t.start()
+                holder_started.wait(timeout=2)
+
+                try:
+                    with self.assertRaises(svc.BioragBusy) as ctx:
+                        svc.get_cerebro(str(db))
+                    self.assertIn("BioRAG is updating", str(ctx.exception))
+                    self.assertEqual(ctx.exception.status, "retry")
+                finally:
+                    holder_stop.set()
+                    t.join(timeout=1)
+
+    # ------------------------------------------------------------------
+    # Test 12 (T2/T4): MCP call_tool catches BioragBusy and returns structured retry
+    # ------------------------------------------------------------------
+    def test_mcp_call_tool_catches_biorag_busy_and_returns_structured_retry(self):
+        """MCP VersionAwareServer.call_tool must catch BioragBusy and return structured retry JSON."""
+        import asyncio
+        import json
+        from mcp.server.fastmcp import FastMCP
+        from core.mcp_server.update_checker import UpdateChecker, version_aware_server_class
+        from core.memory_service import BioragBusy
+
+        checker = UpdateChecker()
+        ServerCls = version_aware_server_class(FastMCP, checker)
+        server = ServerCls("test-server")
+
+        @server.tool()
+        def busy_tool() -> str:
+            raise BioragBusy("BioRAG is updating, retry in a few seconds", status="retry")
+
+        result = asyncio.run(server.call_tool("busy_tool", {}))
+        self.assertTrue(len(result) >= 1)
+        data = json.loads(result[0].text)
+        self.assertEqual(data["status"], "retry")
+        self.assertIn("BioRAG is updating", data["message"])
 
 
 if __name__ == "__main__":
