@@ -81,15 +81,36 @@
 
 ---
 
-### Fase F1: Versión de Esquema Independiente y Migración Atómica
-- **Problema actual:** La versión del esquema está acoplada a la versión de lanzamiento de BioRAG o dispersa en marcadores de texto. Si falla una migración a mitad de camino, la base de datos puede quedar en estado inconsistente.
-- **Solución técnica:**
-  - Implementar un entero monotónico independiente mediante `PRAGMA user_version`.
-  - Proteger toda migración con `BEGIN IMMEDIATE` + `busy_timeout` para evitar colisiones con lectores y escritores concurrentes.
-  - Si un proceso externo (ej. CLI `sqlite3`) retiene un lock exclusivo, la migración falla limpiamente sin corromper datos y emite diagnóstico claro.
+### Fase F1: Versión de Esquema, Reconciliación de Señales y Respaldo Verificado [EN PROGRESO]
+
+#### 1. Reconciliación de las Tres Señales de Estado de BD:
+1. **`core/schema_status.py` (Estructural):** Inspección de solo lectura (`missing_objects`, `missing_columns`, `integrity_check`, `foreign_key_check`) derivada dinámicamente de `expected_core_schema()` en memoria (sin inventarios manuales duplicados). Detecta `schema_drift` y objetos faltantes.
+2. **`biorag_applied_update_id` (Git Commit ID):** Marcador puntual en la tabla `data` que registra el hash exacto del commit que completó y verificó el ciclo de vida (`lifecycle`). Identifica sincronización entre código instalado y la BD.
+3. **`PRAGMA user_version` (Entero Monotónico de Esquema):**
+   - **Justificación técnica:** 
+     a) **Detección de BD más nueva que el código:** Un SHA de Git no tiene orden temporal o monotónico. Si un usuario conecta una base de datos creada o migrada por una versión futura de BioRAG a un checkout viejo, `PRAGMA user_version > CURRENT_SCHEMA_VERSION` detecta de forma inmediata e indiscutible que la BD es incompatible hacia adelante y bloquea escrituras corruptoras.
+     b) **Detección O(1) de recarga en reposo para MCP (Fase F2):** En lugar de hacer una inspección estructural completa (que tarda varios milisegundos y abre múltiples tablas), un proceso MCP en reposo solo consulta `PRAGMA user_version` (medido: **0.324 ms**). Si coincide con su versión interna, reanuda al instante sin revalidar toda la estructura.
+
+#### 2. Realidad de la "Migración Atómica" vs Commits Internos:
+- **Medición empírica:** Se midió cuántas llamadas a `.commit()` ocurren durante `_initialize()`:
+  - `SQLiteMemoryBioRAG.__init__`: **15 commits individuales**.
+  - `ensure_contextual_schema`: **1 commit**.
+  - `_initialize` commit final: **1 commit**.
+  - **Total: 17 commits** repartidos en la inicialización de módulos, tablas de metadatos, FTS5 y triggers.
+- **Conclusión arquitectónica inmutable:** No es posible forzar una transacción única `BEGIN IMMEDIATE ... COMMIT` que envuelva todo `_initialize` sin reescribir por completo el bootstrap de SQLiteMemoryBioRAG.
+- **Estrategia Rock Solid aprobada:** La verdadera red de seguridad de la migración es el **respaldo SQLite nativo verificado (`core/database_backup.py`) + restauración automática en rollback**.
+- **Contrato de F1:**
+  - Definir `CURRENT_SCHEMA_VERSION = 1` en `core/schema_status.py`.
+  - En `core/migrate.py`, verificar si `user_version > CURRENT_SCHEMA_VERSION` (rechazar con `SCHEMA_NEWER_THAN_CODE`).
+  - Al completar la verificación del esquema en `_migrate()`:
+    - Ejecutar con `isolation_level=None` un `BEGIN IMMEDIATE` para actualizar `PRAGMA user_version = CURRENT_SCHEMA_VERSION` y verificar integridad de cierre.
+  - Asegurar que ante cualquier excepción durante `_migrate()`, el respaldo se restaure automáticamente en la ruta activa sin dejar la BD corrompida.
+  - Reportar en `inspect_database` el valor de `user_version` y alertar si la BD es más nueva que el código instalado.
+
 - **Criterio de aceptación:**
-  - `user_version` se incrementa únicamente si la transacción de migración completa con éxito.
-  - Rollback garantizado si se simula error a mitad de migración.
+  - Prueba de BD más nueva que el código (`user_version > CURRENT_SCHEMA_VERSION` rechaza con error accionable).
+  - Prueba de contención externa con escritor concurrente.
+  - Prueba de migración interrumpida con restauración automática del respaldo.
 
 ---
 
