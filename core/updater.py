@@ -518,6 +518,8 @@ def main(argv=None):
             if match:message+=' Receipt: '+match.group(1)
         elif isinstance(exc,MaintenanceError):
             message='BioRAG is currently using the memory database. Wait for active work to finish, then try the update again.'
+            if 'Active clients:' in str(exc):
+                message+=' Active clients: '+str(exc).split('Active clients:',1)[1].strip()
         else:
             message='BioRAG could not safely start the update. No update was applied; try again later or contact support.'
         print(json.dumps(dict(status='error',message=message),ensure_ascii=False),file=sys.stderr);return 1

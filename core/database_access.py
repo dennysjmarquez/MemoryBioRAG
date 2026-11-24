@@ -9,17 +9,21 @@ from __future__ import annotations
 import ctypes
 from contextlib import contextmanager
 from contextvars import ContextVar
+from datetime import datetime, timezone
 import json
 import os
 from pathlib import Path
 import secrets
 import sqlite3
 import sys
+import threading
 import time
 from urllib.parse import unquote, urlsplit
 
 TOKEN_ENV = 'BIORAG_MAINTENANCE_TOKEN'
 _LOCAL_TOKEN = ContextVar('biorag_maintenance_token', default=None)
+_DIAG_LOCK = threading.Lock()
+_DIAG_LEASES: dict[str, dict] = {}
 
 
 class MaintenanceError(RuntimeError):
@@ -44,6 +48,132 @@ def _lock_path(database):
 
 def _pending_path(database):
     return database.with_name(database.name + '.maintenance.pending')
+
+
+def _leases_dir(database):
+    return database.with_name(database.name + '.leases')
+
+
+def _client_role():
+    try:
+        from core.process_inspection import _classify
+        return _classify(sys.argv, os.getcwd()) or 'client'
+    except Exception:
+        return 'client'
+
+
+def _acquire_diagnostic_lease(database):
+    """Register an OS-locked diagnostic metadata file in <db>.leases/<pid>.json."""
+    key = str(database)
+    with _DIAG_LOCK:
+        entry = _DIAG_LEASES.get(key)
+        if entry is not None:
+            entry['count'] += 1
+            return
+        leases_dir = _leases_dir(database)
+        lease_path = leases_dir / f'{os.getpid()}.json'
+        try:
+            leases_dir.mkdir(parents=True, exist_ok=True)
+            fd = os.open(lease_path, os.O_RDWR | os.O_CREAT, 0o600)
+            lease_file = os.fdopen(fd, 'r+')
+        except OSError:
+            return
+        overlapped = None
+        try:
+            if os.name == 'posix':
+                import fcntl
+                fcntl.flock(lease_file, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            elif os.name == 'nt':
+                overlapped = _windows_lock(lease_file, exclusive=True)
+            payload = {
+                'pid': os.getpid(),
+                'command': ' '.join(sys.argv)[:200] or 'python',
+                'role': _client_role(),
+                'started_at': datetime.now(timezone.utc).isoformat(),
+            }
+            lease_file.seek(0)
+            lease_file.truncate()
+            json.dump(payload, lease_file, ensure_ascii=False)
+            lease_file.flush()
+            _DIAG_LEASES[key] = {
+                'count': 1,
+                'file': lease_file,
+                'overlapped': overlapped,
+                'path': lease_path,
+            }
+        except (OSError, BlockingIOError):
+            lease_file.close()
+
+
+def _release_diagnostic_lease(database):
+    """Release diagnostic lease for this process when its last managed connection closes."""
+    key = str(database)
+    with _DIAG_LOCK:
+        entry = _DIAG_LEASES.get(key)
+        if entry is None:
+            return
+        entry['count'] -= 1
+        if entry['count'] > 0:
+            return
+        _DIAG_LEASES.pop(key, None)
+        try:
+            _unlock(entry['file'], entry['overlapped'])
+        except OSError:
+            pass
+        finally:
+            try:
+                entry['file'].close()
+            except OSError:
+                pass
+        try:
+            entry['path'].unlink()
+        except OSError:
+            pass
+
+
+def active_lease_holders(database):
+    """Return metadata for live processes currently holding a diagnostic OS lease."""
+    path = _path(database)
+    if path is None:
+        return []
+    leases_dir = _leases_dir(path)
+    if not leases_dir.is_dir():
+        return []
+    holders = []
+    for entry in sorted(leases_dir.glob('*.json')):
+        if entry.is_symlink():
+            continue
+        if not _shared_lock_conflicts(entry):
+            # Process exited or was killed; OS released the lock -> clean up stale file.
+            try:
+                entry.unlink()
+            except OSError:
+                pass
+            continue
+        fallback_pid = int(entry.stem) if entry.stem.isdigit() else None
+        meta = {'pid': fallback_pid, 'command': 'unknown', 'role': 'client'}
+        try:
+            raw = entry.read_text(encoding='utf-8').strip()
+            if raw:
+                parsed = json.loads(raw)
+                if isinstance(parsed, dict):
+                    meta.update(parsed)
+        except (OSError, ValueError, TypeError):
+            pass
+        holders.append(meta)
+    holders.sort(key=lambda item: (item.get('pid') is None, item.get('pid') or 0))
+    return holders
+
+
+def format_lease_holders(holders):
+    """Format active lease holders into a concise human-readable string."""
+    parts = []
+    for h in holders:
+        pid = h.get('pid', '?')
+        role = h.get('role', 'client')
+        cmd = h.get('command', 'unknown')
+        parts.append(f'PID {pid} ({role}: {cmd})')
+    return ', '.join(parts)
 
 
 def is_maintenance_pending(database):
@@ -175,6 +305,7 @@ class Lease:
     def __init__(self, database, exclusive=False):
         self.file = None
         self._overlapped = None
+        self._diag_db = None
         if database is None or _delegated(database):
             return
         database.parent.mkdir(parents=True, exist_ok=True)
@@ -200,6 +331,9 @@ class Lease:
             self.file = None
             self._overlapped = None
             raise
+        if not exclusive:
+            _acquire_diagnostic_lease(database)
+            self._diag_db = database
 
     def close(self):
         if self.file is not None:
@@ -209,6 +343,11 @@ class Lease:
                 self.file.close()
                 self.file = None
                 self._overlapped = None
+        if self._diag_db is not None:
+            try:
+                _release_diagnostic_lease(self._diag_db)
+            finally:
+                self._diag_db = None
 
 
 @contextmanager
@@ -239,9 +378,13 @@ def maintenance(database, timeout=30, progress_interval=5.0):
             try:
                 lease = Lease(path, exclusive=True)
                 break
-            except MaintenanceError:
+            except MaintenanceError as exc:
                 now = time.monotonic()
                 if now >= deadline:
+                    holders = active_lease_holders(path)
+                    if holders:
+                        summary = format_lease_holders(holders)
+                        raise MaintenanceError(f'{exc}. Active clients: {summary}') from exc
                     raise
                 if progress_interval > 0 and (now - last_progress) >= progress_interval:
                     elapsed = int(round(now - start))
