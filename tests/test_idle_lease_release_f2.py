@@ -379,5 +379,108 @@ class IdleLeaseReleaseTests(unittest.TestCase):
             self.assertLess(elapsed, 3.5, f"Maintenance took too long: {elapsed:.2f}s")
 
 
+    # ------------------------------------------------------------------
+    # Test 14: kill -9 of waiting updater clears pending gate automatically
+    # ------------------------------------------------------------------
+    def test_kill9_updater_clears_pending_gate_automatically(self):
+        """If an updater holding .maintenance.pending dies with SIGKILL, requests must resume without manual cleanup."""
+        import signal
+        import subprocess
+        import sys
+        import tempfile
+        from core.database_access import connect as managed_connect, is_maintenance_pending
+
+        svc = self._svc
+        with tempfile.TemporaryDirectory(ignore_cleanup_errors=True) as tmp:
+            db = self._make_db(Path(tmp))
+            # Hold a shared lease in this process so the subprocess updater stays waiting on the gate
+            holder_conn = managed_connect(str(db), timeout=5)
+            try:
+                script = (
+                    "import sys; sys.path.insert(0, '.')\n"
+                    "from core.database_access import maintenance\n"
+                    f"with maintenance({str(db)!r}, timeout=30):\n"
+                    "    pass\n"
+                )
+                proc = subprocess.Popen(
+                    [sys.executable, "-c", script],
+                    cwd=str(Path(__file__).resolve().parent.parent),
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                )
+                # Wait until the subprocess activates the pending gate
+                deadline = time.monotonic() + 10.0
+                while not is_maintenance_pending(db) and time.monotonic() < deadline:
+                    if proc.poll() is not None:
+                        _, err = proc.communicate()
+                        self.fail(f"Subprocess exited prematurely ({proc.returncode}): {err.decode()}")
+                    time.sleep(0.05)
+                self.assertTrue(is_maintenance_pending(db), "Pending gate was not activated by waiting updater")
+
+                # Kill updater with SIGKILL (kill -9)
+                os.kill(proc.pid, signal.SIGKILL)
+                proc.wait(timeout=5)
+            finally:
+                holder_conn.close()
+
+            # Without manual file deletion, gate must report False immediately
+            self.assertFalse(
+                is_maintenance_pending(db),
+                "Pending gate stayed active after SIGKILL of updater!",
+            )
+            # And requests must succeed normally
+            with svc.active_request():
+                cerebro = svc.get_cerebro(str(db))
+                row = cerebro.conn.execute("SELECT v FROM t").fetchone()
+                self.assertEqual(row[0], "hello")
+
+    # ------------------------------------------------------------------
+    # Test 15: second maintenance() timeout does not clear first updater's gate
+    # ------------------------------------------------------------------
+    def test_second_maintenance_timeout_does_not_clear_first_pending_gate(self):
+        """A second maintenance() timing out must NOT deactivate the first updater's pending gate."""
+        import tempfile
+        from core.database_access import MaintenanceError, connect as managed_connect, is_maintenance_pending, maintenance
+
+        with tempfile.TemporaryDirectory(ignore_cleanup_errors=True) as tmp:
+            db = self._make_db(Path(tmp))
+            holder_conn = managed_connect(str(db), timeout=5)
+            first_done = threading.Event()
+            first_error = []
+
+            def run_first():
+                try:
+                    with maintenance(db, timeout=5):
+                        first_done.set()
+                except Exception as exc:
+                    first_error.append(exc)
+
+            t1 = threading.Thread(target=run_first, daemon=True)
+            try:
+                t1.start()
+                deadline = time.monotonic() + 3.0
+                while not is_maintenance_pending(db) and time.monotonic() < deadline:
+                    time.sleep(0.05)
+                self.assertTrue(is_maintenance_pending(db))
+
+                # Second maintenance() times out while first is still waiting
+                with self.assertRaises(MaintenanceError):
+                    with maintenance(db, timeout=0.2):
+                        pass
+
+                # First updater is still waiting -> gate MUST remain active!
+                self.assertTrue(
+                    is_maintenance_pending(db),
+                    "Second maintenance() cleared the first updater's pending gate on timeout!",
+                )
+            finally:
+                holder_conn.close()
+                t1.join(timeout=5)
+
+            self.assertEqual(first_error, [])
+            self.assertTrue(first_done.is_set())
+            self.assertFalse(is_maintenance_pending(db))
+
+
 if __name__ == "__main__":
     unittest.main()

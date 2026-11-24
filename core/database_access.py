@@ -50,7 +50,36 @@ def is_maintenance_pending(database):
     path = _path(database)
     if path is None:
         return False
-    return _pending_path(path).exists()
+    return _shared_lock_conflicts(_pending_path(path))
+
+
+def _try_acquire_pending_gate(database):
+    """Acquire an exclusive OS lock on the pending gate file, preserving its inode.
+
+    Returns (file, overlapped) if acquired, or (None, None) if another process
+    already holds the pending gate. Never unlinks the file.
+    """
+    pending = _pending_path(database)
+    try:
+        pending.parent.mkdir(parents=True, exist_ok=True)
+        fd = os.open(pending, os.O_RDWR | os.O_CREAT, 0o600)
+        gate_file = os.fdopen(fd, 'r+')
+    except OSError:
+        return None, None
+    overlapped = None
+    try:
+        if os.name == 'posix':
+            import fcntl
+            fcntl.flock(gate_file, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        elif os.name == 'nt':
+            overlapped = _windows_lock(gate_file, exclusive=True)
+        return gate_file, overlapped
+    except (OSError, BlockingIOError):
+        gate_file.close()
+        return None, None
+    except Exception:
+        gate_file.close()
+        raise
 
 
 def _windows_lock(file, *, exclusive):
@@ -192,15 +221,8 @@ def maintenance(database, timeout=30):
         yield _LOCAL_TOKEN.get() or os.environ[TOKEN_ENV]
         return
 
-    # Signal to active readers/MCP that maintenance is pending (writer-priority gate)
-    pending = _pending_path(path)
-    pending_created = False
-    try:
-        pending.parent.mkdir(parents=True, exist_ok=True)
-        pending.write_text(json.dumps({'pid': os.getpid(), 'time': time.time()}))
-        pending_created = True
-    except OSError:
-        pass
+    # Signal to active readers/MCP that maintenance is pending (OS-locked gate, inode preserved)
+    gate_file, gate_overlapped = _try_acquire_pending_gate(path)
 
     deadline = time.monotonic() + max(0.1, timeout)
     lease = None
@@ -233,12 +255,12 @@ def maintenance(database, timeout=30):
                 _LOCAL_TOKEN.reset(local_state)
                 lease.close()
     finally:
-        if pending_created:
+        if gate_file is not None:
             try:
-                pending.unlink(missing_ok=True)
-            except OSError:
-                pass
-    # Keep the inode: deleting/recreating the lock file breaks exclusion.
+                _unlock(gate_file, gate_overlapped)
+            finally:
+                gate_file.close()
+    # Keep the inode: deleting/recreating the lock or gate file breaks exclusion.
 
 
 class ManagedConnection(sqlite3.Connection):
