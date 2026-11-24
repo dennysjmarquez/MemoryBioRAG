@@ -147,7 +147,7 @@
 4. **T2/T4: Mapeo de mantenimiento y recarga a respuesta estructurada `BioragBusy`** (`core/memory_service.py` + `core/mcp_server/`, commit `79ddbd6`):
    - Re-apertura fallida por mantenimiento exclusivo lanza `BioragBusy("BioRAG is updating, retry in a few seconds", status="retry")` en vez de devolver `True` con conexión cerrada.
    - Cambio de esquema (`user_version`) durante reposo lanza `BioragBusy("BioRAG is reloading after update, retry in a few seconds", status="retry")` y lanza rebuild en background thread (asíncrono, no bloquea al cliente).
-   - FastMCP `call_tool` captura `BioragBusy` (y `ToolError` envolviéndola) y retorna JSON estructurado `{"status": "retry", "message": ...}`.
+   - FastMCP `call_tool` captura `BioragBusy` (y `ToolError` envolviéndola) y retorna `CallToolResult(content=[TextContent(...)], isError=True)` con JSON `{"status": "retry", "message": ...}`, omitiendo la validación de `outputSchema` en `mcp==1.30.0` (commit `d11a6d5c`, verificado con `test_stdio_mcp_client_receives_readable_retry_during_maintenance`).
 5. **T5: Compuerta de mantenimiento pendiente por lock del SO, progreso en `stderr` y `--wait N`** (`core/database_access.py` + `core/memory_service.py` + `core/updater.py`, commits `542338f` + `6069277` + `83fa644`):
    - `maintenance(database, timeout=30, progress_interval=5.0)` adquiere un lock exclusivo del SO (`flock` en POSIX, `_windows_lock` en Windows) sobre `.maintenance.pending` preservando el inodo (**sin `unlink()`**). Si el updater muere con `kill -9`, el kernel libera el lock automáticamente; si un segundo `maintenance()` expira su timeout, no desactiva la compuerta del primero.
    - Durante la espera emite `"Waiting for BioRAG clients to close... N s"` a `stderr` periódicamente.
@@ -181,11 +181,20 @@
 
 ---
 
-### Fase F3: Registro de Diagnóstico de Leases (F1 en discusión original)
-- **Problema actual:** Si `biorag update` agota el tiempo de espera para obtener exclusividad, el usuario no sabe qué proceso exacto está impidiendo la actualización.
-- **Solución técnica:**
-  - Cada cliente registra un archivo con lock exclusivo del SO en `<db>.leases/<pid>.json` conteniendo metadata de diagnóstico (PID, comando/rol, timestamp).
-  - Si un proceso muere, su lock de SO se libera y el updater lo ignora.
-  - Si el timeout expira, `biorag update` reporta con precisión humana qué procesos siguen vivos y activos.
-- **Criterio de aceptación:**
-  - Salida humana clara indicando PID y comando si hay bloqueo activo.
+### Fase F3: Registro de Diagnóstico de Leases [COMPLETADO]
+- **Problema resuelto:** Si `biorag update` o `maintenance()` agotan el tiempo de espera para obtener exclusividad, el usuario no sabía qué proceso exacto estaba impidiendo la actualización.
+- **Solución técnica implementada:**
+  - En `core/database_access.py`, cada cliente con `Lease(..., exclusive=False)` registra un archivo con lock exclusivo del SO (`flock` en POSIX, `_windows_lock` en Windows) en `<db>.leases/<pid>.json` con metadata (`pid`, `command`, `role`, `started_at`) y refcounting por proceso/BD (`_DIAG_LEASES`).
+  - `active_lease_holders(database)` sondea los locks del SO (`_shared_lock_conflicts`): si un proceso murió (incluso por `kill -9`), el kernel liberó el lock, se limpia el archivo residual y se ignora.
+  - Al expirar el timeout de `maintenance()`, `MaintenanceError` incluye `Active clients: PID <pid> (<role>: <command>), ...`.
+  - En `core/updater.py`, `main()` propaga la lista de clientes activos en el mensaje de error JSON en `stderr`.
+- **Tests (4 casos en `tests/test_lease_diagnostics_f3.py`):**
+  - `test_client_creates_os_locked_lease_metadata_and_cleans_on_close`
+  - `test_dead_process_lease_ignored_even_if_file_remains` (`kill -9`)
+  - `test_maintenance_timeout_reports_active_holders_pid_and_command`
+  - `test_updater_cli_timeout_reports_active_holders`
+- **Resultado empírico (suite completa por mitades tras el último cambio):**
+  - Mitad 1 (54 archivos): `476 passed, 77 subtests passed` (`164.21s`).
+  - Mitad 2 (54 archivos): `628 passed, 7 subtests passed` (`234.43s`).
+  - **Total:** `1104 passed, 0 skipped, 84 subtests passed` (0 fallos).
+  - Plataforma: Linux POSIX verificada. `[NO VERIFICADO EN WINDOWS NATIVO]` para locks Win32 de diagnóstico.
