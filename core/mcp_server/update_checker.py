@@ -665,8 +665,11 @@ def version_aware_server_class(
                 elif getattr(exc, "__cause__", None) and isinstance(exc.__cause__, BioragBusy):
                     busy = exc.__cause__
                 if busy is not None:
-                    from mcp.types import TextContent
-                    return [TextContent(type="text", text=json.dumps(busy.to_dict(), ensure_ascii=False))]
+                    from mcp.types import CallToolResult, TextContent
+                    return CallToolResult(
+                        content=[TextContent(type="text", text=json.dumps(busy.to_dict(), ensure_ascii=False))],
+                        isError=True,
+                    )
                 raise
 
     return VersionAwareServer

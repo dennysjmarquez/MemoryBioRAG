@@ -316,8 +316,9 @@ class IdleLeaseReleaseTests(unittest.TestCase):
             raise BioragBusy("BioRAG is updating, retry in a few seconds", status="retry")
 
         result = asyncio.run(server.call_tool("busy_tool", {}))
-        self.assertTrue(len(result) >= 1)
-        data = json.loads(result[0].text)
+        self.assertTrue(getattr(result, "isError", False))
+        self.assertTrue(len(result.content) >= 1)
+        data = json.loads(result.content[0].text)
         self.assertEqual(data["status"], "retry")
         self.assertIn("BioRAG is updating", data["message"])
 
@@ -506,6 +507,96 @@ class IdleLeaseReleaseTests(unittest.TestCase):
 
             output = stderr_buf.getvalue()
             self.assertIn("Waiting for BioRAG clients to close...", output)
+
+
+    # ------------------------------------------------------------------
+    # Test 17: real stdio MCP integration during and after maintenance
+    # ------------------------------------------------------------------
+    def test_stdio_mcp_client_receives_readable_retry_during_maintenance(self):
+        """Real stdio MCP server + ClientSession must return readable retry text (no Output validation error) for tools with and without outputSchema."""
+        import asyncio
+        import sys
+        import tempfile
+        from mcp import ClientSession, StdioServerParameters
+        from mcp.client.stdio import stdio_client
+        from core.database_access import is_maintenance_pending, maintenance
+
+        repo_root = Path(__file__).resolve().parents[1]
+
+        async def _run():
+            with tempfile.TemporaryDirectory(ignore_cleanup_errors=True) as tmp:
+                db = Path(tmp) / "stdio_test.db"
+                env = os.environ.copy()
+                env["BIORAG_PATH"] = str(db)
+                env["BIORAG_IDLE_TIMEOUT_SECONDS"] = "2"
+                env["BIORAG_UPDATE_CHECK"] = "0"
+
+                params = StdioServerParameters(
+                    command=sys.executable,
+                    args=[str(repo_root / "mcp_server.py")],
+                    cwd=str(repo_root),
+                    env=env,
+                )
+
+                async with stdio_client(params) as (read, write):
+                    async with ClientSession(read, write) as session:
+                        await session.initialize()
+
+                        # 1. Warm up: estado works normally before maintenance
+                        res_init = await session.call_tool("estado", {})
+                        self.assertFalse(res_init.isError, f"Initial estado failed: {res_init.content}")
+
+                        # 2. Enter maintenance in a background thread (waits <= 2s idle release)
+                        maint_entered = threading.Event()
+                        maint_release = threading.Event()
+                        maint_errors = []
+
+                        def hold_maintenance():
+                            try:
+                                with maintenance(db, timeout=10, progress_interval=60.0):
+                                    maint_entered.set()
+                                    maint_release.wait(timeout=15)
+                            except Exception as exc:
+                                maint_errors.append(exc)
+                                maint_entered.set()
+
+                        t = threading.Thread(target=hold_maintenance, daemon=True)
+                        t.start()
+                        try:
+                            # Wait until maintenance is actually entered (or pending gate active)
+                            self.assertTrue(maint_entered.wait(timeout=12), "Maintenance did not enter in time")
+                            self.assertEqual(maint_errors, [], f"Maintenance thread error: {maint_errors}")
+
+                            # 3. Call tools with outputSchema (estado, recordar, buscar)
+                            #    and without outputSchema (revisar_correccion)
+                            calls = [
+                                ("estado", {}),
+                                ("recordar", {"concepto": "prueba_stdio", "definicion": "dato de prueba", "categoria": "test"}),
+                                ("buscar", {"consulta": "prueba_stdio"}),
+                                ("revisar_correccion", {"id": "nonexistent"}),
+                            ]
+                            for tool_name, args in calls:
+                                res = await session.call_tool(tool_name, args)
+                                text = res.content[0].text if res.content else ""
+                                self.assertNotIn(
+                                    "Output validation error",
+                                    text,
+                                    f"Tool {tool_name} hit outputSchema validation error during maintenance: {text}",
+                                )
+                                self.assertTrue(
+                                    "BioRAG is updating" in text or "BioRAG update pending" in text,
+                                    f"Tool {tool_name} missing readable retry message: {text}",
+                                )
+                                self.assertIn("retry", text.lower(), f"Tool {tool_name} missing retry keyword: {text}")
+                        finally:
+                            maint_release.set()
+                            t.join(timeout=5)
+
+                        # 4. After maintenance, normal response resumes
+                        res_after = await session.call_tool("estado", {})
+                        self.assertFalse(res_after.isError, f"Post-maintenance estado failed: {res_after.content}")
+
+        asyncio.run(_run())
 
 
 if __name__ == "__main__":
