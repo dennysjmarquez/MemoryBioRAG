@@ -311,6 +311,27 @@ class GitUpdaterTests(unittest.TestCase):
         with sqlite3.connect(restored['restored_snapshot']) as db:
             self.assertEqual(db.execute('SELECT count(*) FROM memories').fetchone()[0],1)
 
+    def test_restore_database_backup_leaves_no_wal_shm_orphans(self):
+        """restore_database_backup must not leave <db>-wal or <db>-shm beside the live DB."""
+        from core.database_backup import create_backup, finish_backup
+        from core.updater import restore_database_backup
+        # Create a minimal valid database
+        db = self.db
+        with sqlite3.connect(db) as conn:
+            conn.execute("CREATE TABLE t (v TEXT)")
+            conn.execute("INSERT INTO t VALUES ('original')")
+        backup_path = create_backup(db, purpose='update')
+        self.assertIsNotNone(backup_path, "create_backup returned None for non-empty DB")
+        try:
+            restore_database_backup(backup_path, db)
+        finally:
+            finish_backup(backup_path, success=False)
+        parent = db.parent
+        wal_files = list(parent.glob(f'{db.name}.restore-*.db-wal'))
+        shm_files = list(parent.glob(f'{db.name}.restore-*.db-shm'))
+        self.assertEqual(wal_files, [], f'WAL orphans found: {wal_files}')
+        self.assertEqual(shm_files, [], f'SHM orphans found: {shm_files}')
+
     def test_existing_empty_database_cannot_skip_required_backup(self):
         self.db.write_bytes(b'')
         report=updater.apply(self.root,database=self.db,runner=lambda *a,**k:None)

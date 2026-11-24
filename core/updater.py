@@ -266,6 +266,9 @@ def restore_database_backup(backup, database):
         if logical_fingerprint(target)!=expected_fingerprint:
             raise UpdateError('DATABASE_RESTORE_CONTENT_MISMATCH')
     finally:
+        # Clean up WAL/SHM files left by verify_database opening the temporary copy.
+        Path(str(temporary) + '-wal').unlink(missing_ok=True)
+        Path(str(temporary) + '-shm').unlink(missing_ok=True)
         temporary.unlink(missing_ok=True)
 
 
