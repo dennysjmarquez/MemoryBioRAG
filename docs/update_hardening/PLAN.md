@@ -148,12 +148,15 @@
    - Re-apertura fallida por mantenimiento exclusivo lanza `BioragBusy("BioRAG is updating, retry in a few seconds", status="retry")` en vez de devolver `True` con conexión cerrada.
    - Cambio de esquema (`user_version`) durante reposo lanza `BioragBusy("BioRAG is reloading after update, retry in a few seconds", status="retry")` y lanza rebuild en background thread (asíncrono, no bloquea al cliente).
    - FastMCP `call_tool` captura `BioragBusy` (y `ToolError` envolviéndola) y retorna JSON estructurado `{"status": "retry", "message": ...}`.
-5. **T5: Compuerta de mantenimiento pendiente y anti-inanición** (`core/database_access.py` + `core/memory_service.py`, commit `542338f`):
-   - `maintenance(database, timeout=30)` crea atómicamente `.maintenance.pending` antes de solicitar el lock exclusivo y reintenta con backoff hasta el timeout.
-   - `active_request()` y `get_cerebro()` detectan `.maintenance.pending` y rechazan inmediatamente nuevas peticiones con `BioragBusy` ('retry'), drenando la conexión tan pronto `_in_flight_count == 0`.
-   - El updater obtiene el lock exclusivo en < 1s incluso bajo ráfagas continuas de tráfico (sin inanición).
+5. **T5: Compuerta de mantenimiento pendiente por lock del SO, progreso en `stderr` y `--wait N`** (`core/database_access.py` + `core/memory_service.py` + `core/updater.py`, commits `542338f` + `6069277` + `83fa644`):
+   - `maintenance(database, timeout=30, progress_interval=5.0)` adquiere un lock exclusivo del SO (`flock` en POSIX, `_windows_lock` en Windows) sobre `.maintenance.pending` preservando el inodo (**sin `unlink()`**). Si el updater muere con `kill -9`, el kernel libera el lock automáticamente; si un segundo `maintenance()` expira su timeout, no desactiva la compuerta del primero.
+   - Durante la espera emite `"Waiting for BioRAG clients to close... N s"` a `stderr` periódicamente.
+   - `biorag update --wait N` permite configurar el tiempo de espera desde CLI.
+   - `active_request()` y `get_cerebro()` detectan la compuerta activa (`_shared_lock_conflicts`), rechazan nuevas peticiones con `BioragBusy` ('retry') y drenan la conexión tan pronto `_in_flight_count == 0`.
+   - **Nota de compatibilidad:** Un servidor MCP de versión anterior (sin soporte de `is_maintenance_pending`) ignora la compuerta y mantiene su lease compartido hasta su propio idle timeout o cierre.
+6. **Corrección de suite en `test_contextual_corrections.py`** (commit `d9bd81e`): eliminada la aserción errónea de `f337cdb` que exigía `contexto_vigencia` en `required` (es `Optional[dict] = None` por diseño).
 
-#### Tests (13 casos en `tests/test_idle_lease_release_f2.py`):
+#### Tests (16 casos en `tests/test_idle_lease_release_f2.py` + tests en `test_updater_lifecycle.py`):
   - `test_connection_released_after_idle_timeout` (T1)
   - `test_reopened_connection_is_functional` (T1b)
   - `test_connection_restored_without_full_rebuild` (re-open < 500 ms)
@@ -167,8 +170,12 @@
   - `test_mcp_shared_get_cerebro_raises_biorag_busy_when_reloading` (T4)
   - `test_mcp_call_tool_catches_biorag_busy_and_returns_structured_retry` (T2/T4)
   - `test_continuous_traffic_does_not_starve_maintenance` (T5)
+  - `test_kill9_updater_clears_pending_gate_automatically` (liveness por lock SO)
+  - `test_second_maintenance_timeout_does_not_clear_first_pending_gate` (sin unlink cruzado)
+  - `test_maintenance_emits_progress_to_stderr_while_waiting` + `test_updater_main_passes_wait_argument_to_apply`
 
-#### Resultado: **77 passed, 4 subtests passed in 28.46s** (5 suites combinadas).
+#### Resultado empírico (suite completa tras el último cambio):
+- `python3 -m pytest tests/ -q`: **1099 passed, 84 subtests passed in 407.89s (0:06:47)** (0 fallos).
 - Plataforma: Linux POSIX verificada en hardware ASUS ROG Strix G731GT. `[NO VERIFICADO EN WINDOWS NATIVO]` para locks Win32 de compuerta.
 - Estado F2: **COMPLETADO Y RESUELTO**.
 
