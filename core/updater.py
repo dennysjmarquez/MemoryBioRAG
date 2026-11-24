@@ -155,10 +155,6 @@ def update_lock(gitdir):
                     pass
         finally:
             file.close()
-            try:
-                path.unlink(missing_ok=True)
-            except OSError:
-                pass
 
 
 @contextmanager

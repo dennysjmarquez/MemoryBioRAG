@@ -45,19 +45,22 @@
 
 ## 4. Fases de Ejecución
 
-### Fase F0: Sustitución de Lock Frágil en `core/updater.py` [COMPLETADO]
+### Fase F0: Sustitución de Lock Frágil en `core/updater.py` [COMPLETADO - AUDITADO Y CORREGIDO]
 - **Problema actual:** `update_lock()` en `core/updater.py` usaba `os.open(..., os.O_CREAT | os.O_EXCL | os.O_RDWR)`. Si el updater moría con `SIGKILL`, el archivo quedaba en disco y bloqueaba cualquier actualización posterior hasta que un humano lo borrara a mano.
 - **Solución técnica implementada:**
   - Migrado `update_lock()` para utilizar el backend de lock de SO probado en `core/database_access.py` (`fcntl.flock` con `LOCK_EX | LOCK_NB` en POSIX, `_windows_lock(..., exclusive=True)` en Windows).
   - Al caer el proceso por cualquier motivo (incluyendo `kill -9`), el kernel libera el descriptor y el lock automáticamente.
-  - Implementado test de simulación de caída forzada (`test_lock_released_on_process_crash`): un subproceso adquiere el lock, se verifica contención concurrente (`UPDATE_LOCKED`), se mata el proceso abruptamente con `proc.kill()` y se verifica que el siguiente `update_lock` lo adquiere sin intervención manual.
-  - Implementado test de contención Windows (`test_updater_lock_windows_flow`) verificando compatibilidad multiplataforma.
+  - **Corrección de auditoría (Invariante de inodo):** Se eliminó `path.unlink()` del bloque `finally`. El archivo permanece en `.git/` para preservar el inodo y garantizar la exclusión mutua estricta. Si un proceso B es rechazado, jamás borra el inodo que mantiene el proceso A.
+  - Implementado test de simulación de tres procesos (`test_lock_mutual_exclusion_three_processes`): A mantiene lock; B intenta y es rechazado; se verifica que el archivo no fue borrado; C intenta y es rechazado; A es terminado con `SIGKILL`; el siguiente proceso adquiere el lock inmediatamente sin intervención manual.
+  - Implementado test de contienda simultánea (`test_simultaneous_attempts_exactly_one_wins`): dos procesos lanzados en paralelo; exactamente uno obtiene el lock y el otro es rechazado.
+  - Implementado test de contención Windows (`test_updater_lock_windows_flow`) verificando que el camino de rechazo cierra el descriptor sin borrar el archivo.
 - **Resultado empírico:**
-  - `pytest tests/test_updater_lifecycle.py tests/test_database_access_windows.py`: **35 passed in 7.91s**.
+  - `pytest tests/test_updater_lifecycle.py tests/test_database_access_windows.py`: **37 passed, 4 subtests passed in 14.70s**.
 - **Criterio de aceptación:**
+  - Exclusión mutua garantizada (tres procesos).
   - No queda lock huérfano tras `kill -9`.
-  - Pruebas existentes y nuevas pasan.
-  - Listo para commit exclusivo.
+  - Inodo preservado: el lock no se borra en rechazo ni en éxito.
+  - Pruebas existentes y nuevas pasan al 100%.
 
 ---
 

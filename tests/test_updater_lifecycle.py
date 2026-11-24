@@ -344,7 +344,72 @@ class GitUpdaterTests(unittest.TestCase):
         with updater.update_lock(gitdir):
             with self.assertRaisesRegex(updater.UpdateError,'UPDATE_LOCKED'):
                 updater.apply(self.root,database=self.db)
-        self.assertFalse((gitdir/'biorag-update.lock').exists())
+        self.assertTrue((gitdir/'biorag-update.lock').exists())
+
+    def test_lock_mutual_exclusion_three_processes(self):
+        """Prueba de tres procesos: A mantiene lock; B rechazado; B NO borra inodo; C rechazado."""
+        _, gitdir = updater.preflight(self.root)
+        code = f"""import os, time, sys
+from pathlib import Path
+from core import updater
+gitdir = Path({repr(str(gitdir))})
+with updater.update_lock(gitdir):
+    sys.stdout.write("A_ACQUIRED\\n")
+    sys.stdout.flush()
+    time.sleep(30)
+"""
+        proc_a = subprocess.Popen([sys.executable, "-c", code], stdout=subprocess.PIPE, text=True)
+        try:
+            line = proc_a.stdout.readline()
+            self.assertEqual(line.strip(), "A_ACQUIRED")
+
+            # Proceso B intenta adquirir y debe ser rechazado
+            with self.assertRaisesRegex(updater.UpdateError, "UPDATE_LOCKED"):
+                with updater.update_lock(gitdir):
+                    pass
+
+            # El archivo de lock debe seguir existiendo (inodo preservado)
+            self.assertTrue((gitdir / 'biorag-update.lock').exists())
+
+            # Proceso C intenta adquirir mientras A sigue vivo y DEBE ser rechazado también
+            with self.assertRaisesRegex(updater.UpdateError, "UPDATE_LOCKED"):
+                with updater.update_lock(gitdir):
+                    pass
+
+            # Ahora matamos abruptamente a A (SIGKILL)
+            proc_a.kill()
+            proc_a.wait()
+
+            # Ahora un nuevo proceso debe adquirir el lock con éxito sin borrar el archivo
+            with updater.update_lock(gitdir):
+                self.assertTrue((gitdir / 'biorag-update.lock').exists())
+        finally:
+            if proc_a.poll() is None:
+                proc_a.kill()
+                proc_a.wait()
+
+    def test_simultaneous_attempts_exactly_one_wins(self):
+        """Dos intentos concurrentes: exactamente uno adquiere el lock y el otro es rechazado."""
+        _, gitdir = updater.preflight(self.root)
+        code = f"""import sys, time
+from pathlib import Path
+from core import updater
+gitdir = Path({repr(str(gitdir))})
+try:
+    with updater.update_lock(gitdir):
+        sys.stdout.write("WON\\n")
+        sys.stdout.flush()
+        time.sleep(1)
+except updater.UpdateError:
+    sys.stdout.write("LOCKED\\n")
+    sys.stdout.flush()
+"""
+        p1 = subprocess.Popen([sys.executable, "-c", code], stdout=subprocess.PIPE, text=True)
+        p2 = subprocess.Popen([sys.executable, "-c", code], stdout=subprocess.PIPE, text=True)
+        out1, _ = p1.communicate(timeout=5)
+        out2, _ = p2.communicate(timeout=5)
+        results = sorted([out1.strip(), out2.strip()])
+        self.assertEqual(results, ["LOCKED", "WON"])
 
     def test_lock_released_on_process_crash(self):
         _, gitdir = updater.preflight(self.root)

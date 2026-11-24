@@ -62,7 +62,10 @@ class WindowsLockWrapperTests(unittest.TestCase):
                         with self.assertRaisesRegex(updater.UpdateError, "UPDATE_LOCKED"):
                             with updater.update_lock(gitdir):
                                 pass
-            self.assertFalse((gitdir / 'biorag-update.lock').exists())
+                    # En rechazo, el archivo de lock NO debe ser borrado
+                    self.assertTrue((gitdir / 'biorag-update.lock').exists())
+            # Al salir del context manager exitoso, el archivo tampoco se borra (inodo preservado)
+            self.assertTrue((gitdir / 'biorag-update.lock').exists())
 
 
 
