@@ -83,7 +83,7 @@
 
 ---
 
-### Fase F1: Versión de Esquema, Reconciliación de Señales y Respaldo Verificado [EN PROGRESO]
+### Fase F1: Versión de Esquema, Reconciliación de Señales y Respaldo Verificado [COMPLETADO - AUDITADO]
 
 #### 1. Reconciliación de las Tres Señales de Estado de BD:
 1. **`core/schema_status.py` (Estructural):** Inspección de solo lectura (`missing_objects`, `missing_columns`, `integrity_check`, `foreign_key_check`) derivada dinámicamente de `expected_core_schema()` en memoria (sin inventarios manuales duplicados). Detecta `schema_drift` y objetos faltantes.
@@ -125,16 +125,37 @@
 
 ---
 
-### Fase F2: Desalojo y Gestión de Inactividad (F3 en discusión original)
-- **Problema actual:** Clientes MCP (como OpenCode, Claude Desktop, Antigravity) mantienen abiertas conexiones persistentes a SQLite con leases compartidos, bloqueando el lock exclusivo que necesita `biorag update`. Reinstanciar la memoria en cada request es inviable (cuesta ~11.6 s).
-- **Solución técnica:**
-  - El proceso MCP retiene los módulos y objetos cargados en memoria RAM.
-  - Se libera la conexión SQLite (`conn.close()`) y el lease compartido tras $N$ segundos de inactividad configurable (idle timeout).
-  - **Prioridad del escritor (Anti-inanición):** Marca de "mantenimiento pendiente". Las nuevas solicitudes entrantes esperan brevemente o devuelven aviso estructurado de espera mientras los requests en vuelo drenan.
-  - Al reanudar desde reposo: se lee `PRAGMA user_version` (0.32 ms). Si coincide, se reabre la conexión inmediatamente. Si difiere, se recarga en segundo plano y se devuelve `"BioRAG is reloading after update, retry in a few seconds"`.
-- **Criterio de aceptación:**
-  - `biorag update` puede adquirir lock exclusivo sin matar procesos MCP que estén ociosos.
-  - Ningún timeout de cliente MCP provocado por recarga bloqueante síncrona de 12 s.
+### Fase F2: Desalojo y Gestión de Inactividad [COMPLETADO - PENDIENTE DE AUDITORÍA]
+
+#### Mediciones empíricas (2026-11-24, ASUS ROG Strix G731GT, DB 135 MB):
+| Medición | Resultado |
+|---|---|
+| `managed_connect` + user_version + `close` | 0.459 ms (avg), 0.123 ms (min) |
+| `user_version` en conexión abierta | 0.013 ms (avg) |
+| Re-open completo (managed_connect + PRAGMAs + 3 funciones SQL) | 1.971 ms (avg), 1.097 ms (min) |
+| `SQLiteMemoryBioRAG.__init__` completo (reconstrucción total) | 11,649 ms (~11.6 s) — evitado |
+
+#### Implementación (commits `e071718` + `699e6c4`):
+1. **Fix WAL/SHM huérfanos del restore temporal** (`core/updater.py`): bloque `finally` de `restore_database_backup()` limpia `<temporary>-wal` y `<temporary>-shm`. Test: `test_restore_database_backup_leaves_no_wal_shm_orphans`.
+2. **Idle Lease Release** (`core/memory_service.py` + `core/mcp_server/_shared.py`):
+   - `BIORAG_IDLE_TIMEOUT_SECONDS` (default 30): tras N s de inactividad, `_idle_release_callback()` llama `conn.close()` (libera lease compartido), marca `_conn_released = True`.
+   - `_reopen_connection()`: re-abre solo la conexión SQLite (~2 ms), aplica PRAGMAs y re-registra 3 funciones SQL personalizadas.
+   - Si `user_version` cambió durante inactividad: `get_cerebro()` devuelve `RELOADING_SENTINEL`; `_shared._get_cerebro()` traduce a `None` para clientes MCP.
+   - `BIORAG_IDLE_TIMEOUT_SECONDS=0` desactiva el idle release.
+   - `reset_cerebro()` cancela el timer activo.
+
+#### Tests (9 casos en `tests/test_idle_lease_release_f2.py`):
+  - `test_idle_timer_armed_after_get_cerebro`
+  - `test_connection_released_after_idle_timeout`
+  - `test_connection_restored_without_full_rebuild` (re-open < 500 ms)
+  - `test_reopened_connection_is_functional`
+  - `test_schema_change_during_idle_returns_reloading_sentinel`
+  - `test_mcp_shared_get_cerebro_returns_none_when_reloading`
+  - `test_idle_timer_reset_on_each_access`
+  - `test_reset_cerebro_cancels_idle_timer`
+  - `test_zero_idle_timeout_disables_idle_release`
+
+#### Resultado: **73 passed, 4 subtests passed in 26.91s** (5 suites combinadas). Estado: **COMPLETADO**.
 
 ---
 
