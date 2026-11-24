@@ -482,5 +482,31 @@ class IdleLeaseReleaseTests(unittest.TestCase):
             self.assertFalse(is_maintenance_pending(db))
 
 
+    # ------------------------------------------------------------------
+    # Test 16: maintenance() emits progress to stderr while waiting
+    # ------------------------------------------------------------------
+    def test_maintenance_emits_progress_to_stderr_while_waiting(self):
+        """maintenance() must print progress messages to stderr during long waits."""
+        import io
+        import tempfile
+        from contextlib import redirect_stderr
+        from core.database_access import MaintenanceError, connect as managed_connect, maintenance
+
+        with tempfile.TemporaryDirectory(ignore_cleanup_errors=True) as tmp:
+            db = self._make_db(Path(tmp))
+            holder_conn = managed_connect(str(db), timeout=5)
+            stderr_buf = io.StringIO()
+            try:
+                with redirect_stderr(stderr_buf):
+                    with self.assertRaises(MaintenanceError):
+                        with maintenance(db, timeout=1.2, progress_interval=0.4):
+                            pass
+            finally:
+                holder_conn.close()
+
+            output = stderr_buf.getvalue()
+            self.assertIn("Waiting for BioRAG clients to close...", output)
+
+
 if __name__ == "__main__":
     unittest.main()

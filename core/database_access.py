@@ -212,7 +212,13 @@ class Lease:
 
 
 @contextmanager
-def maintenance(database, timeout=30):
+def maintenance(database, timeout=30, progress_interval=5.0):
+    """Acquire exclusive maintenance lease, waiting up to ``timeout`` seconds.
+
+    Note: older MCP server versions that do not check ``is_maintenance_pending``
+    ignore the pending gate and continue holding their shared lease until idle
+    timeout or shutdown.
+    """
     path = _path(database)
     if path is None:
         yield None
@@ -224,7 +230,9 @@ def maintenance(database, timeout=30):
     # Signal to active readers/MCP that maintenance is pending (OS-locked gate, inode preserved)
     gate_file, gate_overlapped = _try_acquire_pending_gate(path)
 
-    deadline = time.monotonic() + max(0.1, timeout)
+    start = time.monotonic()
+    deadline = start + max(0.0, timeout)
+    last_progress = start
     lease = None
     try:
         while True:
@@ -232,8 +240,17 @@ def maintenance(database, timeout=30):
                 lease = Lease(path, exclusive=True)
                 break
             except MaintenanceError:
-                if time.monotonic() >= deadline:
+                now = time.monotonic()
+                if now >= deadline:
                     raise
+                if progress_interval > 0 and (now - last_progress) >= progress_interval:
+                    elapsed = int(round(now - start))
+                    print(
+                        f"Waiting for BioRAG clients to close... {elapsed} s",
+                        file=sys.stderr,
+                        flush=True,
+                    )
+                    last_progress = now
                 time.sleep(0.05)
 
         token = secrets.token_hex(32)

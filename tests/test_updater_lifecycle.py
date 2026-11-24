@@ -487,6 +487,12 @@ class UpdateSurfaceTests(unittest.TestCase):
             self.assertEqual(cli.main(),0)
             run.assert_called_once_with(['--channel','dev'])
 
+    def test_updater_main_passes_wait_argument_to_apply(self):
+        with patch.object(updater,'apply',return_value={'status':'ok','changed':False}) as apply_mock:
+            rc = updater.main(['--wait','7.5','--db','/tmp/nonexistent-biorag-wait.db'])
+            self.assertEqual(rc,0)
+            self.assertEqual(apply_mock.call_args.kwargs.get('wait'), 7.5)
+
     def test_mcp_only_plans_and_requires_local_transport(self):
         from core.mcp_server.maintenance import register
         class FakeMCP:

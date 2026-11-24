@@ -158,7 +158,7 @@ def update_lock(gitdir):
 
 
 @contextmanager
-def exclusive_update(root, gitdir, database, channel):
+def exclusive_update(root, gitdir, database, channel, wait=30.0):
     """Plan, stop verified DB users, and hold the exclusive OS lease through apply."""
     with update_lock(gitdir):
         proposal = plan(root, channel, database=database)
@@ -179,7 +179,7 @@ def exclusive_update(root, gitdir, database, channel):
             raise
         from core.database_access import maintenance
         try:
-            with maintenance(database) as token:
+            with maintenance(database, timeout=wait) as token:
                 yield token, stopped, proposal, progress
         except BaseException:
             # Before code moves, the old service remains compatible and can be restored.
@@ -318,13 +318,13 @@ def rollback_update(root, database, report, process_stop, runner):
             'service_restart':restarted}
 
 
-def apply(root, *, channel='dev', database, runner=subprocess.run):
+def apply(root, *, channel='dev', database, runner=subprocess.run, wait=30.0):
     root=Path(root).resolve();_,gitdir=preflight(root)
     database=Path(database).expanduser().resolve()
     if database==root or root in database.parents:
         raise UpdateError('DATABASE_IN_CHECKOUT: Use a database outside the Git checkout for a safe update.')
     from core.database_access import TOKEN_ENV
-    with exclusive_update(root,gitdir,database,channel) as (maintenance_token, process_stop, proposal, progress):
+    with exclusive_update(root,gitdir,database,channel,wait=wait) as (maintenance_token, process_stop, proposal, progress):
         # Datos y recibos fuera del checkout; nunca se permite una DB versionada.
         database=Path(database).expanduser().resolve()
         if database==root or root in database.parents:
@@ -489,7 +489,10 @@ def main(argv=None):
     parser.add_argument('--dry-run',action='store_true',help='Preview the update without applying it')
     parser.add_argument('--yes',action='store_true',help='Deprecated compatibility option; updates now apply by default')
     parser.add_argument('--db',help='Database outside the checkout; defaults to BIORAG_PATH or the canonical path')
+    parser.add_argument('--wait',type=float,default=30.0,help='Seconds to wait for active BioRAG clients to close (default: 30; older MCP servers without pending-gate support ignore the signal)')
     args=parser.parse_args(argv)
+    if args.wait < 0:
+        parser.error('--wait must be non-negative.')
     if args.dry_run and args.yes:
         parser.error('--dry-run and --yes cannot be combined.')
     try:
@@ -499,7 +502,7 @@ def main(argv=None):
             result=plan(installed_root(),args.channel,database=database)
             result['next']='Preview only: no changes were made. Run biorag update to apply safely.'
         else:
-            result=apply(installed_root(),channel=args.channel,database=database)
+            result=apply(installed_root(),channel=args.channel,database=database,wait=args.wait)
         print(json.dumps(_public_result(result),ensure_ascii=False,indent=2))
         return 1 if result.get('status') in {'rolled_back','recovery_required'} else 0
     except (UpdateError,MaintenanceError,ProcessInspectionError,OSError,subprocess.SubprocessError) as exc:
