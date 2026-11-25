@@ -24,27 +24,18 @@ class IdleLeaseReleaseTests(unittest.TestCase):
     def setUp(self):
         """Each test gets a fresh in-memory singleton bound to a temp DB."""
         import core.memory_service as svc
-        # Reset module globals between tests.
-        with svc._lock:
-            svc._cancel_idle_timer()
-            svc._cerebro = None
-            svc._path = None
-            svc._idle_timer = None
         self._svc = svc
+        bg = getattr(svc, "_bg_rebuild_thread", None)
+        if bg is not None and bg.is_alive():
+            bg.join(timeout=5.0)
+        svc.reset_cerebro()
 
     def tearDown(self):
         import core.memory_service as svc
-        with svc._lock:
-            svc._cancel_idle_timer()
-            if svc._cerebro is not None:
-                try:
-                    svc._cerebro._persistente = False
-                    svc._cerebro.cerrar_sistema()
-                except Exception:
-                    pass
-            svc._cerebro = None
-            svc._path = None
-            svc._idle_timer = None
+        bg = getattr(svc, "_bg_rebuild_thread", None)
+        if bg is not None and bg.is_alive():
+            bg.join(timeout=5.0)
+        svc.reset_cerebro()
 
     # ------------------------------------------------------------------
     # Helper: build a minimal valid SQLite DB in a tmp path
