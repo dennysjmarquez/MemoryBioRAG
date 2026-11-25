@@ -479,6 +479,21 @@ def _public_result(result):
     return result
 
 
+_ACTIONABLE_CODES=('UPSTREAM_REQUIRED','DETACHED_HEAD','INSTALL_METHOD_UNSUPPORTED',
+                   'INSTALL_ROOT_MISMATCH','SUBMODULES_UNSUPPORTED','GIT_OPERATION_IN_PROGRESS',
+                   'TARGET_LACKS_LIFECYCLE','STABLE_NOT_APPROVED','CHANNEL_INVALID')
+
+
+def _actionable_reason(exc):
+    """Motivo legible de un UpdateError del preflight/planner, o None si no es uno conocido."""
+    if not isinstance(exc,UpdateError):
+        return None
+    match=re.match(r'([A-Z_]+):\s*(.+)',str(exc),re.S)
+    if not match or match.group(1) not in _ACTIONABLE_CODES:
+        return None
+    return match.group(2).strip()+' ('+match.group(1)+')'
+
+
 def main(argv=None):
     from core.cli_notes import usage_note, command_examples
     parser=HelpParser(prog='biorag update',
@@ -522,6 +537,12 @@ def main(argv=None):
                 message+=' Active clients: '+str(exc).split('Active clients:',1)[1].strip()
         else:
             message='BioRAG could not safely start the update. No update was applied; try again later or contact support.'
+            # Las causas accionables del preflight (rama sin upstream, HEAD separado, no es un
+            # checkout Git, submódulos, operación Git a medias...) quedaban ocultas tras el
+            # mensaje genérico y el usuario no sabía qué hacer. Se añade el motivo concreto.
+            reason=_actionable_reason(exc)
+            if reason:
+                message='No update was applied: '+reason
         print(json.dumps(dict(status='error',message=message),ensure_ascii=False),file=sys.stderr);return 1
 
 
