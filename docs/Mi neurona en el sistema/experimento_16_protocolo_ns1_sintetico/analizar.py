@@ -114,6 +114,16 @@ def precision_canal2(listas, raices, info):
     return (float(np.mean(vals)) if vals else float("nan")), vacias
 
 
+def techo_p5(cand, raices, info):
+    """Diagnóstico (no es criterio): la mejor P@5 posible ordenando con un oráculo que conoce la verdad,
+    con los MISMOS candidatos (sin ocultar nada). Mide cuánto limita el nacimiento."""
+    listas = {}
+    for r in raices:
+        if r in cand:
+            listas[r] = lista_neurona(cand[r], {v: M.relevancia(info, r, v) for v in cand[r]})
+    return precision_canal2(listas, raices, info)[0]
+
+
 # ───────────────────────── piso ─────────────────────────
 def metricas_piso(ex, solo_sellado=None):
     info = ex["info"]
@@ -209,7 +219,14 @@ def determinismo(exA, exB):
 
 # ───────────────────────── neurona ─────────────────────────
 def docs_de(ex):
-    return {c: NS.documento(c, r) for c, r in ex["recs"].items()}
+    """Documentos para la neurona: SOLO lo que declaró quien guardó el recuerdo. Las dimensiones que crea el
+    motor (auto_generada=1, p. ej. «tema_*» del auto-clustering) dependen de todo el corpus → se excluyen."""
+    auto = set(ex.get("dims_auto", []))
+    out = {}
+    for c, r in ex["recs"].items():
+        r2 = dict(r, dims=[d for d in r["dims"] if d not in auto])
+        out[c] = NS.documento(c, r2)
+    return out
 
 
 def tabla(pares, docs, ref):
@@ -309,7 +326,8 @@ def main(base):
         p5_piso, vac_piso = precision_canal2(lp, raices, info)
         p5_neu, vac_neu = precision_canal2(ln, raices, info)
         p5_mot, vac_mot = precision_canal2(exX["canal2_motor"], raices, info)
-        return {"pares_sellados": len(pares), "positivos": int(y.sum()),
+        p5_techo = techo_p5(cand, raices, info)
+        return {"pares_sellados": len(pares), "positivos": int(y.sum()), "P@5_techo_diagnostico": round(p5_techo, 4),
                 "AUC_piso": round(auc([sp[k] for k in pares], y), 4), "AUC_neurona": round(auc(cr, y), 4),
                 "ECE_neurona": round(ece(p, y), 4), "Brier_neurona": round(float(((p - y) ** 2).mean()), 4),
                 "P@5_piso_motor": round(p5_mot, 4), "P@5_piso_replica": round(p5_piso, 4),
@@ -394,5 +412,191 @@ def main(base):
     print(json.dumps(res, indent=1, ensure_ascii=False, default=str))
 
 
+# ═════════════════════════ v2 (PROTOCOLO_V2.md) ═════════════════════════
+class Rasgos:
+    """IDF de referencia + memoria semántica, calculados UNA vez sobre el texto (sin etiquetas) del mundo D
+    y congelados. Se usan sin recalcular para cualquier variante de ese mundo."""
+
+    def __init__(self, exD):
+        dd = docs_de(exD)
+        self.ref = NS.Referencia(list(dd.values()))
+        self.sem = NS.Semantica(list(dd.values()), self.ref)
+
+    def X(self, pares, docs, cache):
+        return np.array([NS.agujas_v2(docs[a], docs[b], self.ref, self.sem, cache) for a, b in pares], float)
+
+
+def main_v2(base):
+    out_dir = os.path.join(AQUI, "resultados")
+    os.makedirs(out_dir, exist_ok=True)
+    semillas = (1, 2, 3)
+    VAR = ("D", "D_rep", "D_Ipuro", "D_Ireal", "D_orden")
+    ex = {(s, v): cargar(base, "v2_s%d_%s" % (s, v)) for s in semillas for v in VAR}
+    exG = cargar(base, "v2_s11_G")
+    res = {"version": "v2", "piso": {}, "neurona": {}, "formulas": {}, "criterios": {}}
+
+    for s in semillas:
+        D = ex[(s, "D")]
+        r = {"todo": metricas_piso(D), "sellado": metricas_piso(D, True),
+             "R1": determinismo(D, ex[(s, "D_rep")]), "Q6": ex[(s, "D_rep")].get("Q6")}
+        for v in ("D_Ipuro", "D_Ireal", "D_orden"):
+            r["inv_" + v] = invariancia(D, ex[(s, v)], D["canal2_motor"], ex[(s, v)]["canal2_motor"])
+        res["piso"][s] = r
+    res["piso"]["G"] = {"todo": metricas_piso(exG), "sellado": metricas_piso(exG, True)}
+
+    t0 = time.time()
+    rasgos = {s: Rasgos(ex[(s, "D")]) for s in semillas}
+    rasgos["G"] = Rasgos(exG)
+    docs = {s: docs_de(ex[(s, "D")]) for s in semillas}
+    docs["G"] = docs_de(exG)
+    caches = {k: {} for k in docs}
+    res["rasgos"] = {str(k): {"huella_idf": r.ref.huella(), "huella_semantica": r.sem.huella(),
+                              "vocabulario_semantico": len(r.sem.idx)} for k, r in rasgos.items()}
+
+    fit, cal = [], []
+    for s in semillas:
+        D = ex[(s, "D")]
+        info = D["info"]
+        for k in puntuacion_piso(D):
+            if k[0] in info and k[1] in info and not M.par_sellado(info, *k):
+                temas = {info[x]["tema"] for x in k} - {None}
+                (cal if any(t % 4 == 1 for t in temas) else fit).append((s, k, 1 if M.relevancia(info, *k) > 0 else 0))
+
+    def mat(lista):
+        X = np.vstack([rasgos[s].X([k], docs[s], caches[s]) for s, k, _ in lista])
+        return X, np.array([y for *_, y in lista], float)
+
+    Xf, yf = mat(fit)
+    Xc, yc = mat(cal)
+    LEX = list(range(len(NS.NOMBRES)))
+    red = NS.Neurona(None, ocultas=16, semilla=0)
+    perdida = red.entrenar(Xf, yf, Xc, yc)
+    red.calibrar(Xc, yc)
+    red_lex = NS.Neurona(None, ocultas=16, semilla=0)
+    red_lex.entrenar(Xf[:, LEX], yf, Xc[:, LEX], yc)
+    res["neurona"]["entrenamiento"] = {
+        "pares_ajuste": len(yf), "positivos_ajuste": int(yf.sum()), "pares_calibracion": len(yc),
+        "positivos_calibracion": int(yc.sum()), "epocas": red.epocas, "perdida_validacion": round(perdida, 4),
+        "segundos_rasgos_y_entrenamiento": round(time.time() - t0, 1), "agujas": NS.NOMBRES_V2}
+    np.savez(os.path.join(out_dir, "neurona_ns1_v2_pesos.npz"), W1=red.W1, b1=red.b1, w2=red.w2, b2=red.b2,
+             mu=red.mu, sd=red.sd, iso_x=red.iso_x, iso_y=red.iso_y)
+
+    J = {n: i for i, n in enumerate(NS.NOMBRES_V2)}
+
+    def evaluar(exX, clave):
+        info = exX["info"]
+        sp = puntuacion_piso(exX)
+        pares = [k for k in sp if k[0] in info and k[1] in info and M.par_sellado(info, *k)]
+        X = rasgos[clave].X(pares, docs[clave], caches[clave])
+        y = np.array([1 if M.relevancia(info, *k) > 0 else 0 for k in pares])
+        cr, p = red.puntuar_crudo(X), red.prob(X)
+        formulas = {"B0_piso": [sp[k] for k in pares], "B1_jaccard_idf": X[:, J["jac_contenido_idf"]],
+                    "B2_top3_idf": X[:, J["top3_idf_compartidas"]], "B3_jaccard_dimensiones": X[:, J["jac_dimensiones"]],
+                    "B5_max_idf": X[:, J["max_idf_compartida"]]}
+        auc_f = {n: round(auc(v, y), 4) for n, v in formulas.items()}
+        mejor = max(auc_f, key=auc_f.get)
+        cand = candidatos(exX)
+        raices = [c for c, i in info.items() if i["grupo"] == "D" and M.sellado(i["tema"])]
+        ln, lf, lsem = {}, {}, {}
+        jm = {"B1_jaccard_idf": J["jac_contenido_idf"], "B2_top3_idf": J["top3_idf_compartidas"],
+              "B3_jaccard_dimensiones": J["jac_dimensiones"], "B5_max_idf": J["max_idf_compartida"]}
+        for r in raices:
+            if r not in cand:
+                continue
+            vec = list(cand[r])
+            Xr = rasgos[clave].X([(r, v) for v in vec], docs[clave], caches[clave])
+            ln[r] = lista_neurona(cand[r], dict(zip(vec, red.puntuar_crudo(Xr))))
+            lsem[r] = lista_neurona(cand[r], dict(zip(vec, Xr[:, J["sem_coseno"]])))
+            if mejor in jm:
+                lf[r] = lista_neurona(cand[r], dict(zip(vec, Xr[:, jm[mejor]])))
+        p5_mot, vac_mot = precision_canal2(exX["canal2_motor"], raices, info)
+        p5_neu, vac_neu = precision_canal2(ln, raices, info)
+        p5_sem, _ = precision_canal2(lsem, raices, info)
+        p5_f = precision_canal2(lf, raices, info)[0] if lf else p5_mot
+        return {"pares_sellados": len(pares), "positivos": int(y.sum()),
+                "P@5_techo_diagnostico": round(techo_p5(cand, raices, info), 4),
+                "AUC_piso": auc_f["B0_piso"], "AUC_neurona": round(auc(cr, y), 4),
+                "AUC_formulas_fijas": auc_f, "mejor_formula": mejor,
+                "AUC_B4_semantica_sola": round(auc(X[:, J["sem_coseno"]], y), 4),
+                "AUC_neurona_solo_lexica": round(auc(red_lex.puntuar_crudo(X[:, LEX]), y), 4),
+                "ECE_neurona": round(ece(p, y), 4), "Brier_neurona": round(float(((p - y) ** 2).mean()), 4),
+                "P@5_piso_motor": round(p5_mot, 4), "P@5_mejor_formula": round(p5_f, 4),
+                "P@5_semantica_sola": round(p5_sem, 4), "P@5_neurona": round(p5_neu, 4),
+                "sin_asociaciones_piso": vac_mot, "sin_asociaciones_neurona": vac_neu, "raices": len(raices)}
+
+    for s in semillas:
+        res["neurona"][s] = evaluar(ex[(s, "D")], s)
+    res["neurona"]["G"] = evaluar(exG, "G")
+
+    for s in semillas:
+        D = ex[(s, "D")]
+        dv = {v: docs_de(ex[(s, v)]) for v in ("D", "D_Ipuro", "D_Ireal", "D_orden")}
+
+        def listas_neu(v):
+            c = candidatos(ex[(s, v)])
+            cache = {}
+            out = {}
+            for r in c:
+                vec = list(c[r])
+                X = rasgos[s].X([(r, x) for x in vec], dv[v], cache)
+                out[r] = lista_neurona(c[r], dict(zip(vec, red.puntuar_crudo(X))))
+            return out
+
+        lD = listas_neu("D")
+        for v in ("D_Ipuro", "D_Ireal", "D_orden"):
+            inv = invariancia(D, ex[(s, v)], lD, listas_neu(v))
+            sD, sV = puntuacion_piso(D), puntuacion_piso(ex[(s, v)])
+            comunes = [k for k in sD if k in sV]
+            a = red.puntuar_crudo(rasgos[s].X(comunes, dv["D"], {}))
+            b = red.puntuar_crudo(rasgos[s].X(comunes, dv[v], {}))
+            inv["I1_neurona_pares_comunes_que_cambian"] = int((np.abs(a - b) > 1e-9).sum())
+            inv["I2_neurona_max_delta"] = float(np.abs(a - b).max()) if len(a) else 0.0
+            res["neurona"].setdefault("inv", {}).setdefault(s, {})[v] = inv
+
+    import construir as C
+    cat = C.catalogo_real()
+    costo = {}
+    for n in (400, 1600):
+        mw = M.generar_v2(5, cat, n=n)
+        recs = {e["concepto"]: {"contenido": e["contenido"], "syn": e["syn"], "sk": e["sk"], "cat": e["cat"],
+                                "dims": [x for v in e["dims"].values() for x in v]} for e in mw["eventos"]}
+        dd = {c: NS.documento(c, r) for c, r in recs.items()}
+        nombres = sorted(dd)
+        rng = np.random.default_rng(1)
+        pares = [(nombres[i], nombres[j]) for i, j in rng.integers(0, len(nombres), (3000, 2)) if i != j]
+        t1 = time.perf_counter()
+        red.puntuar_crudo(rasgos[1].X(pares, dd, {}))
+        costo[n] = (time.perf_counter() - t1) / len(pares) * 1e3
+    res["neurona"]["costo_ms_por_par"] = {str(k): round(v, 4) for k, v in costo.items()}
+
+    cri = {}
+    for s in semillas:
+        e, inv = res["neurona"][s], res["neurona"]["inv"][s]
+        cri[s] = {
+            "1_auc": e["AUC_neurona"] >= e["AUC_piso"] + 0.05 and e["AUC_neurona"] >= 0.80,
+            "2_p@5": e["P@5_neurona"] >= e["P@5_piso_motor"] + 0.10 and
+                     e["sin_asociaciones_neurona"] <= e["sin_asociaciones_piso"],
+            "3_cobertura": True,
+            "4_invariancia": all(inv[v]["I1_neurona_pares_comunes_que_cambian"] == 0 and
+                                 inv[v]["I3_pares_en_una_sola"] == 0 and inv[v]["I4_frac_lugares_de_I"] == 0 and
+                                 inv[v]["I5_frac_listas_que_cambian"] == 0 for v in inv),
+            "4a_parte_de_la_neurona_I1": all(inv[v]["I1_neurona_pares_comunes_que_cambian"] == 0 for v in inv),
+            "5_determinismo": res["piso"][s]["R1"]["R1_identicas"],
+            "6_ece": e["ECE_neurona"] <= 0.05,
+            "9_supera_formula_fija": e["AUC_neurona"] >= max(e["AUC_formulas_fijas"].values()) + 0.03,
+        }
+    g = res["neurona"]["G"]
+    cri["7_costo"] = costo[1600] <= 1.5 * costo[400]
+    cri["8_generalizacion"] = g["AUC_neurona"] >= g["AUC_piso"] + 0.03
+    cri["9_G_supera_formula_fija"] = g["AUC_neurona"] >= max(g["AUC_formulas_fijas"].values()) + 0.03
+    res["criterios"] = cri
+    with open(os.path.join(out_dir, "resultados_v2.json"), "w") as fh:
+        json.dump(res, fh, indent=1, ensure_ascii=False, default=str)
+    print(json.dumps(res, indent=1, ensure_ascii=False, default=str))
+
+
 if __name__ == "__main__":
-    main(sys.argv[1])
+    if len(sys.argv) > 2 and sys.argv[2] == "v2":
+        main_v2(sys.argv[1])
+    else:
+        main(sys.argv[1])

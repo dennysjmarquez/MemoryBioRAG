@@ -1,0 +1,800 @@
+{
+ "version": "v2",
+ "piso": {
+  "1": {
+   "todo": {
+    "pares_con_sinapsis": 15570,
+    "Q1_auc": 0.5351,
+    "Q2_precision_nacimiento": 0.1168,
+    "Q3_cobertura_rel2": 0.5517,
+    "Q4_precision_at5": 0.1971,
+    "Q4_sin_asociaciones": 6,
+    "Q4_raices": 400,
+    "Q5_grado_max": 297,
+    "Q5_grado_mediana": 72.0,
+    "Q5_sobre_3x_mediana": 4,
+    "precision_por_tipo": {
+     "co_nombre": 0.364,
+     "co_ocurrencia": 0.13,
+     "co_semantica": 0.22,
+     "dmn_synthesized": 0.125,
+     "pmi_hebbiano": 0.187,
+     "sinonimo_explicito": 0.086
+    },
+    "aristas_por_tipo": {
+     "co_nombre": 415,
+     "co_ocurrencia": 3082,
+     "co_semantica": 132,
+     "dmn_synthesized": 72,
+     "pmi_hebbiano": 2672,
+     "sinonimo_explicito": 10396
+    }
+   },
+   "sellado": {
+    "pares_con_sinapsis": 7061,
+    "Q1_auc": 0.5568,
+    "Q2_precision_nacimiento": 0.0708,
+    "Q3_cobertura_rel2": 0.5592,
+    "Q4_precision_at5": 0.2104,
+    "Q4_sin_asociaciones": 0,
+    "Q4_raices": 106,
+    "Q5_grado_max": 297,
+    "Q5_grado_mediana": 72.0,
+    "Q5_sobre_3x_mediana": 4,
+    "precision_por_tipo": {
+     "co_nombre": 0.364,
+     "co_ocurrencia": 0.13,
+     "co_semantica": 0.22,
+     "dmn_synthesized": 0.125,
+     "pmi_hebbiano": 0.187,
+     "sinonimo_explicito": 0.086
+    },
+    "aristas_por_tipo": {
+     "co_nombre": 415,
+     "co_ocurrencia": 3082,
+     "co_semantica": 132,
+     "dmn_synthesized": 72,
+     "pmi_hebbiano": 2672,
+     "sinonimo_explicito": 10396
+    }
+   },
+   "R1": {
+    "R1_identicas": true,
+    "aristas_A": 16769,
+    "aristas_B": 16769,
+    "solo_en_A": 0,
+    "solo_en_B": 0
+   },
+   "Q6": {
+    "desvinculados": 30,
+    "renacieron": 7
+   },
+   "inv_D_Ipuro": {
+    "diag_aristas_en_una_sola_por_tipo": {
+     "co_nombre": 61,
+     "co_ocurrencia": 934,
+     "dmn_synthesized": 72,
+     "pmi_hebbiano": 7120,
+     "sinonimo_explicito": 3723
+    },
+    "diag_recuerdos_D_que_cambian_de_estado": 60,
+    "I1_frac_pares_que_cambian": 0.637,
+    "I2_max_delta": 0.99,
+    "I3_pares_en_una_sola": 10768,
+    "pares_evaluados": 21089,
+    "I4_frac_lugares_de_I": 0.0,
+    "I5_frac_listas_que_cambian": 0.9425
+   },
+   "inv_D_Ireal": {
+    "diag_aristas_en_una_sola_por_tipo": {
+     "co_nombre": 60,
+     "co_ocurrencia": 1430,
+     "co_semantica": 1,
+     "dmn_synthesized": 116,
+     "pmi_hebbiano": 1874,
+     "sinonimo_explicito": 3990
+    },
+    "diag_recuerdos_D_que_cambian_de_estado": 64,
+    "I1_frac_pares_que_cambian": 0.5214,
+    "I2_max_delta": 1.0,
+    "I3_pares_en_una_sola": 7225,
+    "pares_evaluados": 16785,
+    "I4_frac_lugares_de_I": 0.1877,
+    "I5_frac_listas_que_cambian": 0.875
+   },
+   "inv_D_orden": {
+    "diag_aristas_en_una_sola_por_tipo": {
+     "co_nombre": 298,
+     "co_ocurrencia": 3883,
+     "co_semantica": 55,
+     "dmn_synthesized": 123,
+     "pmi_hebbiano": 3952,
+     "sinonimo_explicito": 9269
+    },
+    "diag_recuerdos_D_que_cambian_de_estado": 198,
+    "I1_frac_pares_que_cambian": 0.7797,
+    "I2_max_delta": 1.0,
+    "I3_pares_en_una_sola": 16840,
+    "pares_evaluados": 23780,
+    "I4_frac_lugares_de_I": 0.0,
+    "I5_frac_listas_que_cambian": 1.0
+   }
+  },
+  "2": {
+   "todo": {
+    "pares_con_sinapsis": 15514,
+    "Q1_auc": 0.5336,
+    "Q2_precision_nacimiento": 0.1207,
+    "Q3_cobertura_rel2": 0.5962,
+    "Q4_precision_at5": 0.2121,
+    "Q4_sin_asociaciones": 1,
+    "Q4_raices": 400,
+    "Q5_grado_max": 322,
+    "Q5_grado_mediana": 73.5,
+    "Q5_sobre_3x_mediana": 4,
+    "precision_por_tipo": {
+     "co_nombre": 0.355,
+     "co_ocurrencia": 0.148,
+     "co_semantica": 0.533,
+     "dmn_synthesized": 0.153,
+     "pmi_hebbiano": 0.138,
+     "sinonimo_explicito": 0.096
+    },
+    "aristas_por_tipo": {
+     "co_nombre": 462,
+     "co_ocurrencia": 2819,
+     "co_semantica": 107,
+     "dmn_synthesized": 72,
+     "pmi_hebbiano": 3734,
+     "sinonimo_explicito": 9621
+    }
+   },
+   "sellado": {
+    "pares_con_sinapsis": 7753,
+    "Q1_auc": 0.539,
+    "Q2_precision_nacimiento": 0.0877,
+    "Q3_cobertura_rel2": 0.6159,
+    "Q4_precision_at5": 0.2428,
+    "Q4_sin_asociaciones": 0,
+    "Q4_raices": 118,
+    "Q5_grado_max": 322,
+    "Q5_grado_mediana": 73.5,
+    "Q5_sobre_3x_mediana": 4,
+    "precision_por_tipo": {
+     "co_nombre": 0.355,
+     "co_ocurrencia": 0.148,
+     "co_semantica": 0.533,
+     "dmn_synthesized": 0.153,
+     "pmi_hebbiano": 0.138,
+     "sinonimo_explicito": 0.096
+    },
+    "aristas_por_tipo": {
+     "co_nombre": 462,
+     "co_ocurrencia": 2819,
+     "co_semantica": 107,
+     "dmn_synthesized": 72,
+     "pmi_hebbiano": 3734,
+     "sinonimo_explicito": 9621
+    }
+   },
+   "R1": {
+    "R1_identicas": true,
+    "aristas_A": 16815,
+    "aristas_B": 16815,
+    "solo_en_A": 0,
+    "solo_en_B": 0
+   },
+   "Q6": {
+    "desvinculados": 30,
+    "renacieron": 6
+   },
+   "inv_D_Ipuro": {
+    "diag_aristas_en_una_sola_por_tipo": {
+     "co_nombre": 83,
+     "co_ocurrencia": 728,
+     "dmn_synthesized": 61,
+     "pmi_hebbiano": 8448,
+     "sinonimo_explicito": 3813
+    },
+    "diag_recuerdos_D_que_cambian_de_estado": 51,
+    "I1_frac_pares_que_cambian": 0.6927,
+    "I2_max_delta": 1.0,
+    "I3_pares_en_una_sola": 11809,
+    "pares_evaluados": 21427,
+    "I4_frac_lugares_de_I": 0.0,
+    "I5_frac_listas_que_cambian": 0.9575
+   },
+   "inv_D_Ireal": {
+    "diag_aristas_en_una_sola_por_tipo": {
+     "co_nombre": 79,
+     "co_ocurrencia": 1259,
+     "co_semantica": 2,
+     "dmn_synthesized": 114,
+     "pmi_hebbiano": 2743,
+     "sinonimo_explicito": 4025
+    },
+    "diag_recuerdos_D_que_cambian_de_estado": 65,
+    "I1_frac_pares_que_cambian": 0.5644,
+    "I2_max_delta": 1.0,
+    "I3_pares_en_una_sola": 7820,
+    "pares_evaluados": 16698,
+    "I4_frac_lugares_de_I": 0.2529,
+    "I5_frac_listas_que_cambian": 0.965
+   },
+   "inv_D_orden": {
+    "diag_aristas_en_una_sola_por_tipo": {
+     "co_nombre": 318,
+     "co_ocurrencia": 3712,
+     "co_semantica": 32,
+     "dmn_synthesized": 114,
+     "pmi_hebbiano": 4369,
+     "sinonimo_explicito": 8859
+    },
+    "diag_recuerdos_D_que_cambian_de_estado": 190,
+    "I1_frac_pares_que_cambian": 0.7829,
+    "I2_max_delta": 1.0,
+    "I3_pares_en_una_sola": 16557,
+    "pares_evaluados": 23276,
+    "I4_frac_lugares_de_I": 0.0,
+    "I5_frac_listas_que_cambian": 0.9875
+   }
+  },
+  "3": {
+   "todo": {
+    "pares_con_sinapsis": 14962,
+    "Q1_auc": 0.5233,
+    "Q2_precision_nacimiento": 0.112,
+    "Q3_cobertura_rel2": 0.553,
+    "Q4_precision_at5": 0.2009,
+    "Q4_sin_asociaciones": 9,
+    "Q4_raices": 400,
+    "Q5_grado_max": 315,
+    "Q5_grado_mediana": 72.0,
+    "Q5_sobre_3x_mediana": 4,
+    "precision_por_tipo": {
+     "co_nombre": 0.299,
+     "co_ocurrencia": 0.129,
+     "co_semantica": 0.328,
+     "dmn_synthesized": 0.111,
+     "pmi_hebbiano": 0.167,
+     "sinonimo_explicito": 0.083
+    },
+    "aristas_por_tipo": {
+     "co_nombre": 538,
+     "co_ocurrencia": 3135,
+     "co_semantica": 134,
+     "dmn_synthesized": 72,
+     "pmi_hebbiano": 2560,
+     "sinonimo_explicito": 9627
+    }
+   },
+   "sellado": {
+    "pares_con_sinapsis": 6852,
+    "Q1_auc": 0.5746,
+    "Q2_precision_nacimiento": 0.0727,
+    "Q3_cobertura_rel2": 0.5957,
+    "Q4_precision_at5": 0.2545,
+    "Q4_sin_asociaciones": 1,
+    "Q4_raices": 100,
+    "Q5_grado_max": 315,
+    "Q5_grado_mediana": 72.0,
+    "Q5_sobre_3x_mediana": 4,
+    "precision_por_tipo": {
+     "co_nombre": 0.299,
+     "co_ocurrencia": 0.129,
+     "co_semantica": 0.328,
+     "dmn_synthesized": 0.111,
+     "pmi_hebbiano": 0.167,
+     "sinonimo_explicito": 0.083
+    },
+    "aristas_por_tipo": {
+     "co_nombre": 538,
+     "co_ocurrencia": 3135,
+     "co_semantica": 134,
+     "dmn_synthesized": 72,
+     "pmi_hebbiano": 2560,
+     "sinonimo_explicito": 9627
+    }
+   },
+   "R1": {
+    "R1_identicas": true,
+    "aristas_A": 16066,
+    "aristas_B": 16066,
+    "solo_en_A": 0,
+    "solo_en_B": 0
+   },
+   "Q6": {
+    "desvinculados": 30,
+    "renacieron": 9
+   },
+   "inv_D_Ipuro": {
+    "diag_aristas_en_una_sola_por_tipo": {
+     "co_nombre": 62,
+     "co_ocurrencia": 894,
+     "co_semantica": 1,
+     "dmn_synthesized": 70,
+     "pmi_hebbiano": 7596,
+     "sinonimo_explicito": 3419
+    },
+    "diag_recuerdos_D_que_cambian_de_estado": 39,
+    "I1_frac_pares_que_cambian": 0.65,
+    "I2_max_delta": 1.0,
+    "I3_pares_en_una_sola": 10735,
+    "pares_evaluados": 20637,
+    "I4_frac_lugares_de_I": 0.0,
+    "I5_frac_listas_que_cambian": 0.895
+   },
+   "inv_D_Ireal": {
+    "diag_aristas_en_una_sola_por_tipo": {
+     "co_nombre": 75,
+     "co_ocurrencia": 1564,
+     "co_semantica": 3,
+     "dmn_synthesized": 98,
+     "pmi_hebbiano": 1828,
+     "sinonimo_explicito": 3848
+    },
+    "diag_recuerdos_D_que_cambian_de_estado": 67,
+    "I1_frac_pares_que_cambian": 0.5391,
+    "I2_max_delta": 0.99,
+    "I3_pares_en_una_sola": 7203,
+    "pares_evaluados": 16256,
+    "I4_frac_lugares_de_I": 0.2412,
+    "I5_frac_listas_que_cambian": 0.8925
+   },
+   "inv_D_orden": {
+    "diag_aristas_en_una_sola_por_tipo": {
+     "co_nombre": 339,
+     "co_ocurrencia": 3829,
+     "co_semantica": 26,
+     "dmn_synthesized": 115,
+     "pmi_hebbiano": 3465,
+     "sinonimo_explicito": 8473
+    },
+    "diag_recuerdos_D_que_cambian_de_estado": 164,
+    "I1_frac_pares_que_cambian": 0.7625,
+    "I2_max_delta": 0.99,
+    "I3_pares_en_una_sola": 15693,
+    "pares_evaluados": 22820,
+    "I4_frac_lugares_de_I": 0.0,
+    "I5_frac_listas_que_cambian": 0.97
+   }
+  },
+  "G": {
+   "todo": {
+    "pares_con_sinapsis": 18042,
+    "Q1_auc": 0.5344,
+    "Q2_precision_nacimiento": 0.0569,
+    "Q3_cobertura_rel2": 0.5657,
+    "Q4_precision_at5": 0.0979,
+    "Q4_sin_asociaciones": 2,
+    "Q4_raices": 400,
+    "Q5_grado_max": 316,
+    "Q5_grado_mediana": 86.0,
+    "Q5_sobre_3x_mediana": 4,
+    "precision_por_tipo": {
+     "co_nombre": 0.174,
+     "co_ocurrencia": 0.057,
+     "co_semantica": 0.19,
+     "dmn_synthesized": 0.111,
+     "pmi_hebbiano": 0.151,
+     "sinonimo_explicito": 0.045
+    },
+    "aristas_por_tipo": {
+     "co_nombre": 461,
+     "co_ocurrencia": 7210,
+     "co_semantica": 84,
+     "dmn_synthesized": 72,
+     "pmi_hebbiano": 644,
+     "sinonimo_explicito": 10270
+    }
+   },
+   "sellado": {
+    "pares_con_sinapsis": 7694,
+    "Q1_auc": 0.5608,
+    "Q2_precision_nacimiento": 0.0339,
+    "Q3_cobertura_rel2": 0.525,
+    "Q4_precision_at5": 0.11,
+    "Q4_sin_asociaciones": 1,
+    "Q4_raices": 101,
+    "Q5_grado_max": 316,
+    "Q5_grado_mediana": 86.0,
+    "Q5_sobre_3x_mediana": 4,
+    "precision_por_tipo": {
+     "co_nombre": 0.174,
+     "co_ocurrencia": 0.057,
+     "co_semantica": 0.19,
+     "dmn_synthesized": 0.111,
+     "pmi_hebbiano": 0.151,
+     "sinonimo_explicito": 0.045
+    },
+    "aristas_por_tipo": {
+     "co_nombre": 461,
+     "co_ocurrencia": 7210,
+     "co_semantica": 84,
+     "dmn_synthesized": 72,
+     "pmi_hebbiano": 644,
+     "sinonimo_explicito": 10270
+    }
+   }
+  }
+ },
+ "neurona": {
+  "entrenamiento": {
+   "pares_ajuste": 10789,
+   "positivos_ajuste": 2274,
+   "pares_calibracion": 13591,
+   "positivos_calibracion": 1414,
+   "epocas": 1425,
+   "perdida_validacion": 0.0104,
+   "segundos_rasgos_y_entrenamiento": 14.9,
+   "agujas": [
+    "jac_contenido",
+    "jac_contenido_idf",
+    "solape_min_idf",
+    "n_compartidas",
+    "n_cortas_compartidas",
+    "frac_masa_comun",
+    "max_idf_compartida",
+    "top3_idf_compartidas",
+    "nombre_compartidas",
+    "nombre_max_idf",
+    "clave_cruzada",
+    "jac_clave",
+    "jac_sinonimos_item",
+    "jac_sinonimos_idf",
+    "jac_dimensiones",
+    "n_dimensiones",
+    "misma_categoria",
+    "especificidad_min",
+    "especificidad_dif",
+    "frac_comun_max",
+    "sem_coseno",
+    "sem_coseno_raras",
+    "sem_alineacion"
+   ]
+  },
+  "1": {
+   "pares_sellados": 7061,
+   "positivos": 500,
+   "P@5_techo_diagnostico": 0.5516,
+   "AUC_piso": 0.5568,
+   "AUC_neurona": 1.0,
+   "AUC_formulas_fijas": {
+    "B0_piso": 0.5568,
+    "B1_jaccard_idf": 0.9172,
+    "B2_top3_idf": 0.9434,
+    "B3_jaccard_dimensiones": 0.8082,
+    "B5_max_idf": 0.9458
+   },
+   "mejor_formula": "B5_max_idf",
+   "AUC_B4_semantica_sola": 0.9996,
+   "AUC_neurona_solo_lexica": 0.9819,
+   "ECE_neurona": 0.0008,
+   "Brier_neurona": 0.0007,
+   "P@5_piso_motor": 0.2104,
+   "P@5_mejor_formula": 0.4975,
+   "P@5_semantica_sola": 0.5497,
+   "P@5_neurona": 0.5516,
+   "sin_asociaciones_piso": 0,
+   "sin_asociaciones_neurona": 0,
+   "raices": 106
+  },
+  "2": {
+   "pares_sellados": 7753,
+   "positivos": 680,
+   "P@5_techo_diagnostico": 0.4877,
+   "AUC_piso": 0.539,
+   "AUC_neurona": 1.0,
+   "AUC_formulas_fijas": {
+    "B0_piso": 0.539,
+    "B1_jaccard_idf": 0.9127,
+    "B2_top3_idf": 0.9336,
+    "B3_jaccard_dimensiones": 0.8452,
+    "B5_max_idf": 0.9397
+   },
+   "mejor_formula": "B5_max_idf",
+   "AUC_B4_semantica_sola": 0.9996,
+   "AUC_neurona_solo_lexica": 0.9812,
+   "ECE_neurona": 0.0012,
+   "Brier_neurona": 0.0009,
+   "P@5_piso_motor": 0.2428,
+   "P@5_mejor_formula": 0.4528,
+   "P@5_semantica_sola": 0.4877,
+   "P@5_neurona": 0.4877,
+   "sin_asociaciones_piso": 0,
+   "sin_asociaciones_neurona": 0,
+   "raices": 118
+  },
+  "3": {
+   "pares_sellados": 6852,
+   "positivos": 498,
+   "P@5_techo_diagnostico": 0.5561,
+   "AUC_piso": 0.5746,
+   "AUC_neurona": 0.9999,
+   "AUC_formulas_fijas": {
+    "B0_piso": 0.5746,
+    "B1_jaccard_idf": 0.8857,
+    "B2_top3_idf": 0.9115,
+    "B3_jaccard_dimensiones": 0.8473,
+    "B5_max_idf": 0.9124
+   },
+   "mejor_formula": "B5_max_idf",
+   "AUC_B4_semantica_sola": 0.9978,
+   "AUC_neurona_solo_lexica": 0.9807,
+   "ECE_neurona": 0.0012,
+   "Brier_neurona": 0.0014,
+   "P@5_piso_motor": 0.2545,
+   "P@5_mejor_formula": 0.4746,
+   "P@5_semantica_sola": 0.5561,
+   "P@5_neurona": 0.5561,
+   "sin_asociaciones_piso": 1,
+   "sin_asociaciones_neurona": 1,
+   "raices": 100
+  },
+  "G": {
+   "pares_sellados": 7694,
+   "positivos": 261,
+   "P@5_techo_diagnostico": 0.4245,
+   "AUC_piso": 0.5608,
+   "AUC_neurona": 0.9992,
+   "AUC_formulas_fijas": {
+    "B0_piso": 0.5608,
+    "B1_jaccard_idf": 0.8635,
+    "B2_top3_idf": 0.9184,
+    "B3_jaccard_dimensiones": 0.8213,
+    "B5_max_idf": 0.9131
+   },
+   "mejor_formula": "B2_top3_idf",
+   "AUC_B4_semantica_sola": 0.9927,
+   "AUC_neurona_solo_lexica": 0.977,
+   "ECE_neurona": 0.0021,
+   "Brier_neurona": 0.0023,
+   "P@5_piso_motor": 0.11,
+   "P@5_mejor_formula": 0.3567,
+   "P@5_semantica_sola": 0.4165,
+   "P@5_neurona": 0.4225,
+   "sin_asociaciones_piso": 1,
+   "sin_asociaciones_neurona": 1,
+   "raices": 101
+  },
+  "inv": {
+   "1": {
+    "D_Ipuro": {
+     "diag_aristas_en_una_sola_por_tipo": {
+      "co_nombre": 61,
+      "co_ocurrencia": 934,
+      "dmn_synthesized": 72,
+      "pmi_hebbiano": 7120,
+      "sinonimo_explicito": 3723
+     },
+     "diag_recuerdos_D_que_cambian_de_estado": 60,
+     "I1_frac_pares_que_cambian": 0.637,
+     "I2_max_delta": 0.99,
+     "I3_pares_en_una_sola": 10768,
+     "pares_evaluados": 21089,
+     "I4_frac_lugares_de_I": 0.0,
+     "I5_frac_listas_que_cambian": 0.8825,
+     "I1_neurona_pares_comunes_que_cambian": 0,
+     "I2_neurona_max_delta": 0.0
+    },
+    "D_Ireal": {
+     "diag_aristas_en_una_sola_por_tipo": {
+      "co_nombre": 60,
+      "co_ocurrencia": 1430,
+      "co_semantica": 1,
+      "dmn_synthesized": 116,
+      "pmi_hebbiano": 1874,
+      "sinonimo_explicito": 3990
+     },
+     "diag_recuerdos_D_que_cambian_de_estado": 64,
+     "I1_frac_pares_que_cambian": 0.5214,
+     "I2_max_delta": 1.0,
+     "I3_pares_en_una_sola": 7225,
+     "pares_evaluados": 16785,
+     "I4_frac_lugares_de_I": 0.2585,
+     "I5_frac_listas_que_cambian": 0.8225,
+     "I1_neurona_pares_comunes_que_cambian": 0,
+     "I2_neurona_max_delta": 0.0
+    },
+    "D_orden": {
+     "diag_aristas_en_una_sola_por_tipo": {
+      "co_nombre": 298,
+      "co_ocurrencia": 3883,
+      "co_semantica": 55,
+      "dmn_synthesized": 123,
+      "pmi_hebbiano": 3952,
+      "sinonimo_explicito": 9269
+     },
+     "diag_recuerdos_D_que_cambian_de_estado": 198,
+     "I1_frac_pares_que_cambian": 0.7797,
+     "I2_max_delta": 1.0,
+     "I3_pares_en_una_sola": 16840,
+     "pares_evaluados": 23780,
+     "I4_frac_lugares_de_I": 0.0,
+     "I5_frac_listas_que_cambian": 0.995,
+     "I1_neurona_pares_comunes_que_cambian": 0,
+     "I2_neurona_max_delta": 0.0
+    }
+   },
+   "2": {
+    "D_Ipuro": {
+     "diag_aristas_en_una_sola_por_tipo": {
+      "co_nombre": 83,
+      "co_ocurrencia": 728,
+      "dmn_synthesized": 61,
+      "pmi_hebbiano": 8448,
+      "sinonimo_explicito": 3813
+     },
+     "diag_recuerdos_D_que_cambian_de_estado": 51,
+     "I1_frac_pares_que_cambian": 0.6927,
+     "I2_max_delta": 1.0,
+     "I3_pares_en_una_sola": 11809,
+     "pares_evaluados": 21427,
+     "I4_frac_lugares_de_I": 0.0,
+     "I5_frac_listas_que_cambian": 0.93,
+     "I1_neurona_pares_comunes_que_cambian": 0,
+     "I2_neurona_max_delta": 0.0
+    },
+    "D_Ireal": {
+     "diag_aristas_en_una_sola_por_tipo": {
+      "co_nombre": 79,
+      "co_ocurrencia": 1259,
+      "co_semantica": 2,
+      "dmn_synthesized": 114,
+      "pmi_hebbiano": 2743,
+      "sinonimo_explicito": 4025
+     },
+     "diag_recuerdos_D_que_cambian_de_estado": 65,
+     "I1_frac_pares_que_cambian": 0.5644,
+     "I2_max_delta": 1.0,
+     "I3_pares_en_una_sola": 7820,
+     "pares_evaluados": 16698,
+     "I4_frac_lugares_de_I": 0.3087,
+     "I5_frac_listas_que_cambian": 0.955,
+     "I1_neurona_pares_comunes_que_cambian": 0,
+     "I2_neurona_max_delta": 0.0
+    },
+    "D_orden": {
+     "diag_aristas_en_una_sola_por_tipo": {
+      "co_nombre": 318,
+      "co_ocurrencia": 3712,
+      "co_semantica": 32,
+      "dmn_synthesized": 114,
+      "pmi_hebbiano": 4369,
+      "sinonimo_explicito": 8859
+     },
+     "diag_recuerdos_D_que_cambian_de_estado": 190,
+     "I1_frac_pares_que_cambian": 0.7829,
+     "I2_max_delta": 1.0,
+     "I3_pares_en_una_sola": 16557,
+     "pares_evaluados": 23276,
+     "I4_frac_lugares_de_I": 0.0,
+     "I5_frac_listas_que_cambian": 0.98,
+     "I1_neurona_pares_comunes_que_cambian": 0,
+     "I2_neurona_max_delta": 0.0
+    }
+   },
+   "3": {
+    "D_Ipuro": {
+     "diag_aristas_en_una_sola_por_tipo": {
+      "co_nombre": 62,
+      "co_ocurrencia": 894,
+      "co_semantica": 1,
+      "dmn_synthesized": 70,
+      "pmi_hebbiano": 7596,
+      "sinonimo_explicito": 3419
+     },
+     "diag_recuerdos_D_que_cambian_de_estado": 39,
+     "I1_frac_pares_que_cambian": 0.65,
+     "I2_max_delta": 1.0,
+     "I3_pares_en_una_sola": 10735,
+     "pares_evaluados": 20637,
+     "I4_frac_lugares_de_I": 0.0,
+     "I5_frac_listas_que_cambian": 0.8425,
+     "I1_neurona_pares_comunes_que_cambian": 0,
+     "I2_neurona_max_delta": 0.0
+    },
+    "D_Ireal": {
+     "diag_aristas_en_una_sola_por_tipo": {
+      "co_nombre": 75,
+      "co_ocurrencia": 1564,
+      "co_semantica": 3,
+      "dmn_synthesized": 98,
+      "pmi_hebbiano": 1828,
+      "sinonimo_explicito": 3848
+     },
+     "diag_recuerdos_D_que_cambian_de_estado": 67,
+     "I1_frac_pares_que_cambian": 0.5391,
+     "I2_max_delta": 0.99,
+     "I3_pares_en_una_sola": 7203,
+     "pares_evaluados": 16256,
+     "I4_frac_lugares_de_I": 0.3161,
+     "I5_frac_listas_que_cambian": 0.8875,
+     "I1_neurona_pares_comunes_que_cambian": 0,
+     "I2_neurona_max_delta": 0.0
+    },
+    "D_orden": {
+     "diag_aristas_en_una_sola_por_tipo": {
+      "co_nombre": 339,
+      "co_ocurrencia": 3829,
+      "co_semantica": 26,
+      "dmn_synthesized": 115,
+      "pmi_hebbiano": 3465,
+      "sinonimo_explicito": 8473
+     },
+     "diag_recuerdos_D_que_cambian_de_estado": 164,
+     "I1_frac_pares_que_cambian": 0.7625,
+     "I2_max_delta": 0.99,
+     "I3_pares_en_una_sola": 15693,
+     "pares_evaluados": 22820,
+     "I4_frac_lugares_de_I": 0.0,
+     "I5_frac_listas_que_cambian": 0.97,
+     "I1_neurona_pares_comunes_que_cambian": 0,
+     "I2_neurona_max_delta": 0.0
+    }
+   }
+  },
+  "costo_ms_por_par": {
+   "400": 0.1194,
+   "1600": 0.1345
+  }
+ },
+ "formulas": {},
+ "criterios": {
+  "1": {
+   "1_auc": true,
+   "2_p@5": true,
+   "3_cobertura": true,
+   "4_invariancia": false,
+   "4a_parte_de_la_neurona_I1": true,
+   "5_determinismo": true,
+   "6_ece": true,
+   "9_supera_formula_fija": true
+  },
+  "2": {
+   "1_auc": true,
+   "2_p@5": true,
+   "3_cobertura": true,
+   "4_invariancia": false,
+   "4a_parte_de_la_neurona_I1": true,
+   "5_determinismo": true,
+   "6_ece": true,
+   "9_supera_formula_fija": true
+  },
+  "3": {
+   "1_auc": true,
+   "2_p@5": true,
+   "3_cobertura": true,
+   "4_invariancia": false,
+   "4a_parte_de_la_neurona_I1": true,
+   "5_determinismo": true,
+   "6_ece": true,
+   "9_supera_formula_fija": true
+  },
+  "7_costo": true,
+  "8_generalizacion": true,
+  "9_G_supera_formula_fija": true
+ },
+ "rasgos": {
+  "1": {
+   "huella_idf": "d8a0c9d73b9c1baf",
+   "huella_semantica": "6129bd36f05d5822",
+   "vocabulario_semantico": 1218
+  },
+  "2": {
+   "huella_idf": "a38ef1aebf8d4e29",
+   "huella_semantica": "598038909311da6f",
+   "vocabulario_semantico": 1247
+  },
+  "3": {
+   "huella_idf": "c8af820b0f6b5fd2",
+   "huella_semantica": "d9479dabab56db46",
+   "vocabulario_semantico": 1234
+  },
+  "G": {
+   "huella_idf": "915307bc357edd27",
+   "huella_semantica": "aafbe07bf7d311d9",
+   "vocabulario_semantico": 1452
+  }
+ }
+}
