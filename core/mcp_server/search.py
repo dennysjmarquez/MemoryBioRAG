@@ -117,6 +117,41 @@ def _parsear_fechas(dias, desde, hasta):
     return desde_ts, hasta_ts, None
 
 
+def _leer_antiguedad_y_categoria(cursor, conceptos) -> tuple:
+    """Fecha de creación y nombre de categoría de cada concepto.
+
+    Retorna (edad_map, cat_map): {concepto: creado_en_ts} y {concepto: nombre}.
+    Busca primero en largo_plazo (``creado_en``) y luego en corto_plazo
+    (``timestamp``) para los que falten. Solo lee: no toca ranking ni datos.
+    Si la lectura falla, lo registra (antes se tragaba en silencio y dejaba
+    fecha_legible/edad_dias/stale muertos para siempre).
+    """
+    edad_map: dict = {}
+    cat_map: dict = {}
+    pendientes = list(dict.fromkeys(c for c in conceptos if c))
+    consultas = (
+        "SELECT l.concepto, l.creado_en, c.name FROM largo_plazo l "
+        "LEFT JOIN categories c ON c.id = l.categoria WHERE l.concepto IN ({ph})",
+        "SELECT cp.concepto, cp.timestamp, c.name FROM corto_plazo cp "
+        "LEFT JOIN categories c ON c.id = cp.categoria WHERE cp.concepto IN ({ph})",
+    )
+    for sql in consultas:
+        if not pendientes:
+            break
+        try:
+            for i in range(0, len(pendientes), 900):
+                lote = pendientes[i:i + 900]
+                cursor.execute(sql.format(ph=",".join("?" * len(lote))), lote)
+                for conc, creado, cat_nombre in cursor.fetchall():
+                    if conc not in edad_map:
+                        edad_map[conc] = creado if creado else 0
+                        cat_map[conc] = cat_nombre or ""
+        except sqlite3.Error as exc:
+            logger.warning("recordar: no se pudo leer la antigüedad de los resultados: %s", exc)
+        pendientes = [c for c in pendientes if c not in edad_map]
+    return edad_map, cat_map
+
+
 def _recordar_impl(
     query: Optional[str] = None,
     deep: bool = False,
@@ -703,24 +738,12 @@ def _recordar_impl(
         # Profile, Personal, Relation) no caducan.
         _CATEGORIAS_PROTEGIDAS = {"Principle", "Profile", "Personal", "Relation"}
         ahora = time.time()
-        _edad_map = {}
-        _cat_map = {}
+        # Primarios + vecinos de context_window: todos llevan su fecha real.
+        _edad_map, _cat_map = _leer_antiguedad_y_categoria(
+            cerebro.cursor,
+            [r[0] for r in resultados] + [r[0] for r in contexto_expandido],
+        )
         if resultados:
-            conceptos_stale = [r[0] for r in resultados]
-            ph = ",".join("?" * len(conceptos_stale))
-            try:
-                cerebro.cursor.execute(
-                    f"SELECT concepto, creado_en, c.nombre "
-                    f"FROM largo_plazo l "
-                    f"JOIN categorias c ON c.id = l.categoria "
-                    f"WHERE l.concepto IN ({ph})",
-                    conceptos_stale,
-                )
-                for conc, creado, cat_nombre in cerebro.cursor.fetchall():
-                    _edad_map[conc] = creado if creado else 0
-                    _cat_map[conc] = cat_nombre
-            except Exception:
-                pass
             # Hard cutoff: excluir nodos más viejos que STALE_HARD_CUTOFF_DAYS
             # a menos que estén en categoría protegida
             if STALE_HARD_CUTOFF_DAYS > 0:

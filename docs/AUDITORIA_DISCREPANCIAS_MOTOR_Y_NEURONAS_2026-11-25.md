@@ -30,10 +30,12 @@ MCP OK), **`pytest tests/` → 1104 passed, 84 subtests passed**.
 | D11 | El **QCR nunca vacía el pool base**: si ningún candidato pasa, se quedan todos | Info (diseño no documentado) | `search.py:2446` |
 | D12 | Restos: `print [TRACE]`, comentario de "8 señales", una consulta SQL por candidato para la señal latente | Baja | `search.py:1057, 2828, 3286` |
 | D13 | Los baselines de R@1 citados no coinciden entre sí (88.76 / 91.89 / 93.03) | Baja (doc) | `AGENTS.md`, `qa_con_neurona_20261025/LEEME.md`, `README.md` |
-| **D14** | **BUG: `recordar` nunca devuelve fecha ni caducidad.** La consulta usa la tabla `categorias` y la columna `nombre`, pero se llaman `categories` y `name`; el error se traga con `except: pass` | **Alta** (función muerta en silencio) | `core/mcp_server/search.py:713-722` |
+| **D14** | ~~BUG: `recordar` nunca devuelve fecha ni caducidad~~ → **CORREGIDO** (§6). Usaba la tabla `categorias` y la columna `nombre`, que no existen | Alta → resuelto | `core/mcp_server/search.py` `_leer_antiguedad_y_categoria` |
 | **D15** | **El olvido (LTD) se cuenta por llamada a `consolidar`, no por tiempo transcurrido.** 1 llamada durmió 56 nodos; 3 seguidas, 899 | **Alta** (pérdida de recall) | `consolidation.py:407-484` |
 | D16 | Falso positivo real: «receta de arepas» devuelve 3 nodos de *10596 Recetas.exe* con «confianza media» (0.53) | Media (consecuencia de D2) | §5 |
 | D17 | Formato de `dimensiones` incoherente: el aviso de `recordar` sugiere un string (`'intencion_aprender'`) y `aprender` exige un JSON por eje | Baja (UX del agente) | §5 |
+| D19 | **No determinismo del ranking bajo carga o en frío**: «version actual biorag» alterna entre dos órdenes en las posiciones 3 y 4, con scores distintos pero reproducibles | Media (reproducibilidad) | §6.3 |
+| D20 | Test de temporizador inestable: `test_idle_lease_release_f2::test_idle_timer_reset_on_each_access` falla al correr su archivo solo y pasa en la suite completa (igual con el código original) | Baja (tests) | §6.3 |
 | D18 | Higiene de datos: hay mensajes de la cartelera guardados como nodos con nombres automáticos sin sentido | Baja (datos, no código) | §5 |
 
 ---
@@ -267,3 +269,45 @@ MCP OK), **`pytest tests/` → 1104 passed, 84 subtests passed**.
 Aparecen como ruido en las búsquedas sobre el contador PPMI y la ingeniería social. Revisarlos a mano y fusionarlos o archivarlos lo decide Dennys.
 
 **Otros.** `concept_hub_buscar("como empiezo una sesion nueva con la memoria")` → sin match; ningún hub cubre el arranque de sesión. `estado_dmn` → «DMN no iniciado en esta instancia».
+
+---
+
+## 6. Corrección aplicada — D14 (fecha y caducidad en `recordar`), 2026-11-25
+
+**Decisión.** Se aplica el diseño ya acordado y guardado en memoria (`athena_principio_caducidad_temporal`, origen Dennys: *«ve la fecha, eso no se te entrega si es muy viejo. Es como tu cerebro.»*):
+- Más de 90 días → `stale` (marca de recuerdo viejo).
+- Categorías atemporales protegidas: Principle, Profile, Personal y Relation.
+- No se inventan categorías nuevas: lo que pide `decision_diseno_actualizar_nodo_canonico...` es «lo más simple posible y correcto».
+
+### 6.1 Cambio
+- **Función nueva** `_leer_antiguedad_y_categoria(cursor, conceptos)` en `core/mcp_server/search.py`:
+  - `largo_plazo.creado_en`, con `LEFT JOIN categories` por `name`.
+  - Respaldo en `corto_plazo.timestamp` para los nodos aún no consolidados.
+  - Lotes de 900 conceptos.
+  - Si falla, **lo registra** con `logger.warning` en lugar del `except: pass` mudo.
+- **Cobertura:** la usan los resultados primarios **y** los vecinos de `context_window`, que antes nunca tenían fecha.
+- **Lo que no cambia:** el ranking, los scores, `confianza_calibrada`, `nivel_certeza`, la paginación y `BIORAG_STALE_HARD_CUTOFF` (sigue en 0, apagado).
+  - El principio guardado menciona un corte duro de 365 días, pero el código lo trae apagado por defecto. No se activa: excluir resultados convertiría la edad en un filtro (decisión pendiente de Dennys; hoy el nodo más antiguo tiene unos 158 días).
+
+### 6.2 Verificación
+| Prueba | Resultado |
+|---|---|
+| `tests/test_recordar_fecha_y_caducidad.py` (4 tests nuevos: fecha y edad exactas; 90 días con Principle protegido; vecinos con fecha; corto plazo y error registrado) | 4/4 pasan con el arreglo; **4/4 fallan con el código anterior** (el test detecta la regresión) |
+| A/B MCP real: 12 consultas (ráfaga, `deep`, página 2, `context_window`, asociados) sobre copias idénticas de la DB viva | Orden, scores y certeza idénticos. Fechas: 0/52 → **52/52**; los vecinos también traen fecha |
+| Efecto en la DB viva (solo lectura) | 773 de 1381 nodos quedarían marcados `stale` (más de 90 días y no protegidos). El aviso aparece en unas 6 de cada 12 consultas |
+| Suite completa con la máquina libre | **1108 passed** (1104 previos + 4 nuevos), 84 subtests, 0 fallos (319 s). Con A/B corriendo en paralelo falló una vez D20 (inestable, igual en el código original) |
+
+### 6.3 Hallazgos durante la verificación (no causados por el arreglo)
+
+**D19 — No determinismo.** En la consulta «version actual biorag», las posiciones 3 y 4 alternan entre dos variantes, cada una reproducible al decimal:
+- `v26_4` (0.8456) y luego `v32_4` (0.7862);
+- `v32_4` (0.8456) y luego `v26_4` (0.7628).
+
+Aparece **con el código original y con el arreglado**: original 3/3 con la primera variante en una máquina libre, y la segunda variante bajo carga y en la primera llamada en frío. El campo `total` también varía entre ejecuciones del mismo código (186 frente a 152). Sospecha: algún componente con presupuesto de tiempo o carga perezosa (por ejemplo `BIORAG_NEURONA_PRESUPUESTO_S=3`, o índices que todavía no terminaron de cargar). Choca con la NORMA de determinismo de `AGENTS.md`, así que **merece una investigación propia**.
+
+**D20 — Test inestable.** `test_idle_lease_release_f2.py::test_idle_timer_reset_on_each_access` usa `sleep(0.5)`/`sleep(0.6)` contra un temporizador de 2 s.
+- Falla 3/3 al correr su archivo solo, igual con el código original.
+- Pasó en las suites completas anteriores.
+- En otra ejecución bajo carga falló su vecino `test_reopen_during_maintenance_raises_biorag_busy`.
+
+Depende del tiempo de la máquina, no del código de búsqueda.
