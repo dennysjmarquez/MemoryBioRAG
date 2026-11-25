@@ -22,7 +22,7 @@ from urllib.parse import unquote, urlsplit
 
 TOKEN_ENV = 'BIORAG_MAINTENANCE_TOKEN'
 _LOCAL_TOKEN = ContextVar('biorag_maintenance_token', default=None)
-_DIAG_LOCK = threading.Lock()
+_DIAG_LOCK = threading.RLock()
 _DIAG_LEASES: dict[str, dict] = {}
 
 

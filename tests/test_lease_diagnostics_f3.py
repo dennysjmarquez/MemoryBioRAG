@@ -201,6 +201,40 @@ class LeaseDiagnosticsF3Tests(unittest.TestCase):
                 proc.kill()
                 proc.wait(timeout=5)
 
+    def test_gc_reentrancy_during_acquire_does_not_deadlock(self):
+        """Re-entering _release_diagnostic_lease (e.g. via __del__ during GC) inside _acquire_diagnostic_lease must not deadlock."""
+        import threading
+        with tempfile.TemporaryDirectory(ignore_cleanup_errors=True) as tmp:
+            db1 = self._make_db(Path(tmp) / "a")
+            db2 = Path(tmp) / "b" / "diag_test.db"
+            c1 = da.connect(str(db1))
+            c1.close()
+
+            # Simulate GC __del__ triggering _release_diagnostic_lease on the same thread inside _acquire_diagnostic_lease
+            orig_client_role = da._client_role
+
+            def reentrant_role():
+                da._release_diagnostic_lease(db1)
+                return orig_client_role()
+
+            finished = threading.Event()
+            errors = []
+
+            def run_acquire():
+                try:
+                    with patch.object(da, "_client_role", side_effect=reentrant_role):
+                        c2 = da.connect(str(db2))
+                        c2.close()
+                except Exception as exc:
+                    errors.append(exc)
+                finally:
+                    finished.set()
+
+            t = threading.Thread(target=run_acquire, daemon=True)
+            t.start()
+            self.assertTrue(finished.wait(timeout=2.0), "Deadlock detected in _DIAG_LOCK on same-thread reentrancy!")
+            self.assertEqual(errors, [])
+
 
 if __name__ == "__main__":
     unittest.main()
