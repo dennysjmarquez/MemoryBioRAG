@@ -205,6 +205,18 @@ El `recordar` del MCP **no** marca uso en las sinapsis [código].
 
 ## 7. Problemas verificados del algoritmo actual
 
+> **Estado al 25-11 (después del ciclo de corrección; ver `docs/Mi neurona en el sistema/correccion_dano_nacimiento/README.md`):**
+> - **P6 corregido** en `7e1eb9c`: ninguna regla automática de nacimiento o refuerzo (B1–B7, B10) toca `manual` ni
+>   `manual_v7`.
+> - **P2 corregido** en `6d64515`: B5 compara por coincidencia exacta, sin subcadenas y sin depender del idioma.
+> - **P1 sigue abierto** (2b, pendiente de decisión): reetiquetar cuando el ítem compartido es exacto.
+> - **P7 sigue abierto** (cambio 3, pendiente de decisión): un filtro DF rompería la invariancia.
+> - **Bug aparte corregido** en `555b06e`: `vincular_con` con espacio después de la coma.
+>
+> Las secciones 3 y 4 describen las reglas tal como eran **antes** de estos commits. Las diferencias:
+> - B5 ahora exige nombre exacto o ítem exacto;
+> - B1–B7 y B10 no actualizan un par `manual`.
+
 | # | Problema | Evidencia |
 |---|---|---|
 | P1 | **B5 reetiqueta enlaces de tema como «sinónimo».** Un sinónimo como «tomate» o «receta» convierte `co_nombre 0.75` y `co_ocurrencia 0.40` en `sinonimo_explicito 0.90`, un tipo protegido para siempre | [visto] traza, sesión 3. Explica la precisión del 9–13 % de `sinonimo_explicito` en el exp. 16 |
