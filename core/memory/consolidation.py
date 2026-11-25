@@ -18,6 +18,28 @@ from core.identidad_unicode import _recortar_sin_perder_espacio_ideografico
 from core.memory import constants
 
 
+def fraccion_de_noche(self, ahora: float = None) -> float:
+    """Qué parte de una "noche" de olvido pasó desde el ciclo de sueño anterior (0..1).
+
+    D15: el decaimiento del sueño se escala por el tiempo real transcurrido, no por el
+    número de llamadas a consolidar. Lee la hora del último ciclo de
+    ``metricas_cognitivas`` (se escribe al FINAL de cada ciclo, así que al empezar el
+    actual contiene el anterior). Sin historial, tabla ausente o flag apagado → 1.0,
+    es decir, exactamente el comportamiento previo.
+    """
+    if not constants.LTD_POR_TIEMPO:
+        return 1.0
+    ahora = time.time() if ahora is None else ahora
+    try:
+        ultimo = self.cursor.execute("SELECT MAX(timestamp) FROM metricas_cognitivas").fetchone()
+    except sqlite3.Error:
+        return 1.0
+    if not ultimo or not ultimo[0]:
+        return 1.0
+    transcurrido = max(0.0, float(ahora) - float(ultimo[0]))
+    return min(1.0, transcurrido / constants.LTD_NOCHE_SEG)
+
+
 def _calcular_base_level_actr(self, concepto: str, ahora: float = None):
     r"""Calcula la activación de nivel base de la arquitectura cognitiva ACT-R:
     
@@ -430,6 +452,14 @@ def ciclo_sueno_consolidacion(self):
     """)
     candidatos_ltd = self.cursor.fetchall()
     ahora_sueno = time.time()
+    # D15: escalar el olvido por el tiempo real desde el ciclo anterior (1.0 = una noche
+    # completa = comportamiento previo, con la misma precisión de redondeo). Con fracción
+    # parcial se guarda con más decimales: si no, round(0.20 - 0.004, 2) volvería a 0.20
+    # y el olvido de los ciclos cortos se perdería en el redondeo.
+    _fraccion_noche = fraccion_de_noche(self, ahora_sueno)
+    _dec_peso = 2 if _fraccion_noche >= 1.0 else 4
+    _dec_sinapsis = 3 if _fraccion_noche >= 1.0 else 6
+    print(f"[LTD] fracción de noche aplicada: {_fraccion_noche:.3f}")
     for concepto_ltd, peso_act, dec_cat, mult_prio in candidatos_ltd:
         b_i = self._calcular_base_level_actr(concepto_ltd, ahora=ahora_sueno)
         # Modulación ACT-R (Ley de Potencia de Práctica/Olvido de Anderson & Lebiere):
@@ -441,7 +471,9 @@ def ciclo_sueno_consolidacion(self):
             decay_base = max(0.01, min(0.10, 0.05 * math.exp(-0.5 * b_i)))
         else:
             decay_base = 0.05
-        nuevo_peso = round(max(0.0, peso_act - decay_base * dec_cat * mult_prio), 2)
+        nuevo_peso = round(
+            max(0.0, peso_act - decay_base * dec_cat * mult_prio * _fraccion_noche), _dec_peso
+        )
         self.cursor.execute(
             "UPDATE largo_plazo SET peso_sinaptico = ? WHERE concepto = ?",
             (nuevo_peso, concepto_ltd)
@@ -450,10 +482,10 @@ def ciclo_sueno_consolidacion(self):
     # 2b. Decay Sináptico: reducir peso de conexiones no usadas en 7+ días
     self.cursor.execute("""
         UPDATE sinapsis
-        SET peso = ROUND(MAX(0.0, peso * 0.95), 3)
+        SET peso = ROUND(MAX(0.0, peso * ?), ?)
         WHERE ultimo_uso IS NOT NULL
           AND ultimo_uso < strftime('%s', 'now') - 604800
-          AND """ + constants.SQL_NO_ES_DEL_AGENTE)
+          AND """ + constants.SQL_NO_ES_DEL_AGENTE, (0.95 ** _fraccion_noche, _dec_sinapsis))
     # Podar sinapsis muertas (F4: guiado termodinamico si flag ON).
     try:
         from core.dmn_engine import TERMODINAMICA_DMN, podar_ltd_guiado
