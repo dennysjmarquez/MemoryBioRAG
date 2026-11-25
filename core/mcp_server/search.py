@@ -384,7 +384,13 @@ def _recordar_impl(
                     "⚠️ dimensiones=None — Sin boost semántico. "
                     "Usá dimensiones cuando busques por propiedades ontológicas "
                     "(emoción, entidad, acción, cualidad, coordenada, intención, dominio, cualia, epistemia, escala_abstraccion, centralidad_identitaria, textura_experiencial, modalidad). "
-                    "Ejemplo: dimensiones='intencion_aprender' o dimensiones='dominio_tecnico'"
+                    # D17: el ejemplo anterior (dimensiones='intencion_aprender') no era JSON
+                    # y el propio recordar lo rechazaba; mismo formato que exige aprender.
+                    # Sin llaves a propósito: los clientes extraen el JSON de la respuesta
+                    # desde la primera '{' y un aviso con llaves lo rompería.
+                    "Formato: objeto JSON con el eje como clave y una lista de valores. "
+                    "Ejemplo: clave \"intencion\" con [\"intencion_aprender\"], "
+                    "o clave \"dominio\" con [\"dominio_tecnico\"]"
                 )
 
         # Sin query → log cronológico puro por creado_en

@@ -148,3 +148,31 @@ def test_lectura_cubre_corto_plazo_y_no_falla_en_silencio(tmp_path, caplog):
     with caplog.at_level("WARNING", logger="mcp_server"):
         assert _leer_antiguedad_y_categoria(roto, ["x"]) == ({}, {})
     assert "antigüedad" in caplog.text
+
+
+def test_ejemplo_de_dimensiones_del_aviso_es_valido(cerebro_mcp):
+    """D17: el aviso 'dimensiones=None' de recordar debe sugerir un formato que el propio
+    recordar acepte. Antes sugería dimensiones='intencion_aprender' (no es JSON → error)."""
+    import re
+    from core.memory_store import SQLiteMemoryBioRAG
+    from core.mcp_server._shared import _resolver_dimensiones
+
+    _conn, mcp_search = cerebro_mcp
+    raw = mcp_search._recordar_impl(
+        query="biorag version actual", sustantivos_clave="biorag,version",
+        parafrasis="version biorag", limite=3, asociados=True, dias=9999,
+    )
+    aviso = next(l for l in raw.splitlines() if "dimensiones=None" in l)
+    # Los avisos van antes del JSON y los clientes lo extraen desde la primera '{'.
+    assert "{" not in aviso and "}" not in aviso, aviso
+    pares = re.findall(r'clave "(\w+)" con (\[[^\]]*\])', aviso)
+    assert len(pares) >= 2, aviso
+    ejemplos = [json.dumps({eje: json.loads(valores)}) for eje, valores in pares]
+    cerebro = mcp_search._get_cerebro()
+    try:
+        for ejemplo in ejemplos:
+            dims, ids, error, _ = _resolver_dimensiones(cerebro, ejemplo)
+            assert error is None, (ejemplo, error)
+            assert ids, ejemplo
+    finally:
+        cerebro.cerrar_sistema()
