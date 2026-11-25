@@ -1,0 +1,188 @@
+{
+ "N1_ngramas_caracteres": {
+  "criterios": {
+   "C0.1_auc_cada_idioma_>=0.70": false,
+   "C0.2_dispersion_<=0.10": false,
+   "C0.3_spearman_>=0.50": false,
+   "C0.4_invariancia_276/276": true,
+   "C0.5_reproducible": true
+  },
+  "dispersion_auc": 0.1616,
+  "por_idioma": {
+   "en": {
+    "auc": 0.5413,
+    "invariantes": 276,
+    "media_neg": 0.1601,
+    "media_pos": 0.1646,
+    "media_puente": 0.2172,
+    "n_neg": 249,
+    "n_pos": 24,
+    "n_puente": 3,
+    "pct_puente_sobre_neg": 0.9786
+   },
+   "es": {
+    "auc": 0.5754,
+    "invariantes": 276,
+    "media_neg": 0.1688,
+    "media_pos": 0.1776,
+    "media_puente": 0.1905,
+    "n_neg": 249,
+    "n_pos": 24,
+    "n_puente": 3,
+    "pct_puente_sobre_neg": 0.6225
+   },
+   "ja": {
+    "auc": 0.7029,
+    "invariantes": 276,
+    "media_neg": 0.0045,
+    "media_pos": 0.0129,
+    "media_puente": 0.0019,
+    "n_neg": 249,
+    "n_pos": 24,
+    "n_puente": 3,
+    "pct_puente_sobre_neg": 0.3661
+   },
+   "zh": {
+    "auc": 0.6362,
+    "invariantes": 276,
+    "media_neg": 0.003,
+    "media_pos": 0.0072,
+    "media_puente": 0.0033,
+    "n_neg": 249,
+    "n_pos": 24,
+    "n_puente": 3,
+    "pct_puente_sobre_neg": 0.5703
+   }
+  },
+  "spearman_vs_es": {
+   "en": 0.167,
+   "ja": 0.1012,
+   "zh": 0.1807
+  },
+  "veredicto": "NO PASA"
+ },
+ "N2_compresion_ncd": {
+  "criterios": {
+   "C0.1_auc_cada_idioma_>=0.70": false,
+   "C0.2_dispersion_<=0.10": false,
+   "C0.3_spearman_>=0.50": false,
+   "C0.4_invariancia_276/276": true,
+   "C0.5_reproducible": true
+  },
+  "dispersion_auc": 0.1342,
+  "por_idioma": {
+   "en": {
+    "auc": 0.568,
+    "invariantes": 276,
+    "media_neg": 0.3428,
+    "media_pos": 0.3493,
+    "media_puente": 0.3641,
+    "n_neg": 249,
+    "n_pos": 24,
+    "n_puente": 3,
+    "pct_puente_sobre_neg": 0.7972
+   },
+   "es": {
+    "auc": 0.6152,
+    "invariantes": 276,
+    "media_neg": 0.3224,
+    "media_pos": 0.3327,
+    "media_puente": 0.3137,
+    "n_neg": 249,
+    "n_pos": 24,
+    "n_puente": 3,
+    "pct_puente_sobre_neg": 0.4183
+   },
+   "ja": {
+    "auc": 0.6778,
+    "invariantes": 276,
+    "media_neg": 0.3089,
+    "media_pos": 0.3317,
+    "media_puente": 0.3118,
+    "n_neg": 249,
+    "n_pos": 24,
+    "n_puente": 3,
+    "pct_puente_sobre_neg": 0.5141
+   },
+   "zh": {
+    "auc": 0.7022,
+    "invariantes": 276,
+    "media_neg": 0.2944,
+    "media_pos": 0.314,
+    "media_puente": 0.3175,
+    "n_neg": 249,
+    "n_pos": 24,
+    "n_puente": 3,
+    "pct_puente_sobre_neg": 0.7691
+   }
+  },
+  "spearman_vs_es": {
+   "en": 0.3165,
+   "ja": 0.279,
+   "zh": 0.0655
+  },
+  "veredicto": "NO PASA"
+ },
+ "ref_w4_motor_hoy": {
+  "criterios": {
+   "C0.1_auc_cada_idioma_>=0.70": false,
+   "C0.2_dispersion_<=0.10": true,
+   "C0.3_spearman_>=0.50": false,
+   "C0.4_invariancia_276/276": true,
+   "C0.5_reproducible": true
+  },
+  "dispersion_auc": 0.0509,
+  "por_idioma": {
+   "en": {
+    "auc": 0.5509,
+    "invariantes": 276,
+    "media_neg": 0.0058,
+    "media_pos": 0.0122,
+    "media_puente": 0.0175,
+    "n_neg": 249,
+    "n_pos": 24,
+    "n_puente": 3,
+    "pct_puente_sobre_neg": 0.6185
+   },
+   "es": {
+    "auc": 0.5479,
+    "invariantes": 276,
+    "media_neg": 0.0033,
+    "media_pos": 0.0078,
+    "media_puente": 0.0,
+    "n_neg": 249,
+    "n_pos": 24,
+    "n_puente": 3,
+    "pct_puente_sobre_neg": 0.4639
+   },
+   "ja": {
+    "auc": 0.5,
+    "invariantes": 276,
+    "media_neg": 0.0,
+    "media_pos": 0.0,
+    "media_puente": 0.0,
+    "n_neg": 249,
+    "n_pos": 24,
+    "n_puente": 3,
+    "pct_puente_sobre_neg": 0.5
+   },
+   "zh": {
+    "auc": 0.5,
+    "invariantes": 276,
+    "media_neg": 0.0,
+    "media_pos": 0.0,
+    "media_puente": 0.0,
+    "n_neg": 249,
+    "n_pos": 24,
+    "n_puente": 3,
+    "pct_puente_sobre_neg": 0.5
+   }
+  },
+  "spearman_vs_es": {
+   "en": 0.334,
+   "ja": 0.0,
+   "zh": 0.0
+  },
+  "veredicto": "referencia (sin criterio)"
+ }
+}
