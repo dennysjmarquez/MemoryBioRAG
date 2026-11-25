@@ -31,12 +31,13 @@ MCP OK), **`pytest tests/` → 1104 passed, 84 subtests passed**.
 | D12 | Restos: `print [TRACE]`, comentario de "8 señales", una consulta SQL por candidato para la señal latente | Baja | `search.py:1057, 2828, 3286` |
 | D13 | Los baselines de R@1 citados no coinciden entre sí (88.76 / 91.89 / 93.03) | Baja (doc) | `AGENTS.md`, `qa_con_neurona_20261025/LEEME.md`, `README.md` |
 | **D14** | ~~BUG: `recordar` nunca devuelve fecha ni caducidad~~ → **CORREGIDO** (§6). Usaba la tabla `categorias` y la columna `nombre`, que no existen | Alta → resuelto | `core/mcp_server/search.py` `_leer_antiguedad_y_categoria` |
-| **D15** | **El olvido (LTD) se cuenta por llamada a `consolidar`, no por tiempo transcurrido.** 1 llamada durmió 56 nodos; 3 seguidas, 899 | **Alta** (pérdida de recall) | `consolidation.py:407-484` |
-| D16 | Falso positivo real: «receta de arepas» devuelve 3 nodos de *10596 Recetas.exe* con «confianza media» (0.53) | Media (consecuencia de D2) | §5 |
-| D17 | Formato de `dimensiones` incoherente: el aviso de `recordar` sugiere un string (`'intencion_aprender'`) y `aprender` exige un JSON por eje | Baja (UX del agente) | §5 |
-| D19 | **No determinismo del ranking bajo carga o en frío**: «version actual biorag» alterna entre dos órdenes en las posiciones 3 y 4, con scores distintos pero reproducibles | Media (reproducibilidad) | §6.3 |
-| D20 | Test de temporizador inestable: `test_idle_lease_release_f2::test_idle_timer_reset_on_each_access` falla al correr su archivo solo y pasa en la suite completa (igual con el código original) | Baja (tests) | §6.3 |
-| D18 | Higiene de datos: hay mensajes de la cartelera guardados como nodos con nombres automáticos sin sentido | Baja (datos, no código) | §5 |
+| **D15** | ~~El olvido (LTD) se cuenta por llamada a `consolidar`, no por tiempo transcurrido~~ → **CORREGIDO** (§7.1): el olvido se escala por el tiempo real desde el ciclo anterior | Alta → resuelto | `consolidation.py` `fraccion_de_noche` |
+| D16 | Falso positivo real: «receta de arepas» devuelve 3 nodos de *10596 Recetas.exe* con «confianza media» (0.53). **No se arregla encendiendo la calibración**: también se abstiene en aciertos (§7.4). Requiere recalibrar con positivos | Media (consecuencia de D2) — **decisión de Dennys** | §5, §7.4 |
+| D17 | ~~Formato de `dimensiones` incoherente~~ → **CORREGIDO** (§7.3): el ejemplo del aviso de `recordar` no era JSON y el propio `recordar` lo rechazaba | Baja → resuelto | `core/mcp_server/search.py` |
+| D19 | ~~No determinismo del ranking~~ → **CORREGIDO** (§7.2). Causa: `[:5]` sobre un `set` de sinónimos WordNet, cuyo orden depende de `PYTHONHASHSEED` | Media → resuelto | `search.py` Capa 4; `fallback_simbolico.py` |
+| D20 | ~~Test de temporizador inestable~~ → **CORREGIDO** (§7.3): el test verifica el reinicio sin depender del reloj | Baja → resuelto | `tests/test_idle_lease_release_f2.py` |
+| D21 | ~~`biorag update` ocultaba el motivo accionable~~ → **CORREGIDO** (§7.3): «rama sin upstream», «HEAD separado», etc. salían como «contact support» | Baja → resuelto | `core/updater.py` |
+| D18 | Higiene de datos: hay mensajes de la cartelera guardados como nodos con nombres automáticos sin sentido | Baja (datos, no código) — **no se toca la DB viva sin permiso** | §5 |
 
 ---
 
@@ -305,9 +306,95 @@ Aparecen como ruido en las búsquedas sobre el contador PPMI y la ingeniería so
 
 Aparece **con el código original y con el arreglado**: original 3/3 con la primera variante en una máquina libre, y la segunda variante bajo carga y en la primera llamada en frío. El campo `total` también varía entre ejecuciones del mismo código (186 frente a 152). Sospecha: algún componente con presupuesto de tiempo o carga perezosa (por ejemplo `BIORAG_NEURONA_PRESUPUESTO_S=3`, o índices que todavía no terminaron de cargar). Choca con la NORMA de determinismo de `AGENTS.md`, así que **merece una investigación propia**.
 
+> **Actualización:** la sospecha del presupuesto de tiempo era falsa. La causa real se detalla en §7.2 y ya está corregida.
+
 **D20 — Test inestable.** `test_idle_lease_release_f2.py::test_idle_timer_reset_on_each_access` usa `sleep(0.5)`/`sleep(0.6)` contra un temporizador de 2 s.
 - Falla 3/3 al correr su archivo solo, igual con el código original.
 - Pasó en las suites completas anteriores.
 - En otra ejecución bajo carga falló su vecino `test_reopen_during_maintenance_raises_biorag_busy`.
 
 Depende del tiempo de la máquina, no del código de búsqueda.
+
+---
+
+## 7. Correcciones aplicadas — D15, D19, D17, D20 y D21 (2026-11-25)
+
+### 7.1 D15: olvido proporcional al tiempo real
+**Problema.** `ciclo_sueno_consolidacion` resta una «noche» entera de olvido (LTD de nodos y decaimiento ×0.95 de las sinapsis) **cada vez que se llama**.
+- En la DB viva hubo 753 ciclos en 5 meses (4.8 al día), con una mediana de **23 minutos** entre ciclos y 37 intervalos de menos de 1 minuto.
+- Cada sesión de trabajo «envejecía» la memoria varios días.
+
+**Cambio.**
+- `fraccion_de_noche()` lee la hora del ciclo anterior (`MAX(metricas_cognitivas.timestamp)`) y devuelve `min(1, Δt / 24 h)`.
+- El LTD y el decaimiento sináptico se multiplican por esa fracción. Para las sinapsis se usa `0.95 ** fracción`, que encadenado da lo mismo que una noche.
+- Con fracción parcial se guarda con 4 decimales (6 en las sinapsis). Si no, `round(0.20 − 0.004, 2)` volvería a 0.20 y el olvido de los ciclos cortos se perdería en el redondeo.
+
+**Garantías.**
+- Con 24 h o más desde el ciclo anterior (o una DB sin historial) el resultado es **idéntico** al anterior.
+- `BIORAG_LTD_POR_TIEMPO=0` restaura el comportamiento viejo.
+- `BIORAG_LTD_NOCHE_HORAS` ajusta la duración de la «noche».
+
+**Simulación** sobre una copia de la DB viva, con un reloj simulado: 5 ciclos cada 23 minutos y uno tras 24 h.
+
+| Ciclo | Antes (activos / dormidos) | Ahora (activos / dormidos) |
+|---|---|---|
+| inicio | 1380 / 1 | 1380 / 1 |
+| 1 (+23 min) | 1355 / 30 | 1384 / 1 |
+| 2 (+23 min) | 748 / 637 | 1384 / 1 |
+| 5 (+23 min) | 470 / 915 | 1384 / 1 |
+| 6 (+24 h) | 455 / 930 | 1353 / 32 |
+
+Antes, una tarde de trabajo dormía dos tercios de la memoria. Ahora un día real duerme 31 nodos, igual que una noche del diseño original (30).
+
+### 7.2 D19: causa real del no determinismo
+- `core/memory/search.py`, Capa 4: `palabras_sin.extend([w for w in expandir_query_wordnet(...) if len(w) >= 3][:5])`.
+- `expandir_query_wordnet` devuelve un `set`, y el orden de un set de strings depende de `PYTHONHASHSEED`, que es aleatorio en cada proceso.
+- Los «5 primeros sinónimos» cambiaban entre procesos:
+  - semilla 4: `edition`, `verdadero`, `existent`…
+  - semilla 5: `verdadero`, `edition`, `variant`…
+- Eso cambiaba el pool (195 frente a 179 candidatos). Con el pool cambiaba `_afinidad_temporal_pool` (`episodio_score` de `v26_4` pasaba de 0 a 1) y, al final, el orden.
+- Ni la carga de la máquina ni el presupuesto de la neurona tenían que ver.
+
+**Cambio.**
+- `expandir_palabra_wordnet_ordenada` y `expandir_query_wordnet_ordenada` (`core/fallback_simbolico.py`) siguen un orden de relevancia estable:
+  - tokens en el orden de la consulta;
+  - synsets en el orden de WordNet (sentido más frecuente primero);
+  - lemas en español antes que en inglés.
+- El conjunto de sinónimos no cambia, solo su orden.
+- Las funciones antiguas basadas en `set` siguen disponibles para el resto de llamadores, que no recortan.
+
+**Verificación.**
+- Semillas 0-13: salida idéntica en las 14 (antes había 2 variantes).
+- QA oficial con las semillas 4 y 5, antes y después del arreglo: ver §7.5.
+
+### 7.3 D17, D20 y D21
+- **D17.** El aviso `dimensiones=None` de `recordar` sugería `dimensiones='intencion_aprender'`, que no es JSON, y el propio `recordar` lo rechazaba. Ahora sugiere `'{"intencion": ["intencion_aprender"]}'`. El test pasa los ejemplos del aviso por el validador real.
+- **D20.** La causa era que `get_cerebro` arma el temporizador **antes** del arranque en frío del singleton. Con la máquina cargada el arranque superaba los 2 s del test y el temporizador vencía. El test ahora verifica el reinicio sin depender del reloj:
+  - el temporizador viejo queda cancelado;
+  - el nuevo está vivo y no ha disparado.
+- **D21.** Con `biorag update --dry-run` aparecía «could not safely start the update… contact support». La causa real era `UPSTREAM_REQUIRED`: la rama de trabajo no tiene upstream, algo normal en este sandbox. Ese motivo, y otros 8 accionables del preflight, ahora se muestran. Los errores desconocidos siguen con el mensaje genérico y sin filtrar detalles internos.
+
+### 7.4 D16: por qué no se arregla con un interruptor
+Prueba en una copia de la DB viva con la calibración guardada (umbral 0.53, 50 negativos, **0 positivos**, agosto de 2026):
+
+| Consulta | Calibración OFF (hoy) | Calibración ON |
+|---|---|---|
+| receta de arepas | 3 falsos positivos | se abstiene ✔ |
+| pizza napolitana con masa madre | 3 falsos positivos | se abstiene ✔ |
+| version actual de biorag | acierto | acierto |
+| neurona de ranking campeon | acierto | acierto |
+| principio de caducidad temporal | **acierto exacto (top-1)** | **se abstiene ✘** |
+| que piensa dennys de la memoria | resultados relevantes | **se abstiene ✘** |
+
+Encenderla cambia falsos positivos por falsos negativos. El arreglo correcto es recalibrar con positivos reales, por ejemplo con `log_busquedas` marcado como útil. Queda como decisión de Dennys.
+
+### 7.5 Verificación conjunta
+| Prueba | Resultado |
+|---|---|
+| QA oficial (`casos_qa_baseline_v1`, snapshot `qa_escape_qcr_20260811`): semillas 4 y 5, antes y después | **4 de 4 ejecuciones idénticas, categoría por categoría.** R@5 100%, R@1 93.03%, MRR 0.957, FP 0/40 y gate OK. La QA no cubría la consulta afectada por D19, así que el arreglo no mueve ninguna métrica |
+| Determinismo: «version actual biorag», semillas 0-13 | 14/14 idénticas (antes, 2 variantes) |
+| A/B del MCP real (12 consultas, copias idénticas de la DB viva, `PYTHONHASHSEED=0`) | 12/12 con orden y scores idénticos. Única diferencia: el texto corregido del aviso D17 |
+| Tests nuevos: `test_ltd_por_tiempo_y_sinonimos_estables.py` (7), `test_updater_motivo_accionable.py` (6) y el test del aviso en `test_recordar_fecha_y_caducidad.py` | Todos pasan con el arreglo y **fallan con el código anterior**. Por ejemplo, con el código anterior un `consolidar` lanzado un minuto después del anterior le quitaba 0.13 de peso a un nodo; ahora le quita menos de 0.005 |
+| Tests existentes ajustados | `test_memory.py`: dos tests de LTD lanzaban `consolidar` seguidos esperando una noche de olvido; ahora simulan la noche (`metricas_cognitivas.timestamp − 24 h`). `test_idle_lease_release_f2.py`: D20 |
+
+**Lección registrada.** Una primera versión del ejemplo D17 llevaba llaves y rompió 6 tests. Los clientes extraen el JSON de la respuesta de `recordar` desde la primera `{`, así que **los avisos que van delante del JSON no pueden contener llaves**. El test del aviso lo comprueba ahora.
