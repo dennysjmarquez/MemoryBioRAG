@@ -12,6 +12,12 @@
 - No sobrescribe contenido, asociaciones, vectores ni pesos; claims, revisión, arista tipada y recibo comparten transacción. Digest controla cambios, no autentica identidades.
 - Guía de configuración y límites en `docs/CORE_V36_2.md`. La validación integrada se documenta por separado del laboratorio. No se declara release estable ni ejecución sobre DB viva.
 
+### Update Hardening (F0–F3)
+- **Lock de actualización por SO (F0):** `update_lock()` usa `fcntl.flock` / `_windows_lock` preservando el inodo (sin archivos huérfanos tras `kill -9`).
+- **Esquema y respaldo verificable (F1):** `PRAGMA user_version` (`CURRENT_SCHEMA_VERSION = 1`), rechazo explícito `SCHEMA_NEWER_THAN_CODE` para bases más nuevas y restauración automática en `core/migrate.py` ante fallo.
+- **Concurrencia MCP cooperativa (F2):** liberación de conexión/lease en reposo (`BIORAG_IDLE_TIMEOUT_SECONDS`), protección de peticiones activas (`active_request()`), compuerta `.maintenance.pending` por lock de SO, `--wait N`, `CallToolResult(..., isError=True)` con reintento legible para herramientas con `outputSchema` (`mcp==1.30.0`), y `pip install` silencioso salvo error o `--verbose` sin ensuciar el checkout (`memory_biorag.egg-info/` desversionado, `build/` y `*.egg-info/` ignorados).
+- **Diagnóstico de bloqueos (F3):** registro `<db>.leases/<pid>.json` con lock de SO (sin argumentos completos de `sys.argv`), guarda `RLock` + `gc.disable()/enable()`, y fallback a `core/process_inspection.py` para procesos legacy sin `.leases/` con acción sugerida en `biorag update`. Verificado en Linux (`[NO VERIFICADO EN WINDOWS NATIVO]`); detalle en `docs/update_hardening/PLAN.md`.
+
 ## [v36.1] — Empaquetado e instalación multiplataforma (candidato)
 
 - El wheel incluye los paquetes `core`, `config` y `middleware`, necesarios en tiempo de ejecución; se modernizan los metadatos de licencia de `pyproject.toml` y se limita Python a 3.11/3.12, las versiones declaradas y seleccionadas para la matriz de CI.
