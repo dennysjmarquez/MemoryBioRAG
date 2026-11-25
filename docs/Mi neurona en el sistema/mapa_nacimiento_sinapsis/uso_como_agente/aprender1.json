@@ -1,0 +1,9 @@
+{"concepto":"mapa_nacimiento_sinapsis_verificado_20261125",
+ "contenido":"Prueba de agente sobre copia: mapa verificado del nacimiento de sinapsis. Lo podado por la hormiguita renace porque auto_vincular no consulta sinapsis_cuarentena; el vínculo manual sobre un par automático queda a medias; procesos automáticos suben el peso de enlaces manuales; lo que nunca se usó no decae porque nace con ultimo_uso NULL. La hormiguita podaba sinapsis espurias con Gemini.",
+ "syn":"renacimiento de enlaces,zombie links,poda que no persiste,memoria de rechazo,quarantine rebirth,proteccion manual asimetrica,olvido por desuso,synapse lifecycle,mantenimiento del grafo,auditoria sinaptica",
+ "cat":"Lesson",
+ "dimensiones":"{\"entidad\":[\"identidad_artificial\"],\"accion\":[\"accion_evaluar\",\"accion_persistencia_computacion\"],\"intencion\":[\"intencion_documentar\"],\"dominio\":[\"dominio_tecnico\"],\"epistemia\":[\"verificada\"],\"escala_abstraccion\":[\"patron\"],\"cualia\":[\"agentiva_origen\"]}",
+ "bridges":[{"text":"conexiones borradas que vuelven a aparecer","angle":"sinonimo"},{"text":"la poda del grafo no dura y el ruido regresa","angle":"problema"},{"text":"consultar la cuarentena antes de crear enlaces","angle":"solucion"},{"text":"auditor revisando el ciclo de vida de sinapsis","angle":"situacion"},{"text":"por que vuelven los enlaces que borre","angle":"ingenuo"}],
+ "sustantivos_clave":"sinapsis,cuarentena,poda,renacimiento",
+ "busqueda_previa":true,
+ "vincular_con":"hormiguita_v25_sistema_mantenimiento_seguro_athena_biorag,hormiguita_estado_real_50_ciclos_benchmark_2026_07_31"}
