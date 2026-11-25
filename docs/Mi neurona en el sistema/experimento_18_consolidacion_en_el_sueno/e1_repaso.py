@@ -4,7 +4,8 @@ Uso (lo llama e1_medir.py en un proceso aparte, con el entorno de la copia limpi
     python e1_repaso.py <base_original> <eventos.json> <salida.json>
 
 - Copia la base con la API de backup de SQLite (la original solo se lee).
-- En la copia vacía `sinapsis` y `sinapsis_latentes`.
+- En la copia vacía `sinapsis` y `sinapsis_latentes`, vacía `largo_plazo.asociaciones` y quita las dimensiones
+  `auto_generada = 1` (enmienda A4).
 - profundidad="profundo" por defecto (enmienda A1 del v3: el sueño repasa también las dormidas).
 - Corre 3 sueños × (pista de contenido + pista de sustantivos clave) por recuerdo, con
   buscar_por_frase(..., usar_inferencia=False, context_window=0, ignore_peso_sinaptico=True).
@@ -109,6 +110,10 @@ def main(original, eventos_json, salida_json, profundidad="profundo"):
     src.close()
     dst.execute("DELETE FROM sinapsis")
     dst.execute("DELETE FROM sinapsis_latentes")
+    # A4: otras dos huellas del grafo que la búsqueda lee
+    dst.execute("UPDATE largo_plazo SET asociaciones = ''")
+    dst.execute("DELETE FROM largo_plazo_dimensiones WHERE dimension_id IN "
+                "(SELECT id FROM dimensiones_semanticas WHERE auto_generada = 1)")
     dst.commit()
     dst.close()
 
@@ -128,9 +133,14 @@ def main(original, eventos_json, salida_json, profundidad="profundo"):
                                                       ignore_peso_sinaptico=True)
                 registros.append({"x": x, "s": s, "tipo": tipo, "pista": p, "top": [r[0] for r in (res or [])][:6]})
     n_fin = cerebro.cursor.execute("SELECT COUNT(*) FROM sinapsis").fetchone()[0]
+    n_asoc = cerebro.cursor.execute("SELECT COUNT(*) FROM largo_plazo WHERE asociaciones <> ''").fetchone()[0]
+    n_emerg = cerebro.cursor.execute(
+        "SELECT COUNT(*) FROM largo_plazo_dimensiones WHERE dimension_id IN "
+        "(SELECT id FROM dimensiones_semanticas WHERE auto_generada = 1)").fetchone()[0]
     with contextlib.redirect_stdout(io.StringIO()):
         cerebro.cerrar_sistema()
     json.dump({"registros": registros, "sinapsis_vista_inicio": n_ini, "sinapsis_vista_fin": n_fin,
+               "asociaciones_vista_fin": n_asoc, "emergentes_vista_fin": n_emerg,
                "sha_original_antes": sha_antes, "sha_original_despues": sha(original)},
               open(salida_json, "w"), ensure_ascii=False)
 

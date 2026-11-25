@@ -17,6 +17,20 @@
   «General» es la categoría neutra. No cambia lo que se mide.
 - **A3 — Se verificó que `ignore_peso_sinaptico` existe** en la firma de `buscar_por_frase` (L58; se usa en L2277 y
   L2792). No hace falta enmienda.
+- **A4 — Dos vías de bucle que la copia limpia no tapaba (auditoría posterior a E1, 25-11; fijada antes de volver a
+  medir).**
+  - `largo_plazo.asociaciones` es una copia en CSV de los vecinos sinápticos (`sinapsis.py` L524–535). La búsqueda
+    la convierte en `asoc_count` (`search.py` L2282) y suma `0.02·min(1, asoc_count/20)` (`scoring.py` L342).
+  - Las dimensiones con `auto_generada = 1` nacen de comunidades del grafo de sinapsis (`auto_clustering.py`,
+    llamado en `consolidation.py` L610). Se guardan en el eje `dominio`, el mismo del agente.
+  - Prueba: inyectar una dimensión emergente falsa en 8 recuerdos cambió 6 de los 276 pares en es y 5 en en.
+  - **Cambio:** la copia limpia también vacía `asociaciones` y quita de `largo_plazo_dimensiones` las dimensiones
+    `auto_generada = 1`.
+  - **Criterio nuevo C1.2c:** sobre una copia de D se inyecta una dimensión emergente falsa en un recuerdo de cada
+    tema y un CSV `asociaciones` falso (20 vecinos al azar por recuerdo). R y U deben ser **idénticos 276/276**
+    frente a D, en los 4 idiomas.
+  - Los resultados van a `resultados/e1_a4.json`; `resultados/e1.json` queda como histórico. El veredicto de E1 no
+    cambia (C1.1 ya había fallado); A4 solo cierra las vías.
 - **Diagnósticos añadidos (informativos, sin umbral):** D construida dos veces (ruido de la propia construcción),
   invariancia con `activos` y número de dormidas en D y en DI. Sirven para leer C1.1 si falla.
 

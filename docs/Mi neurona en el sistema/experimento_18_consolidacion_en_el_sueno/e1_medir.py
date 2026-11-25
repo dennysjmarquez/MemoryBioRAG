@@ -105,6 +105,17 @@ def hijo_construir(lg, variante, ruta):
         for a, b in r.sample(pares, N_ALTERADAS):
             con.execute("INSERT OR REPLACE INTO sinapsis (origen, destino, peso, tipo, creado_en) "
                         "VALUES (?, ?, 1.0, 'co_ocurrencia', ?)", (nombres[a], nombres[b], time.time()))
+    elif variante == "emergente":  # A4 / C1.2c
+        nombres = [e["concepto"].lower() for e in mundo["D"]]
+        con.execute("INSERT INTO dimensiones_semanticas (name, description, tipo_id, auto_generada, confianza, "
+                    "generado_en) VALUES ('emergente_falsa_c12c', 'prueba C1.2c', 7, 1, 0.9, ?)", (time.time(),))
+        did = con.execute("SELECT id FROM dimensiones_semanticas WHERE name='emergente_falsa_c12c'").fetchone()[0]
+        for t in range(8):
+            con.execute("INSERT OR IGNORE INTO largo_plazo_dimensiones (concepto, dimension_id) VALUES (?, ?)",
+                        (nombres[t * 3 + 1], did))
+        for n in nombres:
+            otros = r.sample([x for x in nombres if x != n], 20)
+            con.execute("UPDATE largo_plazo SET asociaciones = ? WHERE concepto = ?", (",".join(otros), n))
     con.commit()
     con.close()
     if variante in ("falsas", "sueno"):
@@ -178,10 +189,11 @@ def un_idioma(lg, mundo):
     os.makedirs(d, exist_ok=True)
     json.dump(mundo, open(os.path.join(d, "mundo.json"), "w"), ensure_ascii=False)
     json.dump(mundo["D"], open(os.path.join(d, "eventos_D.json"), "w"), ensure_ascii=False)
-    ruta = {k: os.path.join(d, k + ".db") for k in ("D", "D2", "DI", "x3", "falsas", "sueno", "antes", "despues")}
+    ruta = {k: os.path.join(d, k + ".db") for k in ("D", "D2", "DI", "x3", "falsas", "sueno", "emergente",
+                                                     "antes", "despues")}
     for v, r in (("D", ruta["D"]), ("D", ruta["D2"]), ("DI", ruta["DI"])):
         _run(["e1_medir.py", "construir", lg, v, r], BASE_ENV)
-    for v in ("x3", "falsas", "sueno"):
+    for v in ("x3", "falsas", "sueno", "emergente"):
         _copiar(ruta["D"], ruta[v])
         _run(["e1_medir.py", "construir", lg, v, ruta[v]], BASE_ENV)
     n_sin = {k: sqlite3.connect(ruta[k]).execute("SELECT COUNT(*) FROM sinapsis").fetchone()[0]
@@ -191,7 +203,7 @@ def un_idioma(lg, mundo):
     _copiar(ruta["D"], ruta["antes"])
     reps = {}
     for nombre, base in (("D_1", "D"), ("D_2", "D"), ("D2", "D2"), ("DI", "DI"), ("x3", "x3"),
-                         ("falsas", "falsas"), ("sueno", "sueno")):
+                         ("falsas", "falsas"), ("sueno", "sueno"), ("emergente", "emergente")):
         sal = os.path.join(d, "rep_%s.json" % nombre)
         _run(["e1_repaso.py", ruta[base], os.path.join(d, "eventos_D.json"), sal], ENV_LIMPIO)
         reps[nombre] = json.load(open(sal))
@@ -242,6 +254,9 @@ def un_idioma(lg, mundo):
         "C1.1_identicos_D_vs_DI": identicos(par_ru("D_1"), par_ru("DI")),
         "C1.2_identicos_x3": identicos(par_ru("D_1"), par_ru("x3")),
         "C1.2b_identicos_falsas_vs_sueno": identicos(par_ru("falsas"), par_ru("sueno")),
+        "C1.2c_identicos_emergente_y_asociaciones_falsas": identicos(par_ru("D_1"), par_ru("emergente")),
+        "A4_copia_limpia_asociaciones_y_emergentes_al_terminar": max(
+            r.get("asociaciones_vista_fin", 0) + r.get("emergentes_vista_fin", 0) for r in reps.values()),
         "C1.3_reproducible": reps["D_1"]["registros"] == reps["D_2"]["registros"],
         "C1.4_sha_igual": all(r["sha_original_antes"] == r["sha_original_despues"] for r in reps.values()),
         "C1.4_busquedas_normales_iguales": normales["antes"] == normales["despues"],
@@ -282,6 +297,8 @@ def criterios(por):
         "C1.1_invariancia_>=98%_cada_idioma": all(v["C1.1_identicos_D_vs_DI"] >= 0.98 * n for v in por.values()),
         "C1.2_x3_276/276": all(v["C1.2_identicos_x3"] == n for v in por.values()),
         "C1.2b_falsas_y_sueno_>=98%": all(v["C1.2b_identicos_falsas_vs_sueno"] >= 0.98 * n for v in por.values()),
+        "C1.2c_emergente_y_asociaciones_276/276": all(
+            v["C1.2c_identicos_emergente_y_asociaciones_falsas"] == n for v in por.values()),
         "C1.3_reproducible": all(v["C1.3_reproducible"] for v in por.values()),
         "C1.4_regresion": all(v["C1.4_sha_igual"] and v["C1.4_busquedas_normales_iguales"] for v in por.values()),
         "C1.5_0_sinapsis_en_copia": all(v["C1.5_sinapsis_en_copia_al_terminar"] == 0 for v in por.values()),
@@ -300,10 +317,10 @@ def main():
     with ThreadPoolExecutor(max_workers=2) as ex:
         res = dict(zip(e1_mundo.IDIOMAS, ex.map(lambda lg: un_idioma(lg, mundos[lg]), e1_mundo.IDIOMAS)))
     crit = criterios(res)
-    out = {"protocolo": "PROTOCOLO_V3.md §3", "por_idioma": res, "criterios": crit,
+    out = {"protocolo": "PROTOCOLO_V3.md §3 + enmienda A4", "por_idioma": res, "criterios": crit,
            "E1_pasa": all(crit.values()), "segundos": round(time.time() - t0, 1)}
     os.makedirs(os.path.join(AQUI, "resultados"), exist_ok=True)
-    json.dump(out, open(os.path.join(AQUI, "resultados", "e1.json"), "w"), ensure_ascii=False, indent=1)
+    json.dump(out, open(os.path.join(AQUI, "resultados", "e1_a4.json"), "w"), ensure_ascii=False, indent=1)
     print(json.dumps(out, ensure_ascii=False, indent=1))
 
 
