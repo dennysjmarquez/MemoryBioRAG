@@ -1,0 +1,37 @@
+{
+ "M1_grafo": {
+  "sinapsis_automaticas": 11371,
+  "grado_max": 241,
+  "nodos_mas_de_100_vecinos": 19,
+  "suma_pesos_auto_por_nodo": {
+   "p50": 13.22,
+   "p90": 40.71,
+   "max": 155.9
+  }
+ },
+ "M2_islas": {
+  "con_filtro_del_motor": 0,
+  "crudas_5_o_mas": 2,
+  "mayor_cruda": 492,
+  "segundos": 0.2
+ },
+ "M3_examen_tapado_por_peso": {
+  "manuales_posibles": 694,
+  "aciertos": 87,
+  "pct": 12.5
+ },
+ "M4_canal2": {
+  "lugares": 3151,
+  "recuerdos_sin_asociaciones": 10,
+  "fuerza_mediana_auto": 0.466,
+  "auto_fuerza_ge_060": 0.226
+ },
+ "M5_invariantes": {
+  "recuerdos_activos": 851,
+  "recuerdos_total": 866,
+  "enlaces_manuales": 588,
+  "suma_pesos_manuales": 298.334,
+  "recuerdos_con_menos_de_5_vecinos": 75,
+  "recuerdos_sin_vecinos": 12
+ }
+}
