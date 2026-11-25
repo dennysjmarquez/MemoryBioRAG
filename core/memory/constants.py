@@ -361,3 +361,7 @@ def normalizar_sustantivos_clave_exactos_coherentes(exactos: str | None, plegado
 # Solo el agente puede quitarlos, a propósito, con la herramienta desvincular.
 TIPOS_SINAPSIS_AGENTE = ("manual", "manual_v7")
 SQL_NO_ES_DEL_AGENTE = "tipo NOT IN ('manual', 'manual_v7')"
+# Para `INSERT ... ON CONFLICT DO UPDATE ... WHERE`: las reglas automáticas que refuerzan un par
+# existente no pueden cambiar peso, tipo ni ultimo_uso de un enlace del agente (auditoría 25-11,
+# docs/ALGORITMO_NACIMIENTO_SINAPSIS.md §4, P6).
+SQL_UPSERT_NO_ES_DEL_AGENTE = "sinapsis." + SQL_NO_ES_DEL_AGENTE

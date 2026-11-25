@@ -2,6 +2,7 @@ import re
 import time
 import sqlite3
 from core.stopwords import STOPWORDS
+from core.memory.constants import SQL_UPSERT_NO_ES_DEL_AGENTE
 
 TOKENS_TECNICOS_CORTOS = {'dsl', 'api', 'mcp', 'rag', 'cpu', 'ram', 'gpu', 'cli', 'db', 'ui', 'ux', 'os', 'ai', 'vm'}
 
@@ -179,7 +180,8 @@ def auto_vincular(cerebro, concepto, contenido, umbral=0.4):
                 "ON CONFLICT(origen, destino) DO UPDATE SET "
                 "peso = MAX(sinapsis.peso, excluded.peso), "
                 "tipo = CASE WHEN sinapsis.tipo IN ('manual', 'manual_v7', 'sinonimo_explicito', 'test') THEN sinapsis.tipo ELSE excluded.tipo END, "
-                "ultimo_uso = COALESCE(sinapsis.ultimo_uso, excluded.creado_en)",
+                "ultimo_uso = COALESCE(sinapsis.ultimo_uso, excluded.creado_en) "
+                "WHERE " + SQL_UPSERT_NO_ES_DEL_AGENTE,
                 (concepto, conc_exist, peso, time.time())
             )
             if es_nueva:
@@ -231,7 +233,8 @@ def auto_vincular(cerebro, concepto, contenido, umbral=0.4):
                         "ON CONFLICT(origen, destino) DO UPDATE SET "
                         "peso = MAX(sinapsis.peso, excluded.peso), "
                         "tipo = CASE WHEN sinapsis.tipo IN ('manual', 'manual_v7', 'sinonimo_explicito', 'test') THEN sinapsis.tipo ELSE excluded.tipo END, "
-                        "ultimo_uso = COALESCE(sinapsis.ultimo_uso, excluded.creado_en)",
+                        "ultimo_uso = COALESCE(sinapsis.ultimo_uso, excluded.creado_en) "
+                        "WHERE " + SQL_UPSERT_NO_ES_DEL_AGENTE,
                         (concepto, conc_exist, peso_link, time.time())
                     )
                     if es_nueva:
@@ -292,7 +295,8 @@ def auto_vincular(cerebro, concepto, contenido, umbral=0.4):
                                 "ON CONFLICT(origen, destino) DO UPDATE SET "
                                 "peso = MAX(sinapsis.peso, excluded.peso), "
                                 "tipo = CASE WHEN sinapsis.tipo IN ('manual', 'manual_v7', 'sinonimo_explicito', 'test') THEN sinapsis.tipo ELSE excluded.tipo END, "
-                                "ultimo_uso = COALESCE(sinapsis.ultimo_uso, excluded.creado_en)",
+                                "ultimo_uso = COALESCE(sinapsis.ultimo_uso, excluded.creado_en) "
+                                "WHERE " + SQL_UPSERT_NO_ES_DEL_AGENTE,
                                 (concepto, conc_exist, peso_link, time.time())
                             )
                             if es_nueva:
@@ -356,7 +360,8 @@ def auto_vincular(cerebro, concepto, contenido, umbral=0.4):
                                 "ON CONFLICT(origen, destino) DO UPDATE SET "
                                 "peso = MAX(sinapsis.peso, excluded.peso), "
                                 "tipo = CASE WHEN sinapsis.tipo IN ('manual', 'manual_v7', 'sinonimo_explicito', 'test') THEN sinapsis.tipo ELSE excluded.tipo END, "
-                                "ultimo_uso = COALESCE(sinapsis.ultimo_uso, excluded.creado_en)",
+                                "ultimo_uso = COALESCE(sinapsis.ultimo_uso, excluded.creado_en) "
+                                "WHERE " + SQL_UPSERT_NO_ES_DEL_AGENTE,
                                 (concepto, conc_exist, peso_link, time.time())
                             )
                             if es_nueva:
@@ -465,7 +470,8 @@ def vincular_por_sinonimos(cerebro, concepto, sinonimos, peso=0.9):
                 "ON CONFLICT(origen, destino) DO UPDATE SET "
                 "peso = MAX(sinapsis.peso, excluded.peso), "
                 "tipo = CASE WHEN sinapsis.tipo IN ('manual', 'manual_v7', 'sinonimo_explicito', 'test') THEN sinapsis.tipo ELSE excluded.tipo END, "
-                "ultimo_uso = COALESCE(sinapsis.ultimo_uso, excluded.creado_en)",
+                "ultimo_uso = COALESCE(sinapsis.ultimo_uso, excluded.creado_en) "
+                "WHERE " + SQL_UPSERT_NO_ES_DEL_AGENTE,
                 (concepto, conc_exist, peso, time.time())
             )
             if es_nueva:

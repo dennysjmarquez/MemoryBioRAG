@@ -340,7 +340,8 @@ def buscar_por_rafaga(self, query, rafaga_palabras, pagina=1, limite=None, dimen
                         nuevo_peso = min(0.95, existente[0] + 0.1)
                         self.cursor.execute(
                             "UPDATE sinapsis SET peso = ?, ultimo_uso = ? "
-                            "WHERE (origen = ? AND destino = ?) OR (origen = ? AND destino = ?)",
+                            "WHERE ((origen = ? AND destino = ?) OR (origen = ? AND destino = ?)) "
+                            "AND " + constants.SQL_NO_ES_DEL_AGENTE,
                             (nuevo_peso, time.time(), qt, concepto, concepto, qt)
                         )
     

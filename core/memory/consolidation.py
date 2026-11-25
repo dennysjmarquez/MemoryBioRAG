@@ -125,7 +125,8 @@ def _auto_generar_co_ocurrencia(self, recuerdos_sesion):
                     "INSERT INTO sinapsis (origen, destino, peso, tipo, creado_en) "
                     "VALUES (?, ?, ?, 'co_ocurrencia', ?) "
                     "ON CONFLICT(origen, destino) DO UPDATE SET "
-                    "peso = MIN(0.9, peso + 0.1), ultimo_uso = ?",
+                    "peso = MIN(0.9, peso + 0.1), ultimo_uso = ? "
+                    "WHERE " + constants.SQL_UPSERT_NO_ES_DEL_AGENTE,
                     (c1, c2, peso, time.time(), time.time())
                 )
                 if es_nueva:
@@ -182,7 +183,8 @@ def _auto_generar_co_ocurrencia(self, recuerdos_sesion):
                         "INSERT INTO sinapsis (origen, destino, peso, tipo, creado_en) "
                         "VALUES (?, ?, 0.4, 'co_ocurrencia', ?) "
                         "ON CONFLICT(origen, destino) DO UPDATE SET "
-                        "peso = MIN(0.9, peso + 0.05), ultimo_uso = ?",
+                        "peso = MIN(0.9, peso + 0.05), ultimo_uso = ? "
+                        "WHERE " + constants.SQL_UPSERT_NO_ES_DEL_AGENTE,
                         (c1, c2, time.time(), time.time())
                     )
                     if es_nueva:
