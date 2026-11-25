@@ -1,0 +1,92 @@
+Al abrir el cerebro (DMN del __init__): 0 sinapsis
+
+[sesión 1] aprender 'receta_salsa_tomate'
+ auto_vincular (el recuerdo está en corto_plazo; compara contra largo_plazo):
+  (nada)
+ vincular_por_sinonimos:
+  (nada)
+
+[sesión 1] aprender 'semaforo_rojo_transito'
+ auto_vincular (el recuerdo está en corto_plazo; compara contra largo_plazo):
+  (nada)
+ vincular_por_sinonimos:
+  (nada)
+
+[sesión 1] aprender 'receta_pasta_tomate'
+ auto_vincular (el recuerdo está en corto_plazo; compara contra largo_plazo):
+  (nada)
+ vincular_por_sinonimos:
+  (nada)
+
+[sesión 1] aprender 'configuracion_servidor_sistema'
+ auto_vincular (el recuerdo está en corto_plazo; compara contra largo_plazo):
+  (nada)
+ vincular_por_sinonimos:
+  (nada)
+
+[sesión 1] consolidar (sueño):
+  + configuracion_servidor_sistema -> receta_pasta_tomate  dmn_synthesized peso=0.30
+  + configuracion_servidor_sistema -> receta_salsa_tomate  dmn_synthesized peso=0.30
+  + configuracion_servidor_sistema -> semaforo_rojo_transito  dmn_synthesized peso=0.30
+  + receta_pasta_tomate -> receta_salsa_tomate  co_nombre peso=0.77
+  + receta_pasta_tomate -> semaforo_rojo_transito  dmn_synthesized peso=0.30
+  + receta_salsa_tomate -> receta_pasta_tomate  co_nombre peso=0.87  (ultimo_uso)
+  + receta_salsa_tomate -> semaforo_rojo_transito  dmn_synthesized peso=0.30
+ estado: {'activo': 4}
+
+[sesión 2] aprender 'sangre_donacion'
+ auto_vincular (el recuerdo está en corto_plazo; compara contra largo_plazo):
+  (nada)
+ vincular_por_sinonimos:
+  + sangre_donacion -> receta_salsa_tomate  sinonimo_explicito peso=0.90
+  + sangre_donacion -> semaforo_rojo_transito  sinonimo_explicito peso=0.90
+
+[sesión 2] aprender 'sistema_backup'
+ auto_vincular (el recuerdo está en corto_plazo; compara contra largo_plazo):
+  (nada)
+ vincular_por_sinonimos:
+  + sistema_backup -> configuracion_servidor_sistema  sinonimo_explicito peso=0.90
+
+[sesión 2] consolidar (sueño):
+  + configuracion_servidor_sistema -> sangre_donacion  dmn_synthesized peso=0.30
+  + receta_pasta_tomate -> sangre_donacion  dmn_synthesized peso=0.30
+  + receta_pasta_tomate -> sistema_backup  dmn_synthesized peso=0.30
+  + receta_salsa_tomate -> sistema_backup  dmn_synthesized peso=0.30
+  + sangre_donacion -> sistema_backup  dmn_synthesized peso=0.30
+  + semaforo_rojo_transito -> sistema_backup  dmn_synthesized peso=0.30
+ estado: {'activo': 6}
+
+[sesión 3] aprender 'receta_pizza_tomate'
+ auto_vincular (el recuerdo está en corto_plazo; compara contra largo_plazo):
+  + receta_pizza_tomate -> receta_pasta_tomate  co_ocurrencia peso=0.40
+  + receta_pizza_tomate -> receta_salsa_tomate  co_nombre peso=0.75
+ vincular_por_sinonimos:
+  ~ receta_pizza_tomate -> receta_pasta_tomate  co_ocurrencia 0.40 -> sinonimo_explicito 0.90  (ahora con ultimo_uso)
+  ~ receta_pizza_tomate -> receta_salsa_tomate  co_nombre 0.75 -> sinonimo_explicito 0.90  (ahora con ultimo_uso)
+[MemoryBioRAG] Sinapsis establecida: 'receta_tomate_frito' <--> 'receta_pizza_tomate'
+
+[sesión 3] aprender 'receta_tomate_frito'
+ auto_vincular (el recuerdo está en corto_plazo; compara contra largo_plazo):
+  + receta_tomate_frito -> receta_pasta_tomate  co_ocurrencia peso=0.40
+  + receta_tomate_frito -> receta_salsa_tomate  co_nombre peso=0.75
+ vincular_por_sinonimos:
+  ~ receta_tomate_frito -> receta_pasta_tomate  co_ocurrencia 0.40 -> sinonimo_explicito 0.90  (ahora con ultimo_uso)
+  ~ receta_tomate_frito -> receta_salsa_tomate  co_nombre 0.75 -> sinonimo_explicito 0.90  (ahora con ultimo_uso)
+ vincular_con (establecer_asociacion):
+  + receta_pizza_tomate -> receta_tomate_frito  manual peso=0.50
+  + receta_tomate_frito -> receta_pizza_tomate  manual peso=0.50
+
+[sesión 3] consolidar (sueño):
+  + configuracion_servidor_sistema -> receta_pizza_tomate  dmn_synthesized peso=0.30
+  + configuracion_servidor_sistema -> receta_tomate_frito  dmn_synthesized peso=0.30
+  ~ receta_pizza_tomate -> receta_tomate_frito  manual 0.50 -> manual 0.60  (ahora con ultimo_uso)
+  + receta_pizza_tomate -> sangre_donacion  dmn_synthesized peso=0.30
+  + receta_pizza_tomate -> semaforo_rojo_transito  dmn_synthesized peso=0.30
+  + receta_pizza_tomate -> sistema_backup  dmn_synthesized peso=0.30
+  ~ receta_tomate_frito -> receta_pizza_tomate  manual 0.50 -> manual 0.50  (ahora con ultimo_uso)
+  + receta_tomate_frito -> sangre_donacion  dmn_synthesized peso=0.30
+  + receta_tomate_frito -> semaforo_rojo_transito  dmn_synthesized peso=0.30
+  + receta_tomate_frito -> sistema_backup  dmn_synthesized peso=0.30
+ estado: {'activo': 8}
+
+Total por tipo: [('co_nombre', 2), ('dmn_synthesized', 19), ('manual', 2), ('sinonimo_explicito', 7)]
