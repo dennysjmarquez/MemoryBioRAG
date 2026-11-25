@@ -93,6 +93,9 @@ def test_sistema():
     print("\n--- 7. Probando LTD (Decaimiento) ---")
     # Forzar el decaimiento de 'empleo' bajándolo a 0.15 y corriendo consolidación sin usarlo
     cerebro.cursor.execute("UPDATE largo_plazo SET peso_sinaptico = 0.15 WHERE concepto = 'empleo'")
+    # D15: el olvido es proporcional al tiempo desde el ciclo anterior (hubo uno hace
+    # segundos). Simular que pasó una noche entera, que es lo que este test quiere medir.
+    cerebro.cursor.execute("UPDATE metricas_cognitivas SET timestamp = timestamp - 86400")
     cerebro.conn.commit()
     # Ejecutar consolidación (cero elementos en corto plazo, por lo que 'empleo' decae de 0.15 a 0.10 y se duerme)
     cerebro.ciclo_sueno_consolidacion()
@@ -661,7 +664,10 @@ def test_sistema():
     cerebro.percibir_corto_plazo("test_ltd_profile", "Perfil de prueba", "", "Profile")
     cerebro.percibir_corto_plazo("test_ltd_project", "Proyecto de prueba", "", "Project")
     cerebro.ciclo_sueno_consolidacion()
-    # Segundo ciclo: el decay diferenciado se aplica sobre pesos ya consolidados
+    # Segundo ciclo: el decay diferenciado se aplica sobre pesos ya consolidados.
+    # D15: el olvido es proporcional al tiempo; simular la noche entre ambos ciclos.
+    cerebro.cursor.execute("UPDATE metricas_cognitivas SET timestamp = timestamp - 86400")
+    cerebro.conn.commit()
     cerebro.ciclo_sueno_consolidacion()
     # Profile debe tener peso más alto que Project tras LTD (decay 0.05 vs 1.5)
     profile_peso = cerebro.cursor.execute(

@@ -56,6 +56,16 @@ JSD_ADAPT_LARGO = float(os.environ.get('BIORAG_JSD_ADAPT_LARGO', '2.5'))
 JSD_ADAPT_CORTO = float(os.environ.get('BIORAG_JSD_ADAPT_CORTO', '0.5'))
 JSD_ADAPT_NT = int(os.environ.get('BIORAG_JSD_ADAPT_NT', '4'))
 
+# D15: el olvido (LTD) del ciclo de sueño es proporcional al TIEMPO REAL transcurrido
+# desde el ciclo anterior, no al número de llamadas a consolidar. Una "noche" completa
+# (BIORAG_LTD_NOCHE_HORAS, 24 h) aplica el decaimiento entero de antes; 23 minutos
+# aplican 23/1440 de él. Sin ciclo previo registrado (DB nueva) = noche completa.
+# Antes: cada consolidar restaba una noche entera; con ~4.8 ciclos/día reales la memoria
+# dormía cientos de nodos por ciclo (hasta 900 en 3 llamadas seguidas en un minuto).
+# BIORAG_LTD_POR_TIEMPO=0 restaura el comportamiento anterior (una noche por llamada).
+LTD_POR_TIEMPO = os.environ.get('BIORAG_LTD_POR_TIEMPO', '1').lower() in ('1', 'true', 'yes')
+LTD_NOCHE_SEG = max(60.0, float(os.environ.get('BIORAG_LTD_NOCHE_HORAS', '24')) * 3600.0)
+
 # E10: sinapsis de sintesis DMN (peso 0.30, tope por ciclo). Default ON hasta gate.
 DMN_SINTESIS_ACTIVA = os.environ.get('BIORAG_DMN_SINTESIS_ACTIVA', '1').lower() in ('1', 'true', 'yes')
 DMN_SINTESIS_MAX = int(os.environ.get('BIORAG_DMN_SINTESIS_MAX', '8'))
