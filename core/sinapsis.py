@@ -442,23 +442,50 @@ def vincular_nuevo_si_existe(cerebro, concepto):
     return auto_vincular(cerebro, concepto, fila[0])
 
 
+def _norma_sinonimo(texto):
+    """Forma de comparación de un nombre o un sinónimo, igual para todos los idiomas.
+
+    POR QUÉ (auditoría 25-11, docs/ALGORITMO_NACIMIENTO_SINAPSIS.md P1/P2): B5 comparaba con
+    LIKE '%término%', así que «sal» enlazaba con «salsa» y «番茄» con «番茄酱». Ahora se compara
+    la forma completa. Sin listas ni reglas de ningún idioma: identidad Unicode del proyecto
+    (NFC + plegado de ancho), casefold, `_`/`-` como espacio (así se forman las claves) y
+    espacios colapsados.
+    """
+    from core.identidad_unicode import normalizar_identidad
+    t = normalizar_identidad(texto or "").casefold().replace("_", " ").replace("-", " ")
+    return " ".join(t.split())
+
+
 def vincular_por_sinonimos(cerebro, concepto, sinonimos, peso=0.9):
-    """Crea aristas en sinapsis para sinonimos explicitos declarados por el usuario."""
-    terminos = [s.strip().lower() for s in sinonimos.split(",") if s.strip()]
+    """Crea aristas en sinapsis para sinonimos explicitos declarados por el usuario.
+
+    Un sinónimo declarado enlaza con un recuerdo activo solo si es EXACTAMENTE su nombre o
+    EXACTAMENTE uno de sus sinónimos (lista separada por comas), comparando con
+    `_norma_sinonimo` (auditoría 25-11, cambio 2a). Si el par ya existe, se conserva la regla
+    de siempre (MAX y tipo protegido), salvo los enlaces del agente, que no se tocan (cambio 1).
+    """
+    terminos = list(dict.fromkeys(
+        n for n in (_norma_sinonimo(s) for s in (sinonimos or "").split(",")) if n
+    ))
     if not terminos:
         return []
 
     vinculados = []
     dirty = set()  # Reindex SDM selectivo: extremos de sinapsis NUEVAS
     for termino in terminos:
-        # ponytail: solo buscar en concepto y sinonimos, NO en contenido
-        # Evita falsos positivos cuando el término aparece de pasada en el contenido
+        # ponytail: solo buscar en concepto y sinonimos, NO en contenido.
+        # El LIKE es solo un prefiltro barato (espacio → '_', comodín de un carácter, para que
+        # «luz roja» también traiga «luz_roja»); la decisión es la comparación exacta de abajo.
+        patron = "%" + termino.replace(" ", "_") + "%"
         cerebro.cursor.execute(
-            "SELECT concepto FROM largo_plazo WHERE estado = 'activo' AND concepto != ? "
+            "SELECT concepto, sinonimos FROM largo_plazo WHERE estado = 'activo' AND concepto != ? "
             "AND (concepto LIKE ? OR sinonimos LIKE ?)",
-            (concepto, f"%{termino}%", f"%{termino}%")
+            (concepto, patron, patron)
         )
-        for (conc_exist,) in cerebro.cursor.fetchall():
+        for conc_exist, sin_exist in cerebro.cursor.fetchall():
+            items = {_norma_sinonimo(x) for x in (sin_exist or "").split(",")}
+            if termino != _norma_sinonimo(conc_exist) and termino not in items:
+                continue
             cerebro.cursor.execute(
                 "SELECT 1 FROM sinapsis WHERE origen = ? AND destino = ?",
                 (concepto, conc_exist)
