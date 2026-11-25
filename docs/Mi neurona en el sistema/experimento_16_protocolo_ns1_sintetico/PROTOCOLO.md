@@ -18,8 +18,8 @@ este queda tal cual.
 | — | **No se autorizan F1–F6** ni cambios en pesos, nacimiento, poda, cuarentena, hormiguita, tests o motor. E3 sigue abierto y no se pasa a E4 | Este experimento **no modifica ningún archivo** del motor ni de los tests. Usa el código del motor tal cual, sobre bases sintéticas en `/tmp`, y las borra al terminar |
 
 **Qué se mide en esta etapa.** Solo la **línea base del piso**: cómo nacen hoy las sinapsis, con el
-motor sin cambios, en mundos sintéticos. **No se entrena ni se prueba ninguna neurona.** Los criterios
-de la neurona (§7) quedan fijados aquí para cuando se autorice esa fase.
+motor sin cambios, en mundos sintéticos. **No se entrena ni se prueba ninguna neurona.** Lo que aprende
+la neurona (§7) y sus criterios (§8) quedan fijados aquí para cuando se autorice esa fase.
 
 **Resultados nuevos frente a históricos.** Todo lo que salga de aquí es **nuevo** y vale solo para
 mundos sintéticos. Las cifras de los experimentos 12–15, del mapa verificado y de `uso_como_agente`
@@ -133,7 +133,7 @@ igualdad, porque la reproducibilidad con las mismas entradas es obligatoria (nor
 AGENTS.md) y el orden de almacenamiento está declarado irrelevante.
 
 **Para el piso** no hay aprobado ni reprobado: se **reporta** el valor. Si viola el contrato, queda
-como un **hallazgo**, y ese hallazgo bloquea que la neurona herede esas agujas tal cual (ver §7).
+como un **hallazgo**, y ese hallazgo bloquea que la neurona herede esas agujas tal cual (ver §7 y §8).
 
 ## 6. Determinismo
 
@@ -141,7 +141,27 @@ Cada mundo `D` se construye **dos veces** con la misma semilla.
 - **R1:** las dos tablas `sinapsis` (origen, destino, tipo, peso) deben ser idénticas.
 - Si no lo son, se reporta y todas las métricas de ese mundo se marcan como «no reproducibles».
 
-## 7. Criterios para la neurona (fijados hoy, para una fase futura que hay que autorizar)
+## 7. Qué aprende la neurona (definición para la fase futura)
+
+Hay que fijarlo antes de entrenar, para que el entrenamiento no termine definiendo el objetivo.
+
+| Pieza | Definición |
+|---|---|
+| **Qué predice** | La probabilidad de que el par `(a, b)` sea relevante (rel > 0), con la verdad sintética de §1 |
+| **Datos de entrenamiento** | Solo pares de temas **no sellados** de los mundos de entrenamiento. Nada de `manual`, `desvincular`, cuarentena, Gemini, `ultimo_uso`, apariciones en el canal 2 ni feedback (decisiones 2, 3 y 4) |
+| **Para qué sirve la salida** | **Solo para ordenar** el canal 2. Es un número aparte que **no escribe en `sinapsis.peso`** ni cambia nacimiento, poda, cuarentena, latentes, comunidades o la hormiguita. Ningún enlace deja de aparecer por ella (Pilar 12). Los manuales siguen primero |
+| **Lo que queda fuera** | Bajar pesos y decidir nacimiento o poda (NS-1 §3, fases F3–F4). Con los umbrales de hoy (canal 2 ≥ 0,5, latentes ≥ 0,25, comunidades y hormiguita ≥ 0,1), un peso bajo **oculta** el enlace. Esto queda bloqueado hasta que el canal 2 ordene en vez de filtrar y haya una decisión explícita |
+| **Agujas permitidas** | Solo las que dependen del contenido de `a` y `b` (palabras, sinónimos, dimensiones, sustantivos clave, tipo) o de **estadísticos de referencia congelados** con versión (por ejemplo, una tabla IDF o un espacio LSA calculados una vez sobre el mundo de entrenamiento y guardados con hash) |
+| **Agujas prohibidas en esta fase** | Las que cambian al agregar recuerdos ajenos al par: IDF vivo (`calcular_idf_corpus`), NPMI y PPMI vivos, grado, vecinos comunes, Adamic-Adar, comunidad e importancia. **Violan la invariancia por construcción:** un recuerdo irrelevante cambia el IDF o el grado y, con eso, la puntuación del par. Solo podrían entrar congeladas, o si se demuestra I1 = 0 con ellas |
+| **Modelo** | El de NS-1: `p = σ(logit(piso) + v·tanh(Wx + b))`, monótono en las agujas de evidencia y calibrado con isotónica **sobre una parte del entrenamiento**, nunca sobre la sellada |
+| **Pasar a la fase siguiente** | Solo si cumple §8 completo **y** Dennys lo autoriza. Pasar la evaluación sintética **no** autoriza tocar el motor: el siguiente paso sería una sombra (calcula y registra, no cambia nada), y también necesita su autorización |
+
+**Nota verificada en el código:** `auto_vincular` llama a `_peso_similitud(..., idf_map=None)`, es decir,
+con IDF uniforme 0,5 (`core/sinapsis.py`, L150–152). Esa parte del piso **sí** puede ser invariante.
+`calcular_idf_corpus` (L520) se usa en la consolidación y depende del corpus. El experimento dirá
+cuál de las dos domina en la práctica (I1–I3 del piso).
+
+## 8. Criterios para la neurona (fijados hoy, para una fase futura que hay que autorizar)
 
 Sobre la **parte sellada**, en las 3 semillas, la neurona **pasa** solo si cumple **todo**:
 
@@ -161,7 +181,7 @@ Sobre la **parte sellada**, en las 3 semillas, la neurona **pasa** solo si cumpl
 hoy está fuera de alcance por la decisión 3. Antes de cualquier integración haría falta una
 autorización aparte.
 
-## 8. Salidas
+## 9. Salidas
 
 - `resultados/piso_semilla{1,2,3}.json`: todas las métricas por variante.
 - `RESULTADOS.md`: las tablas y su lectura, separando lo medido de lo interpretado.
