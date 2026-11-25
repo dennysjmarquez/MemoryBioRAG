@@ -1,0 +1,238 @@
+{
+ "protocolo": "PROTOCOLO_V3.md §3",
+ "por_idioma": {
+  "es": {
+   "sinapsis_por_base": {
+    "D": 16,
+    "DI": 16,
+    "x3": 16,
+    "falsas": 51,
+    "sueno": 32
+   },
+   "C1.1_identicos_D_vs_DI": 275,
+   "C1.2_identicos_x3": 276,
+   "C1.2b_identicos_falsas_vs_sueno": 276,
+   "C1.3_reproducible": true,
+   "C1.4_sha_igual": true,
+   "C1.4_busquedas_normales_iguales": true,
+   "C1.5_sinapsis_en_copia_al_terminar": 0,
+   "C1.5_sinapsis_en_copia_al_abrir": 0,
+   "diag_identicos_D_vs_D2_construida_otra_vez": 276,
+   "diag_activos_identicos_D_vs_DI": 265,
+   "diag_activos_X_se_encuentra_a_si_mismo": "81/132",
+   "diag_dormidos_en_D": 9,
+   "diag_dormidos_en_DI": 11,
+   "diag_top_identicos_D_vs_DI": "130/132",
+   "diag_pistas_DI_con_irrelevante_en_top5": 1,
+   "diag_X_se_encuentra_a_si_mismo": "129/132",
+   "C1.6": {
+    "AUC_R": 0.833,
+    "AUC_U": 0.498,
+    "AUC_S": 0.822,
+    "media_R_pos_neg_puente": [
+     2.0,
+     0.225,
+     0.0
+    ],
+    "media_U_pos_neg_puente": [
+     0.0,
+     0.002,
+     0.0
+    ],
+    "media_S_pos_neg_puente": [
+     1.333,
+     0.317,
+     0.333
+    ],
+    "frac_pos_con_U>0": 0.0,
+    "frac_neg_con_U>0": 0.004,
+    "frac_pos_con_R>0": 0.75,
+    "frac_neg_con_R>0": 0.088,
+    "hubs_top3": [
+     "basedatos_1",
+     "basedatos_2",
+     "bomberos_2"
+    ],
+    "frac_rescates_de_hubs": 0.0,
+    "n_rescates": 3
+   }
+  },
+  "en": {
+   "sinapsis_por_base": {
+    "D": 18,
+    "DI": 18,
+    "x3": 18,
+    "falsas": 53,
+    "sueno": 34
+   },
+   "C1.1_identicos_D_vs_DI": 270,
+   "C1.2_identicos_x3": 276,
+   "C1.2b_identicos_falsas_vs_sueno": 276,
+   "C1.3_reproducible": true,
+   "C1.4_sha_igual": true,
+   "C1.4_busquedas_normales_iguales": true,
+   "C1.5_sinapsis_en_copia_al_terminar": 0,
+   "C1.5_sinapsis_en_copia_al_abrir": 0,
+   "diag_identicos_D_vs_D2_construida_otra_vez": 276,
+   "diag_activos_identicos_D_vs_DI": 268,
+   "diag_activos_X_se_encuentra_a_si_mismo": "81/132",
+   "diag_dormidos_en_D": 9,
+   "diag_dormidos_en_DI": 11,
+   "diag_top_identicos_D_vs_DI": "124/132",
+   "diag_pistas_DI_con_irrelevante_en_top5": 1,
+   "diag_X_se_encuentra_a_si_mismo": "129/132",
+   "C1.6": {
+    "AUC_R": 0.782,
+    "AUC_U": 0.49,
+    "AUC_S": 0.822,
+    "media_R_pos_neg_puente": [
+     1.75,
+     0.169,
+     0.0
+    ],
+    "media_U_pos_neg_puente": [
+     0.0,
+     0.01,
+     0.0
+    ],
+    "media_S_pos_neg_puente": [
+     1.333,
+     0.317,
+     0.333
+    ],
+    "frac_pos_con_U>0": 0.0,
+    "frac_neg_con_U>0": 0.02,
+    "frac_pos_con_R>0": 0.625,
+    "frac_neg_con_R>0": 0.064,
+    "hubs_top3": [
+     "astronomia_0",
+     "basedatos_1",
+     "cocina_0"
+    ],
+    "frac_rescates_de_hubs": 0.4,
+    "n_rescates": 15
+   }
+  },
+  "zh": {
+   "sinapsis_por_base": {
+    "D": 16,
+    "DI": 16,
+    "x3": 16,
+    "falsas": 51,
+    "sueno": 32
+   },
+   "C1.1_identicos_D_vs_DI": 276,
+   "C1.2_identicos_x3": 276,
+   "C1.2b_identicos_falsas_vs_sueno": 276,
+   "C1.3_reproducible": true,
+   "C1.4_sha_igual": true,
+   "C1.4_busquedas_normales_iguales": true,
+   "C1.5_sinapsis_en_copia_al_terminar": 0,
+   "C1.5_sinapsis_en_copia_al_abrir": 0,
+   "diag_identicos_D_vs_D2_construida_otra_vez": 276,
+   "diag_activos_identicos_D_vs_DI": 276,
+   "diag_activos_X_se_encuentra_a_si_mismo": "51/132",
+   "diag_dormidos_en_D": 9,
+   "diag_dormidos_en_DI": 11,
+   "diag_top_identicos_D_vs_DI": "132/132",
+   "diag_pistas_DI_con_irrelevante_en_top5": 0,
+   "diag_X_se_encuentra_a_si_mismo": "78/132",
+   "C1.6": {
+    "AUC_R": 0.521,
+    "AUC_U": 0.5,
+    "AUC_S": 0.822,
+    "media_R_pos_neg_puente": [
+     0.125,
+     0.0,
+     0.0
+    ],
+    "media_U_pos_neg_puente": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "media_S_pos_neg_puente": [
+     1.333,
+     0.317,
+     0.333
+    ],
+    "frac_pos_con_U>0": 0.0,
+    "frac_neg_con_U>0": 0.0,
+    "frac_pos_con_R>0": 0.042,
+    "frac_neg_con_R>0": 0.0,
+    "hubs_top3": [
+     "basedatos_1",
+     "basedatos_2"
+    ],
+    "frac_rescates_de_hubs": null,
+    "n_rescates": 0
+   }
+  },
+  "ja": {
+   "sinapsis_por_base": {
+    "D": 16,
+    "DI": 16,
+    "x3": 16,
+    "falsas": 51,
+    "sueno": 32
+   },
+   "C1.1_identicos_D_vs_DI": 276,
+   "C1.2_identicos_x3": 276,
+   "C1.2b_identicos_falsas_vs_sueno": 276,
+   "C1.3_reproducible": true,
+   "C1.4_sha_igual": true,
+   "C1.4_busquedas_normales_iguales": true,
+   "C1.5_sinapsis_en_copia_al_terminar": 0,
+   "C1.5_sinapsis_en_copia_al_abrir": 0,
+   "diag_identicos_D_vs_D2_construida_otra_vez": 276,
+   "diag_activos_identicos_D_vs_DI": 276,
+   "diag_activos_X_se_encuentra_a_si_mismo": "54/132",
+   "diag_dormidos_en_D": 9,
+   "diag_dormidos_en_DI": 11,
+   "diag_top_identicos_D_vs_DI": "132/132",
+   "diag_pistas_DI_con_irrelevante_en_top5": 0,
+   "diag_X_se_encuentra_a_si_mismo": "93/132",
+   "C1.6": {
+    "AUC_R": 0.573,
+    "AUC_U": 0.5,
+    "AUC_S": 0.822,
+    "media_R_pos_neg_puente": [
+     0.5,
+     0.06,
+     0.0
+    ],
+    "media_U_pos_neg_puente": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "media_S_pos_neg_puente": [
+     1.333,
+     0.317,
+     0.333
+    ],
+    "frac_pos_con_U>0": 0.0,
+    "frac_neg_con_U>0": 0.0,
+    "frac_pos_con_R>0": 0.167,
+    "frac_neg_con_R>0": 0.02,
+    "hubs_top3": [
+     "astronomia_0",
+     "bomberos_0",
+     "tren_0"
+    ],
+    "frac_rescates_de_hubs": null,
+    "n_rescates": 0
+   }
+  }
+ },
+ "criterios": {
+  "C1.1_invariancia_>=98%_cada_idioma": false,
+  "C1.2_x3_276/276": true,
+  "C1.2b_falsas_y_sueno_>=98%": true,
+  "C1.3_reproducible": true,
+  "C1.4_regresion": true,
+  "C1.5_0_sinapsis_en_copia": true
+ },
+ "E1_pasa": false,
+ "segundos": 154.8
+}
