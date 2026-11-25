@@ -22,7 +22,7 @@ from urllib.parse import unquote, urlsplit
 
 TOKEN_ENV = 'BIORAG_MAINTENANCE_TOKEN'
 _LOCAL_TOKEN = ContextVar('biorag_maintenance_token', default=None)
-_DIAG_LOCK = threading.Lock()
+_DIAG_LOCK = threading.RLock()
 _DIAG_LEASES: dict[str, dict] = {}
 
 
@@ -87,7 +87,7 @@ def _acquire_diagnostic_lease(database):
                 overlapped = _windows_lock(lease_file, exclusive=True)
             payload = {
                 'pid': os.getpid(),
-                'command': ' '.join(sys.argv)[:200] or 'python',
+                'command': Path(sys.argv[0]).name if sys.argv and sys.argv[0] else 'python',
                 'role': _client_role(),
                 'started_at': datetime.now(timezone.utc).isoformat(),
             }
@@ -174,6 +174,23 @@ def format_lease_holders(holders):
         cmd = h.get('command', 'unknown')
         parts.append(f'PID {pid} ({role}: {cmd})')
     return ', '.join(parts)
+
+
+def _inspect_fallback_holders(database):
+    """Fallback to psutil process inspection for legacy holders without .leases/."""
+    try:
+        from core.process_inspection import inspect_database_processes
+        inv = inspect_database_processes(database, exclude_pids={os.getpid()})
+        return [
+            {
+                'pid': item.get('pid'),
+                'role': item.get('kind', 'unknown'),
+                'command': item.get('name', 'unknown'),
+            }
+            for item in inv.get('holders', [])
+        ]
+    except Exception:
+        return []
 
 
 def is_maintenance_pending(database):
@@ -382,6 +399,10 @@ def maintenance(database, timeout=30, progress_interval=5.0):
                 now = time.monotonic()
                 if now >= deadline:
                     holders = active_lease_holders(path)
+                    seen_pids = {h.get('pid') for h in holders if h.get('pid') is not None}
+                    for fb in _inspect_fallback_holders(path):
+                        if fb.get('pid') not in seen_pids:
+                            holders.append(fb)
                     if holders:
                         summary = format_lease_holders(holders)
                         raise MaintenanceError(f'{exc}. Active clients: {summary}') from exc

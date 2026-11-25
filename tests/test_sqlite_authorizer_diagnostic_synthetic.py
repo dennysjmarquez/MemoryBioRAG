@@ -282,7 +282,7 @@ def _run_synthetic_batch(modes, root: Path, primary_writer, fallback_writer):
     for mode in modes:
         started.append(mode)
         outcome = _supervise_synthetic_attempt(
-            multiprocessing.get_context("fork"), mode, root,
+            multiprocessing.get_context("spawn"), mode, root,
             primary_writer, fallback_writer,
         )
         outcomes.append(outcome)
@@ -389,8 +389,8 @@ class SyntheticPragmaPolicyTests(unittest.TestCase):
 class SyntheticSupervisorTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        if "fork" not in multiprocessing.get_all_start_methods():
-            raise unittest.SkipTest("synthetic supervisor probe requires POSIX fork")
+        if "spawn" not in multiprocessing.get_all_start_methods():
+            raise unittest.SkipTest("synthetic supervisor probe requires multiprocessing spawn")
 
     def test_first_event_saved_before_termination(self):
         with tempfile.TemporaryDirectory() as tmp:
