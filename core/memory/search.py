@@ -23,6 +23,7 @@ from core.stemmer_es import _quitar_acentos
 from core.memory import constants
 from core.memory import neurona
 from core.memory import escala as _escala
+from core.memory import cjk_corto as _cjk_corto
 from core.memory.stable_ranking import (
     CorpusIndependentLexicalRanker,
     orden_candidato_fts,
@@ -787,6 +788,32 @@ def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, 
                 if r[0] not in seen_rowids:
                     todos.append(r[:6])
                     origen_scores[r[1]] = ("unicode", 0.0)
+        except sqlite3.OperationalError:
+            pass
+
+    # Fallback 1.4b: ojos Unicode para palabras CJK de 1–2 caracteres (core/memory/cjk_corto.py).
+    # El trigram no busca menos de 3 caracteres y unicode61 toma una corrida CJK entera como
+    # una palabra: «番茄» no encontraba «炒蒜和番茄…». Solo actúa si la consulta trae una corrida
+    # china/japonesa corta; sin ella, `terminos` es vacío y la búsqueda no cambia.
+    _cjk_terms = _cjk_corto.terminos(query or frase)
+    if _cjk_terms and not modo_estricto and len(todos) < 3:
+        try:
+            _cjk_rows = _cjk_corto.filas(self.cursor, _cjk_terms, clause[len(" AND "):] if clause else "",
+                                         temporal_params, sustantivos_select)
+            _cjk_rows = sorted(
+                _cjk_rows,
+                key=lambda row: orden_candidato_fts(
+                    _cjk_corto.cobertura(_cjk_terms, row[1], row[2], row[6], row[7]), row[1], row[3],
+                    aplicar_peso_sinaptico=False),
+            )[:max(limite * 3, 10)]
+            seen_rowids = {r[0] for r in todos}
+            for r in _cjk_rows:
+                if r[0] not in seen_rowids:
+                    _cov = _cjk_corto.cobertura(_cjk_terms, r[1], r[2], r[6], r[7])
+                    stable_bm25_scores[r[1]] = max(stable_bm25_scores.get(r[1], 0.0), _cov)
+                    todos.append(r[:6])
+                    origen_scores[r[1]] = ("unicode", _cov)
+                    seen_rowids.add(r[0])
         except sqlite3.OperationalError:
             pass
 
@@ -1644,6 +1671,19 @@ def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, 
                     (unicode_overlay_query,) + tuple(overlay_params) + (overlay_cap,),
                 )
                 _agregar_overlay(self.cursor.fetchall())
+            except sqlite3.OperationalError:
+                pass
+
+        # Ojos Unicode también para las altas nuevas (mismo término CJK corto, mismo fallback 1.4b).
+        if _cjk_terms and not modo_estricto:
+            try:
+                _cjk_nuevas = _cjk_corto.filas(self.cursor, _cjk_terms, overlay_where, overlay_params,
+                                               sustantivos_select, tope=overlay_cap)
+                for r in _cjk_nuevas:
+                    if r[1]:
+                        _cov = _cjk_corto.cobertura(_cjk_terms, r[1], r[2], r[6], r[7])
+                        stable_bm25_scores[r[1]] = max(stable_bm25_scores.get(r[1], 0.0), _cov)
+                _agregar_overlay(_cjk_nuevas)
             except sqlite3.OperationalError:
                 pass
 

@@ -1,0 +1,236 @@
+{
+ "repo": "/tmp/base_wt",
+ "U1": [
+  {
+   "q": "番茄",
+   "objetivo": "晚餐食谱一",
+   "rango": null,
+   "distractor": "晚餐食谱二",
+   "rango_distractor": null,
+   "top5": [],
+   "top5_crecida": []
+  },
+  {
+   "q": "消防",
+   "objetivo": "城市安全记录",
+   "rango": null,
+   "distractor": "城市安全记录二",
+   "rango_distractor": null,
+   "top5": [],
+   "top5_crecida": []
+  },
+  {
+   "q": "足球",
+   "objetivo": "周末活动",
+   "rango": null,
+   "distractor": "周末活动二",
+   "rango_distractor": null,
+   "top5": [],
+   "top5_crecida": []
+  },
+  {
+   "q": "医生",
+   "objetivo": "健康笔记",
+   "rango": null,
+   "distractor": null,
+   "rango_distractor": null,
+   "top5": [],
+   "top5_crecida": []
+  },
+  {
+   "q": "火车",
+   "objetivo": "旅行计划",
+   "rango": null,
+   "distractor": null,
+   "rango_distractor": null,
+   "top5": [],
+   "top5_crecida": []
+  },
+  {
+   "q": "树",
+   "objetivo": "院子笔记",
+   "rango": null,
+   "distractor": null,
+   "rango_distractor": null,
+   "top5": [],
+   "top5_crecida": []
+  },
+  {
+   "q": "猫",
+   "objetivo": "家の記録",
+   "rango": null,
+   "distractor": null,
+   "rango_distractor": null,
+   "top5": [],
+   "top5_crecida": []
+  },
+  {
+   "q": "電車",
+   "objetivo": "通勤メモ",
+   "rango": null,
+   "distractor": "通勤メモ二",
+   "rango_distractor": null,
+   "top5": [],
+   "top5_crecida": []
+  },
+  {
+   "q": "パン",
+   "objetivo": "買い物",
+   "rango": null,
+   "distractor": null,
+   "rango_distractor": null,
+   "top5": [],
+   "top5_crecida": []
+  },
+  {
+   "q": "友達",
+   "objetivo": "休日",
+   "rango": null,
+   "distractor": null,
+   "rango_distractor": null,
+   "top5": [],
+   "top5_crecida": []
+  },
+  {
+   "q": "桜",
+   "objetivo": "春の思い出",
+   "rango": null,
+   "distractor": null,
+   "rango_distractor": null,
+   "top5": [],
+   "top5_crecida": []
+  }
+ ],
+ "U3": [
+  {
+   "q": "钢琴",
+   "top5": []
+  },
+  {
+   "q": "鉛筆",
+   "top5": []
+  },
+  {
+   "q": "雪",
+   "top5": []
+  },
+  {
+   "q": "ピザ",
+   "top5": []
+  }
+ ],
+ "U4": [
+  {
+   "q": "사과",
+   "top5": []
+  },
+  {
+   "q": "영화",
+   "top5": []
+  },
+  {
+   "q": "чай",
+   "top5": [
+    [
+     "дневник_утро",
+     0.0149
+    ]
+   ]
+  },
+  {
+   "q": "лимоном",
+   "top5": [
+    [
+     "дневник_утро",
+     0.0169
+    ]
+   ]
+  },
+  {
+   "q": "tomate",
+   "top5": [
+    [
+     "receta_sopa",
+     0.0151
+    ]
+   ]
+  },
+  {
+   "q": "bomberos gatos",
+   "top5": [
+    [
+     "bomberos_ciudad",
+     0.2062
+    ]
+   ]
+  },
+  {
+   "q": "train Shanghai",
+   "top5": [
+    [
+     "train_trip",
+     0.2632
+    ]
+   ]
+  },
+  {
+   "q": "old tree",
+   "top5": [
+    [
+     "garden_note",
+     0.2243
+    ]
+   ]
+  },
+  {
+   "q": "番茄配米饭",
+   "top5": [
+    [
+     "晚餐食谱一",
+     0.1592
+    ]
+   ]
+  },
+  {
+   "q": "電車が遅れて",
+   "top5": [
+    [
+     "通勤メモ",
+     0.0142
+    ]
+   ]
+  },
+  {
+   "q": "公园踢足球",
+   "top5": [
+    [
+     "周末活动",
+     0.1574
+    ]
+   ]
+  },
+  {
+   "q": "receta 番茄配米饭",
+   "top5": [
+    [
+     "receta_sopa",
+     0.2807
+    ],
+    [
+     "晚餐食谱一",
+     0.0446
+    ]
+   ]
+  }
+ ],
+ "U6_terminos_no": null,
+ "ms_mediana": 2.94,
+ "ms_max": 12.95,
+ "resumen": {
+  "U1_top5": 0,
+  "U1_top1": 0,
+  "U2_distractor_arriba": 0,
+  "U3_con_resultados": 0,
+  "U5_top5_iguales": 11
+ }
+}

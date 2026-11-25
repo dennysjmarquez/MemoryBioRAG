@@ -151,10 +151,10 @@ Así, un error de la neurona no puede dejar el sistema peor que hoy. Eso es lo q
 | Paso | Qué | ¿Toca el motor? | Puerta para pasar |
 |---|---|---|---|
 | 0 | Tapar las vías de bucle en el laboratorio (A4 + C1.2c) | No | C1.2c 276/276 en los 4 idiomas. **Hecho en este ciclo** (ver `RESULTADOS_E1.md` §8) |
-| 1 | **«Ojos Unicode» en la búsqueda:** encontrar palabras CJK de 1–2 caracteres | **Sí** (canal 1) | Tu OK y el de Dennys. QA completa sin bajar (R@5, R@1, MRR, FP 0/40) y suite en verde |
+| 1 | **«Ojos Unicode» en la búsqueda:** encontrar palabras CJK de 1–2 caracteres | **Sí** (canal 1) | QA completa sin bajar (R@5, R@1, MRR, FP 0/40) y suite en verde. **Hecho 2026-11-25** (ver `../ojos_unicode_busqueda/RESULTADOS.md`): 0/11 → 11/11 en top-1, todas las puertas idénticas. Pendiente de PR para Dennys |
 | 2 | **Examen de rescate en el laboratorio:** pistas de dificultad graduada, sin listas de idioma (muestras dispersas de unidades Unicode, sin el nombre), con control de hubs | No | Suficientes casos por idioma; invariancia ≥ 98 %; rescates de hubs por debajo de un tope fijado antes |
 | 3 | **Batería de agujas** (S, S_idf, X, B, K, R, Δt), cada una con AUC, invariancia y bucle por idioma | No | Se fija antes qué entra. Necesita un mundo más grande, **escrito a ciegas** (quien escribe los textos no conoce los pares) |
-| 4 | **Protocolo v4 + E2:** la neurona con el molde completo, entrenada con el examen de rescate, en copias | No | Gana al piso en la guardia sin bajar ninguna categoría ni idioma |
+| 4 | **Protocolo v4 + E2:** la neurona con el molde completo, entrenada con el examen de rescate, en copias. Compara dos formas de entrenar con el mismo piso, la misma guardia del 20 % y los 4 idiomas (nota 9.1) | No | Gana al piso en la guardia sin bajar ninguna categoría ni idioma |
 | 5 | E3: consolidación en el sueño, en modo sombra | No (sombra) | Solo tras pasar E1 y E2 |
 | 6 | Llevarla al motor | Sí | PR; solo Dennys hace merge |
 
@@ -162,3 +162,20 @@ Así, un error de la neurona no puede dejar el sistema peor que hoy. Eso es lo q
 tema, cualquier aguja textual puede medir mi forma de escribir y no la relación real. El exp. 16 ya tuvo una
 filtración léxica así (AUC 1,000 falso). Para el paso 3 hace falta un mundo escrito a ciegas, o datos que Dennys
 autorice.
+
+### 9.1 Nota para el paso 4: gradiente frente a neuroevolución (idea del usuario, 2026-11-25)
+
+Viene del video de los 200 coches (se copian con mutaciones los que llegan más lejos) y de la sugerencia del
+agente local. Se traduce a una prueba limpia, no se copia tal cual:
+
+- **Dos retadores, mismo juez.** (a) El entrenamiento por gradiente del molde de `neurona.py`. (b) Una población
+  pequeña de retadores en RAM con `numpy` (p. ej. 20–40 vectores de pesos) que muta y conserva a los mejores,
+  optimizando directamente la métrica discreta del examen de rescate (rango de B en el canal 2 de A).
+- **Mismo piso** (el orden a mano), **misma guardia sellada del 20 %**, los **4 idiomas** y un **tercer grupo
+  sellado** para elegir al ganador: nunca se elige mirando la guardia.
+- **Currículo de dificultad:** las generaciones empiezan con pistas fáciles del examen y suben de nivel en escalera;
+  el piso es la regla de muerte (un retador que pierde contra el piso en cualquier idioma se descarta).
+- **Solo en RAM y en copias:** nada contra SQLite, sin fase de choques en vivo, sin telemetría de uso (norma 4).
+- **Idea a futuro, fuera de este plan:** mutaciones pequeñas alrededor del campeón de `neurona.py` cuando llegue a
+  su techo. **No se toca la neurona 1** sin un ciclo y un OK propios.
+

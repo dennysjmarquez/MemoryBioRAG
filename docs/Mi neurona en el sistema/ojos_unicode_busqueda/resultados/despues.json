@@ -1,0 +1,354 @@
+{
+ "repo": "/home/user/MemoryBioRAG",
+ "U1": [
+  {
+   "q": "番茄",
+   "objetivo": "晚餐食谱一",
+   "rango": 1,
+   "distractor": "晚餐食谱二",
+   "rango_distractor": null,
+   "top5": [
+    [
+     "晚餐食谱一",
+     0.1373
+    ]
+   ],
+   "top5_crecida": [
+    [
+     "晚餐食谱一",
+     0.1373
+    ]
+   ]
+  },
+  {
+   "q": "消防",
+   "objetivo": "城市安全记录",
+   "rango": 1,
+   "distractor": "城市安全记录二",
+   "rango_distractor": null,
+   "top5": [
+    [
+     "城市安全记录",
+     0.1353
+    ]
+   ],
+   "top5_crecida": [
+    [
+     "城市安全记录",
+     0.1353
+    ]
+   ]
+  },
+  {
+   "q": "足球",
+   "objetivo": "周末活动",
+   "rango": 1,
+   "distractor": "周末活动二",
+   "rango_distractor": null,
+   "top5": [
+    [
+     "周末活动",
+     0.1358
+    ]
+   ],
+   "top5_crecida": [
+    [
+     "周末活动",
+     0.1358
+    ]
+   ]
+  },
+  {
+   "q": "医生",
+   "objetivo": "健康笔记",
+   "rango": 1,
+   "distractor": null,
+   "rango_distractor": null,
+   "top5": [
+    [
+     "健康笔记",
+     0.1359
+    ]
+   ],
+   "top5_crecida": [
+    [
+     "健康笔记",
+     0.1359
+    ]
+   ]
+  },
+  {
+   "q": "火车",
+   "objetivo": "旅行计划",
+   "rango": 1,
+   "distractor": null,
+   "rango_distractor": null,
+   "top5": [
+    [
+     "旅行计划",
+     0.1373
+    ]
+   ],
+   "top5_crecida": [
+    [
+     "旅行计划",
+     0.1373
+    ]
+   ]
+  },
+  {
+   "q": "树",
+   "objetivo": "院子笔记",
+   "rango": 1,
+   "distractor": null,
+   "rango_distractor": null,
+   "top5": [
+    [
+     "院子笔记",
+     0.131
+    ]
+   ],
+   "top5_crecida": [
+    [
+     "院子笔记",
+     0.131
+    ]
+   ]
+  },
+  {
+   "q": "猫",
+   "objetivo": "家の記録",
+   "rango": 1,
+   "distractor": null,
+   "rango_distractor": null,
+   "top5": [
+    [
+     "家の記録",
+     0.1589
+    ],
+    [
+     "城市安全记录",
+     0.1588
+    ]
+   ],
+   "top5_crecida": [
+    [
+     "家の記録",
+     0.1589
+    ],
+    [
+     "城市安全记录",
+     0.1588
+    ]
+   ]
+  },
+  {
+   "q": "電車",
+   "objetivo": "通勤メモ",
+   "rango": 1,
+   "distractor": "通勤メモ二",
+   "rango_distractor": null,
+   "top5": [
+    [
+     "通勤メモ",
+     0.1361
+    ]
+   ],
+   "top5_crecida": [
+    [
+     "通勤メモ",
+     0.1361
+    ]
+   ]
+  },
+  {
+   "q": "パン",
+   "objetivo": "買い物",
+   "rango": 1,
+   "distractor": null,
+   "rango_distractor": null,
+   "top5": [
+    [
+     "買い物",
+     0.1367
+    ]
+   ],
+   "top5_crecida": [
+    [
+     "買い物",
+     0.1367
+    ]
+   ]
+  },
+  {
+   "q": "友達",
+   "objetivo": "休日",
+   "rango": 1,
+   "distractor": null,
+   "rango_distractor": null,
+   "top5": [
+    [
+     "休日",
+     0.1381
+    ]
+   ],
+   "top5_crecida": [
+    [
+     "休日",
+     0.1381
+    ]
+   ]
+  },
+  {
+   "q": "桜",
+   "objetivo": "春の思い出",
+   "rango": 1,
+   "distractor": null,
+   "rango_distractor": null,
+   "top5": [
+    [
+     "春の思い出",
+     0.13
+    ]
+   ],
+   "top5_crecida": [
+    [
+     "春の思い出",
+     0.13
+    ]
+   ]
+  }
+ ],
+ "U3": [
+  {
+   "q": "钢琴",
+   "top5": []
+  },
+  {
+   "q": "鉛筆",
+   "top5": []
+  },
+  {
+   "q": "雪",
+   "top5": []
+  },
+  {
+   "q": "ピザ",
+   "top5": []
+  }
+ ],
+ "U4": [
+  {
+   "q": "사과",
+   "top5": []
+  },
+  {
+   "q": "영화",
+   "top5": []
+  },
+  {
+   "q": "чай",
+   "top5": [
+    [
+     "дневник_утро",
+     0.0149
+    ]
+   ]
+  },
+  {
+   "q": "лимоном",
+   "top5": [
+    [
+     "дневник_утро",
+     0.0169
+    ]
+   ]
+  },
+  {
+   "q": "tomate",
+   "top5": [
+    [
+     "receta_sopa",
+     0.0151
+    ]
+   ]
+  },
+  {
+   "q": "bomberos gatos",
+   "top5": [
+    [
+     "bomberos_ciudad",
+     0.2062
+    ]
+   ]
+  },
+  {
+   "q": "train Shanghai",
+   "top5": [
+    [
+     "train_trip",
+     0.2632
+    ]
+   ]
+  },
+  {
+   "q": "old tree",
+   "top5": [
+    [
+     "garden_note",
+     0.2243
+    ]
+   ]
+  },
+  {
+   "q": "番茄配米饭",
+   "top5": [
+    [
+     "晚餐食谱一",
+     0.1592
+    ]
+   ]
+  },
+  {
+   "q": "電車が遅れて",
+   "top5": [
+    [
+     "通勤メモ",
+     0.0142
+    ]
+   ]
+  },
+  {
+   "q": "公园踢足球",
+   "top5": [
+    [
+     "周末活动",
+     0.1574
+    ]
+   ]
+  },
+  {
+   "q": "receta 番茄配米饭",
+   "top5": [
+    [
+     "receta_sopa",
+     0.2807
+    ],
+    [
+     "晚餐食谱一",
+     0.0446
+    ]
+   ]
+  }
+ ],
+ "U6_terminos_no": [],
+ "ms_mediana": 2.47,
+ "ms_max": 8.52,
+ "resumen": {
+  "U1_top5": 11,
+  "U1_top1": 11,
+  "U2_distractor_arriba": 0,
+  "U3_con_resultados": 0,
+  "U5_top5_iguales": 11
+ }
+}
