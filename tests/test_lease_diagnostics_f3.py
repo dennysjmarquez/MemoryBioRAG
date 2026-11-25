@@ -151,6 +151,56 @@ class LeaseDiagnosticsF3Tests(unittest.TestCase):
         self.assertIn("42424", payload["message"])
         self.assertIn("mcp_server.py", payload["message"])
 
+    def test_lease_metadata_does_not_store_full_sys_argv(self):
+        """Diagnostic lease metadata must only record program basename and role, not full argv."""
+        with tempfile.TemporaryDirectory(ignore_cleanup_errors=True) as tmp:
+            db = self._make_db(Path(tmp))
+            lease_file = db.with_name(db.name + ".leases") / f"{os.getpid()}.json"
+            with patch.object(sys, "argv", ["/usr/bin/mcp_server.py", "--secret-token", "super_secret_123"]):
+                conn = da.connect(str(db))
+                try:
+                    data = json.loads(lease_file.read_text(encoding="utf-8"))
+                    self.assertEqual(data["command"], "mcp_server.py")
+                    self.assertNotIn("super_secret_123", json.dumps(data))
+                finally:
+                    conn.close()
+
+    def test_maintenance_timeout_falls_back_to_process_inspection_for_legacy_holder(self):
+        """A legacy process holding DB + maintenance.lock without .leases/ must still be reported via process_inspection."""
+        with tempfile.TemporaryDirectory(ignore_cleanup_errors=True) as tmp:
+            db = self._make_db(Path(tmp))
+            lock_path = db.with_name(db.name + ".maintenance.lock")
+            script = (
+                "import fcntl, os, sqlite3, time\n"
+                f"con = sqlite3.connect({repr(str(db))})\n"
+                f"fd = os.open({repr(str(lock_path))}, os.O_RDWR | os.O_CREAT, 0o600)\n"
+                "fcntl.flock(fd, fcntl.LOCK_SH | fcntl.LOCK_NB)\n"
+                "print('READY', flush=True)\n"
+                "time.sleep(30)\n"
+            )
+            proc = subprocess.Popen(
+                [sys.executable, "-c", script],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True,
+                cwd=str(Path(__file__).resolve().parents[1]),
+            )
+            try:
+                line = proc.stdout.readline().strip()
+                self.assertEqual(line, "READY")
+                self.assertEqual(da.active_lease_holders(db), [])
+
+                with self.assertRaises(da.MaintenanceError) as ctx:
+                    with da.maintenance(db, timeout=0.2, progress_interval=10.0):
+                        pass
+
+                msg = str(ctx.exception)
+                self.assertIn("Active clients:", msg)
+                self.assertIn(str(proc.pid), msg)
+            finally:
+                proc.kill()
+                proc.wait(timeout=5)
+
 
 if __name__ == "__main__":
     unittest.main()
