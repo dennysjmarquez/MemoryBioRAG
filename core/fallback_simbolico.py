@@ -175,19 +175,25 @@ def _verificar_wordnet() -> bool:
 
 
 @lru_cache(maxsize=512)
-def expandir_palabra_wordnet(palabra: str) -> frozenset[str]:
+def expandir_palabra_wordnet_ordenada(palabra: str) -> tuple[str, ...]:
     """
-    Expande una palabra con sus sinónimos de WordNet.
+    Expande una palabra con sus sinónimos de WordNet, EN ORDEN DE RELEVANCIA.
     Busca en español E inglés.
+
+    Orden estable (D19): idioma ('spa' y luego 'eng') -> synsets en el orden de
+    WordNet (sentido más frecuente primero, máx 3) -> lemas en español antes que en
+    inglés -> orden de los lemas. Sin duplicados. No depende de PYTHONHASHSEED, así
+    que quien corte los N primeros obtiene siempre los mismos N.
     """
     if not _verificar_wordnet():
-        return frozenset()
+        return ()
 
     try:
         from nltk.corpus import wordnet as wn
 
         palabra_norm = _normalizar(palabra)
-        expansiones: set[str] = set()
+        excluir = {palabra_norm, palabra.lower()}
+        expansiones: dict[str, None] = {}
 
         for lang in ('spa', 'eng'):
             synsets = wn.synsets(palabra_norm, lang=lang)
@@ -195,25 +201,27 @@ def expandir_palabra_wordnet(palabra: str) -> frozenset[str]:
                 synsets = wn.synsets(palabra, lang=lang)
 
             for syn in synsets[:3]:  # máx 3 synsets
-                # Lemas en español
-                for lemma in syn.lemmas(lang='spa'):
-                    nombre = _normalizar(lemma.name().replace('_', ' '))
-                    for tok in nombre.split():
-                        if len(tok) >= 2:
-                            expansiones.add(tok)
-                # Lemas en inglés
-                for lemma in syn.lemmas(lang='eng'):
-                    nombre = _normalizar(lemma.name().replace('_', ' '))
-                    for tok in nombre.split():
-                        if len(tok) >= 2:
-                            expansiones.add(tok)
+                for lang_lema in ('spa', 'eng'):  # lemas en español, luego en inglés
+                    for lemma in syn.lemmas(lang=lang_lema):
+                        nombre = _normalizar(lemma.name().replace('_', ' '))
+                        for tok in nombre.split():
+                            if len(tok) >= 2 and tok not in excluir:
+                                expansiones.setdefault(tok, None)
 
-        expansiones.discard(palabra_norm)
-        expansiones.discard(palabra.lower())
-        return frozenset(expansiones)
+        return tuple(expansiones)
 
     except Exception:
-        return frozenset()
+        return ()
+
+
+@lru_cache(maxsize=512)
+def expandir_palabra_wordnet(palabra: str) -> frozenset[str]:
+    """
+    Expande una palabra con sus sinónimos de WordNet.
+    Busca en español E inglés. (Conjunto; para un orden estable usar
+    ``expandir_palabra_wordnet_ordenada``.)
+    """
+    return frozenset(expandir_palabra_wordnet_ordenada(palabra))
 
 
 def expandir_query_wordnet(tokens: set[str]) -> set[str]:
@@ -222,6 +230,24 @@ def expandir_query_wordnet(tokens: set[str]) -> set[str]:
     for token in tokens:
         expansiones.update(expandir_palabra_wordnet(token))
     return expansiones - tokens
+
+
+def expandir_query_wordnet_ordenada(tokens) -> list[str]:
+    """Como ``expandir_query_wordnet`` pero en orden determinista de relevancia.
+
+    D19: ``search.py`` corta los 5 primeros sinónimos; cortar un ``set`` dependía de
+    PYTHONHASHSEED y el mismo query devolvía resultados distintos entre procesos.
+    Recorre los tokens en el orden recibido (el del query) y, para cada uno, sus
+    sinónimos en orden de relevancia WordNet. Excluye los propios tokens y duplicados.
+    """
+    tokens = list(dict.fromkeys(tokens))
+    originales = set(tokens)
+    salida: dict[str, None] = {}
+    for token in tokens:
+        for exp in expandir_palabra_wordnet_ordenada(token):
+            if exp not in originales:
+                salida.setdefault(exp, None)
+    return list(salida)
 
 
 # ═══════════════════════════════════════════════════════════

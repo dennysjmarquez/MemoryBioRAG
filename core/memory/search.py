@@ -1345,8 +1345,10 @@ def buscar_por_frase(self, frase, profundidad="activos", pagina=1, limite=None, 
         palabras_sin = [w for w in palabras_like]
         if len(palabras_sin) <= 3:
             try:
-                from core.fallback_simbolico import expandir_query_wordnet
-                syn_wn = expandir_query_wordnet(set(palabras_sin))
+                # D19: orden estable de relevancia (antes: [:5] sobre un set, dependía
+                # de PYTHONHASHSEED y el mismo query variaba entre procesos).
+                from core.fallback_simbolico import expandir_query_wordnet_ordenada
+                syn_wn = expandir_query_wordnet_ordenada(palabras_sin)
                 palabras_sin.extend([w for w in syn_wn if len(w) >= 3][:5])
             except Exception:
                 pass
