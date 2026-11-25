@@ -5,6 +5,21 @@
   el puente solo ordena; E3 bloqueada hasta pasar E1 y E2; los «ojos Unicode» del nacimiento van en otro ciclo.
 - **Sustituye a la v2.** La v1 y la v2 quedan como están: con la v2 no se midió nada.
 
+## 0. Enmiendas antes de medir (25-11, prueba de humo con 1 idioma; ningún criterio calculado todavía)
+
+- **A1 — `profundidad="profundo"` en el repaso.** §2 decía `buscar_por_frase(pista, limite=6, …)` sin fijar la
+  profundidad. Con el valor por defecto (`"activos"`), las 9 de 24 memorias que el sueño deja en estado `dormido`
+  solo aparecen por el atajo «Snap» (`search.py` L1047–1060), que depende de `ultimo_acceso`. Ese campo lo
+  reescriben las búsquedas anteriores: es una vía de estado. En la prueba, `activos` dejó entre 6 y 28 de 132
+  pistas sin resultado, según el estado; `profundo` dejó 0 (X se encontró a sí mismo 129/132). El sueño repasa
+  todas las memorias, también las dormidas. `activos` se reporta solo como diagnóstico.
+- **A2 — Categoría «General» en lugar de «Nota».** «Nota» no existe en el catálogo de categorías del motor.
+  «General» es la categoría neutra. No cambia lo que se mide.
+- **A3 — Se verificó que `ignore_peso_sinaptico` existe** en la firma de `buscar_por_frase` (L58; se usa en L2277 y
+  L2792). No hace falta enmienda.
+- **Diagnósticos añadidos (informativos, sin umbral):** D construida dos veces (ruido de la propia construcción),
+  invariancia con `activos` y número de dormidas en D y en DI. Sirven para leer C1.1 si falla.
+
 ## 1. Qué cambia frente a la v2
 
 | v2 | v3 | Motivo |
@@ -54,7 +69,7 @@ globales: eso rompería la invariancia.
   - más 1 dimensión al azar de un pozo de 5 (eje `cualidad`);
   - el sustantivo clave del tema (8 × 4, escritos a mano), con p = 0,548;
   - más 1 genérico de un pozo de 5, con p = 0,5;
-  - categoría única («Nota») y sin sinónimos.
+  - categoría única («General», enmienda A2) y sin sinónimos.
 - Las 8 de I usan **otros** valores de dimensión y **otro** pozo de genéricos: son irrelevantes también por
   estructura.
 
