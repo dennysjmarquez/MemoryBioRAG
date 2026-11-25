@@ -67,3 +67,4 @@ include = ["core*", "config*", "middleware*"]
 # Esto permite que `import core` funcione sin exportar PYTHONPATH manualmente.
 pythonpath = ["."]
 testpaths = ["tests"]
+faulthandler_timeout = 300

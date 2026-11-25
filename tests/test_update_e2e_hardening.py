@@ -105,6 +105,113 @@ class UpdateConsecutiveE2ETests(unittest.TestCase):
                     updater._run_pip_install(root, failing_runner, verbose=False)
             self.assertIn("pip boom", err_buf.getvalue())
 
+    def test_update_with_active_mcp_server_drains_and_succeeds(self):
+        """Real updater.apply() against an active stdio MCP server with continuous traffic drains via pending gate and succeeds."""
+        import asyncio
+        from mcp import ClientSession, StdioServerParameters
+        from mcp.client.stdio import stdio_client
+
+        repo_root = Path(__file__).resolve().parents[1]
+
+        async def _run():
+            with tempfile.TemporaryDirectory(ignore_cleanup_errors=True) as tmp:
+                tmp_path = Path(tmp)
+                origin = tmp_path / "origin.git"
+                work = tmp_path / "work"
+                seed = tmp_path / "seed"
+                db = tmp_path / "outside.db"
+                pip_prefix = tmp_path / "pip_prefix"
+
+                subprocess.run(["git", "clone", "--bare", str(repo_root), str(origin)], check=True, capture_output=True)
+                subprocess.run(["git", "clone", str(origin), str(work)], check=True, capture_output=True)
+                _git(work, "config", "user.email", "test@example.com")
+                _git(work, "config", "user.name", "Test")
+
+                subprocess.run(["git", "clone", str(origin), str(seed)], check=True, capture_output=True)
+                _git(seed, "config", "user.email", "test@example.com")
+                _git(seed, "config", "user.name", "Test")
+                (seed / "CHANGELOG_ACTIVE_MCP.txt").write_text("active mcp\n", encoding="utf-8")
+                _git(seed, "add", "CHANGELOG_ACTIVE_MCP.txt")
+                _git(seed, "commit", "-m", "chore: active mcp update")
+                _git(seed, "push", "origin", "HEAD")
+
+                def isolated_runner(cmd, **kwargs):
+                    if len(cmd) >= 4 and cmd[1:4] == ["-m", "pip", "install"]:
+                        pip_cmd = [
+                            sys.executable, "-m", "pip", "install",
+                            "--no-deps", "--prefix", str(pip_prefix), ".",
+                        ]
+                        return subprocess.run(pip_cmd, **kwargs)
+                    return subprocess.run(cmd, **kwargs)
+
+                env = os.environ.copy()
+                env["BIORAG_PATH"] = str(db)
+                env["BIORAG_IDLE_TIMEOUT_SECONDS"] = "30"
+                env["BIORAG_UPDATE_CHECK"] = "0"
+
+                params = StdioServerParameters(
+                    command=sys.executable,
+                    args=[str(repo_root / "mcp_server.py")],
+                    cwd=str(repo_root),
+                    env=env,
+                )
+
+                async with stdio_client(params) as (read, write):
+                    async with ClientSession(read, write) as session:
+                        await session.initialize()
+                        init_res = await session.call_tool("estado", {})
+                        self.assertFalse(init_res.isError, f"Initial estado failed: {init_res.content}")
+
+                        stop_traffic = asyncio.Event()
+                        busy_seen = 0
+                        unexpected_errors = []
+
+                        async def traffic_loop():
+                            nonlocal busy_seen
+                            while not stop_traffic.is_set():
+                                res = await session.call_tool("estado", {})
+                                if res.isError:
+                                    text = res.content[0].text if res.content else ""
+                                    if "Output validation error" in text:
+                                        unexpected_errors.append(text)
+                                    elif "retry" in text.lower():
+                                        busy_seen += 1
+                                    else:
+                                        unexpected_errors.append(text)
+                                await asyncio.sleep(0.15)
+
+                        traffic_task = asyncio.create_task(traffic_loop())
+                        try:
+                            await asyncio.sleep(0.3)
+                            res = await asyncio.to_thread(
+                                updater.apply,
+                                work,
+                                channel="dev",
+                                database=db,
+                                runner=isolated_runner,
+                                wait=15.0,
+                            )
+                        finally:
+                            stop_traffic.set()
+                            await traffic_task
+
+                        self.assertEqual(res["status"], "ok", f"Update failed: {res}")
+                        self.assertEqual(unexpected_errors, [], f"Unexpected MCP errors: {unexpected_errors}")
+                        self.assertGreater(busy_seen, 0, "Expected at least one readable retry response during update")
+
+                        # First call after schema version bump triggers background reload; poll briefly until ready
+                        post_res = None
+                        for _ in range(30):
+                            post_res = await session.call_tool("estado", {})
+                            if not post_res.isError:
+                                break
+                            text = post_res.content[0].text if post_res.content else ""
+                            self.assertIn("reloading", text.lower(), f"Unexpected post-update error: {text}")
+                            await asyncio.sleep(0.5)
+                        self.assertFalse(post_res.isError, f"Post-update estado failed: {post_res.content}")
+
+        asyncio.run(_run())
+
 
 if __name__ == "__main__":
     unittest.main()
