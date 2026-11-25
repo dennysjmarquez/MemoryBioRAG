@@ -90,3 +90,18 @@ Al abrir el cerebro (DMN del __init__): 0 sinapsis
  estado: {'activo': 8}
 
 Total por tipo: [('co_nombre', 2), ('dmn_synthesized', 19), ('manual', 2), ('sinonimo_explicito', 7)]
+
+Sinapsis latentes (tabla aparte, se rehace entera en cada sueño):
+  sangre_donacion ~> receta_pasta_tomate  peso=0.063 saltos=2 pmi=0.00 dim_comun=1
+  receta_pasta_tomate ~> configuracion_servidor_sistema  peso=0.022 saltos=2 pmi=0.00 dim_comun=1
+  receta_pizza_tomate ~> configuracion_servidor_sistema  peso=0.022 saltos=2 pmi=0.00 dim_comun=1
+  receta_salsa_tomate ~> configuracion_servidor_sistema  peso=0.022 saltos=2 pmi=0.00 dim_comun=1
+  receta_tomate_frito ~> configuracion_servidor_sistema  peso=0.022 saltos=2 pmi=0.00 dim_comun=1
+  sangre_donacion ~> configuracion_servidor_sistema  peso=0.022 saltos=2 pmi=0.00 dim_comun=1
+  semaforo_rojo_transito ~> configuracion_servidor_sistema  peso=0.022 saltos=2 pmi=0.00 dim_comun=1
+  sistema_backup ~> receta_pasta_tomate  peso=0.022 saltos=2 pmi=0.00 dim_comun=1
+  sistema_backup ~> receta_pizza_tomate  peso=0.022 saltos=2 pmi=0.00 dim_comun=1
+  sistema_backup ~> receta_salsa_tomate  peso=0.022 saltos=2 pmi=0.00 dim_comun=1
+  sistema_backup ~> receta_tomate_frito  peso=0.022 saltos=2 pmi=0.00 dim_comun=1
+  sistema_backup ~> sangre_donacion  peso=0.022 saltos=2 pmi=0.00 dim_comun=1
+  sistema_backup ~> semaforo_rojo_transito  peso=0.022 saltos=2 pmi=0.00 dim_comun=1

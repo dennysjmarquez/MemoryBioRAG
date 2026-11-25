@@ -6,6 +6,7 @@ No abre ninguna base real ni cambia el motor.
 - **Script:** `trazar.py`.
 - **Salida:** `salida_traza.txt` (sale igual con `PYTHONHASHSEED` = 1 y = 7).
 - **Complementa:** `../mapa_nacimiento_sinapsis/README.md`.
+- **Documento de referencia para quien llegue sin contexto:** `docs/ALGORITMO_NACIMIENTO_SINAPSIS.md`.
 
 ## Recorrido (verificado en el código)
 
@@ -26,9 +27,11 @@ No abre ninguna base real ni cambia el motor.
 7. LTD.
 8. Poda.
 
-**3. Fin de sesión**
-- Si queda algo en corto plazo, corre el ciclo de sueño.
-- Si no, `consolidar_concepto` → `auto_vincular`.
+**3. Fin de sesión** (`session.py:68`)
+1. Autoguarda el resumen y lo consolida solo con `consolidar_concepto` → `auto_vincular`.
+2. **Después**, si todavía queda algo en corto plazo, corre el ciclo de sueño completo.
+
+(Corregido el 25-11: la primera versión de este README decía «si no»; en realidad son los dos pasos, en ese orden.)
 
 **Fuera de aprender y consolidar:**
 - `buscar` → ráfaga crea `rafaga_rememb` de 0.6.

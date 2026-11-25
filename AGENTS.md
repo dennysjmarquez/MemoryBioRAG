@@ -318,12 +318,13 @@ The core engine is largely centralized in `core/memory_store.py` (~7,500 lines).
 - `creado_en` (INTEGER/REAL): Timestamp.
 
 ### Table: `sinapsis` (Connectome Graph Edges)
-- `id` (INTEGER PRIMARY KEY)
 - `origen` (TEXT): Source node concept.
-- `destino` (TEXT): Target node concept.
+- `destino` (TEXT): Target node concept. PK `(origen, destino)`; edges are directed (schema: `core/sinapsis.py:31`).
 - `peso` (REAL): Synaptic connection strength [0.0 - 1.0].
-- `tipo` (TEXT): Relation type (`'asociativa'`, `'causal'`, `'temporal'`).
-- `ultima_activacion` (REAL): Timestamp for Hebbian decay calculation.
+- `tipo` (TEXT): Birth rule (`co_ocurrencia`, `co_nombre`, `co_semantica`, `pmi_hebbiano`, `sinonimo_explicito`, `manual`, `dmn_synthesized`, …).
+- `creado_en`, `ultimo_uso` (REAL): `ultimo_uso` is born NULL and is NOT a reliable usage signal.
+- Inferred 2-hop links live in a separate table, `sinapsis_latentes`, rebuilt from scratch on every sleep cycle.
+- Full description: `docs/ALGORITMO_NACIMIENTO_SINAPSIS.md`.
 
 ### Table: `calibracion_estado` (Conformal Predictor State)
 - `id` (INTEGER PRIMARY KEY, always 1)
@@ -342,6 +343,7 @@ The `docs/` folder contains extensive research artifacts. Do not read them all a
 - **For PPMI+SVD Mathematical Formulation**: `docs/LEEME_ppmi_svd.md`
 - **For Conformal Calibration Deep-Dive**: `docs/AUDITORIA_CALIBRACION_v28.1.md`
 - **For the Lexical Abyss Challenge (EXP-Q)**: `docs/INFORME_ABISMO_LEXICO_EXPQ_v31.3.md` and `docs/analisis_pilares_abismo_lexico.md`
+- **How synapses are born, change and die (base algorithm, direct vs latent, verified problems)**: `docs/ALGORITMO_NACIMIENTO_SINAPSIS.md`
 - **For Background Daemon & Graph Maintenance**: `docs/plan_hormiguita_mantenimiento_grafo.md`
 - **For Master Project Vision & History**: `Building Human-Like Persistent Memory.md` and `docs/PLAN_MAESTRO_BIORAG_UNICO_EN_EL_PLANETA.md`
 

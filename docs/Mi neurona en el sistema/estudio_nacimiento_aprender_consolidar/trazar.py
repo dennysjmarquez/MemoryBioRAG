@@ -107,6 +107,10 @@ def main():
         print("\n".join(diff(a, foto(con))))
         print(" estado:", dict(con.execute("SELECT estado, COUNT(*) FROM largo_plazo GROUP BY estado").fetchall()))
     print("\nTotal por tipo:", con.execute("SELECT tipo, COUNT(*) FROM sinapsis GROUP BY tipo").fetchall())
+    print("\nSinapsis latentes (tabla aparte, se rehace entera en cada sueño):")
+    for fila in con.execute("SELECT origen, destino, peso_atenuado, saltos, pmi_score, tiene_dim_comun "
+                            "FROM sinapsis_latentes ORDER BY peso_atenuado DESC"):
+        print("  %s ~> %s  peso=%.3f saltos=%d pmi=%.2f dim_comun=%d" % fila)
 
 
 if __name__ == "__main__":
