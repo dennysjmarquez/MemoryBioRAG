@@ -188,13 +188,18 @@
   - `active_lease_holders(database)` sondea los locks del SO (`_shared_lock_conflicts`): si un proceso murió (incluso por `kill -9`), el kernel liberó el lock, se limpia el archivo residual y se ignora.
   - Al expirar el timeout de `maintenance()`, `MaintenanceError` incluye `Active clients: PID <pid> (<role>: <command>), ...`.
   - En `core/updater.py`, `main()` propaga la lista de clientes activos en el mensaje de error JSON en `stderr`.
-- **Tests (4 casos en `tests/test_lease_diagnostics_f3.py`):**
+- **Tests (6 casos en `tests/test_lease_diagnostics_f3.py` + 3 casos E2E en `tests/test_update_e2e_hardening.py`):**
   - `test_client_creates_os_locked_lease_metadata_and_cleans_on_close`
   - `test_dead_process_lease_ignored_even_if_file_remains` (`kill -9`)
   - `test_maintenance_timeout_reports_active_holders_pid_and_command`
   - `test_updater_cli_timeout_reports_active_holders`
+  - `test_lease_metadata_does_not_store_full_sys_argv` (solo `Path(sys.argv[0]).name` y `role`, commit `db5e0ada`)
+  - `test_maintenance_timeout_falls_back_to_process_inspection_for_legacy_holder` (respaldo vía `core/process_inspection.py` para holders sin `.leases/`, commit `db5e0ada`)
+  - `test_two_consecutive_updates_leave_git_status_clean` (`git rm -r --cached memory_biorag.egg-info` + `.gitignore` `build/` y `*.egg-info/`, commit `a7aefadf`)
+  - `test_pip_install_is_quiet_by_default_and_surfaces_error_or_verbose` (`_run_pip_install` silencioso salvo error o `--verbose`, commit `550f3409`)
+  - `test_update_with_active_mcp_server_drains_and_succeeds` (update real contra servidor MCP `stdio` con tráfico continuo + `faulthandler_timeout = 300`, commit `83f3e353`)
 - **Resultado empírico (suite completa por mitades tras el último cambio):**
-  - Mitad 1 (54 archivos): `476 passed, 77 subtests passed` (`164.21s`).
-  - Mitad 2 (54 archivos): `628 passed, 7 subtests passed` (`234.43s`).
-  - **Total:** `1104 passed, 0 skipped, 84 subtests passed` (0 fallos).
+  - Mitad 1: `478 passed, 77 subtests passed` (`209.16s`).
+  - Mitad 2: `631 passed, 7 subtests passed` (`727.10s`).
+  - **Total:** `1109 passed, 84 subtests passed, 0 failed` (`1091 herméticas + 18 de test_orden_monotonico.py sobre copia aislada del snapshot en tests/conftest.py`).
   - Plataforma: Linux POSIX verificada. `[NO VERIFICADO EN WINDOWS NATIVO]` para locks Win32 de diagnóstico.
