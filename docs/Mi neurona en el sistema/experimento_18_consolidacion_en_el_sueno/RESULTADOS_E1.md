@@ -126,3 +126,32 @@ AUC = probabilidad de que un par del mismo tema puntúe más alto que un par sin
   - R como complemento solo donde el canal 1 ve el texto.
 - **Queda en duda:** U como entrada.
 - **Bloqueado:** E3, hasta que pasen E1 y E2. No se tocó el motor.
+
+## 8. ⚠️ Corrección del mismo día: el bucle no estaba cerrado del todo
+
+**Qué dije y qué era cierto.** En §4 escribí «el bucle está cerrado». Era cierto **solo para las vías que se
+probaron**: las tablas de sinapsis, los pesos y las sinapsis falsas con sueño. Una auditoría posterior encontró
+dos vías más [V]:
+- **`largo_plazo.asociaciones`:** copia en CSV de los vecinos. La búsqueda suma `0.02·min(1, asoc/20)`. La copia
+  limpia no la vaciaba. En este mundo estaba vacía, así que no influyó.
+- **Dimensiones `auto_generada = 1`:** nacen de comunidades del grafo de sinapsis y se guardan en el eje
+  `dominio`.
+  - C1.2b no las ejercitó: en ninguna base apareció una dimensión emergente.
+  - Inyectando una a mano, el repaso cambió 6 de 276 pares en es y 5 en en.
+
+**Arreglo:** enmienda A4 y criterio C1.2c (`PROTOCOLO_V3.md` §0), subidos antes de volver a medir (`5deb54b`).
+Ahora la copia limpia también vacía `asociaciones` y quita las dimensiones emergentes.
+
+**Resultado** (`resultados/e1_a4.json`):
+
+| | es | en | zh | ja |
+|---|---|---|---|---|
+| C1.2c (dimensión emergente + `asociaciones` falsas) | 276 | 276 | 276 | 276 |
+| Restos de `asociaciones` o emergentes en la copia | 0 | 0 | 0 | 0 |
+| C1.1 (sin cambios) | 275 | 270 | 276 | 276 |
+
+- Todas las demás cifras salen idénticas a las de §2 y §6.
+- **El veredicto no cambia: E1 NO PASA,** por C1.1 en inglés.
+- **Reproducibilidad entre sesiones:** al repetir E1 tras un reinicio del entorno, `e1.json` salió idéntico,
+  salvo el campo de segundos.
+- **Para el motor [D]:** cualquier S que lea la base tiene que excluir `auto_generada = 1`.
