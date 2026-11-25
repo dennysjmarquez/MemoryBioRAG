@@ -30,6 +30,11 @@ MCP OK), **`pytest tests/` → 1104 passed, 84 subtests passed**.
 | D11 | El **QCR nunca vacía el pool base**: si ningún candidato pasa, se quedan todos | Info (diseño no documentado) | `search.py:2446` |
 | D12 | Restos: `print [TRACE]`, comentario de "8 señales", una consulta SQL por candidato para la señal latente | Baja | `search.py:1057, 2828, 3286` |
 | D13 | Los baselines de R@1 citados no coinciden entre sí (88.76 / 91.89 / 93.03) | Baja (doc) | `AGENTS.md`, `qa_con_neurona_20261025/LEEME.md`, `README.md` |
+| **D14** | **BUG: `recordar` nunca devuelve fecha ni caducidad.** La consulta usa la tabla `categorias` y la columna `nombre`, pero se llaman `categories` y `name`; el error se traga con `except: pass` | **Alta** (función muerta en silencio) | `core/mcp_server/search.py:713-722` |
+| **D15** | **El olvido (LTD) se cuenta por llamada a `consolidar`, no por tiempo transcurrido.** 1 llamada durmió 56 nodos; 3 seguidas, 899 | **Alta** (pérdida de recall) | `consolidation.py:407-484` |
+| D16 | Falso positivo real: «receta de arepas» devuelve 3 nodos de *10596 Recetas.exe* con «confianza media» (0.53) | Media (consecuencia de D2) | §5 |
+| D17 | Formato de `dimensiones` incoherente: el aviso de `recordar` sugiere un string (`'intencion_aprender'`) y `aprender` exige un JSON por eje | Baja (UX del agente) | §5 |
+| D18 | Higiene de datos: hay mensajes de la cartelera guardados como nodos con nombres automáticos sin sentido | Baja (datos, no código) | §5 |
 
 ---
 
@@ -184,3 +189,81 @@ MCP OK), **`pytest tests/` → 1104 passed, 84 subtests passed**.
 2. Ráfaga si `score_base_top < 0.5`; se mezcla, se reordena y se recorta.
 3. `_debe_responder` (no hace nada salvo con D2 activado).
 4. Filtros por fecha y autor, staleness y canal 2 (asociaciones adjuntas, sin tocar el ranking).
+
+---
+
+## 5. Uso real del MCP contra la DB viva (2026-11-25)
+
+**Método.** Cliente MCP stdio real (`mcp` SDK) contra `mcp_server.py`, siguiendo el protocolo de la propia herramienta: descomponer la pregunta y llamar a `recordar` con consulta, paráfrasis, `sustantivos_clave` y, si hace falta, ráfaga y `asociados`.
+- Las **lecturas** se hicieron sobre la DB viva. Solo escriben `log_busquedas`, accesos y la práctica de la neurona, igual que cualquier agente.
+- Las **escrituras** (`aprender` y `consolidar`) se hicieron **solo sobre copias** en `/tmp`.
+
+### 5.1 Recuperación: lo que funciona muy bien
+
+| Pregunta (con palabras del agente) | Top-1 | Score | Certeza |
+|---|---|---|---|
+| ¿Qué es BioRAG y en qué versión va? | `version_actual_biorag` (v36.2) | 1.00 | evidencia_directa |
+| ¿Qué es la Neurona? | `version_actual_biorag_v34_0_20261024` | 0.88 | evidencia_directa |
+| Ingeniería inversa de un ejecutable protegido | `recetas_10596_5_parches_binarios_themida` | 0.48 | — |
+| Con errata: «ingenieria socail carlos pepe busjer» | `sello_seguridad_desconocidos_no_validados` | 0.63 | confianza media |
+| Multi-hop: decisión sobre el nodo basura «última versión» | `leccion_verificar_nodo_sin_nombrarlo_para_no_rescatarlo` | 0.52 | confianza media |
+| Ráfaga: «cuando Dennys se emocionó» | `momento_gratitud_dennys_athena_2026-10-08` (6/6 pertinentes) | 0.52 | confianza media |
+| Trampa del benchmark con nodos dormidos (en español) | `leccion_eliminacion_ppr_v251_tras_evidencia_real` | 0.46 | confianza media |
+| Pregunta fuera del dominio: «capital de Mongolia» | (nada relevante) | 0.23 | **sin_evidencia_directa** ✔ |
+
+- **Latencia:** la primera consulta tarda de 6 a 8 s (carga perezosa de índices); las siguientes, de 0.4 a 4 s.
+- **Asociaciones enriquecidas:** dan una vecindad útil (familia OEC, identidades, versiones).
+
+### 5.2 Lo que falla o se puede mejorar
+
+**D14 — Fecha y caducidad muertas.**
+- La consulta de `core/mcp_server/search.py:713-717` es `SELECT concepto, creado_en, c.nombre FROM largo_plazo l JOIN categorias c ...`.
+  En el esquema real (`schema.py:125`) la tabla es `categories(id, name, ...)`, así que lanza `OperationalError` y el `except Exception: pass` lo oculta.
+- Efecto en cada resultado: `fecha_legible = null`, `timestamp_creado = 0`, `edad_dias = 0` y `stale = false` siempre.
+- `BIORAG_STALE_HARD_CUTOFF` (líneas 726-735) tampoco puede actuar.
+- La descripción de la herramienta promete `fecha_legible` («permite razonar sobre CUÁNDO pasó algo»).
+- **No hay ningún test** que lo cubra: `grep fecha_legible tests/` no devuelve nada.
+- **Arreglo propuesto (una línea; no tocado):** `SELECT l.concepto, l.creado_en, c.name FROM largo_plazo l LEFT JOIN categories c ON c.id = l.categoria`, más un test que exija `fecha_legible` no nulo.
+- **Antes de mergear:** con el arreglo se reactiva el marcado `stale` (más de 90 días, salvo Principle/Profile/Personal/Relation). Hay que medir su efecto en la QA.
+
+**D15 — El olvido cuenta llamadas, no noches.**
+- El LTD (`consolidation.py:407-448`) resta entre 0.01 y 0.10 × categoría × prioridad (NULL → 1.5×) por cada `consolidar`, sin mirar el tiempo real transcurrido desde el ciclo anterior.
+- Después duerme todo lo que quede con peso ≤ 0.05 (línea 476).
+- En la DB viva hay unos 900 nodos con peso de 0.1 a 0.3 (583 en 0.2, 174 en 0.3, 142 en 0.1).
+- Medido en copia:
+
+  | Ciclos `consolidar` seguidos | Activos | Dormidos |
+  |---|---|---|
+  | 0 (DB viva) | 1380 | 1 |
+  | 1 | 1329 | 57 |
+  | 3 (en ≈1 minuto) | 485 | **900** |
+
+- La descripción de `consolidar` y la respuesta de `aprender` piden «consolidar después de aprender». Un agente que guarda 3 cosas y consolida 3 veces envía a dormir dos tercios de la memoria en un minuto.
+- `metricas_historial` muestra el mismo patrón en la vida real: ciclos con 169, 183 y 599 dormidos y un `olvido_promedio` de 317. Después se despiertan por búsquedas o ráfaga (el «efecto observador» ya documentado en `leccion_efecto_observador_biorag_fase15_despierta_nodos`).
+- **Propuesta a decidir (sin tocar):** escalar el LTD por `Δt` desde el último ciclo (por ejemplo `min(1, Δt/24h)`), o separar «fijar corto plazo» de «noche de olvido».
+
+**D16 — Falso positivo con respuesta segura.**
+- «receta arepa pabellón criollo» → `recetas_10596_extraccion_html_runtime_padre_hijo` (0.53), `..._directivas_dennys_crack_binario` (0.53) y `..._heserver_servidor_interno_wine_hosts` (0.51), todos con `nivel_certeza = relacionado_confianza_media`.
+- Es un solapamiento puramente léxico («receta»). Con D2 apagado, el MCP lo entrega igual.
+- En cambio, «precio del bitcoin» → `proyecto_calculadora_inversion_cripto` (0.72) es un acierto razonable.
+
+**Recall en inglés.** «benchmark trap dormant nodes evaluated as active» no trae el nodo correcto en el top-3 (máximo 0.33). La misma idea en español lo trae en top-1. El corpus está en español; los *bridges* no cubren inglés.
+
+**D17 — Formato de `dimensiones`.**
+- `aprender` rechaza `"accion_fallar,accion_evaluar"` y exige `{"intencion":["accion_fallar",...]}`.
+- El aviso que imprime `recordar` sugiere `dimensiones='intencion_aprender'`.
+- Además, `aprender` exige `busqueda_previa=True`, exactamente 5 *bridges* (sinónimo, problema, solución, situación, ingenuo) y avisa si `syn` tiene menos de 8 términos.
+  Todo esto está bien diseñado (obliga a pensar cómo se recuperará el recuerdo), pero cuesta 3-4 reintentos al primer uso. Convendría un único mensaje de error que liste todos los requisitos que faltan.
+
+**Ida y vuelta (en copia).**
+- Nodo guardado con 3 sinónimos y 5 *bridges* → se recupera en top-1 (0.40) con la frase del *bridge* «ingenuo».
+- **No** se recupera con «quien instalo el sistema en otra computadora» («computadora» no está en ningún campo). Confirma el aviso del sistema: con menos de 8 sinónimos, el nodo queda casi isla.
+
+**D18 — Higiene de datos.** Hay nodos cuyo contenido es un mensaje de la cartelera y cuyo nombre es una concatenación automática sin sentido:
+- `identidad_sesion_dennys`, `athena_hermanas_necesito`, `athena_artemis_athena` y `activos_dormidos_athena` (este empieza con «activos:804 dormidos:489»).
+- `sello_seguridad_desconocidos_no_validados_sello_seguridad` (duplicado del sello).
+- `pepe_busger_reencadre`.
+
+Aparecen como ruido en las búsquedas sobre el contador PPMI y la ingeniería social. Revisarlos a mano y fusionarlos o archivarlos lo decide Dennys.
+
+**Otros.** `concept_hub_buscar("como empiezo una sesion nueva con la memoria")` → sin match; ningún hub cubre el arranque de sesión. `estado_dmn` → «DMN no iniciado en esta instancia».
