@@ -177,23 +177,37 @@ class IdleLeaseReleaseTests(unittest.TestCase):
     # Test 7: idle timer re-armed on each access (extends timeout)
     # ------------------------------------------------------------------
     def test_idle_timer_reset_on_each_access(self):
-        """Repeated get_cerebro() calls must reset the idle countdown."""
+        """Repeated get_cerebro() calls must reset the idle countdown.
+
+        D20: la versión anterior usaba un timeout de 2 s y sleeps de 0.5/0.6 s; con la
+        máquina cargada el arranque en frío del singleton superaba los 2 s y el test
+        fallaba (también sobre el código original). Ahora se verifica el reinicio sin
+        depender del reloj: timeout amplio (no puede vencer durante el test), el timer
+        viejo queda CANCELADO y el nuevo está vivo y sin disparar.
+        """
         import tempfile
         svc = self._svc
         with tempfile.TemporaryDirectory() as tmp:
             db = self._make_db(Path(tmp))
-            with patch.object(svc, '_IDLE_TIMEOUT', 2):
+            with patch.object(svc, '_IDLE_TIMEOUT', 60):
                 svc.get_cerebro(str(db))
                 timer_1 = svc._idle_timer
-                time.sleep(0.5)
+                self.assertIsNotNone(timer_1)
                 svc.get_cerebro(str(db))  # re-arm
                 timer_2 = svc._idle_timer
                 # A new timer should have been created.
                 self.assertIsNot(timer_1, timer_2,
                                  "Idle timer should be re-created on each access")
-                # After 0.5s more (total 1s), connection should still be open
-                # because the second access reset the 2s timer.
-                time.sleep(0.6)
+                # The old countdown was cancelled (finished is set by cancel())
+                # and joined, so it can never release the connection later.
+                timer_1.join(timeout=5)
+                self.assertTrue(timer_1.finished.is_set(),
+                                "Previous idle timer must be cancelled on re-arm")
+                self.assertFalse(timer_1.is_alive())
+                # The new countdown is running and has not fired.
+                self.assertTrue(timer_2.is_alive())
+                self.assertFalse(timer_2.finished.is_set())
+                self.assertEqual(timer_2.interval, 60)
                 cerebro = svc._cerebro
                 self.assertFalse(
                     getattr(cerebro, '_conn_released', False),
