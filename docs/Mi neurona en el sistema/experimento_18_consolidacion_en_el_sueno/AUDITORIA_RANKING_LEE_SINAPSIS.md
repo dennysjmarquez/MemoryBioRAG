@@ -41,13 +41,37 @@ búsqueda, no una lectura.
 - Esto **descarta** medir la coactivación en el camino del agente (`buscar_por_frase` o ráfaga), aunque se
   hiciera sin telemetría.
 
+## ⚠️ Corrección del mismo día (antes de medir nada): hay dos entradas más del bucle [V]
+
+Al revisar la propuesta de Gemini se comprobó que la tabla anterior estaba **incompleta**. Las sinapsis también
+entran en el orden de forma **indirecta**, a través de dos índices que se construyen a partir de ellas:
+
+| Punto | Línea | ¿Cuándo actúa? | Cómo entran las sinapsis |
+|---|---|---|---|
+| **Señal #13, PPMI+SVD** (`score_candidato`) | `search.py` L2236–2250; peso 0,15 (`constants.py` L208) | **en toda consulta** | los vectores de nodo se **reajustan con las sinapsis** (*retrofitting*, `ppmi_vectorizer.py` L164 y L339–345) |
+| Analogía y campo potencial (PPMI) | `search.py` L2105–2135 | solo con su opción o peso activado (por defecto, 0) | los mismos vectores reajustados |
+| **Fallback 2.5, SDM** | `search.py` L1289–1321 | si hay menos de 3 resultados (`SDM_FALLBACK_ACTIVO=1`) | los bits 1920–2047 de cada vector SDM codifican los **vecinos por sinapsis** (`sdm.py` L42, L224 y L344) |
+
+**Consecuencias:**
+1. La influencia de las sinapsis en el canal 1 es **mayor** que «hasta el 10 %». Al término directo del 10 %
+   se suma la parte reajustada de una señal que pesa 0,15.
+2. **Error mío corregido:** la versión anterior de esta sección ponía el **SDM** entre las vías «que no leen
+   la tabla `sinapsis`». Es falso.
+3. Además, PPMI y SDM usan el lematizador español y PPMI la lista de palabras vacías: no son neutrales al
+   idioma. PPMI, SVD e IDF son estadísticas de **todo** el corpus, así que tampoco son invariantes ante D∪I.
+
+**Definición corregida:** `ignorar_sinapsis=True` debe saltarse también la señal #13 de PPMI, la analogía, el
+campo potencial y el fallback SDM. El repaso usa **solo** FTS (contenido, nombre, sinónimos y sustantivos
+clave), las dimensiones y la estructura declarada por igualdad exacta. La prueba del bucle (C1.2 del protocolo
+v2) habría detectado esto. Ahora queda escrito antes de medir.
+
 ## Lo que sí sirve: «resonancia independiente» en el repaso del sueño
 
 Es la regla que propuso Gemini-argon, ajustada a lo verificado:
 
 > El par A–B cuenta como coactivado **solo si** A y B se activan con una consulta construida desde los campos de
 > A, por **vías que no leen la tabla `sinapsis`**: FTS sobre el contenido, el nombre, los sinónimos y los
-> sustantivos clave, más las dimensiones y el SDM. Así la sinapsis que se está juzgando no puede fabricar su
+> sustantivos clave, más las dimensiones (**sin SDM ni PPMI**: ver la corrección de arriba). Así la sinapsis que se está juzgando no puede fabricar su
 > propia evidencia.
 
 **Cómo se implementaría (requiere OK, es un cambio en el motor):**

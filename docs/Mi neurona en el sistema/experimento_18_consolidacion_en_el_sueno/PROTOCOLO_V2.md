@@ -7,6 +7,10 @@
   `DECISIONES_CONSENSO.md`.
 - No se cambia ningún umbral después de ver resultados.
 
+> **Enmienda del 2026-11-25, antes de cualquier medición:** `ignorar_sinapsis` también excluye la señal #13
+> de PPMI, la analogía, el campo potencial y el fallback SDM, porque sus índices se construyen con las
+> sinapsis. Ver «Corrección» en `AUDITORIA_RANKING_LEE_SINAPSIS.md`. Ningún umbral cambia.
+
 ## 1. Qué cambia frente a la v1 y por qué
 
 | v1 | v2 | Motivo |
