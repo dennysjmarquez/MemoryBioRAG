@@ -1,0 +1,109 @@
+{
+ "db": "qa_escape_qcr_20260811.db",
+ "neurona": "asoc-1",
+ "recuerdos_activos": 851,
+ "recuerdos_con_vecinos": 839,
+ "pares_juzgados": 26684,
+ "vecinos_por_recuerdo": {
+  "mediana": 23,
+  "p90": 71,
+  "max": 258
+ },
+ "segundos": {
+  "construir_estado": 0.51,
+  "juzgar_todo": 9.6,
+  "ms_por_par": 0.358
+ },
+ "canal2": {
+  "hoy": {
+   "lugares": 3173,
+   "recuerdos_sin_asociaciones": 10,
+   "recuerdos_con_otra_lista_que_hoy": 0,
+   "automaticas_mostradas": 2481,
+   "fuerza_mediana_automaticas": 0.452,
+   "automaticas_con_fuerza_ge_060": 0.2,
+   "por_tipo": {
+    "sinonimo_explicito": 1356,
+    "manual": 685,
+    "co_semantica": 488,
+    "co_ocurrencia": 354,
+    "co_nombre": 147,
+    "pmi_hebbiano": 120,
+    "legacy_csv": 16,
+    "manual_v7": 7
+   }
+  },
+  "filtro_050": {
+   "lugares": 2587,
+   "recuerdos_sin_asociaciones": 91,
+   "recuerdos_con_otra_lista_que_hoy": 703,
+   "automaticas_mostradas": 1893,
+   "fuerza_mediana_automaticas": 0.594,
+   "automaticas_con_fuerza_ge_060": 0.487,
+   "por_tipo": {
+    "sinonimo_explicito": 964,
+    "manual": 685,
+    "co_ocurrencia": 399,
+    "co_semantica": 216,
+    "co_nombre": 154,
+    "pmi_hebbiano": 141,
+    "legacy_csv": 18,
+    "manual_v7": 9,
+    "test": 1
+   }
+  },
+  "ordena": {
+   "lugares": 3173,
+   "recuerdos_sin_asociaciones": 10,
+   "recuerdos_con_otra_lista_que_hoy": 710,
+   "automaticas_mostradas": 2472,
+   "fuerza_mediana_automaticas": 0.619,
+   "automaticas_con_fuerza_ge_060": 0.53,
+   "por_tipo": {
+    "sinonimo_explicito": 1115,
+    "manual": 685,
+    "co_ocurrencia": 561,
+    "pmi_hebbiano": 288,
+    "co_semantica": 261,
+    "co_nombre": 225,
+    "legacy_csv": 21,
+    "manual_v7": 16,
+    "test": 1
+   }
+  }
+ },
+ "examen_tapado": {
+  "estudio": {
+   "recuerdos": 225,
+   "manuales_posibles_en_top5": 561,
+   "peso_de_hoy": {
+    "aciertos": 24,
+    "pct": 4.3
+   },
+   "escalera_por_tipo": {
+    "aciertos": 39,
+    "pct": 7.0
+   },
+   "neurona": {
+    "aciertos": 346,
+    "pct": 61.7
+   }
+  },
+  "guardia": {
+   "recuerdos": 52,
+   "manuales_posibles_en_top5": 133,
+   "peso_de_hoy": {
+    "aciertos": 5,
+    "pct": 3.8
+   },
+   "escalera_por_tipo": {
+    "aciertos": 11,
+    "pct": 8.3
+   },
+   "neurona": {
+    "aciertos": 80,
+    "pct": 60.2
+   }
+  }
+ }
+}
