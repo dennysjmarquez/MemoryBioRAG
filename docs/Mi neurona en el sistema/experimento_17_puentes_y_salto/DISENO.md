@@ -3,6 +3,16 @@
 **Fecha:** 2026-11-25. **Estado:** diseño. Todavía no se midió nada; el protocolo con umbrales se
 escribe y se sube antes de medir, igual que en el experimento 16.
 
+## Alcance: solo la neurona asociativa
+
+Aclaración del usuario (2026-11-25): **no se toca la primera neurona, la de re-ranqueo de la
+búsqueda**, ni el canal 1 (ranking). Todo este diseño es **solo de la neurona asociativa**: el orden
+de las asociaciones del canal 2 y la vida de las sinapsis.
+
+Cuando más abajo se habla de «salto según el contexto», la consulta solo se **lee** como contexto
+para ordenar el canal 2. No cambia el orden ni la puntuación de los resultados de búsqueda, y no
+interviene en la neurona de re-ranqueo.
+
 ## La idea del usuario (corrección al experimento 16)
 
 > «Hay palabras, por ejemplo *color rojo*, que son claves y están relacionadas porque están en otros
@@ -49,7 +59,7 @@ Para cada sinapsis, la neurona produce tres cosas:
 
 Todo depende solo del par y de estadísticas congeladas, así que la invariancia se mantiene.
 
-## El salto: re-ranqueo híbrido del canal 2 según el contexto
+## El salto: orden del canal 2 según el contexto (neurona asociativa; no es la neurona de re-ranqueo)
 
 Hoy el canal 2 ordena siempre igual, por tipo y peso, sin mirar qué se preguntó. La propuesta es que
 el orden dependa de la búsqueda:
