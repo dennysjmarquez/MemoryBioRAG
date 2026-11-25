@@ -195,7 +195,8 @@
   - `test_updater_cli_timeout_reports_active_holders`
   - `test_lease_metadata_does_not_store_full_sys_argv` (solo `Path(sys.argv[0]).name` y `role`, commit `db5e0ada`)
   - `test_maintenance_timeout_falls_back_to_process_inspection_for_legacy_holder` (respaldo vía `core/process_inspection.py` para holders sin `.leases/`, commit `db5e0ada`)
-  - `test_gc_reentrancy_during_acquire_does_not_deadlock` (`_DIAG_LOCK = threading.RLock()` evita auto-deadlock cuando `__del__` corre en el mismo hilo dentro de `_acquire_diagnostic_lease`, commit `7ad7274d`)
+  - `test_gc_reentrancy_during_acquire_does_not_deadlock` (`_DIAG_LOCK = threading.RLock()` + `gc.disable()/enable()` en la sección crítica evita auto-deadlock y reentrada de `__del__` entre `get` e incremento, commit `7ad7274d` y refinamiento posterior)
+  - `test_process_inspection_classifies_relative_entry_points_and_updater_action` (clasificación de entry points relativos en el mismo directorio y mensaje accionable en `updater.main()`)
   - `test_two_consecutive_updates_leave_git_status_clean` (`git rm -r --cached memory_biorag.egg-info` + `.gitignore` `build/` y `*.egg-info/`, commit `a7aefadf`)
   - `test_pip_install_is_quiet_by_default_and_surfaces_error_or_verbose` (`_run_pip_install` silencioso salvo error o `--verbose`, commit `550f3409`)
   - `test_update_with_active_mcp_server_drains_and_succeeds` (update real contra servidor MCP `stdio` con tráfico continuo + `faulthandler_timeout = 300`, commit `83f3e353`)

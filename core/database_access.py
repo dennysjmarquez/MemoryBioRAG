@@ -10,6 +10,7 @@ import ctypes
 from contextlib import contextmanager
 from contextvars import ContextVar
 from datetime import datetime, timezone
+import gc
 import json
 import os
 from pathlib import Path
@@ -65,70 +66,84 @@ def _client_role():
 def _acquire_diagnostic_lease(database):
     """Register an OS-locked diagnostic metadata file in <db>.leases/<pid>.json."""
     key = str(database)
-    with _DIAG_LOCK:
-        entry = _DIAG_LEASES.get(key)
-        if entry is not None:
-            entry['count'] += 1
-            return
-        leases_dir = _leases_dir(database)
-        lease_path = leases_dir / f'{os.getpid()}.json'
-        try:
-            leases_dir.mkdir(parents=True, exist_ok=True)
-            fd = os.open(lease_path, os.O_RDWR | os.O_CREAT, 0o600)
-            lease_file = os.fdopen(fd, 'r+')
-        except OSError:
-            return
-        overlapped = None
-        try:
-            if os.name == 'posix':
-                import fcntl
-                fcntl.flock(lease_file, fcntl.LOCK_EX | fcntl.LOCK_NB)
-            elif os.name == 'nt':
-                overlapped = _windows_lock(lease_file, exclusive=True)
-            payload = {
-                'pid': os.getpid(),
-                'command': Path(sys.argv[0]).name if sys.argv and sys.argv[0] else 'python',
-                'role': _client_role(),
-                'started_at': datetime.now(timezone.utc).isoformat(),
-            }
-            lease_file.seek(0)
-            lease_file.truncate()
-            json.dump(payload, lease_file, ensure_ascii=False)
-            lease_file.flush()
-            _DIAG_LEASES[key] = {
-                'count': 1,
-                'file': lease_file,
-                'overlapped': overlapped,
-                'path': lease_path,
-            }
-        except (OSError, BlockingIOError):
-            lease_file.close()
+    gc_was_enabled = gc.isenabled()
+    if gc_was_enabled:
+        gc.disable()
+    try:
+        with _DIAG_LOCK:
+            entry = _DIAG_LEASES.get(key)
+            if entry is not None:
+                entry['count'] += 1
+                return
+            leases_dir = _leases_dir(database)
+            lease_path = leases_dir / f'{os.getpid()}.json'
+            try:
+                leases_dir.mkdir(parents=True, exist_ok=True)
+                fd = os.open(lease_path, os.O_RDWR | os.O_CREAT, 0o600)
+                lease_file = os.fdopen(fd, 'r+')
+            except OSError:
+                return
+            overlapped = None
+            try:
+                if os.name == 'posix':
+                    import fcntl
+                    fcntl.flock(lease_file, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                elif os.name == 'nt':
+                    overlapped = _windows_lock(lease_file, exclusive=True)
+                payload = {
+                    'pid': os.getpid(),
+                    'command': Path(sys.argv[0]).name if sys.argv and sys.argv[0] else 'python',
+                    'role': _client_role(),
+                    'started_at': datetime.now(timezone.utc).isoformat(),
+                }
+                lease_file.seek(0)
+                lease_file.truncate()
+                json.dump(payload, lease_file, ensure_ascii=False)
+                lease_file.flush()
+                _DIAG_LEASES[key] = {
+                    'count': 1,
+                    'file': lease_file,
+                    'overlapped': overlapped,
+                    'path': lease_path,
+                }
+            except (OSError, BlockingIOError):
+                lease_file.close()
+    finally:
+        if gc_was_enabled:
+            gc.enable()
 
 
 def _release_diagnostic_lease(database):
     """Release diagnostic lease for this process when its last managed connection closes."""
     key = str(database)
-    with _DIAG_LOCK:
-        entry = _DIAG_LEASES.get(key)
-        if entry is None:
-            return
-        entry['count'] -= 1
-        if entry['count'] > 0:
-            return
-        _DIAG_LEASES.pop(key, None)
-        try:
-            _unlock(entry['file'], entry['overlapped'])
-        except OSError:
-            pass
-        finally:
+    gc_was_enabled = gc.isenabled()
+    if gc_was_enabled:
+        gc.disable()
+    try:
+        with _DIAG_LOCK:
+            entry = _DIAG_LEASES.get(key)
+            if entry is None:
+                return
+            entry['count'] -= 1
+            if entry['count'] > 0:
+                return
+            _DIAG_LEASES.pop(key, None)
             try:
-                entry['file'].close()
+                _unlock(entry['file'], entry['overlapped'])
             except OSError:
                 pass
-        try:
-            entry['path'].unlink()
-        except OSError:
-            pass
+            finally:
+                try:
+                    entry['file'].close()
+                except OSError:
+                    pass
+            try:
+                entry['path'].unlink()
+            except OSError:
+                pass
+    finally:
+        if gc_was_enabled:
+            gc.enable()
 
 
 def active_lease_holders(database):

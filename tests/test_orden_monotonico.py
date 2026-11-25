@@ -106,23 +106,19 @@ class TestPisoPromocionHub:
 
 # ─── 2. Invariante sobre la DB real ───────────────────────────────────────────
 
-requiere_db = pytest.mark.skipif(
-    not os.path.exists(_db_path()),
-    reason=f"No existe la DB en {_db_path()} — exporta BIORAG_PATH para correr este test",
-)
-
-
 @pytest.fixture(scope="module")
 def cerebro():
+    db_path = _db_path()
+    if not os.path.exists(db_path):
+        pytest.skip(f"No existe la DB en {db_path} — exporta BIORAG_PATH para correr este test")
     from core.memory_store import SQLiteMemoryBioRAG
 
     os.environ.setdefault("BIORAG_NO_LOG", "1")  # no contaminar log_busquedas
-    db = SQLiteMemoryBioRAG(db_path=_db_path())
+    db = SQLiteMemoryBioRAG(db_path=db_path)
     yield db
     db.conn.close()
 
 
-@requiere_db
 class TestOrdenMonotonicoReal:
     @pytest.mark.parametrize("query", _queries())
     def test_scores_no_crecientes(self, cerebro, query):

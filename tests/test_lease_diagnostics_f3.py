@@ -235,6 +235,27 @@ class LeaseDiagnosticsF3Tests(unittest.TestCase):
             self.assertTrue(finished.wait(timeout=2.0), "Deadlock detected in _DIAG_LOCK on same-thread reentrancy!")
             self.assertEqual(errors, [])
 
+    def test_process_inspection_classifies_relative_entry_points_and_updater_action(self):
+        """Relative entry points in same directory (e.g. 'python3 mcp_server.py') classify properly and updater suggests action."""
+        import io
+        from contextlib import redirect_stderr
+        from core import process_inspection, updater
+
+        self.assertEqual(process_inspection._classify(["python3", "mcp_server.py"], "/tmp/other"), "mcp")
+        self.assertEqual(process_inspection._classify(["python3", "biorag.py", "buscar"], "/tmp/other"), "cli")
+
+        err = da.MaintenanceError(
+            "DATABASE_IN_USE_OR_MAINTENANCE: close active BioRAG clients. "
+            "Active clients: PID 42424 (mcp: mcp_server.py)"
+        )
+        stderr_buf = io.StringIO()
+        with patch.object(updater, "apply", side_effect=err):
+            with redirect_stderr(stderr_buf):
+                rc = updater.main(["--db", "/tmp/dummy.db", "--wait", "0"])
+        self.assertEqual(rc, 1)
+        payload = json.loads(stderr_buf.getvalue().strip())
+        self.assertIn("Close or restart", payload["message"])
+
 
 if __name__ == "__main__":
     unittest.main()

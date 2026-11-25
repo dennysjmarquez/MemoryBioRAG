@@ -551,7 +551,7 @@ def main(argv=None):
         elif isinstance(exc,MaintenanceError):
             message='BioRAG is currently using the memory database. Wait for active work to finish, then try the update again.'
             if 'Active clients:' in str(exc):
-                message+=' Active clients: '+str(exc).split('Active clients:',1)[1].strip()
+                message+=' Active clients: '+str(exc).split('Active clients:',1)[1].strip()+' Close or restart those processes, or retry with: biorag update --wait 60.'
         else:
             message='BioRAG could not safely start the update. No update was applied; try again later or contact support.'
             # Las causas accionables del preflight (rama sin upstream, HEAD separado, no es un

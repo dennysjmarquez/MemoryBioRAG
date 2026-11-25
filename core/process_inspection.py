@@ -44,14 +44,15 @@ def _database_files(database: str | os.PathLike[str]) -> set[str]:
 def _classify(cmdline: list[str], cwd: str | None) -> str | None:
     """Recognize only supported BioRAG process entry points, never name substrings alone."""
     tokens = [str(token).replace("\\", "/").lower() for token in cmdline]
+    basenames = {token.rsplit("/", 1)[-1] for token in tokens if token}
     joined = " ".join(tokens)
-    if any(token.endswith("/graph_maintenance_daemon.py") for token in tokens):
+    if "graph_maintenance_daemon.py" in basenames:
         return "daemon"
-    if any(token.endswith(("/sleep_cycle.py", "/sleep-cycle")) for token in tokens):
+    if "sleep_cycle.py" in basenames or "sleep-cycle" in basenames:
         return "worker"
-    if any(token.endswith(("/biorag.py", "/biorag")) for token in tokens):
+    if "biorag.py" in basenames or "biorag" in basenames:
         return "cli"
-    if any(token.endswith("/mcp_server.py") for token in tokens):
+    if "mcp_server.py" in basenames:
         return "mcp"
     for index, token in enumerate(tokens[:-1]):
         if token == "-m" and tokens[index + 1] in {
