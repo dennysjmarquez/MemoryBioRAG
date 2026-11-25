@@ -340,7 +340,9 @@ def _aprender_impl(
                 raw_vinculos = [str(x) for x in vincular_con if x]
 
             for item in raw_vinculos:
-                target = item.lower().replace(" ", "_").strip()
+                # strip ANTES de cambiar espacios por "_": con "a, b" el destino era "_b"
+                # (nodo inexistente). Lo tapaba B5 cuando enlazaba por subcadena.
+                target = item.strip().lower().replace(" ", "_")
                 if not target or target == clave:
                     continue
                 try:
