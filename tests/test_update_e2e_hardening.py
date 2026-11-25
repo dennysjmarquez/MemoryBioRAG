@@ -77,6 +77,34 @@ class UpdateConsecutiveE2ETests(unittest.TestCase):
             dirty2 = _git(work, "status", "--porcelain")
             self.assertEqual(dirty2, "", f"Checkout dirty after second update:\n{dirty2}")
 
+    def test_pip_install_is_quiet_by_default_and_surfaces_error_or_verbose(self):
+        """_run_pip_install captures output when verbose=False, streams when verbose=True, and prints stderr on failure."""
+        import io
+        from contextlib import redirect_stderr
+        calls = []
+
+        def fake_runner(cmd, **kwargs):
+            calls.append((cmd, kwargs))
+            return subprocess.CompletedProcess(cmd, 0, stdout="pip noise\n", stderr="")
+
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            updater._run_pip_install(root, fake_runner, verbose=False)
+            self.assertTrue(calls[-1][1].get("capture_output"))
+            self.assertTrue(calls[-1][1].get("text"))
+
+            updater._run_pip_install(root, fake_runner, verbose=True)
+            self.assertNotIn("capture_output", calls[-1][1])
+
+            def failing_runner(cmd, **kwargs):
+                raise subprocess.CalledProcessError(1, cmd, output="", stderr="pip boom\n")
+
+            err_buf = io.StringIO()
+            with redirect_stderr(err_buf):
+                with self.assertRaises(subprocess.CalledProcessError):
+                    updater._run_pip_install(root, failing_runner, verbose=False)
+            self.assertIn("pip boom", err_buf.getvalue())
+
 
 if __name__ == "__main__":
     unittest.main()

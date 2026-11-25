@@ -272,7 +272,24 @@ def restore_database_backup(backup, database):
         temporary.unlink(missing_ok=True)
 
 
-def rollback_update(root, database, report, process_stop, runner):
+def _run_pip_install(root, runner, *, verbose=False):
+    cmd = [sys.executable, '-m', 'pip', 'install', '.']
+    kwargs = {'cwd': str(root), 'check': True, 'timeout': 900}
+    if not verbose:
+        kwargs['capture_output'] = True
+        kwargs['text'] = True
+    try:
+        return runner(cmd, **kwargs)
+    except subprocess.CalledProcessError as exc:
+        if not verbose:
+            for stream in (getattr(exc, 'stdout', None), getattr(exc, 'stderr', None)):
+                if stream:
+                    text = stream.decode('utf-8', errors='replace') if isinstance(stream, bytes) else str(stream)
+                    print(text, file=sys.stderr, end='' if text.endswith('\n') else '\n')
+        raise
+
+
+def rollback_update(root, database, report, process_stop, runner, *, verbose=False):
     """Best-effort full rollback. Failure keeps the barrier and backup for recovery."""
     root = Path(root).resolve()
     before = report.get('before')
@@ -289,8 +306,7 @@ def rollback_update(root, database, report, process_stop, runner):
         if git(root, 'rev-parse', 'HEAD') != before:
             raise UpdateError('CODE_ROLLBACK_NOT_VERIFIED')
         try:
-            runner([sys.executable, '-m', 'pip', 'install', '.'], cwd=str(root),
-                   check=True, timeout=900)
+            _run_pip_install(root, runner, verbose=verbose)
         except Exception as exc:
             dependency_restore_error=exc
     if dependency_restore_attempted or report.get('phase') in {'dependencies','lifecycle'}:
@@ -318,7 +334,7 @@ def rollback_update(root, database, report, process_stop, runner):
             'service_restart':restarted}
 
 
-def apply(root, *, channel='dev', database, runner=subprocess.run, wait=30.0):
+def apply(root, *, channel='dev', database, runner=subprocess.run, wait=30.0, verbose=False):
     root=Path(root).resolve();_,gitdir=preflight(root)
     database=Path(database).expanduser().resolve()
     if database==root or root in database.parents:
@@ -373,7 +389,7 @@ def apply(root, *, channel='dev', database, runner=subprocess.run, wait=30.0):
             report['phase']='dependencies';progress['phase']='dependencies'
             activate(database, update_id=proposal['target'], phase='dependencies')
             save()
-            runner([sys.executable,'-m','pip','install','.'],cwd=str(root),check=True,timeout=900)
+            _run_pip_install(root, runner, verbose=verbose)
             report['phase']='lifecycle';progress['phase']='lifecycle'
             activate(database, update_id=proposal['target'], phase='lifecycle')
             save()
@@ -490,6 +506,7 @@ def main(argv=None):
     parser.add_argument('--yes',action='store_true',help='Deprecated compatibility option; updates now apply by default')
     parser.add_argument('--db',help='Database outside the checkout; defaults to BIORAG_PATH or the canonical path')
     parser.add_argument('--wait',type=float,default=30.0,help='Seconds to wait for active BioRAG clients to close (default: 30; older MCP servers without pending-gate support ignore the signal)')
+    parser.add_argument('--verbose','-v',action='store_true',help='Show full pip installation output')
     args=parser.parse_args(argv)
     if args.wait < 0:
         parser.error('--wait must be non-negative.')
@@ -502,7 +519,7 @@ def main(argv=None):
             result=plan(installed_root(),args.channel,database=database)
             result['next']='Preview only: no changes were made. Run biorag update to apply safely.'
         else:
-            result=apply(installed_root(),channel=args.channel,database=database,wait=args.wait)
+            result=apply(installed_root(),channel=args.channel,database=database,wait=args.wait,verbose=args.verbose)
         print(json.dumps(_public_result(result),ensure_ascii=False,indent=2))
         return 1 if result.get('status') in {'rolled_back','recovery_required'} else 0
     except (UpdateError,MaintenanceError,ProcessInspectionError,OSError,subprocess.SubprocessError) as exc:
