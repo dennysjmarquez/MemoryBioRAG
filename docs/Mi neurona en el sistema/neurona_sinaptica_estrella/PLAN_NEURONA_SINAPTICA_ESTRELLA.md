@@ -152,7 +152,8 @@ Así, un error de la neurona no puede dejar el sistema peor que hoy. Eso es lo q
 |---|---|---|---|
 | 0 | Tapar las vías de bucle en el laboratorio (A4 + C1.2c) | No | C1.2c 276/276 en los 4 idiomas. **Hecho en este ciclo** (ver `RESULTADOS_E1.md` §8) |
 | 1 | **«Ojos Unicode» en la búsqueda:** encontrar palabras CJK de 1–2 caracteres | **Sí** (canal 1) | QA completa sin bajar (R@5, R@1, MRR, FP 0/40) y suite en verde. **Hecho 2026-11-25** (ver `../ojos_unicode_busqueda/RESULTADOS.md`): 0/11 → 11/11 en top-1, todas las puertas idénticas. Pendiente de PR para Dennys |
-| 2 | **Examen de rescate en el laboratorio:** pistas de dificultad graduada, sin listas de idioma (muestras dispersas de unidades Unicode, sin el nombre), con control de hubs | No | Suficientes casos por idioma; invariancia ≥ 98 %; rescates de hubs por debajo de un tope fijado antes |
+| 2 | **Examen de rescate en el laboratorio:** pistas de dificultad graduada, sin listas de idioma (muestras dispersas de unidades Unicode, sin el nombre), con control de hubs | No | Suficientes casos por idioma; invariancia ≥ 98 %; rescates de hubs por debajo de un tope fijado antes. **Medido 2026-11-25** (`paso2_examen_rescate/RESULTADOS.md`): examen limpio y reproducible (P6), pero el mundo de 24 recuerdos no lo aloja (0–4 casos; los pocos casos eran basura y P5 los detectó). **Pasa 1 de 7** |
+| 2b | **Examen de rescate v2 en un mundo grande real:** UD PUD (1000 frases paralelas, 397 documentos, es/en/zh/ja, CC BY-SA), filtro de pistas sin contenido sin listas, invariancia solo con I que no contienen la pista | No | Las mismas puertas P1–P6, fijadas antes |
 | 3 | **Batería de agujas** (S, S_idf, X, B, K, R, Δt), cada una con AUC, invariancia y bucle por idioma | No | Se fija antes qué entra. Necesita un mundo más grande, **escrito a ciegas** (quien escribe los textos no conoce los pares) |
 | 4 | **Protocolo v4 + E2:** la neurona con el molde completo, entrenada con el examen de rescate, en copias. Compara dos formas de entrenar con el mismo piso, la misma guardia del 20 % y los 4 idiomas (nota 9.1) | No | Gana al piso en la guardia sin bajar ninguna categoría ni idioma |
 | 5 | E3: consolidación en el sueño, en modo sombra | No (sombra) | Solo tras pasar E1 y E2 |
@@ -162,6 +163,14 @@ Así, un error de la neurona no puede dejar el sistema peor que hoy. Eso es lo q
 tema, cualquier aguja textual puede medir mi forma de escribir y no la relación real. El exp. 16 ya tuvo una
 filtración léxica así (AUC 1,000 falso). Para el paso 3 hace falta un mundo escrito a ciegas, o datos que Dennys
 autorice.
+
+### 9.0 Nota para el paso 3: soporte agrupado (engrama), idea del usuario y su agente (2026-11-25)
+
+En el cerebro, los recuerdos se apoyan en grupos de sinapsis de una misma rama, no en una sinapsis suelta. Aguja
+candidata **G** para la batería: ¿cuántos vecinos de A también apuntan hacia B (o comparten rasgos invariantes con
+B)? Condiciones para entrar, como las demás: sin idioma, invariante y **sin bucle** (no puede contar el propio
+enlace A–B ni leer el grafo que juzga sin la copia limpia; si usa el grafo, solo como entrada vigilada y medida
+con la prueba de sinapsis falsas de C1.2b).
 
 ### 9.1 Nota para el paso 4: gradiente frente a neuroevolución (idea del usuario, 2026-11-25)
 

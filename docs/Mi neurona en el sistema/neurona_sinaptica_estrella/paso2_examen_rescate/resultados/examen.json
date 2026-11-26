@@ -1,0 +1,596 @@
+{
+ "protocolo": "PROTOCOLO_EXAMEN_RESCATE.md",
+ "puertas": {
+  "P1_casos": false,
+  "P2_invariancia_pregunta": false,
+  "P2b_invariancia_respuesta": false,
+  "P3_hubs": false,
+  "P4_margen": false,
+  "P5_validez": false,
+  "P6_limpieza": true
+ },
+ "examen_sirve": false,
+ "por_idioma": {
+  "es": {
+   "sinapsis_filas": {
+    "ruidoso": 51,
+    "DI_ruidoso": 51,
+    "D": 16
+   },
+   "dormidos": {
+    "ruidoso": 12,
+    "DI_ruidoso": 15,
+    "D": 9
+   },
+   "examen_ruidoso": {
+    "pistas": 343,
+    "pistas_B_fuera_del_top5": 21,
+    "casos": 4,
+    "B_distintos": 3,
+    "B_distintos_guardia": 1,
+    "casos_guardia": 1,
+    "casos_por_nivel": {
+     "3": 0,
+     "2": 0,
+     "1": 4
+    },
+    "piso_R@1": 1.0,
+    "piso_visible_en_canal2": 1.0,
+    "piso_MRR": 1.0,
+    "azar_MRR_esperado": 1.0,
+    "oraculo_MRR": 1.0,
+    "anti_oraculo_MRR": 1.0,
+    "frac_relacion_real_en_casos": 0.0,
+    "frac_relacion_real_en_aristas": 0.12,
+    "aristas_no_dirigidas": 50,
+    "etiquetas_casos": {
+     "pos": 0,
+     "puente": 0,
+     "neg": 4,
+     "irr": 0
+    },
+    "share_A_max": 0.5,
+    "share_top3_A": 1.0,
+    "n_vecinos_medio": 1.0,
+    "lista_casos": [
+     {
+      "B": "basedatos_1",
+      "A": "bomberos_1",
+      "s": 1,
+      "nivel": 1,
+      "pista": "la",
+      "puesto": 1,
+      "n": 1,
+      "visible": true
+     },
+     {
+      "B": "medicina_2",
+      "A": "futbol_1",
+      "s": 1,
+      "nivel": 1,
+      "pista": "de",
+      "puesto": 1,
+      "n": 1,
+      "visible": true
+     },
+     {
+      "B": "tren_2",
+      "A": "futbol_0",
+      "s": 1,
+      "nivel": 1,
+      "pista": "el",
+      "puesto": 1,
+      "n": 1,
+      "visible": true
+     },
+     {
+      "B": "tren_2",
+      "A": "futbol_0",
+      "s": 2,
+      "nivel": 1,
+      "pista": "un",
+      "puesto": 1,
+      "n": 1,
+      "visible": true
+     }
+    ]
+   },
+   "diag_examen_D_limpio": {
+    "pistas": 343,
+    "pistas_B_fuera_del_top5": 21,
+    "casos": 0,
+    "B_distintos": 0,
+    "B_distintos_guardia": 0,
+    "casos_guardia": 0,
+    "casos_por_nivel": {
+     "3": 0,
+     "2": 0,
+     "1": 0
+    },
+    "piso_R@1": null,
+    "piso_visible_en_canal2": null,
+    "piso_MRR": null,
+    "azar_MRR_esperado": null,
+    "oraculo_MRR": null,
+    "anti_oraculo_MRR": null,
+    "frac_relacion_real_en_casos": null,
+    "frac_relacion_real_en_aristas": 0.25,
+    "aristas_no_dirigidas": 16,
+    "etiquetas_casos": {
+     "pos": 0,
+     "puente": 0,
+     "neg": 0,
+     "irr": 0
+    },
+    "share_A_max": null,
+    "share_top3_A": null,
+    "n_vecinos_medio": null
+   },
+   "diag_examen_DI_ruidoso": {
+    "pistas": 343,
+    "pistas_B_fuera_del_top5": 25,
+    "casos": 2,
+    "B_distintos": 1,
+    "B_distintos_guardia": 0,
+    "casos_guardia": 0,
+    "casos_por_nivel": {
+     "3": 0,
+     "2": 0,
+     "1": 2
+    },
+    "piso_R@1": 1.0,
+    "piso_visible_en_canal2": 1.0,
+    "piso_MRR": 1.0,
+    "azar_MRR_esperado": 1.0,
+    "oraculo_MRR": 1.0,
+    "anti_oraculo_MRR": 1.0,
+    "frac_relacion_real_en_casos": 0.0,
+    "frac_relacion_real_en_aristas": 0.12,
+    "aristas_no_dirigidas": 50,
+    "etiquetas_casos": {
+     "pos": 0,
+     "puente": 0,
+     "neg": 2,
+     "irr": 0
+    },
+    "share_A_max": 1.0,
+    "share_top3_A": 1.0,
+    "n_vecinos_medio": 1.0
+   },
+   "P2_top5_ciego_identico_D_vs_DI": "283/343",
+   "P2_frac": 0.8251,
+   "diag_P2_descomposicion": {
+    "distintas": 60,
+    "entra_irrelevante_que_contiene_la_pieza": 51,
+    "reorden_entre_D": 21
+   },
+   "P2b_casos_comunes": 2,
+   "P2b_iguales": 2,
+   "P2b_solo_en_D": 2,
+   "P2b_solo_en_DI": 0,
+   "P6": {
+    "repasos_identicos": true,
+    "sha_sin_cambio": true,
+    "copia_ciega_al_terminar": {
+     "sinapsis": 0,
+     "asociaciones": 0,
+     "emergentes": 0
+    },
+    "vecinos_no_cambia_sinapsis": true
+   }
+  },
+  "en": {
+   "sinapsis_filas": {
+    "ruidoso": 53,
+    "DI_ruidoso": 53,
+    "D": 18
+   },
+   "dormidos": {
+    "ruidoso": 12,
+    "DI_ruidoso": 15,
+    "D": 9
+   },
+   "examen_ruidoso": {
+    "pistas": 347,
+    "pistas_B_fuera_del_top5": 19,
+    "casos": 3,
+    "B_distintos": 3,
+    "B_distintos_guardia": 1,
+    "casos_guardia": 1,
+    "casos_por_nivel": {
+     "3": 0,
+     "2": 1,
+     "1": 2
+    },
+    "piso_R@1": 0.6667,
+    "piso_visible_en_canal2": 1.0,
+    "piso_MRR": 0.8333,
+    "azar_MRR_esperado": 0.75,
+    "oraculo_MRR": 0.8333,
+    "anti_oraculo_MRR": 0.8333,
+    "frac_relacion_real_en_casos": 0.0,
+    "frac_relacion_real_en_aristas": 0.1346,
+    "aristas_no_dirigidas": 52,
+    "etiquetas_casos": {
+     "pos": 0,
+     "puente": 0,
+     "neg": 3,
+     "irr": 0
+    },
+    "share_A_max": 0.6667,
+    "share_top3_A": 1.0,
+    "n_vecinos_medio": 2.0,
+    "lista_casos": [
+     {
+      "B": "basedatos_1",
+      "A": "jardin_0",
+      "s": 5,
+      "nivel": 1,
+      "pista": "and",
+      "puesto": 2,
+      "n": 2,
+      "visible": true
+     },
+     {
+      "B": "tren_1",
+      "A": "jardin_0",
+      "s": 4,
+      "nivel": 2,
+      "pista": "the in",
+      "puesto": 1,
+      "n": 2,
+      "visible": true
+     },
+     {
+      "B": "tren_2",
+      "A": "futbol_0",
+      "s": 2,
+      "nivel": 1,
+      "pista": "a",
+      "puesto": 1,
+      "n": 2,
+      "visible": true
+     }
+    ]
+   },
+   "diag_examen_D_limpio": {
+    "pistas": 347,
+    "pistas_B_fuera_del_top5": 20,
+    "casos": 1,
+    "B_distintos": 1,
+    "B_distintos_guardia": 0,
+    "casos_guardia": 0,
+    "casos_por_nivel": {
+     "3": 0,
+     "2": 0,
+     "1": 1
+    },
+    "piso_R@1": 1.0,
+    "piso_visible_en_canal2": 1.0,
+    "piso_MRR": 1.0,
+    "azar_MRR_esperado": 1.0,
+    "oraculo_MRR": 1.0,
+    "anti_oraculo_MRR": 1.0,
+    "frac_relacion_real_en_casos": 1.0,
+    "frac_relacion_real_en_aristas": 0.2778,
+    "aristas_no_dirigidas": 18,
+    "etiquetas_casos": {
+     "pos": 1,
+     "puente": 0,
+     "neg": 0,
+     "irr": 0
+    },
+    "share_A_max": 1.0,
+    "share_top3_A": 1.0,
+    "n_vecinos_medio": 1.0
+   },
+   "diag_examen_DI_ruidoso": {
+    "pistas": 347,
+    "pistas_B_fuera_del_top5": 23,
+    "casos": 1,
+    "B_distintos": 1,
+    "B_distintos_guardia": 0,
+    "casos_guardia": 0,
+    "casos_por_nivel": {
+     "3": 0,
+     "2": 1,
+     "1": 0
+    },
+    "piso_R@1": 1.0,
+    "piso_visible_en_canal2": 1.0,
+    "piso_MRR": 1.0,
+    "azar_MRR_esperado": 1.0,
+    "oraculo_MRR": 1.0,
+    "anti_oraculo_MRR": 1.0,
+    "frac_relacion_real_en_casos": 0.0,
+    "frac_relacion_real_en_aristas": 0.1346,
+    "aristas_no_dirigidas": 52,
+    "etiquetas_casos": {
+     "pos": 0,
+     "puente": 0,
+     "neg": 1,
+     "irr": 0
+    },
+    "share_A_max": 1.0,
+    "share_top3_A": 1.0,
+    "n_vecinos_medio": 1.0
+   },
+   "P2_top5_ciego_identico_D_vs_DI": "287/347",
+   "P2_frac": 0.8271,
+   "diag_P2_descomposicion": {
+    "distintas": 60,
+    "entra_irrelevante_que_contiene_la_pieza": 46,
+    "reorden_entre_D": 25
+   },
+   "P2b_casos_comunes": 1,
+   "P2b_iguales": 1,
+   "P2b_solo_en_D": 2,
+   "P2b_solo_en_DI": 0,
+   "P6": {
+    "repasos_identicos": true,
+    "sha_sin_cambio": true,
+    "copia_ciega_al_terminar": {
+     "sinapsis": 0,
+     "asociaciones": 0,
+     "emergentes": 0
+    },
+    "vecinos_no_cambia_sinapsis": true
+   }
+  },
+  "zh": {
+   "sinapsis_filas": {
+    "ruidoso": 51,
+    "DI_ruidoso": 51,
+    "D": 16
+   },
+   "dormidos": {
+    "ruidoso": 12,
+    "DI_ruidoso": 15,
+    "D": 9
+   },
+   "examen_ruidoso": {
+    "pistas": 344,
+    "pistas_B_fuera_del_top5": 0,
+    "casos": 0,
+    "B_distintos": 0,
+    "B_distintos_guardia": 0,
+    "casos_guardia": 0,
+    "casos_por_nivel": {
+     "3": 0,
+     "2": 0,
+     "1": 0
+    },
+    "piso_R@1": null,
+    "piso_visible_en_canal2": null,
+    "piso_MRR": null,
+    "azar_MRR_esperado": null,
+    "oraculo_MRR": null,
+    "anti_oraculo_MRR": null,
+    "frac_relacion_real_en_casos": null,
+    "frac_relacion_real_en_aristas": 0.12,
+    "aristas_no_dirigidas": 50,
+    "etiquetas_casos": {
+     "pos": 0,
+     "puente": 0,
+     "neg": 0,
+     "irr": 0
+    },
+    "share_A_max": null,
+    "share_top3_A": null,
+    "n_vecinos_medio": null,
+    "lista_casos": []
+   },
+   "diag_examen_D_limpio": {
+    "pistas": 344,
+    "pistas_B_fuera_del_top5": 0,
+    "casos": 0,
+    "B_distintos": 0,
+    "B_distintos_guardia": 0,
+    "casos_guardia": 0,
+    "casos_por_nivel": {
+     "3": 0,
+     "2": 0,
+     "1": 0
+    },
+    "piso_R@1": null,
+    "piso_visible_en_canal2": null,
+    "piso_MRR": null,
+    "azar_MRR_esperado": null,
+    "oraculo_MRR": null,
+    "anti_oraculo_MRR": null,
+    "frac_relacion_real_en_casos": null,
+    "frac_relacion_real_en_aristas": 0.25,
+    "aristas_no_dirigidas": 16,
+    "etiquetas_casos": {
+     "pos": 0,
+     "puente": 0,
+     "neg": 0,
+     "irr": 0
+    },
+    "share_A_max": null,
+    "share_top3_A": null,
+    "n_vecinos_medio": null
+   },
+   "diag_examen_DI_ruidoso": {
+    "pistas": 344,
+    "pistas_B_fuera_del_top5": 0,
+    "casos": 0,
+    "B_distintos": 0,
+    "B_distintos_guardia": 0,
+    "casos_guardia": 0,
+    "casos_por_nivel": {
+     "3": 0,
+     "2": 0,
+     "1": 0
+    },
+    "piso_R@1": null,
+    "piso_visible_en_canal2": null,
+    "piso_MRR": null,
+    "azar_MRR_esperado": null,
+    "oraculo_MRR": null,
+    "anti_oraculo_MRR": null,
+    "frac_relacion_real_en_casos": null,
+    "frac_relacion_real_en_aristas": 0.12,
+    "aristas_no_dirigidas": 50,
+    "etiquetas_casos": {
+     "pos": 0,
+     "puente": 0,
+     "neg": 0,
+     "irr": 0
+    },
+    "share_A_max": null,
+    "share_top3_A": null,
+    "n_vecinos_medio": null
+   },
+   "P2_top5_ciego_identico_D_vs_DI": "315/344",
+   "P2_frac": 0.9157,
+   "diag_P2_descomposicion": {
+    "distintas": 29,
+    "entra_irrelevante_que_contiene_la_pieza": 28,
+    "reorden_entre_D": 2
+   },
+   "P2b_casos_comunes": 0,
+   "P2b_iguales": 0,
+   "P2b_solo_en_D": 0,
+   "P2b_solo_en_DI": 0,
+   "P6": {
+    "repasos_identicos": true,
+    "sha_sin_cambio": true,
+    "copia_ciega_al_terminar": {
+     "sinapsis": 0,
+     "asociaciones": 0,
+     "emergentes": 0
+    },
+    "vecinos_no_cambia_sinapsis": true
+   }
+  },
+  "ja": {
+   "sinapsis_filas": {
+    "ruidoso": 51,
+    "DI_ruidoso": 51,
+    "D": 16
+   },
+   "dormidos": {
+    "ruidoso": 12,
+    "DI_ruidoso": 15,
+    "D": 9
+   },
+   "examen_ruidoso": {
+    "pistas": 352,
+    "pistas_B_fuera_del_top5": 2,
+    "casos": 0,
+    "B_distintos": 0,
+    "B_distintos_guardia": 0,
+    "casos_guardia": 0,
+    "casos_por_nivel": {
+     "3": 0,
+     "2": 0,
+     "1": 0
+    },
+    "piso_R@1": null,
+    "piso_visible_en_canal2": null,
+    "piso_MRR": null,
+    "azar_MRR_esperado": null,
+    "oraculo_MRR": null,
+    "anti_oraculo_MRR": null,
+    "frac_relacion_real_en_casos": null,
+    "frac_relacion_real_en_aristas": 0.12,
+    "aristas_no_dirigidas": 50,
+    "etiquetas_casos": {
+     "pos": 0,
+     "puente": 0,
+     "neg": 0,
+     "irr": 0
+    },
+    "share_A_max": null,
+    "share_top3_A": null,
+    "n_vecinos_medio": null,
+    "lista_casos": []
+   },
+   "diag_examen_D_limpio": {
+    "pistas": 352,
+    "pistas_B_fuera_del_top5": 2,
+    "casos": 0,
+    "B_distintos": 0,
+    "B_distintos_guardia": 0,
+    "casos_guardia": 0,
+    "casos_por_nivel": {
+     "3": 0,
+     "2": 0,
+     "1": 0
+    },
+    "piso_R@1": null,
+    "piso_visible_en_canal2": null,
+    "piso_MRR": null,
+    "azar_MRR_esperado": null,
+    "oraculo_MRR": null,
+    "anti_oraculo_MRR": null,
+    "frac_relacion_real_en_casos": null,
+    "frac_relacion_real_en_aristas": 0.25,
+    "aristas_no_dirigidas": 16,
+    "etiquetas_casos": {
+     "pos": 0,
+     "puente": 0,
+     "neg": 0,
+     "irr": 0
+    },
+    "share_A_max": null,
+    "share_top3_A": null,
+    "n_vecinos_medio": null
+   },
+   "diag_examen_DI_ruidoso": {
+    "pistas": 352,
+    "pistas_B_fuera_del_top5": 2,
+    "casos": 0,
+    "B_distintos": 0,
+    "B_distintos_guardia": 0,
+    "casos_guardia": 0,
+    "casos_por_nivel": {
+     "3": 0,
+     "2": 0,
+     "1": 0
+    },
+    "piso_R@1": null,
+    "piso_visible_en_canal2": null,
+    "piso_MRR": null,
+    "azar_MRR_esperado": null,
+    "oraculo_MRR": null,
+    "anti_oraculo_MRR": null,
+    "frac_relacion_real_en_casos": null,
+    "frac_relacion_real_en_aristas": 0.12,
+    "aristas_no_dirigidas": 50,
+    "etiquetas_casos": {
+     "pos": 0,
+     "puente": 0,
+     "neg": 0,
+     "irr": 0
+    },
+    "share_A_max": null,
+    "share_top3_A": null,
+    "n_vecinos_medio": null
+   },
+   "P2_top5_ciego_identico_D_vs_DI": "301/352",
+   "P2_frac": 0.8551,
+   "diag_P2_descomposicion": {
+    "distintas": 51,
+    "entra_irrelevante_que_contiene_la_pieza": 51,
+    "reorden_entre_D": 0
+   },
+   "P2b_casos_comunes": 0,
+   "P2b_iguales": 0,
+   "P2b_solo_en_D": 0,
+   "P2b_solo_en_DI": 0,
+   "P6": {
+    "repasos_identicos": true,
+    "sha_sin_cambio": true,
+    "copia_ciega_al_terminar": {
+     "sinapsis": 0,
+     "asociaciones": 0,
+     "emergentes": 0
+    },
+    "vecinos_no_cambia_sinapsis": true
+   }
+  }
+ },
+ "segundos": 74.6
+}
