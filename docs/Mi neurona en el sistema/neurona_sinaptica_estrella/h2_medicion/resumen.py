@@ -39,9 +39,12 @@ def evaluar(cfg, k8):
             ev = {}
             for b in BRAZOS:
                 e = {}
+                # vacuo: ningún recuerdo de D sigue activo en ninguno de los dos mundos (nada que pueda cambiar)
+                vac = all(c[b]["activos_D_final"]["D"] == 0 and c[b]["activos_D_final"]["DI0"] == 0 for c in cs)
                 e["K1"] = veredicto([c[b]["S1"]["cambios_estado_D"] == 0 and c[b]["S1"]["cambios_importancia_D"] == 0
-                                     and c[b]["S1"]["top5_cambiados_atribuibles_H2_4b"] == 0 for c in cs])
-                e["K3"] = veredicto([c[b]["K3"]["cambian_de_puesto"] == 0 and c[b]["K3"]["faltan"] == 0 for c in cs])
+                                     and c[b]["S1"]["top5_cambiados_atribuibles_H2_4b"] == 0 for c in cs], vacuo=vac)
+                e["K3"] = veredicto([c[b]["K3"]["cambian_de_puesto"] == 0 and c[b]["K3"]["faltan"] == 0 for c in cs],
+                                    vacuo=vac or all(c[b]["K3"]["preguntas"] == 0 for c in cs))
                 k6_vacuo = all(sum(c[b]["K6"][w]["dormidos_por_H2"] + c[b]["K6"][w]["dormidos_por_peso_propio"]
                                    for w in c[b]["K6"]) == 0 for c in cs)
                 e["K6"] = veredicto([all(c[b]["K6"][w]["dormidos_por_H2"] == 0 for w in c[b]["K6"]) for c in cs],

@@ -53,33 +53,233 @@
      1.98
     ]
    }
+  },
+  "800|diario": {
+   "T": {
+    "K1": "cumplido",
+    "K3": "cumplido",
+    "K6": "no cumplido",
+    "K2": "referencia (= T)",
+    "K4": "referencia (= T)",
+    "K5": "referencia (= T)",
+    "costo_vs_T": [
+     1.0,
+     1.0,
+     1.0
+    ]
+   },
+   "-H2": {
+    "K1": "cumplido",
+    "K3": "cumplido",
+    "K6": "cumplido",
+    "K2": "cumplido",
+    "K4": "no cumplido",
+    "K5": "cumplido",
+    "costo_vs_T": [
+     1.05,
+     1.06,
+     1.04
+    ]
+   },
+   "-4b": {
+    "K1": "no cumplido",
+    "K3": "cumplido",
+    "K6": "no cumplido",
+    "K2": "no cumplido",
+    "K4": "no cumplido",
+    "K5": "no cumplido",
+    "costo_vs_T": [
+     0.97,
+     0.97,
+     0.99
+    ]
+   },
+   "-H2-4b": {
+    "K1": "cumplido",
+    "K3": "cumplido",
+    "K6": "cumplido",
+    "K2": "cumplido",
+    "K4": "no cumplido",
+    "K5": "no cumplido",
+    "costo_vs_T": [
+     0.96,
+     1.04,
+     1.04
+    ]
+   }
+  },
+  "2400|comprimido": {
+   "T": {
+    "K1": "no cumplido",
+    "K3": "no cumplido",
+    "K6": "no cumplido",
+    "K2": "referencia (= T)",
+    "K4": "referencia (= T)",
+    "K5": "referencia (= T)",
+    "costo_vs_T": [
+     1.0,
+     1.0,
+     1.0
+    ]
+   },
+   "-H2": {
+    "K1": "no cumplido",
+    "K3": "cumplido",
+    "K6": "cumplido (vacuo)",
+    "K2": "no cumplido",
+    "K4": "no cumplido",
+    "K5": "no cumplido",
+    "costo_vs_T": [
+     2.23,
+     2.01,
+     2.19
+    ]
+   },
+   "-4b": {
+    "K1": "no cumplido",
+    "K3": "no cumplido",
+    "K6": "no cumplido",
+    "K2": "cumplido",
+    "K4": "cumplido",
+    "K5": "no cumplido",
+    "costo_vs_T": [
+     0.93,
+     0.93,
+     0.86
+    ]
+   },
+   "-H2-4b": {
+    "K1": "cumplido",
+    "K3": "cumplido",
+    "K6": "cumplido (vacuo)",
+    "K2": "no cumplido",
+    "K4": "no cumplido",
+    "K5": "no cumplido",
+    "costo_vs_T": [
+     2.01,
+     1.86,
+     2.2
+    ]
+   }
+  },
+  "2400|diario": {
+   "T": {
+    "K1": "cumplido (vacuo)",
+    "K3": "cumplido (vacuo)",
+    "K6": "no cumplido",
+    "K2": "referencia (= T)",
+    "K4": "referencia (= T)",
+    "K5": "referencia (= T)",
+    "costo_vs_T": [
+     1.0,
+     1.0,
+     1.0
+    ]
+   },
+   "-H2": {
+    "K1": "cumplido (vacuo)",
+    "K3": "cumplido (vacuo)",
+    "K6": "cumplido",
+    "K2": "cumplido",
+    "K4": "no cumplido",
+    "K5": "cumplido",
+    "costo_vs_T": [
+     1.0,
+     1.0,
+     0.99
+    ]
+   },
+   "-4b": {
+    "K1": "cumplido (vacuo)",
+    "K3": "cumplido (vacuo)",
+    "K6": "no cumplido",
+    "K2": "cumplido",
+    "K4": "no cumplido",
+    "K5": "cumplido",
+    "costo_vs_T": [
+     1.12,
+     0.84,
+     1.0
+    ]
+   },
+   "-H2-4b": {
+    "K1": "cumplido (vacuo)",
+    "K3": "cumplido (vacuo)",
+    "K6": "cumplido",
+    "K2": "cumplido",
+    "K4": "no cumplido",
+    "K5": "cumplido",
+    "costo_vs_T": [
+     1.11,
+     0.86,
+     1.0
+    ]
+   }
   }
  },
  "finales": {
   "T": {
-   "K7_comprimido": "no medible",
-   "K7_diario": "no medible",
-   "K8": "no medible",
+   "K7_comprimido": "no cumplido",
+   "K7_diario": "cumplido",
+   "K8": "no cumplido",
    "K9": "no medible en esta etapa (suite completa: autorización aparte)"
   },
   "-H2": {
-   "K7_comprimido": "no medible",
-   "K7_diario": "no medible",
-   "K8": "no medible",
+   "K7_comprimido": "no cumplido",
+   "K7_diario": "no cumplido",
+   "K8": "no cumplido",
    "K9": "no medible en esta etapa (suite completa: autorización aparte)"
   },
   "-4b": {
-   "K7_comprimido": "no medible",
-   "K7_diario": "no medible",
-   "K8": "no medible",
+   "K7_comprimido": "no cumplido",
+   "K7_diario": "no cumplido",
+   "K8": "no cumplido",
    "K9": "no medible en esta etapa (suite completa: autorización aparte)"
   },
   "-H2-4b": {
-   "K7_comprimido": "no medible",
-   "K7_diario": "no medible",
-   "K8": "no medible",
+   "K7_comprimido": "no cumplido",
+   "K7_diario": "no cumplido",
+   "K8": "cumplido",
    "K9": "no medible en esta etapa (suite completa: autorización aparte)"
   }
  },
- "controles": null
+ "controles": {
+  "T": {
+   "registro_no_cambia_la_base": true,
+   "sha": {
+    "largo_plazo": "ac4e6fc641838b5b",
+    "sinapsis": "75aba4c802060acd",
+    "sinapsis_latentes": "e3b0c44298fc1c14",
+    "largo_plazo_dimensiones": "404e25a587adddf8"
+   },
+   "orden_consultas_indiferente": true
+  },
+  "-H2": {
+   "registro_no_cambia_la_base": true,
+   "sha": {
+    "largo_plazo": "3e89ca47964c8541",
+    "sinapsis": "c6609bece2e287db",
+    "sinapsis_latentes": "e3b0c44298fc1c14",
+    "largo_plazo_dimensiones": "e8849d0c8755420a"
+   }
+  },
+  "-4b": {
+   "registro_no_cambia_la_base": true,
+   "sha": {
+    "largo_plazo": "9d46581d06c59ec6",
+    "sinapsis": "f25db6bb6947e299",
+    "sinapsis_latentes": "e3b0c44298fc1c14",
+    "largo_plazo_dimensiones": "7faa27257b2f37e9"
+   }
+  },
+  "-H2-4b": {
+   "registro_no_cambia_la_base": true,
+   "sha": {
+    "largo_plazo": "8d926b255b299bf7",
+    "sinapsis": "e3d6eb5b8dd05b3f",
+    "sinapsis_latentes": "e3b0c44298fc1c14",
+    "largo_plazo_dimensiones": "b8c7f9da4451438f"
+   }
+  }
+ }
 }

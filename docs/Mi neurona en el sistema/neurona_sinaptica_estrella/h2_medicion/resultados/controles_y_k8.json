@@ -1,0 +1,164 @@
+{
+ "controles": {
+  "T": {
+   "registro_no_cambia_la_base": true,
+   "sha": {
+    "largo_plazo": "ac4e6fc641838b5b",
+    "sinapsis": "75aba4c802060acd",
+    "sinapsis_latentes": "e3b0c44298fc1c14",
+    "largo_plazo_dimensiones": "404e25a587adddf8"
+   },
+   "orden_consultas_indiferente": true
+  },
+  "-H2": {
+   "registro_no_cambia_la_base": true,
+   "sha": {
+    "largo_plazo": "3e89ca47964c8541",
+    "sinapsis": "c6609bece2e287db",
+    "sinapsis_latentes": "e3b0c44298fc1c14",
+    "largo_plazo_dimensiones": "e8849d0c8755420a"
+   }
+  },
+  "-4b": {
+   "registro_no_cambia_la_base": true,
+   "sha": {
+    "largo_plazo": "9d46581d06c59ec6",
+    "sinapsis": "f25db6bb6947e299",
+    "sinapsis_latentes": "e3b0c44298fc1c14",
+    "largo_plazo_dimensiones": "7faa27257b2f37e9"
+   }
+  },
+  "-H2-4b": {
+   "registro_no_cambia_la_base": true,
+   "sha": {
+    "largo_plazo": "8d926b255b299bf7",
+    "sinapsis": "e3d6eb5b8dd05b3f",
+    "sinapsis_latentes": "e3b0c44298fc1c14",
+    "largo_plazo_dimensiones": "b8c7f9da4451438f"
+   }
+  }
+ },
+ "k8": {
+  "s7|T": {
+   "ciclos": 80,
+   "sin_excepciones": true,
+   "recuerdos_dormidos_mas_de_una_vez": 0,
+   "dormidos_por_H2": 5,
+   "dormidos_por_peso_propio": 345,
+   "K1_cambios_estado_D": 0,
+   "K1_cambios_importancia_D": 16,
+   "activos_final_DI0": 50
+  },
+  "s7|-H2": {
+   "ciclos": 80,
+   "sin_excepciones": true,
+   "recuerdos_dormidos_mas_de_una_vez": 0,
+   "dormidos_por_H2": 0,
+   "dormidos_por_peso_propio": 350,
+   "K1_cambios_estado_D": 0,
+   "K1_cambios_importancia_D": 20,
+   "activos_final_DI0": 50
+  },
+  "s7|-4b": {
+   "ciclos": 80,
+   "sin_excepciones": true,
+   "recuerdos_dormidos_mas_de_una_vez": 0,
+   "dormidos_por_H2": 7,
+   "dormidos_por_peso_propio": 343,
+   "K1_cambios_estado_D": 0,
+   "K1_cambios_importancia_D": 3,
+   "activos_final_DI0": 50
+  },
+  "s7|-H2-4b": {
+   "ciclos": 80,
+   "sin_excepciones": true,
+   "recuerdos_dormidos_mas_de_una_vez": 0,
+   "dormidos_por_H2": 0,
+   "dormidos_por_peso_propio": 350,
+   "K1_cambios_estado_D": 0,
+   "K1_cambios_importancia_D": 0,
+   "activos_final_DI0": 50
+  },
+  "s11|T": {
+   "ciclos": 80,
+   "sin_excepciones": true,
+   "recuerdos_dormidos_mas_de_una_vez": 0,
+   "dormidos_por_H2": 5,
+   "dormidos_por_peso_propio": 345,
+   "K1_cambios_estado_D": 0,
+   "K1_cambios_importancia_D": 16,
+   "activos_final_DI0": 50
+  },
+  "s11|-H2": {
+   "ciclos": 80,
+   "sin_excepciones": true,
+   "recuerdos_dormidos_mas_de_una_vez": 0,
+   "dormidos_por_H2": 0,
+   "dormidos_por_peso_propio": 350,
+   "K1_cambios_estado_D": 0,
+   "K1_cambios_importancia_D": 20,
+   "activos_final_DI0": 50
+  },
+  "s11|-4b": {
+   "ciclos": 80,
+   "sin_excepciones": true,
+   "recuerdos_dormidos_mas_de_una_vez": 0,
+   "dormidos_por_H2": 7,
+   "dormidos_por_peso_propio": 343,
+   "K1_cambios_estado_D": 0,
+   "K1_cambios_importancia_D": 3,
+   "activos_final_DI0": 50
+  },
+  "s11|-H2-4b": {
+   "ciclos": 80,
+   "sin_excepciones": true,
+   "recuerdos_dormidos_mas_de_una_vez": 0,
+   "dormidos_por_H2": 0,
+   "dormidos_por_peso_propio": 350,
+   "K1_cambios_estado_D": 0,
+   "K1_cambios_importancia_D": 0,
+   "activos_final_DI0": 50
+  },
+  "s23|T": {
+   "ciclos": 80,
+   "sin_excepciones": true,
+   "recuerdos_dormidos_mas_de_una_vez": 0,
+   "dormidos_por_H2": 5,
+   "dormidos_por_peso_propio": 345,
+   "K1_cambios_estado_D": 0,
+   "K1_cambios_importancia_D": 16,
+   "activos_final_DI0": 50
+  },
+  "s23|-H2": {
+   "ciclos": 80,
+   "sin_excepciones": true,
+   "recuerdos_dormidos_mas_de_una_vez": 0,
+   "dormidos_por_H2": 0,
+   "dormidos_por_peso_propio": 350,
+   "K1_cambios_estado_D": 0,
+   "K1_cambios_importancia_D": 20,
+   "activos_final_DI0": 50
+  },
+  "s23|-4b": {
+   "ciclos": 80,
+   "sin_excepciones": true,
+   "recuerdos_dormidos_mas_de_una_vez": 0,
+   "dormidos_por_H2": 7,
+   "dormidos_por_peso_propio": 343,
+   "K1_cambios_estado_D": 0,
+   "K1_cambios_importancia_D": 3,
+   "activos_final_DI0": 50
+  },
+  "s23|-H2-4b": {
+   "ciclos": 80,
+   "sin_excepciones": true,
+   "recuerdos_dormidos_mas_de_una_vez": 0,
+   "dormidos_por_H2": 0,
+   "dormidos_por_peso_propio": 350,
+   "K1_cambios_estado_D": 0,
+   "K1_cambios_importancia_D": 0,
+   "activos_final_DI0": 50
+  }
+ },
+ "segundos": 9706.6
+}
