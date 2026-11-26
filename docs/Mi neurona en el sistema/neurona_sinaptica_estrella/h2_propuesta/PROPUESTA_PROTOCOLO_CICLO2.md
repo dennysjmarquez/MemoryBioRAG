@@ -90,6 +90,14 @@ marcada [D]:
 - El componente exacto queda sin identificar; R-E2 se propone para cerrarlo y necesita OK.
 - **Propuesta para el ciclo 2:** medir con PPMI 0,15 y 0 (control) y con el corte fijado tras D.
 
+**R-E2 (26-11) lo cierra [V]:** el residual es la **Neurona 1**. En D asciende un campeón y en D∪I0 no, y eso
+explica 35 de las 36 consultas. La que queda es BM25, por el corte. El PPMI la apagaba sin querer, porque cambia su
+huella del motor. **Ajuste de control:**
+- control con `BIORAG_NEURONA=0` en toda la corrida, en lugar de PPMI 0;
+- corte fijado tras D;
+- registro del estado de la neurona por mundo.
+Detalle en `../h2_medicion/RESULTADOS_RESIDUAL.md` §7–§8.
+
 ## 2. Qué dejó claro el diagnóstico y qué no [V]
 - **Con sueños seguidos, H2 rompe la invariancia por su puesto relativo:** al añadir I0, sin ningún carácter en común,
   duerme a todo D que seguía activo (101→0, 97→0).

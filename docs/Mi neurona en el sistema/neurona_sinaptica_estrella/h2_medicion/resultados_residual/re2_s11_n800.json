@@ -1,0 +1,82 @@
+{
+ "control_reproduce_R-E1": true,
+ "cambiadas": 36,
+ "info": {
+  "D": {
+   "neurona": {
+    "campeon": true,
+    "campeon_sha": "ea8c589968829afa"
+   },
+   "n_docs_ppmi": 773,
+   "neocortex": true,
+   "adn_engine": true,
+   "adn_indice_listo": false
+  },
+  "DI0": {
+   "neurona": {
+    "campeon": false,
+    "campeon_sha": null
+   },
+   "n_docs_ppmi": 973,
+   "neocortex": true,
+   "adn_engine": true,
+   "adn_indice_listo": false
+  }
+ },
+ "kwargs_distintos_en_candidatos_D_por_clave": {
+  "bm25_norm": 131,
+  "dim_score": 14,
+  "tematico_score": 12
+ },
+ "consultas_cambiadas_con_esa_clave_distinta": {
+  "bm25_norm": 20,
+  "dim_score": 2,
+  "tematico_score": 2
+ },
+ "consultas_cambiadas_con_score_candidato_distinto": 0,
+ "score_candidato_componentes_distintos": {},
+ "consultas_cambiadas_donde_adn_reordena": 0,
+ "vq_cero_en_cambiadas": 36,
+ "consultas_no_cambiadas_con_score_candidato_distinto": 0,
+ "ejemplos": [
+  {
+   "consulta": "x1100083|3",
+   "claves_kw_distintas": [],
+   "vq_norma": null,
+   "ppmi_D": null,
+   "ppmi_DI0": null,
+   "candidatos_pool_D": 3,
+   "candidatos_pool_DI0": 3
+  },
+  {
+   "consulta": "x1100097|3",
+   "claves_kw_distintas": [
+    "bm25_norm"
+   ],
+   "vq_norma": null,
+   "ppmi_D": null,
+   "ppmi_DI0": null,
+   "candidatos_pool_D": 7,
+   "candidatos_pool_DI0": 7
+  },
+  {
+   "consulta": "x1100121|3",
+   "claves_kw_distintas": [
+    "bm25_norm"
+   ],
+   "vq_norma": null,
+   "ppmi_D": null,
+   "ppmi_DI0": null,
+   "candidatos_pool_D": 11,
+   "candidatos_pool_DI0": 11
+  }
+ ],
+ "etapa_de_separacion": {
+  "despues_de_neurona / sin registro": 35,
+  "convergencia_multicampo": 1
+ },
+ "neurona_reordena_en_D_DI0": [
+  37,
+  0
+ ]
+}

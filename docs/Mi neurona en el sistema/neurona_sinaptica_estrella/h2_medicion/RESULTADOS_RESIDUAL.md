@@ -1,4 +1,10 @@
-# R-E0 y R-E1: el residual del buscador (2026-11-26). Diagnóstico sintético, nada implementado
+# R-E0, R-E1 y R-E2: el residual del buscador (2026-11-26). Diagnóstico sintético, nada implementado
+
+> **Resultado final (R-E2, §7):** el residual **no es del buscador ni del PPMI**: es la **Neurona 1**
+> (`core/memory/neurona.py`). Aprende en cada sueño con su autoexamen, y en D llega a un campeón que reordena el
+> top-5, mientras que en D∪I0 no asciende ningún campeón. El «factor PPMI» de R-E1 la apagaba sin querer: su
+> huella del motor cambia con `BIORAG_PPMI_WEIGHT` y descarta el campeón. Las secciones §3–§6 se conservan como se
+> escribieron; donde §5–§6 dicen «familia PPMI», léase según §7.
 
 [V] = medido aquí o leído en el código. [D] = deducción sin medir.
 
@@ -79,7 +85,7 @@ Por escritura: 152 de los 153 cambios con PPMI 0,15 son latinos (`lat_a`/`lat_b`
   para volcar, en las consultas que cambian, el valor de cada señal del score en D y en D∪I0. Así se ve qué
   componente difiere. Costo: una configuración (s11/1000), ~4 min.
 
-## 6. Consecuencias para el ciclo 2 [D]
+## 6. Consecuencias para el ciclo 2 [D] (superado por §7)
 - El residual **no es un artefacto del laboratorio** por el corte: es una dependencia real del buscador respecto
   del corpus, dentro de la familia PPMI. Sigue informándose como «cambio residual no atribuido» hasta R-E2.
 - **Para medir H2/4b sin ese ruido,** el ciclo 2 puede medir con dos pesos PPMI: 0,15, que es lo real, y 0, como
@@ -87,3 +93,60 @@ Por escritura: 152 de los 153 cambios con PPMI 0,15 son latinos (`lat_a`/`lat_b`
 - **Fijar el corte tras D** se recomienda igualmente: así vive una base real, y elimina el resto pequeño.
 - En el motor no se toca nada. Si R-E2 encuentra el componente, el arreglo sería otro ciclo con su propia
   autorización. Un ejemplo sería congelar `n_docs` como ya se congeló el BM25; no se propone sin evidencia.
+
+## 7. R-E2: qué componente cambia (aprobado el 26-11; s11, mundo de 1000, corte «medir», PPMI 0,15) [V]
+**Método:** `residual_re2.py` instrumenta **solo en el proceso hijo**, sobre copias de las bases sintéticas, con
+envoltorios que registran y devuelven el resultado intacto:
+- los kwargs y el score de cada candidato en `_calcular_score_hibrido`;
+- los componentes de `score_candidato`;
+- la página antes y después de la convergencia multicampo, de la Neurona 1 y del ADN.
+**Control:** con la instrumentación se reproducen exactamente las 36 consultas cambiadas de R-E1. Datos en
+`resultados_residual/re2_s11_n800.json` y `re2_neurona0_s11_n800.json`.
+
+**Resultados:**
+1. **La pista del revisor se cumple, pero no es la causa.** En las 36 consultas el vector de consulta es
+   `np.zeros(100)`, así que se entra en `score_candidato`. Pero `s_ppmi`, `s_idf`, `s_hop`, el total y el tamaño del
+   pool son **idénticos** en D y en D∪I0, en todas las consultas (cambiadas o no).
+2. **El ADN no está listo** (`adn_firmas` vacía) y no reordena ninguna consulta. El neocórtex existe en los dos
+   mundos.
+3. **La Neurona 1 explica 35 de las 36.**
+   - En D hay campeón y reordena 37 consultas; en D∪I0 no hay campeón y no reordena ninguna.
+   - En las 35, el orden de D **antes** de la neurona es exactamente el top-5 final de D∪I0.
+   - Estado guardado (`neurona_estado`, leído en modo solo lectura): en D, 22 ciclos, **3 ascensos**, guardia del
+     campeón 0,9506 frente a 0,9259 a mano. En D∪I0, 22 ciclos, **0 ascensos**, 9 reinicios y 9 ciclos sin mejora
+     (el retador saca 0,9268 en la guardia frente a 0,939 a mano).
+   - La neurona se examina con los recuerdos recién consolidados, que en D∪I0 incluyen I0, así que aprende otra cosa.
+4. **La que queda (1 de 36) viene del corte:** `bm25_norm` difiere en milésimas entre los dos mundos (0,2708 frente a
+   0,2703), porque con el corte «medir» la cohorte BM25 congelada incluye a I0. La convergencia multicampo convierte
+   ese empate casi exacto en un cambio de orden. En total, `bm25_norm` difiere en 20 de las 36 consultas, pero solo
+   decide en esta.
+5. **Por qué el «factor PPMI» apagaba la neurona** (código):
+   - `huella_motor` (`neurona.py` L214–235) resume la salida de `_calcular_score_hibrido` con entradas fijas;
+   - esa salida depende de `PPMI_VECTOR_WEIGHT`, que está en el denominador (`scoring.py` L328);
+   - con 0 al medir, la huella no coincide con la guardada, `_cargar` descarta lo aprendido (`neurona.py` L392–397)
+     y no hay campeón en ningún mundo.
+6. **Confirmación:** con `BIORAG_NEURONA=0` solo al medir (PPMI 0,15, corte «medir»), el residual baja de **36 a 2**,
+   y las 2 son las de bm25 (x1100121|2 y x1100234|2).
+
+**Lectura:**
+- **Lo que llamábamos «residual del buscador» es la Neurona 1:** un reordenador aprendido en vivo a partir del
+  corpus.
+- **Hace lo que dice su diseño** (aprende de los recuerdos nuevos, con piso, techo y guardia). Pero eso significa
+  que **F(D,q) ≠ F(D∪I0,q) cuando el campeón difiere**, aunque I0 no comparta ni un carácter con D.
+- Con el corte tras D, el resto de BM25 desaparece (R-E1: «trasD» y PPMI 0 da 0/1/0 y 0/0/0).
+- El resto de la familia PPMI (`n_docs`, el campo potencial y la analogía) no cambió ninguna consulta en esta
+  configuración.
+
+## 8. Ajuste de control para el ciclo 2 (propuesta, no ejecutada) [D]
+- **Configuraciones:**
+  - **real:** Neurona 1 activa, PPMI 0,15;
+  - **control:** `BIORAG_NEURONA=0` **durante toda la corrida** (construcción y medición), no `BIORAG_PPMI_WEIGHT=0`.
+    El peso PPMI cambia la fórmula a mano; apagar la neurona aísla H2/4b sin tocar la fórmula.
+- **Corte fijado tras D** en los dos brazos, para eliminar el resto de BM25.
+- **Registrar por mundo el estado de la Neurona 1** (campeón sí/no, ascensos, huella), para que un cambio del top-5
+  se pueda atribuir a la neurona y no a H2/4b.
+- **Sobre la medición anterior:** su (b), el cambio total del top-k, incluye el efecto de la Neurona 1. Los
+  hallazgos de estado (H2 duerme D, cruces de 4b, K4, K6 y K8) no dependen del buscador y siguen en pie. Los
+  atribuibles del top-k (K1) pueden contener efecto de la neurona, porque su campeón puede diferir entre brazos.
+- **Neurona 1:** no se toca (regla vigente). Que dependa del corpus queda documentado como hallazgo, para que
+  Dennys decida si se estudia aparte.

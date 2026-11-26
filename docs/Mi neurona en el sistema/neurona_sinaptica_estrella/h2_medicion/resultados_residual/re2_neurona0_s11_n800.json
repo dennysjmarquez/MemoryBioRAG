@@ -1,0 +1,8 @@
+{
+ "config": "s11_n800 corte=medir ppmi=0.15 BIORAG_NEURONA=0 solo al medir",
+ "top5_cambiados": 2,
+ "ids": [
+  "x1100121|2",
+  "x1100234|2"
+ ]
+}
