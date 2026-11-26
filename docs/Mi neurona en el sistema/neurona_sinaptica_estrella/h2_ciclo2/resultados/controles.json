@@ -1,0 +1,6 @@
+{
+ "H2loc+4bp": {
+  "construccion_determinista": true,
+  "orden_consultas_indiferente": true
+ }
+}
