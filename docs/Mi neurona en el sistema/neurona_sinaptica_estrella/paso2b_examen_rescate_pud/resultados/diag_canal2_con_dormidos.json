@@ -1,0 +1,58 @@
+{
+ "es": {
+  "casos": 10,
+  "B_distintos": 9,
+  "B_distintos_guardia": 4,
+  "piso_R@1": 0.8,
+  "piso_MRR": 0.8833,
+  "azar_MRR_esperado": 0.7367,
+  "oraculo_MRR": 0.8333,
+  "anti_oraculo_MRR": 0.8833,
+  "frac_mismo_doc_en_casos": 0.5,
+  "frac_mismo_doc_en_aristas": 0.1776,
+  "share_A_max": 0.2,
+  "share_top3_A": 0.4
+ },
+ "en": {
+  "casos": 11,
+  "B_distintos": 11,
+  "B_distintos_guardia": 2,
+  "piso_R@1": 0.7273,
+  "piso_MRR": 0.8258,
+  "azar_MRR_esperado": 0.7218,
+  "oraculo_MRR": 0.7803,
+  "anti_oraculo_MRR": 0.7601,
+  "frac_mismo_doc_en_casos": 0.3636,
+  "frac_mismo_doc_en_aristas": 0.2183,
+  "share_A_max": 0.0909,
+  "share_top3_A": 0.2727
+ },
+ "zh": {
+  "casos": 0,
+  "B_distintos": 0,
+  "B_distintos_guardia": 0,
+  "piso_R@1": null,
+  "piso_MRR": null,
+  "azar_MRR_esperado": null,
+  "oraculo_MRR": null,
+  "anti_oraculo_MRR": null,
+  "frac_mismo_doc_en_casos": null,
+  "frac_mismo_doc_en_aristas": 1.0,
+  "share_A_max": null,
+  "share_top3_A": null
+ },
+ "ja": {
+  "casos": 0,
+  "B_distintos": 0,
+  "B_distintos_guardia": 0,
+  "piso_R@1": null,
+  "piso_MRR": null,
+  "azar_MRR_esperado": null,
+  "oraculo_MRR": null,
+  "anti_oraculo_MRR": null,
+  "frac_mismo_doc_en_casos": null,
+  "frac_mismo_doc_en_aristas": null,
+  "share_A_max": null,
+  "share_top3_A": null
+ }
+}

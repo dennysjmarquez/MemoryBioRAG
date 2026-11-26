@@ -153,7 +153,7 @@ Así, un error de la neurona no puede dejar el sistema peor que hoy. Eso es lo q
 | 0 | Tapar las vías de bucle en el laboratorio (A4 + C1.2c) | No | C1.2c 276/276 en los 4 idiomas. **Hecho en este ciclo** (ver `RESULTADOS_E1.md` §8) |
 | 1 | **«Ojos Unicode» en la búsqueda:** encontrar palabras CJK de 1–2 caracteres | **Sí** (canal 1) | QA completa sin bajar (R@5, R@1, MRR, FP 0/40) y suite en verde. **Hecho 2026-11-25** (ver `../ojos_unicode_busqueda/RESULTADOS.md`): 0/11 → 11/11 en top-1, todas las puertas idénticas. Pendiente de PR para Dennys |
 | 2 | **Examen de rescate en el laboratorio:** pistas de dificultad graduada, sin listas de idioma (muestras dispersas de unidades Unicode, sin el nombre), con control de hubs | No | Suficientes casos por idioma; invariancia ≥ 98 %; rescates de hubs por debajo de un tope fijado antes. **Medido 2026-11-25** (`paso2_examen_rescate/RESULTADOS.md`): examen limpio y reproducible (P6), pero el mundo de 24 recuerdos no lo aloja (0–4 casos; los pocos casos eran basura y P5 los detectó). **Pasa 1 de 7** |
-| 2b | **Examen de rescate v2 en un mundo grande real:** UD PUD (1000 frases paralelas, 397 documentos, es/en/zh/ja, CC BY-SA), filtro de pistas sin contenido sin listas, invariancia solo con I que no contienen la pista | No | Las mismas puertas P1–P6, fijadas antes |
+| 2b | **Examen de rescate v2 en un mundo grande real:** UD PUD (1000 frases paralelas, 397 documentos, es/en/zh/ja, CC BY-SA), filtro de pistas sin contenido sin listas, invariancia solo con I que no contienen la pista | No | Las mismas puertas P1–P6, fijadas antes. **Medido 2026-11-25** (`paso2b_examen_rescate_pud/RESULTADOS.md`): pasa 1/7. El filtro funciona; tres hallazgos del motor: H1 sin sinapsis en zh/ja (4 y 0), H2 la inhibición lateral duerme el 74 % y rompe la invariancia, H3 el rescate es raro por naturaleza. Propuesta: examen de orden para entrenar y rescate para validar |
 | 3 | **Batería de agujas** (S, S_idf, X, B, K, R, Δt), cada una con AUC, invariancia y bucle por idioma | No | Se fija antes qué entra. Necesita un mundo más grande, **escrito a ciegas** (quien escribe los textos no conoce los pares) |
 | 4 | **Protocolo v4 + E2:** la neurona con el molde completo, entrenada con el examen de rescate, en copias. Compara dos formas de entrenar con el mismo piso, la misma guardia del 20 % y los 4 idiomas (nota 9.1) | No | Gana al piso en la guardia sin bajar ninguna categoría ni idioma |
 | 5 | E3: consolidación en el sueño, en modo sombra | No (sombra) | Solo tras pasar E1 y E2 |
@@ -171,6 +171,34 @@ candidata **G** para la batería: ¿cuántos vecinos de A también apuntan hacia
 B)? Condiciones para entrar, como las demás: sin idioma, invariante y **sin bucle** (no puede contar el propio
 enlace A–B ni leer el grafo que juzga sin la copia limpia; si usa el grafo, solo como entrada vigilada y medida
 con la prueba de sinapsis falsas de C1.2b).
+
+### 9.0b Complemento de auditoría del agente local para el paso 3 (2026-11-25)
+
+Candidatas para la batería del paso 3, con las mismas reglas de entrada (sin idioma, invariante, sin bucle, costo
+fijo). Lo verificado aquí se marca [V]; el resto queda como propuesta [D] hasta medirlo.
+1. **G_ciego (engrama ciego):** `|TopK_ciego(A) ∩ TopK_ciego(B)|` en la copia sin sinapsis. Es la forma sin bucle de
+   G: no lee `sinapsis`. Capta pares sin palabras comunes que caen cerca de los mismos recuerdos. Cuidado [D]: pasa
+   por el buscador, así que hereda su invariancia (la del BM25: ~93–100 % según el idioma en el Paso 2) y hay que
+   medirla con la NORMA MÁXIMA como R.
+2. **S refinada:** Jaccard de dimensiones `|D_A ∩ D_B| / |D_A ∪ D_B|` (local al par, invariante) y separación por
+   eje (temáticos: dominio, entidad, intención, cualia; de tono o forma: cualidad, emoción), siempre sin
+   `auto_generada = 1`.
+3. **X refinada:** separar la coincidencia en concepto, sustantivos clave y contenido (el motor los pesa 5, 4 y 1 [V],
+   `evidence_convergence.py` L20–25) y medir la reciprocidad `min(X(A→B), X(B→A))` frente a `max`, para
+   distinguir enlaces mutuos de hubs unilaterales.
+4. **`lexico_aprendido` queda fuera** [V]: normaliza con `[^a-z0-9\s]` (`lexical_learning.py` L52, solo ASCII, no ve
+   CJK) y guarda enseñanza explícita, de la clase de `manual`.
+
+### 9.0c Exigencia de escala y variedad para los pasos 3 y 4 (usuario y asesor, 2026-11-25)
+
+UD PUD (frases cortas, ~15 palabras) sirve para validar el examen (paso 2b), **no basta para entrenar ni evaluar la
+neurona**. Los pasos 3 y 4 sumarán otros cuerpos reales y públicos, en los 4 idiomas, del orden de varios miles de
+recuerdos: párrafos largos, textos enciclopédicos y técnicos, documentos variados. Todo en copias o en RAM, no
+millones de filas en SQLite. Desde este entorno solo se alcanzan GitHub y PyPI; candidatos verificables: otros
+treebanks de Universal Dependencies con documentos y párrafos (p. ej. GSD de Wikipedia en zh y ja, AnCora o GSD en es,
+GUM o EWT en en). La elección se fija antes de medir, en su ciclo.
+**En el motor**, como la neurona 1, el examen de rescate vivirá dentro del sueño, sobre los datos de cada usuario,
+con piso, techo, guardia del 20 % y campeón/retador (pasos 5 y 6).
 
 ### 9.1 Nota para el paso 4: gradiente frente a neuroevolución (idea del usuario, 2026-11-25)
 
