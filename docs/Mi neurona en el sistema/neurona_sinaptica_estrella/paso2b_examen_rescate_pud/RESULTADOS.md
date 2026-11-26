@@ -80,3 +80,11 @@ real aparece 2–3 veces más que en el grafo.
    como el Paso 1, con OK.
 3. **H2 es una pregunta para Dennys:** ¿debe el canal 2 poder mostrar vecinos dormidos? ¿La inhibición lateral debe
    respetar la invariancia? No se toca sin su decisión.
+
+## Corrección (2026-11-26, Paso 2c)
+La frase de §4 H2 «El 100 % de los fallos de P2 toca un recuerdo que cambió de estado» está inflada: el conteo
+trataba como cambio de estado a los recuerdos de I, que no existen en D. Clasificación correcta, en este mismo mundo
+(`../paso2c_examen_orden_rescate/RESULTADOS.md` §4): en es/en, 156 y 128 fallos son recuerdos de I que el buscador
+difuso considera coincidencia (no violan la NORMA MÁXIMA) y 53 son cambios de estado de D. En zh/ja los fallos sí
+vienen de H2 (cambio de estado o reorden), y desaparecen al apagar la inhibición lateral. La conclusión sobre H2 se
+mantiene: con la inhibición apagada, el orden relativo de D es invariante en el 99,0–100 % de las pistas.

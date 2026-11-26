@@ -1,0 +1,134 @@
+{
+ "T": {
+  "es": {
+   "C2_clasificacion_de_fallos": {
+    "fallos": 232,
+    "entra_un_I": 156,
+    "cambio_estado_D": 53,
+    "mismo_conjunto_otro_orden": 17,
+    "cambia_un_D_por_otro_D": 6
+   },
+   "C2_orden_relativo_D": "1513/1608",
+   "C2_orden_relativo_D_frac": 0.9409,
+   "O2_faltan_en_DI": 2,
+   "O2_puesto_D_distinto": 0,
+   "O2_solo_en_DI": 0,
+   "O2_solo_en_DI_con_A_de_I": 0,
+   "D_que_cambian_de_estado": 177
+  },
+  "en": {
+   "C2_clasificacion_de_fallos": {
+    "fallos": 207,
+    "entra_un_I": 128,
+    "cambio_estado_D": 53,
+    "mismo_conjunto_otro_orden": 17,
+    "cambia_un_D_por_otro_D": 9
+   },
+   "C2_orden_relativo_D": "1565/1661",
+   "C2_orden_relativo_D_frac": 0.9422,
+   "O2_faltan_en_DI": 12,
+   "O2_puesto_D_distinto": 0,
+   "O2_solo_en_DI": 0,
+   "O2_solo_en_DI_con_A_de_I": 0,
+   "D_que_cambian_de_estado": 177
+  },
+  "zh": {
+   "C2_clasificacion_de_fallos": {
+    "fallos": 175,
+    "entra_un_I": 0,
+    "cambio_estado_D": 112,
+    "mismo_conjunto_otro_orden": 59,
+    "cambia_un_D_por_otro_D": 4
+   },
+   "C2_orden_relativo_D": "3971/4146",
+   "C2_orden_relativo_D_frac": 0.9578,
+   "O2_faltan_en_DI": 34,
+   "O2_puesto_D_distinto": 0,
+   "O2_solo_en_DI": 0,
+   "O2_solo_en_DI_con_A_de_I": 0,
+   "D_que_cambian_de_estado": 177
+  },
+  "ja": {
+   "C2_clasificacion_de_fallos": {
+    "fallos": 205,
+    "entra_un_I": 0,
+    "cambio_estado_D": 121,
+    "mismo_conjunto_otro_orden": 75,
+    "cambia_un_D_por_otro_D": 9
+   },
+   "C2_orden_relativo_D": "1714/1919",
+   "C2_orden_relativo_D_frac": 0.8932,
+   "O2_faltan_en_DI": 35,
+   "O2_puesto_D_distinto": 0,
+   "O2_solo_en_DI": 0,
+   "O2_solo_en_DI_con_A_de_I": 0,
+   "D_que_cambian_de_estado": 177
+  }
+ },
+ "C": {
+  "es": {
+   "C2_clasificacion_de_fallos": {
+    "fallos": 172,
+    "entra_un_I": 163,
+    "cambio_estado_D": 0,
+    "mismo_conjunto_otro_orden": 2,
+    "cambia_un_D_por_otro_D": 7
+   },
+   "C2_orden_relativo_D": "1594/1608",
+   "C2_orden_relativo_D_frac": 0.9913,
+   "O2_faltan_en_DI": 2,
+   "O2_puesto_D_distinto": 0,
+   "O2_solo_en_DI": 5,
+   "O2_solo_en_DI_con_A_de_I": 2,
+   "D_que_cambian_de_estado": 0
+  },
+  "en": {
+   "C2_clasificacion_de_fallos": {
+    "fallos": 142,
+    "entra_un_I": 130,
+    "cambio_estado_D": 0,
+    "mismo_conjunto_otro_orden": 2,
+    "cambia_un_D_por_otro_D": 10
+   },
+   "C2_orden_relativo_D": "1645/1661",
+   "C2_orden_relativo_D_frac": 0.9904,
+   "O2_faltan_en_DI": 1,
+   "O2_puesto_D_distinto": 0,
+   "O2_solo_en_DI": 8,
+   "O2_solo_en_DI_con_A_de_I": 6,
+   "D_que_cambian_de_estado": 0
+  },
+  "zh": {
+   "C2_clasificacion_de_fallos": {
+    "fallos": 2,
+    "entra_un_I": 1,
+    "cambio_estado_D": 0,
+    "mismo_conjunto_otro_orden": 0,
+    "cambia_un_D_por_otro_D": 1
+   },
+   "C2_orden_relativo_D": "4145/4146",
+   "C2_orden_relativo_D_frac": 0.9998,
+   "O2_faltan_en_DI": 0,
+   "O2_puesto_D_distinto": 0,
+   "O2_solo_en_DI": 0,
+   "O2_solo_en_DI_con_A_de_I": 0,
+   "D_que_cambian_de_estado": 0
+  },
+  "ja": {
+   "C2_clasificacion_de_fallos": {
+    "fallos": 0,
+    "entra_un_I": 0,
+    "cambio_estado_D": 0,
+    "mismo_conjunto_otro_orden": 0,
+    "cambia_un_D_por_otro_D": 0
+   },
+   "C2_orden_relativo_D": "1919/1919",
+   "C2_orden_relativo_D_frac": 1.0,
+   "O2_faltan_en_DI": 0,
+   "O2_puesto_D_distinto": 0,
+   "O2_solo_en_DI": 0,
+   "O2_solo_en_DI_con_A_de_I": 0,
+   "D_que_cambian_de_estado": 0
+  }
+ }
+}

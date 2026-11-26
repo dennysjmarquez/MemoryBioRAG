@@ -1,0 +1,1585 @@
+{
+ "protocolo": "PROTOCOLO.md",
+ "limite_prueba_en_seco": null,
+ "commit": "2890675c613d6338a622f6f0f3f535a8df7f02ba",
+ "atribucion": "Universal Dependencies PUD (es, en, zh, ja), CC BY-SA 3.0",
+ "variantes": {
+  "T": {
+   "puertas": {
+    "C2_invariancia_busqueda": false,
+    "C6_limpieza": true,
+    "O1_volumen": false,
+    "O2_invariancia_respuesta": false,
+    "O3_hubs": false,
+    "O4_margen": true,
+    "O5_validez": false,
+    "R1_volumen": false,
+    "R2_invariancia_respuesta": false,
+    "R3_hubs": false,
+    "R4_margen": false,
+    "R5_validez": false
+   },
+   "orden_valido": false,
+   "rescate_valido": false,
+   "por_idioma": {
+    "es": {
+     "corpus_sha256": "542ab95a9240fb66ade9d3d234fc34dfd0d5b041bdd304f005ce3573d93418c7",
+     "recuerdos_D": 839,
+     "recuerdos_I": 161,
+     "pistas_tras_filtro": 2421,
+     "pistas_antes_del_filtro": 7327,
+     "pistas_elegibles_C2": 1608,
+     "sinapsis_filas": {
+      "D": 643,
+      "DI": 781
+     },
+     "tipos_sinapsis_D": {
+      "co_ocurrencia": 262,
+      "dmn_synthesized": 7,
+      "pmi_hebbiano": 374
+     },
+     "dormidos": {
+      "D": 622,
+      "DI": 799
+     },
+     "D_que_cambian_de_estado_al_entrar_I": 177,
+     "C2_top5_identico": "1376/1608",
+     "C2_frac": 0.8557,
+     "C2_fallos_que_tocan_un_cambio_de_estado": "171/232",
+     "orden": {
+      "preguntas": 8,
+      "B_distintos": 7,
+      "A_distintos": 7,
+      "por_parte": {
+       "estudio": {
+        "preguntas": 7,
+        "B": 6,
+        "A": 6
+       },
+       "validacion": {
+        "preguntas": 0,
+        "B": 0,
+        "A": 0
+       },
+       "guardia": {
+        "preguntas": 1,
+        "B": 1,
+        "A": 1
+       }
+      },
+      "B_tambien_en_top5": 0.875,
+      "pistas_por_pregunta": 1.38,
+      "share_A_max": 0.25,
+      "share_top3_A": 0.5,
+      "piso_R@1": 0.625,
+      "piso_MRR": 0.8125,
+      "azar_MRR_esperado": 0.6242,
+      "oraculo_MRR": 0.8125,
+      "anti_oraculo_MRR": 0.6406,
+      "frac_mismo_doc_B": 0.875,
+      "frac_mismo_doc_vecino_cualquiera": 0.6562,
+      "O5a_diferencia": 0.2188,
+      "O5a_IC95": [
+       0.05,
+       0.4643
+      ],
+      "n_vecinos_medio": 3.88
+     },
+     "O2_preguntas_D_elegibles": 6,
+     "O2_iguales": 4,
+     "O2_frac": 0.6667,
+     "O2_solo_en_DI_frac": 0.0,
+     "rescate": {
+      "pistas_buscadas": 2421,
+      "pistas_B_fuera_del_top5": 106,
+      "casos": 1,
+      "B_distintos": 1,
+      "B_distintos_guardia": 0,
+      "casos_guardia": 0,
+      "casos_por_nivel": {
+       "3": 0,
+       "2": 0,
+       "1": 1
+      },
+      "piso_R@1": 1.0,
+      "piso_visible_en_canal2": 1.0,
+      "piso_MRR": 1.0,
+      "azar_MRR_esperado": 0.75,
+      "oraculo_MRR": 1.0,
+      "anti_oraculo_MRR": 1.0,
+      "frac_mismo_doc_en_casos": 1.0,
+      "frac_mismo_doc_en_aristas": 0.1776,
+      "aristas_no_dirigidas": 642,
+      "share_A_max": 1.0,
+      "share_top3_A": 1.0,
+      "n_vecinos_medio": 2.0,
+      "lista_casos": [
+       {
+        "B": "w04010031",
+        "A": "w04010029",
+        "s": 2,
+        "nivel": 1,
+        "pista": "varias",
+        "puesto": 1,
+        "n": 2,
+        "visible": true
+       }
+      ],
+      "por_parte": {
+       "estudio": 1,
+       "validacion": 0,
+       "guardia": 0
+      }
+     },
+     "R2_casos_comunes": 1,
+     "R2_iguales": 1,
+     "R2_solo_D": 0,
+     "R2_solo_DI": 0,
+     "C6": {
+      "repaso_repetido_identico": true,
+      "sha_sin_cambio": true,
+      "copia_ciega_al_terminar": {
+       "sinapsis": 0,
+       "asociaciones": 0,
+       "emergentes": 0
+      },
+      "vecinos_no_cambia_sinapsis": true
+     },
+     "segundos": {
+      "construir": 87.9,
+      "repasos_y_vecinos": 471.6
+     }
+    },
+    "en": {
+     "corpus_sha256": "befc5e901b58732f2308b1aac5cdd804d938362ab31c9fe400c61c28e8e155d8",
+     "recuerdos_D": 839,
+     "recuerdos_I": 161,
+     "pistas_tras_filtro": 2585,
+     "pistas_antes_del_filtro": 7324,
+     "pistas_elegibles_C2": 1661,
+     "sinapsis_filas": {
+      "D": 679,
+      "DI": 846
+     },
+     "tipos_sinapsis_D": {
+      "co_ocurrencia": 391,
+      "pmi_hebbiano": 279,
+      "dmn_synthesized": 9
+     },
+     "dormidos": {
+      "D": 622,
+      "DI": 799
+     },
+     "D_que_cambian_de_estado_al_entrar_I": 177,
+     "C2_top5_identico": "1454/1661",
+     "C2_frac": 0.8754,
+     "C2_fallos_que_tocan_un_cambio_de_estado": "142/207",
+     "orden": {
+      "preguntas": 23,
+      "B_distintos": 19,
+      "A_distintos": 20,
+      "por_parte": {
+       "estudio": {
+        "preguntas": 15,
+        "B": 12,
+        "A": 14
+       },
+       "validacion": {
+        "preguntas": 1,
+        "B": 1,
+        "A": 1
+       },
+       "guardia": {
+        "preguntas": 7,
+        "B": 6,
+        "A": 7
+       }
+      },
+      "B_tambien_en_top5": 0.9565,
+      "pistas_por_pregunta": 1.09,
+      "share_A_max": 0.087,
+      "share_top3_A": 0.2609,
+      "piso_R@1": 0.5217,
+      "piso_MRR": 0.7101,
+      "azar_MRR_esperado": 0.5076,
+      "oraculo_MRR": 0.7391,
+      "anti_oraculo_MRR": 0.4572,
+      "frac_mismo_doc_B": 0.6957,
+      "frac_mismo_doc_vecino_cualquiera": 0.3858,
+      "O5a_diferencia": 0.3098,
+      "O5a_IC95": [
+       0.1639,
+       0.4749
+      ],
+      "n_vecinos_medio": 5.17
+     },
+     "O2_preguntas_D_elegibles": 18,
+     "O2_iguales": 6,
+     "O2_frac": 0.3333,
+     "O2_solo_en_DI_frac": 0.0,
+     "rescate": {
+      "pistas_buscadas": 2585,
+      "pistas_B_fuera_del_top5": 137,
+      "casos": 3,
+      "B_distintos": 3,
+      "B_distintos_guardia": 0,
+      "casos_guardia": 0,
+      "casos_por_nivel": {
+       "3": 0,
+       "2": 0,
+       "1": 3
+      },
+      "piso_R@1": 1.0,
+      "piso_visible_en_canal2": 1.0,
+      "piso_MRR": 1.0,
+      "azar_MRR_esperado": 0.8704,
+      "oraculo_MRR": 1.0,
+      "anti_oraculo_MRR": 1.0,
+      "frac_mismo_doc_en_casos": 0.6667,
+      "frac_mismo_doc_en_aristas": 0.2183,
+      "aristas_no_dirigidas": 655,
+      "share_A_max": 0.3333,
+      "share_top3_A": 1.0,
+      "n_vecinos_medio": 1.67,
+      "lista_casos": [
+       {
+        "B": "n03002010",
+        "A": "n02042028",
+        "s": 3,
+        "nivel": 1,
+        "pista": "hand",
+        "puesto": 1,
+        "n": 1,
+        "visible": true
+       },
+       {
+        "B": "n05008018",
+        "A": "n05008012",
+        "s": 1,
+        "nivel": 1,
+        "pista": "americans",
+        "puesto": 1,
+        "n": 1,
+        "visible": true
+       },
+       {
+        "B": "w03005016",
+        "A": "w03005014",
+        "s": 1,
+        "nivel": 1,
+        "pista": "appear",
+        "puesto": 1,
+        "n": 3,
+        "visible": true
+       }
+      ],
+      "por_parte": {
+       "estudio": 2,
+       "validacion": 0,
+       "guardia": 1
+      }
+     },
+     "R2_casos_comunes": 0,
+     "R2_iguales": 0,
+     "R2_solo_D": 2,
+     "R2_solo_DI": 0,
+     "C6": {
+      "repaso_repetido_identico": true,
+      "sha_sin_cambio": true,
+      "copia_ciega_al_terminar": {
+       "sinapsis": 0,
+       "asociaciones": 0,
+       "emergentes": 0
+      },
+      "vecinos_no_cambia_sinapsis": true
+     },
+     "segundos": {
+      "construir": 79.4,
+      "repasos_y_vecinos": 392.3
+     }
+    },
+    "zh": {
+     "corpus_sha256": "38ad4f76224567a275f3492a87a9b7ed91690b8f0959ee4eabac0ae022d6cf41",
+     "recuerdos_D": 839,
+     "recuerdos_I": 161,
+     "pistas_tras_filtro": 5931,
+     "pistas_antes_del_filtro": 7401,
+     "pistas_elegibles_C2": 4146,
+     "sinapsis_filas": {
+      "D": 566,
+      "DI": 652
+     },
+     "tipos_sinapsis_D": {
+      "co_ocurrencia": 566
+     },
+     "dormidos": {
+      "D": 622,
+      "DI": 799
+     },
+     "D_que_cambian_de_estado_al_entrar_I": 177,
+     "C2_top5_identico": "3971/4146",
+     "C2_frac": 0.9578,
+     "C2_fallos_que_tocan_un_cambio_de_estado": "23/175",
+     "orden": {
+      "preguntas": 86,
+      "B_distintos": 59,
+      "A_distintos": 54,
+      "por_parte": {
+       "estudio": {
+        "preguntas": 59,
+        "B": 36,
+        "A": 38
+       },
+       "validacion": {
+        "preguntas": 16,
+        "B": 14,
+        "A": 14
+       },
+       "guardia": {
+        "preguntas": 11,
+        "B": 9,
+        "A": 9
+       }
+      },
+      "B_tambien_en_top5": 0.9651,
+      "pistas_por_pregunta": 1.55,
+      "share_A_max": 0.0581,
+      "share_top3_A": 0.1512,
+      "piso_R@1": 0.4419,
+      "piso_MRR": 0.6681,
+      "azar_MRR_esperado": 0.5954,
+      "oraculo_MRR": 0.7104,
+      "anti_oraculo_MRR": 0.5774,
+      "frac_mismo_doc_B": 0.6977,
+      "frac_mismo_doc_vecino_cualquiera": 0.5646,
+      "O5a_diferencia": 0.133,
+      "O5a_IC95": [
+       0.0749,
+       0.199
+      ],
+      "n_vecinos_medio": 3.5
+     },
+     "O2_preguntas_D_elegibles": 49,
+     "O2_iguales": 15,
+     "O2_frac": 0.3061,
+     "O2_solo_en_DI_frac": 0.0,
+     "rescate": {
+      "pistas_buscadas": 5931,
+      "pistas_B_fuera_del_top5": 76,
+      "casos": 2,
+      "B_distintos": 2,
+      "B_distintos_guardia": 0,
+      "casos_guardia": 0,
+      "casos_por_nivel": {
+       "3": 0,
+       "2": 0,
+       "1": 2
+      },
+      "piso_R@1": 0.5,
+      "piso_visible_en_canal2": 1.0,
+      "piso_MRR": 0.75,
+      "azar_MRR_esperado": 0.75,
+      "oraculo_MRR": 0.75,
+      "anti_oraculo_MRR": 1.0,
+      "frac_mismo_doc_en_casos": 0.5,
+      "frac_mismo_doc_en_aristas": 0.4276,
+      "aristas_no_dirigidas": 566,
+      "share_A_max": 0.5,
+      "share_top3_A": 1.0,
+      "n_vecinos_medio": 2.0,
+      "lista_casos": [
+       {
+        "B": "n03007009",
+        "A": "n03007003",
+        "s": 3,
+        "nivel": 1,
+        "pista": "時間",
+        "puesto": 1,
+        "n": 2,
+        "visible": true
+       },
+       {
+        "B": "w03001037",
+        "A": "w02013015",
+        "s": 1,
+        "nivel": 1,
+        "pista": "家的",
+        "puesto": 2,
+        "n": 2,
+        "visible": true
+       }
+      ],
+      "por_parte": {
+       "estudio": 1,
+       "validacion": 0,
+       "guardia": 1
+      }
+     },
+     "R2_casos_comunes": 0,
+     "R2_iguales": 0,
+     "R2_solo_D": 0,
+     "R2_solo_DI": 0,
+     "C6": {
+      "repaso_repetido_identico": true,
+      "sha_sin_cambio": true,
+      "copia_ciega_al_terminar": {
+       "sinapsis": 0,
+       "asociaciones": 0,
+       "emergentes": 0
+      },
+      "vecinos_no_cambia_sinapsis": true
+     },
+     "segundos": {
+      "construir": 30.2,
+      "repasos_y_vecinos": 162.0
+     }
+    },
+    "ja": {
+     "corpus_sha256": "7ac51383189bdf5513102f9f8ac7ee1b967d5449f8c2dc1a9108fa21a8f1a688",
+     "recuerdos_D": 839,
+     "recuerdos_I": 161,
+     "pistas_tras_filtro": 3323,
+     "pistas_antes_del_filtro": 7441,
+     "pistas_elegibles_C2": 1919,
+     "sinapsis_filas": {
+      "D": 1152,
+      "DI": 1331
+     },
+     "tipos_sinapsis_D": {
+      "co_ocurrencia": 1152
+     },
+     "dormidos": {
+      "D": 622,
+      "DI": 799
+     },
+     "D_que_cambian_de_estado_al_entrar_I": 177,
+     "C2_top5_identico": "1714/1919",
+     "C2_frac": 0.8932,
+     "C2_fallos_que_tocan_un_cambio_de_estado": "31/205",
+     "orden": {
+      "preguntas": 71,
+      "B_distintos": 54,
+      "A_distintos": 58,
+      "por_parte": {
+       "estudio": {
+        "preguntas": 40,
+        "B": 32,
+        "A": 35
+       },
+       "validacion": {
+        "preguntas": 15,
+        "B": 12,
+        "A": 13
+       },
+       "guardia": {
+        "preguntas": 16,
+        "B": 10,
+        "A": 14
+       }
+      },
+      "B_tambien_en_top5": 0.9718,
+      "pistas_por_pregunta": 1.3,
+      "share_A_max": 0.0423,
+      "share_top3_A": 0.0986,
+      "piso_R@1": 0.4507,
+      "piso_MRR": 0.6725,
+      "azar_MRR_esperado": 0.5847,
+      "oraculo_MRR": 0.6702,
+      "anti_oraculo_MRR": 0.562,
+      "frac_mismo_doc_B": 0.4789,
+      "frac_mismo_doc_vecino_cualquiera": 0.3581,
+      "O5a_diferencia": 0.1208,
+      "O5a_IC95": [
+       0.0305,
+       0.2112
+      ],
+      "n_vecinos_medio": 3.86
+     },
+     "O2_preguntas_D_elegibles": 43,
+     "O2_iguales": 8,
+     "O2_frac": 0.186,
+     "O2_solo_en_DI_frac": 0.0,
+     "rescate": {
+      "pistas_buscadas": 3323,
+      "pistas_B_fuera_del_top5": 101,
+      "casos": 2,
+      "B_distintos": 2,
+      "B_distintos_guardia": 1,
+      "casos_guardia": 1,
+      "casos_por_nivel": {
+       "3": 0,
+       "2": 0,
+       "1": 2
+      },
+      "piso_R@1": 0.5,
+      "piso_visible_en_canal2": 1.0,
+      "piso_MRR": 0.6667,
+      "azar_MRR_esperado": 0.4908,
+      "oraculo_MRR": 0.6667,
+      "anti_oraculo_MRR": 0.4167,
+      "frac_mismo_doc_en_casos": 0.5,
+      "frac_mismo_doc_en_aristas": 0.2595,
+      "aristas_no_dirigidas": 1152,
+      "share_A_max": 0.5,
+      "share_top3_A": 1.0,
+      "n_vecinos_medio": 5.0,
+      "lista_casos": [
+       {
+        "B": "n04010016",
+        "A": "n04001002",
+        "s": 3,
+        "nivel": 1,
+        "pista": "トで",
+        "puesto": 3,
+        "n": 7,
+        "visible": true
+       },
+       {
+        "B": "w02013033",
+        "A": "w02013015",
+        "s": 2,
+        "nivel": 1,
+        "pista": "イギ",
+        "puesto": 1,
+        "n": 3,
+        "visible": true
+       }
+      ],
+      "por_parte": {
+       "estudio": 1,
+       "validacion": 0,
+       "guardia": 1
+      }
+     },
+     "R2_casos_comunes": 0,
+     "R2_iguales": 0,
+     "R2_solo_D": 1,
+     "R2_solo_DI": 0,
+     "C6": {
+      "repaso_repetido_identico": true,
+      "sha_sin_cambio": true,
+      "copia_ciega_al_terminar": {
+       "sinapsis": 0,
+       "asociaciones": 0,
+       "emergentes": 0
+      },
+      "vecinos_no_cambia_sinapsis": true
+     },
+     "segundos": {
+      "construir": 27.1,
+      "repasos_y_vecinos": 84.0
+     }
+    }
+   }
+  },
+  "C": {
+   "puertas": {
+    "C2_invariancia_busqueda": false,
+    "C6_limpieza": true,
+    "O1_volumen": false,
+    "O2_invariancia_respuesta": false,
+    "O3_hubs": true,
+    "O4_margen": true,
+    "O5_validez": true,
+    "R1_volumen": false,
+    "R2_invariancia_respuesta": true,
+    "R3_hubs": false,
+    "R4_margen": true,
+    "R5_validez": false
+   },
+   "orden_valido": false,
+   "rescate_valido": false,
+   "por_idioma": {
+    "es": {
+     "corpus_sha256": "542ab95a9240fb66ade9d3d234fc34dfd0d5b041bdd304f005ce3573d93418c7",
+     "recuerdos_D": 839,
+     "recuerdos_I": 161,
+     "pistas_tras_filtro": 2421,
+     "pistas_antes_del_filtro": 7327,
+     "pistas_elegibles_C2": 1608,
+     "sinapsis_filas": {
+      "D": 1838,
+      "DI": 2797
+     },
+     "tipos_sinapsis_D": {
+      "co_ocurrencia": 236,
+      "dmn_synthesized": 26,
+      "pmi_hebbiano": 1576
+     },
+     "dormidos": {
+      "D": 0,
+      "DI": 0
+     },
+     "D_que_cambian_de_estado_al_entrar_I": 0,
+     "C2_top5_identico": "1436/1608",
+     "C2_frac": 0.893,
+     "C2_fallos_que_tocan_un_cambio_de_estado": "163/172",
+     "orden": {
+      "preguntas": 112,
+      "B_distintos": 79,
+      "A_distintos": 89,
+      "por_parte": {
+       "estudio": {
+        "preguntas": 62,
+        "B": 46,
+        "A": 56
+       },
+       "validacion": {
+        "preguntas": 25,
+        "B": 17,
+        "A": 24
+       },
+       "guardia": {
+        "preguntas": 25,
+        "B": 16,
+        "A": 21
+       }
+      },
+      "B_tambien_en_top5": 0.875,
+      "pistas_por_pregunta": 1.21,
+      "share_A_max": 0.0268,
+      "share_top3_A": 0.0804,
+      "piso_R@1": 0.4018,
+      "piso_MRR": 0.5706,
+      "azar_MRR_esperado": 0.3917,
+      "oraculo_MRR": 0.5825,
+      "anti_oraculo_MRR": 0.4058,
+      "frac_mismo_doc_B": 0.4464,
+      "frac_mismo_doc_vecino_cualquiera": 0.2456,
+      "O5a_diferencia": 0.2008,
+      "O5a_IC95": [
+       0.1277,
+       0.2779
+      ],
+      "n_vecinos_medio": 10.79
+     },
+     "O2_preguntas_D_elegibles": 66,
+     "O2_iguales": 64,
+     "O2_frac": 0.9697,
+     "O2_solo_en_DI_frac": 0.0725,
+     "rescate": {
+      "pistas_buscadas": 2421,
+      "pistas_B_fuera_del_top5": 103,
+      "casos": 12,
+      "B_distintos": 10,
+      "B_distintos_guardia": 3,
+      "casos_guardia": 4,
+      "casos_por_nivel": {
+       "3": 0,
+       "2": 2,
+       "1": 10
+      },
+      "piso_R@1": 0.5,
+      "piso_visible_en_canal2": 0.6667,
+      "piso_MRR": 0.572,
+      "azar_MRR_esperado": 0.4777,
+      "oraculo_MRR": 0.572,
+      "anti_oraculo_MRR": 0.4956,
+      "frac_mismo_doc_en_casos": 0.3333,
+      "frac_mismo_doc_en_aristas": 0.0637,
+      "aristas_no_dirigidas": 1806,
+      "share_A_max": 0.1667,
+      "share_top3_A": 0.4167,
+      "n_vecinos_medio": 10.17,
+      "lista_casos": [
+       {
+        "B": "n01030008",
+        "A": "n01030006",
+        "s": 1,
+        "nivel": 1,
+        "pista": "según",
+        "puesto": 1,
+        "n": 1,
+        "visible": true
+       },
+       {
+        "B": "n01043005",
+        "A": "n01131007",
+        "s": 3,
+        "nivel": 1,
+        "pista": "5",
+        "puesto": 1,
+        "n": 5,
+        "visible": true
+       },
+       {
+        "B": "n01127008",
+        "A": "n01127130",
+        "s": 1,
+        "nivel": 1,
+        "pista": "hong",
+        "puesto": 1,
+        "n": 2,
+        "visible": true
+       },
+       {
+        "B": "n01127008",
+        "A": "n01127130",
+        "s": 3,
+        "nivel": 1,
+        "pista": "kong",
+        "puesto": 1,
+        "n": 2,
+        "visible": true
+       },
+       {
+        "B": "w01030093",
+        "A": "n02024008",
+        "s": 1,
+        "nivel": 1,
+        "pista": "meses",
+        "puesto": 8,
+        "n": 15,
+        "visible": false
+       },
+       {
+        "B": "w01035082",
+        "A": "w01134078",
+        "s": 2,
+        "nivel": 1,
+        "pista": "últimos",
+        "puesto": 4,
+        "n": 4,
+        "visible": true
+       },
+       {
+        "B": "w01052038",
+        "A": "w01127096",
+        "s": 2,
+        "nivel": 1,
+        "pista": "casi",
+        "puesto": 20,
+        "n": 22,
+        "visible": false
+       },
+       {
+        "B": "w01095092",
+        "A": "w01106073",
+        "s": 1,
+        "nivel": 2,
+        "pista": "otra manera",
+        "puesto": 1,
+        "n": 3,
+        "visible": true
+       },
+       {
+        "B": "n02066010",
+        "A": "n02011003",
+        "s": 2,
+        "nivel": 1,
+        "pista": "investigador",
+        "puesto": 3,
+        "n": 20,
+        "visible": true
+       },
+       {
+        "B": "w02017061",
+        "A": "w01139043",
+        "s": 1,
+        "nivel": 1,
+        "pista": "restos",
+        "puesto": 19,
+        "n": 23,
+        "visible": false
+       },
+       {
+        "B": "w02017061",
+        "A": "w01139043",
+        "s": 2,
+        "nivel": 2,
+        "pista": "restos forma",
+        "puesto": 19,
+        "n": 23,
+        "visible": false
+       },
+       {
+        "B": "w04010031",
+        "A": "w04010029",
+        "s": 2,
+        "nivel": 1,
+        "pista": "varias",
+        "puesto": 1,
+        "n": 2,
+        "visible": true
+       }
+      ],
+      "por_parte": {
+       "estudio": 4,
+       "validacion": 6,
+       "guardia": 2
+      }
+     },
+     "R2_casos_comunes": 3,
+     "R2_iguales": 3,
+     "R2_solo_D": 2,
+     "R2_solo_DI": 1,
+     "C6": {
+      "repaso_repetido_identico": true,
+      "sha_sin_cambio": true,
+      "copia_ciega_al_terminar": {
+       "sinapsis": 0,
+       "asociaciones": 0,
+       "emergentes": 0
+      },
+      "vecinos_no_cambia_sinapsis": true
+     },
+     "segundos": {
+      "construir": 123.9,
+      "repasos_y_vecinos": 472.1
+     }
+    },
+    "en": {
+     "corpus_sha256": "befc5e901b58732f2308b1aac5cdd804d938362ab31c9fe400c61c28e8e155d8",
+     "recuerdos_D": 839,
+     "recuerdos_I": 161,
+     "pistas_tras_filtro": 2585,
+     "pistas_antes_del_filtro": 7324,
+     "pistas_elegibles_C2": 1661,
+     "sinapsis_filas": {
+      "D": 2224,
+      "DI": 3449
+     },
+     "tipos_sinapsis_D": {
+      "co_ocurrencia": 337,
+      "pmi_hebbiano": 1845,
+      "dmn_synthesized": 42
+     },
+     "dormidos": {
+      "D": 0,
+      "DI": 0
+     },
+     "D_que_cambian_de_estado_al_entrar_I": 0,
+     "C2_top5_identico": "1519/1661",
+     "C2_frac": 0.9145,
+     "C2_fallos_que_tocan_un_cambio_de_estado": "130/142",
+     "orden": {
+      "preguntas": 156,
+      "B_distintos": 114,
+      "A_distintos": 121,
+      "por_parte": {
+       "estudio": {
+        "preguntas": 99,
+        "B": 73,
+        "A": 79
+       },
+       "validacion": {
+        "preguntas": 35,
+        "B": 23,
+        "A": 26
+       },
+       "guardia": {
+        "preguntas": 22,
+        "B": 18,
+        "A": 22
+       }
+      },
+      "B_tambien_en_top5": 0.9231,
+      "pistas_por_pregunta": 1.24,
+      "share_A_max": 0.0192,
+      "share_top3_A": 0.0577,
+      "piso_R@1": 0.391,
+      "piso_MRR": 0.5758,
+      "azar_MRR_esperado": 0.3894,
+      "oraculo_MRR": 0.5928,
+      "anti_oraculo_MRR": 0.368,
+      "frac_mismo_doc_B": 0.5321,
+      "frac_mismo_doc_vecino_cualquiera": 0.2717,
+      "O5a_diferencia": 0.2603,
+      "O5a_IC95": [
+       0.1948,
+       0.3245
+      ],
+      "n_vecinos_medio": 10.64
+     },
+     "O2_preguntas_D_elegibles": 90,
+     "O2_iguales": 89,
+     "O2_frac": 0.9889,
+     "O2_solo_en_DI_frac": 0.0825,
+     "rescate": {
+      "pistas_buscadas": 2585,
+      "pistas_B_fuera_del_top5": 134,
+      "casos": 16,
+      "B_distintos": 16,
+      "B_distintos_guardia": 4,
+      "casos_guardia": 4,
+      "casos_por_nivel": {
+       "3": 0,
+       "2": 2,
+       "1": 14
+      },
+      "piso_R@1": 0.4375,
+      "piso_visible_en_canal2": 0.6875,
+      "piso_MRR": 0.5712,
+      "azar_MRR_esperado": 0.4476,
+      "oraculo_MRR": 0.5712,
+      "anti_oraculo_MRR": 0.3905,
+      "frac_mismo_doc_en_casos": 0.25,
+      "frac_mismo_doc_en_aristas": 0.0645,
+      "aristas_no_dirigidas": 2138,
+      "share_A_max": 0.125,
+      "share_top3_A": 0.25,
+      "n_vecinos_medio": 10.44,
+      "lista_casos": [
+       {
+        "B": "n01023034",
+        "A": "n01024010",
+        "s": 3,
+        "nivel": 1,
+        "pista": "just",
+        "puesto": 3,
+        "n": 3,
+        "visible": true
+       },
+       {
+        "B": "n01035004",
+        "A": "n01035025",
+        "s": 1,
+        "nivel": 1,
+        "pista": "girl",
+        "puesto": 1,
+        "n": 24,
+        "visible": true
+       },
+       {
+        "B": "n01095004",
+        "A": "n01079065",
+        "s": 2,
+        "nivel": 1,
+        "pista": "our",
+        "puesto": 1,
+        "n": 1,
+        "visible": true
+       },
+       {
+        "B": "n01110022",
+        "A": "n01005024",
+        "s": 3,
+        "nivel": 1,
+        "pista": "help",
+        "puesto": 16,
+        "n": 24,
+        "visible": false
+       },
+       {
+        "B": "w01029083",
+        "A": "w01036044",
+        "s": 3,
+        "nivel": 1,
+        "pista": "often",
+        "puesto": 2,
+        "n": 2,
+        "visible": true
+       },
+       {
+        "B": "w01030093",
+        "A": "w01030092",
+        "s": 1,
+        "nivel": 2,
+        "pista": "90 water",
+        "puesto": 1,
+        "n": 5,
+        "visible": true
+       },
+       {
+        "B": "w01037080",
+        "A": "w01029049",
+        "s": 2,
+        "nivel": 1,
+        "pista": "americas",
+        "puesto": 1,
+        "n": 1,
+        "visible": true
+       },
+       {
+        "B": "w01062063",
+        "A": "w01052046",
+        "s": 2,
+        "nivel": 1,
+        "pista": "without",
+        "puesto": 3,
+        "n": 9,
+        "visible": true
+       },
+       {
+        "B": "w01065018",
+        "A": "w05002014",
+        "s": 3,
+        "nivel": 1,
+        "pista": "site",
+        "puesto": 8,
+        "n": 15,
+        "visible": false
+       },
+       {
+        "B": "w01107124",
+        "A": "n05005016",
+        "s": 2,
+        "nivel": 1,
+        "pista": "best",
+        "puesto": 3,
+        "n": 11,
+        "visible": true
+       },
+       {
+        "B": "w01132042",
+        "A": "w02012042",
+        "s": 1,
+        "nivel": 1,
+        "pista": "development",
+        "puesto": 6,
+        "n": 16,
+        "visible": false
+       },
+       {
+        "B": "n03002010",
+        "A": "n02042028",
+        "s": 3,
+        "nivel": 1,
+        "pista": "hand",
+        "puesto": 1,
+        "n": 1,
+        "visible": true
+       },
+       {
+        "B": "n03006034",
+        "A": "n01004009",
+        "s": 3,
+        "nivel": 2,
+        "pista": "because context",
+        "puesto": 7,
+        "n": 14,
+        "visible": false
+       },
+       {
+        "B": "n05008018",
+        "A": "n05008012",
+        "s": 1,
+        "nivel": 1,
+        "pista": "americans",
+        "puesto": 1,
+        "n": 10,
+        "visible": true
+       },
+       {
+        "B": "w03005016",
+        "A": "w03005014",
+        "s": 1,
+        "nivel": 1,
+        "pista": "appear",
+        "puesto": 1,
+        "n": 22,
+        "visible": true
+       },
+       {
+        "B": "w04007021",
+        "A": "w01052046",
+        "s": 3,
+        "nivel": 1,
+        "pista": "battle",
+        "puesto": 7,
+        "n": 9,
+        "visible": false
+       }
+      ],
+      "por_parte": {
+       "estudio": 12,
+       "validacion": 2,
+       "guardia": 2
+      }
+     },
+     "R2_casos_comunes": 8,
+     "R2_iguales": 8,
+     "R2_solo_D": 0,
+     "R2_solo_DI": 3,
+     "C6": {
+      "repaso_repetido_identico": true,
+      "sha_sin_cambio": true,
+      "copia_ciega_al_terminar": {
+       "sinapsis": 0,
+       "asociaciones": 0,
+       "emergentes": 0
+      },
+      "vecinos_no_cambia_sinapsis": true
+     },
+     "segundos": {
+      "construir": 119.8,
+      "repasos_y_vecinos": 388.5
+     }
+    },
+    "zh": {
+     "corpus_sha256": "38ad4f76224567a275f3492a87a9b7ed91690b8f0959ee4eabac0ae022d6cf41",
+     "recuerdos_D": 839,
+     "recuerdos_I": 161,
+     "pistas_tras_filtro": 5931,
+     "pistas_antes_del_filtro": 7401,
+     "pistas_elegibles_C2": 4146,
+     "sinapsis_filas": {
+      "D": 566,
+      "DI": 652
+     },
+     "tipos_sinapsis_D": {
+      "co_ocurrencia": 566
+     },
+     "dormidos": {
+      "D": 0,
+      "DI": 0
+     },
+     "D_que_cambian_de_estado_al_entrar_I": 0,
+     "C2_top5_identico": "4144/4146",
+     "C2_frac": 0.9995,
+     "C2_fallos_que_tocan_un_cambio_de_estado": "1/2",
+     "orden": {
+      "preguntas": 368,
+      "B_distintos": 242,
+      "A_distintos": 221,
+      "por_parte": {
+       "estudio": {
+        "preguntas": 250,
+        "B": 159,
+        "A": 164
+       },
+       "validacion": {
+        "preguntas": 68,
+        "B": 47,
+        "A": 49
+       },
+       "guardia": {
+        "preguntas": 50,
+        "B": 36,
+        "A": 36
+       }
+      },
+      "B_tambien_en_top5": 0.981,
+      "pistas_por_pregunta": 1.75,
+      "share_A_max": 0.019,
+      "share_top3_A": 0.0462,
+      "piso_R@1": 0.4266,
+      "piso_MRR": 0.6599,
+      "azar_MRR_esperado": 0.5939,
+      "oraculo_MRR": 0.6741,
+      "anti_oraculo_MRR": 0.5706,
+      "frac_mismo_doc_B": 0.6549,
+      "frac_mismo_doc_vecino_cualquiera": 0.5466,
+      "O5a_diferencia": 0.1082,
+      "O5a_IC95": [
+       0.0793,
+       0.1361
+      ],
+      "n_vecinos_medio": 3.53
+     },
+     "O2_preguntas_D_elegibles": 264,
+     "O2_iguales": 264,
+     "O2_frac": 1.0,
+     "O2_solo_en_DI_frac": 0.0,
+     "rescate": {
+      "pistas_buscadas": 5931,
+      "pistas_B_fuera_del_top5": 75,
+      "casos": 9,
+      "B_distintos": 9,
+      "B_distintos_guardia": 3,
+      "casos_guardia": 3,
+      "casos_por_nivel": {
+       "3": 0,
+       "2": 0,
+       "1": 9
+      },
+      "piso_R@1": 0.5556,
+      "piso_visible_en_canal2": 1.0,
+      "piso_MRR": 0.7593,
+      "azar_MRR_esperado": 0.7492,
+      "oraculo_MRR": 0.7222,
+      "anti_oraculo_MRR": 0.8148,
+      "frac_mismo_doc_en_casos": 0.5556,
+      "frac_mismo_doc_en_aristas": 0.4276,
+      "aristas_no_dirigidas": 566,
+      "share_A_max": 0.1111,
+      "share_top3_A": 0.3333,
+      "n_vecinos_medio": 2.22,
+      "lista_casos": [
+       {
+        "B": "n01051004",
+        "A": "n01051006",
+        "s": 1,
+        "nivel": 1,
+        "pista": "一種",
+        "puesto": 3,
+        "n": 3,
+        "visible": true
+       },
+       {
+        "B": "n01067023",
+        "A": "n01074020",
+        "s": 1,
+        "nivel": 1,
+        "pista": "現了",
+        "puesto": 1,
+        "n": 1,
+        "visible": true
+       },
+       {
+        "B": "n01129021",
+        "A": "n01129006",
+        "s": 1,
+        "nivel": 1,
+        "pista": "選舉",
+        "puesto": 1,
+        "n": 1,
+        "visible": true
+       },
+       {
+        "B": "w01029083",
+        "A": "w01026037",
+        "s": 1,
+        "nivel": 1,
+        "pista": "北部",
+        "puesto": 1,
+        "n": 3,
+        "visible": true
+       },
+       {
+        "B": "w01069040",
+        "A": "w01069007",
+        "s": 2,
+        "nivel": 1,
+        "pista": "統治",
+        "puesto": 1,
+        "n": 2,
+        "visible": true
+       },
+       {
+        "B": "w01075036",
+        "A": "w01072046",
+        "s": 1,
+        "nivel": 1,
+        "pista": "的影",
+        "puesto": 2,
+        "n": 2,
+        "visible": true
+       },
+       {
+        "B": "w01105057",
+        "A": "w01105056",
+        "s": 1,
+        "nivel": 1,
+        "pista": "甚至",
+        "puesto": 2,
+        "n": 4,
+        "visible": true
+       },
+       {
+        "B": "n03007009",
+        "A": "n03007003",
+        "s": 3,
+        "nivel": 1,
+        "pista": "時間",
+        "puesto": 1,
+        "n": 2,
+        "visible": true
+       },
+       {
+        "B": "w03001037",
+        "A": "w02013015",
+        "s": 1,
+        "nivel": 1,
+        "pista": "家的",
+        "puesto": 2,
+        "n": 2,
+        "visible": true
+       }
+      ],
+      "por_parte": {
+       "estudio": 7,
+       "validacion": 1,
+       "guardia": 1
+      }
+     },
+     "R2_casos_comunes": 2,
+     "R2_iguales": 2,
+     "R2_solo_D": 0,
+     "R2_solo_DI": 0,
+     "C6": {
+      "repaso_repetido_identico": true,
+      "sha_sin_cambio": true,
+      "copia_ciega_al_terminar": {
+       "sinapsis": 0,
+       "asociaciones": 0,
+       "emergentes": 0
+      },
+      "vecinos_no_cambia_sinapsis": true
+     },
+     "segundos": {
+      "construir": 54.4,
+      "repasos_y_vecinos": 163.4
+     }
+    },
+    "ja": {
+     "corpus_sha256": "7ac51383189bdf5513102f9f8ac7ee1b967d5449f8c2dc1a9108fa21a8f1a688",
+     "recuerdos_D": 839,
+     "recuerdos_I": 161,
+     "pistas_tras_filtro": 3323,
+     "pistas_antes_del_filtro": 7441,
+     "pistas_elegibles_C2": 1919,
+     "sinapsis_filas": {
+      "D": 1152,
+      "DI": 1323
+     },
+     "tipos_sinapsis_D": {
+      "co_ocurrencia": 1152
+     },
+     "dormidos": {
+      "D": 0,
+      "DI": 0
+     },
+     "D_que_cambian_de_estado_al_entrar_I": 0,
+     "C2_top5_identico": "1919/1919",
+     "C2_frac": 1.0,
+     "C2_fallos_que_tocan_un_cambio_de_estado": "0/0",
+     "orden": {
+      "preguntas": 386,
+      "B_distintos": 259,
+      "A_distintos": 261,
+      "por_parte": {
+       "estudio": {
+        "preguntas": 270,
+        "B": 175,
+        "A": 188
+       },
+       "validacion": {
+        "preguntas": 53,
+        "B": 46,
+        "A": 49
+       },
+       "guardia": {
+        "preguntas": 63,
+        "B": 38,
+        "A": 47
+       }
+      },
+      "B_tambien_en_top5": 0.9637,
+      "pistas_por_pregunta": 1.27,
+      "share_A_max": 0.013,
+      "share_top3_A": 0.0337,
+      "piso_R@1": 0.4041,
+      "piso_MRR": 0.6213,
+      "azar_MRR_esperado": 0.5117,
+      "oraculo_MRR": 0.6274,
+      "anti_oraculo_MRR": 0.4724,
+      "frac_mismo_doc_B": 0.5181,
+      "frac_mismo_doc_vecino_cualquiera": 0.3456,
+      "O5a_diferencia": 0.1725,
+      "O5a_IC95": [
+       0.1331,
+       0.2104
+      ],
+      "n_vecinos_medio": 4.92
+     },
+     "O2_preguntas_D_elegibles": 205,
+     "O2_iguales": 205,
+     "O2_frac": 1.0,
+     "O2_solo_en_DI_frac": 0.0,
+     "rescate": {
+      "pistas_buscadas": 3323,
+      "pistas_B_fuera_del_top5": 101,
+      "casos": 15,
+      "B_distintos": 15,
+      "B_distintos_guardia": 4,
+      "casos_guardia": 4,
+      "casos_por_nivel": {
+       "3": 1,
+       "2": 0,
+       "1": 14
+      },
+      "piso_R@1": 0.2667,
+      "piso_visible_en_canal2": 0.8667,
+      "piso_MRR": 0.5456,
+      "azar_MRR_esperado": 0.5393,
+      "oraculo_MRR": 0.5528,
+      "anti_oraculo_MRR": 0.4311,
+      "frac_mismo_doc_en_casos": 0.4667,
+      "frac_mismo_doc_en_aristas": 0.2595,
+      "aristas_no_dirigidas": 1152,
+      "share_A_max": 0.1333,
+      "share_top3_A": 0.2667,
+      "n_vecinos_medio": 4.73,
+      "lista_casos": [
+       {
+        "B": "n01036002",
+        "A": "n01036020",
+        "s": 2,
+        "nivel": 1,
+        "pista": "リオ",
+        "puesto": 2,
+        "n": 5,
+        "visible": true
+       },
+       {
+        "B": "n01072021",
+        "A": "n01074015",
+        "s": 1,
+        "nivel": 1,
+        "pista": "アフ",
+        "puesto": 2,
+        "n": 2,
+        "visible": true
+       },
+       {
+        "B": "n01095004",
+        "A": "n01098044",
+        "s": 2,
+        "nivel": 1,
+        "pista": "持っ",
+        "puesto": 4,
+        "n": 5,
+        "visible": true
+       },
+       {
+        "B": "n01108003",
+        "A": "n01110006",
+        "s": 3,
+        "nivel": 1,
+        "pista": "の投",
+        "puesto": 8,
+        "n": 8,
+        "visible": false
+       },
+       {
+        "B": "n01111030",
+        "A": "n01110006",
+        "s": 3,
+        "nivel": 1,
+        "pista": "ポン",
+        "puesto": 2,
+        "n": 8,
+        "visible": true
+       },
+       {
+        "B": "n01127008",
+        "A": "n01127130",
+        "s": 2,
+        "nivel": 1,
+        "pista": "裁判",
+        "puesto": 1,
+        "n": 2,
+        "visible": true
+       },
+       {
+        "B": "n01128025",
+        "A": "n01128033",
+        "s": 3,
+        "nivel": 1,
+        "pista": "要が",
+        "puesto": 2,
+        "n": 3,
+        "visible": true
+       },
+       {
+        "B": "w01030095",
+        "A": "w01030092",
+        "s": 2,
+        "nivel": 1,
+        "pista": "力を",
+        "puesto": 7,
+        "n": 8,
+        "visible": false
+       },
+       {
+        "B": "w01079077",
+        "A": "w01085008",
+        "s": 3,
+        "nivel": 1,
+        "pista": "ルト",
+        "puesto": 1,
+        "n": 4,
+        "visible": true
+       },
+       {
+        "B": "w01083007",
+        "A": "w01070032",
+        "s": 1,
+        "nivel": 1,
+        "pista": "的で",
+        "puesto": 2,
+        "n": 2,
+        "visible": true
+       },
+       {
+        "B": "w01095091",
+        "A": "w01095089",
+        "s": 1,
+        "nivel": 1,
+        "pista": "代に",
+        "puesto": 2,
+        "n": 2,
+        "visible": true
+       },
+       {
+        "B": "w01105057",
+        "A": "w01092032",
+        "s": 2,
+        "nivel": 1,
+        "pista": "で使",
+        "puesto": 1,
+        "n": 2,
+        "visible": true
+       },
+       {
+        "B": "w01130101",
+        "A": "w01130102",
+        "s": 2,
+        "nivel": 3,
+        "pista": "ァテ の兄 1970",
+        "puesto": 3,
+        "n": 10,
+        "visible": true
+       },
+       {
+        "B": "n04010016",
+        "A": "n04001002",
+        "s": 3,
+        "nivel": 1,
+        "pista": "トで",
+        "puesto": 3,
+        "n": 7,
+        "visible": true
+       },
+       {
+        "B": "w02013033",
+        "A": "w02013015",
+        "s": 2,
+        "nivel": 1,
+        "pista": "イギ",
+        "puesto": 1,
+        "n": 3,
+        "visible": true
+       }
+      ],
+      "por_parte": {
+       "estudio": 7,
+       "validacion": 5,
+       "guardia": 3
+      }
+     },
+     "R2_casos_comunes": 6,
+     "R2_iguales": 6,
+     "R2_solo_D": 0,
+     "R2_solo_DI": 0,
+     "C6": {
+      "repaso_repetido_identico": true,
+      "sha_sin_cambio": true,
+      "copia_ciega_al_terminar": {
+       "sinapsis": 0,
+       "asociaciones": 0,
+       "emergentes": 0
+      },
+      "vecinos_no_cambia_sinapsis": true
+     },
+     "segundos": {
+      "construir": 46.1,
+      "repasos_y_vecinos": 79.1
+     }
+    }
+   }
+  }
+ },
+ "segundos": 1397.8
+}
