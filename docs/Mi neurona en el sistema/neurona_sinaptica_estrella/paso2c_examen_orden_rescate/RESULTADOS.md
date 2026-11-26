@@ -111,3 +111,14 @@ cd "docs/Mi neurona en el sistema/neurona_sinaptica_estrella/paso2c_examen_orden
 python examen_orden_rescate.py        # ~23 min, deja las bases en /tmp/paso2c
 python diag_invariancia.py
 ```
+
+## Nota de revisión (2026-11-26, tras la revisión del usuario y su asesor)
+Este paso queda como **diagnóstico**: no autoriza cambios en H2, en 4b ni en el motor. Dos precisiones de redacción:
+1. Donde dice «H2 es la única causa real de la falta de invariancia», debe leerse: **H2 explica la diferencia entre T
+   y C**. El escalado global de importancia (4b, `consolidation.py` L577–588, que cambia `largo_plazo.peso_sinaptico`
+   y no las aristas) estaba activo en las dos variantes y no se aisló.
+2. El «orden relativo de D» **no es la invariancia completa**: admite que entren recuerdos de I, y aquí no se comprobó
+   si los que entraban tenían que ver con la consulta o eran falsos positivos difusos. Las definiciones previas (M1
+   estricta, M2 orden relativo, M3 inserciones R1/R2) están en `../h2_propuesta/PROPUESTA_PROTOCOLO_H2.md` §5.
+Además, el control casi triplica las aristas en es/en (643 → 1838 y 679 → 2224) **sin ganar aristas del mismo
+documento** (114 → 115 y 143 → 138): apagar H2 sin más no es una solución (criterio K4 de la propuesta).
