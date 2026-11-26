@@ -82,6 +82,14 @@ marcada [D]:
    cambio del laboratorio, no del motor. El (b) de la medición anterior se reinterpretaría. El (a) y los hallazgos de
    H2/4b no cambian, porque se basan en el estado de `largo_plazo`, no en el buscador.
 
+**Resultado de R-E0/R-E1 (26-11; detalle en `../h2_medicion/RESULTADOS_RESIDUAL.md`) [V]:**
+- **H-R1 refutada como causa principal:** con el corte fijado tras D, el residual sigue (19/28/20 y 7/7/28).
+- **El residual vive en la familia PPMI:** con `BIORAG_PPMI_WEIGHT = 0` cae a 1/3/1 y 0/0/0 (con el corte tras D,
+  0/1/0 y 0/0/0).
+- El IDF global de `vector_query` (`n_docs`) existe, pero no explica las consultas que cambian.
+- El componente exacto queda sin identificar; R-E2 se propone para cerrarlo y necesita OK.
+- **Propuesta para el ciclo 2:** medir con PPMI 0,15 y 0 (control) y con el corte fijado tras D.
+
 ## 2. Qué dejó claro el diagnóstico y qué no [V]
 - **Con sueños seguidos, H2 rompe la invariancia por su puesto relativo:** al añadir I0, sin ningún carácter en común,
   duerme a todo D que seguía activo (101→0, 97→0).

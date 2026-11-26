@@ -1,0 +1,47 @@
+{
+ "tokens": {
+  "D": [
+   "acd58d0b76b1c9bd",
+   53
+  ],
+  "DI0": [
+   "acd58d0b76b1c9bd",
+   53
+  ]
+ },
+ "nodos_D": {
+  "D": "aba21aecec681e99",
+  "DI0": "aba21aecec681e99"
+ },
+ "n_docs": {
+  "D": 773,
+  "DI0": 973
+ },
+ "consultas": 480,
+ "consultas_con_vector_ppmi": 8,
+ "consultas_con_vector_ppmi_por_escritura": {
+  "lat_a": 6,
+  "lat_b": 2,
+  "han": 0,
+  "jpn": 0
+ },
+ "vector_consulta_distinto_D_vs_DI0": 8,
+ "vector_consulta_distinto_tras_sustituir_n_docs": 0,
+ "ejemplos": [
+  {
+   "esc": "lat_a",
+   "n_tokens": 2,
+   "coseno_vD_vDI0": 1.0
+  },
+  {
+   "esc": "lat_a",
+   "n_tokens": 3,
+   "coseno_vD_vDI0": 1.0
+  },
+  {
+   "esc": "lat_a",
+   "n_tokens": 2,
+   "coseno_vD_vDI0": 0.99999954
+  }
+ ]
+}

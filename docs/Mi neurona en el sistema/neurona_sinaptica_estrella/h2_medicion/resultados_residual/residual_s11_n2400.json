@@ -1,0 +1,214 @@
+{
+ "consultas": 480,
+ "celdas": {
+  "corte=medir|ppmi=0.15": {
+   "estado_D_identico": true,
+   "cambios_estado_D": 0,
+   "cambios_importancia_D": 0,
+   "top5_cambiados": 11,
+   "top5_cambiados_por_escritura": {
+    "lat_a": 5,
+    "lat_b": 6,
+    "han": 0,
+    "jpn": 0
+   },
+   "top5_cambiados_restringido_a_D": 11,
+   "inserciones_I0_top5": 0,
+   "consultas_sin_resultado": {
+    "D": 210,
+    "DI0": 210
+   },
+   "copia_restaurada": true,
+   "_top5_cambiados": [
+    "x1100235|3",
+    "x1100397|3",
+    "x1100592|3",
+    "x1100700|3",
+    "x1101053|3",
+    "x1101215|2",
+    "x1101331|3",
+    "x1101674|2",
+    "x1101704|2",
+    "x1101979|3",
+    "x1102126|2"
+   ]
+  },
+  "corte=medir|ppmi=0": {
+   "estado_D_identico": true,
+   "cambios_estado_D": 0,
+   "cambios_importancia_D": 0,
+   "top5_cambiados": 0,
+   "top5_cambiados_por_escritura": {
+    "lat_a": 0,
+    "lat_b": 0,
+    "han": 0,
+    "jpn": 0
+   },
+   "top5_cambiados_restringido_a_D": 0,
+   "inserciones_I0_top5": 0,
+   "consultas_sin_resultado": {
+    "D": 210,
+    "DI0": 210
+   },
+   "copia_restaurada": true,
+   "_top5_cambiados": []
+  },
+  "corte=trasD|ppmi=0.15": {
+   "estado_D_identico": true,
+   "cambios_estado_D": 0,
+   "cambios_importancia_D": 0,
+   "top5_cambiados": 7,
+   "top5_cambiados_por_escritura": {
+    "lat_a": 2,
+    "lat_b": 5,
+    "han": 0,
+    "jpn": 0
+   },
+   "top5_cambiados_restringido_a_D": 7,
+   "inserciones_I0_top5": 0,
+   "consultas_sin_resultado": {
+    "D": 210,
+    "DI0": 210
+   },
+   "copia_restaurada": true,
+   "_top5_cambiados": [
+    "x1100235|3",
+    "x1100397|3",
+    "x1100539|3",
+    "x1101053|3",
+    "x1101704|2",
+    "x1101742|3",
+    "x1102126|2"
+   ]
+  },
+  "corte=trasD|ppmi=0": {
+   "estado_D_identico": true,
+   "cambios_estado_D": 0,
+   "cambios_importancia_D": 0,
+   "top5_cambiados": 0,
+   "top5_cambiados_por_escritura": {
+    "lat_a": 0,
+    "lat_b": 0,
+    "han": 0,
+    "jpn": 0
+   },
+   "top5_cambiados_restringido_a_D": 0,
+   "inserciones_I0_top5": 0,
+   "consultas_sin_resultado": {
+    "D": 210,
+    "DI0": 210
+   },
+   "copia_restaurada": true,
+   "_top5_cambiados": []
+  }
+ },
+ "R-E0|medir": {
+  "D": {
+   "search_baseline_rowid": null,
+   "search_baseline_sinapsis_rowid": null,
+   "max_rowid_largo_plazo": 2400,
+   "filas_largo_plazo": 2400,
+   "fts_ref_filas": {
+    "biorag_largo_plazo_fts_ref": null,
+    "biorag_largo_plazo_fts_unicode_ref": null
+   },
+   "sinapsis_latentes_filas": 0,
+   "sinapsis_filas": 4493,
+   "nodos_D": {
+    "n": 2373,
+    "sha": "2e4b86853b0fa187",
+    "total": 2373
+   },
+   "tokens_ppmi_filas": 50
+  },
+  "DI0": {
+   "search_baseline_rowid": null,
+   "search_baseline_sinapsis_rowid": null,
+   "max_rowid_largo_plazo": 3000,
+   "filas_largo_plazo": 3000,
+   "fts_ref_filas": {
+    "biorag_largo_plazo_fts_ref": null,
+    "biorag_largo_plazo_fts_unicode_ref": null
+   },
+   "sinapsis_latentes_filas": 0,
+   "sinapsis_filas": 5337,
+   "nodos_D": {
+    "n": 2373,
+    "sha": "2e4b86853b0fa187",
+    "total": 2973
+   },
+   "tokens_ppmi_filas": 50
+  },
+  "corte_al_reabrir": {
+   "D": null,
+   "DI0": null
+  },
+  "nodos_D_identicos": true,
+  "sha_largo_plazo_D_vs_DI0": [
+   "11b373056ca1c3b7",
+   "4b3b8a5f72caeb6e"
+  ]
+ },
+ "R-E0|trasD": {
+  "D": {
+   "search_baseline_rowid": "2400",
+   "search_baseline_sinapsis_rowid": "4493",
+   "max_rowid_largo_plazo": 2400,
+   "filas_largo_plazo": 2400,
+   "fts_ref_filas": {
+    "biorag_largo_plazo_fts_ref": 2400,
+    "biorag_largo_plazo_fts_unicode_ref": 2400
+   },
+   "sinapsis_latentes_filas": 0,
+   "sinapsis_filas": 4493,
+   "nodos_D": {
+    "n": 2373,
+    "sha": "2e4b86853b0fa187",
+    "total": 2373
+   },
+   "tokens_ppmi_filas": 50
+  },
+  "DI0": {
+   "search_baseline_rowid": "2400",
+   "search_baseline_sinapsis_rowid": "4493",
+   "max_rowid_largo_plazo": 3000,
+   "filas_largo_plazo": 3000,
+   "fts_ref_filas": {
+    "biorag_largo_plazo_fts_ref": 2400,
+    "biorag_largo_plazo_fts_unicode_ref": 2400
+   },
+   "sinapsis_latentes_filas": 0,
+   "sinapsis_filas": 5337,
+   "nodos_D": {
+    "n": 2373,
+    "sha": "2e4b86853b0fa187",
+    "total": 2973
+   },
+   "tokens_ppmi_filas": 50
+  },
+  "corte_al_reabrir": {
+   "D": {
+    "baseline_rowid": 2400,
+    "baseline_sinapsis_rowid": 4493,
+    "fts_ref_listo": true
+   },
+   "DI0": {
+    "baseline_rowid": 2400,
+    "baseline_sinapsis_rowid": 4493,
+    "fts_ref_listo": true
+   }
+  },
+  "nodos_D_identicos": true,
+  "sha_largo_plazo_D_vs_DI0": [
+   "11b373056ca1c3b7",
+   "4b3b8a5f72caeb6e"
+  ]
+ },
+ "_meta": {
+  "semilla": 11,
+  "n_D": 2400,
+  "brazo": "-H2-4b",
+  "reloj": "comprimido",
+  "segundos": 411
+ }
+}

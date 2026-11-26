@@ -1,0 +1,266 @@
+{
+ "consultas": 480,
+ "celdas": {
+  "corte=medir|ppmi=0.15": {
+   "estado_D_identico": true,
+   "cambios_estado_D": 0,
+   "cambios_importancia_D": 0,
+   "top5_cambiados": 36,
+   "top5_cambiados_por_escritura": {
+    "lat_a": 20,
+    "lat_b": 16,
+    "han": 0,
+    "jpn": 0
+   },
+   "top5_cambiados_restringido_a_D": 36,
+   "inserciones_I0_top5": 0,
+   "consultas_sin_resultado": {
+    "D": 205,
+    "DI0": 205
+   },
+   "copia_restaurada": true,
+   "_top5_cambiados": [
+    "x1100083|3",
+    "x1100097|3",
+    "x1100121|3",
+    "x1100123|2",
+    "x1100126|2",
+    "x1100131|2",
+    "x1100131|3",
+    "x1100192|2",
+    "x1100192|3",
+    "x1100211|2",
+    "x1100234|2",
+    "x1100235|2",
+    "x1100235|3",
+    "x1100237|2",
+    "x1100326|3",
+    "x1100346|3",
+    "x1100372|3",
+    "x1100379|2",
+    "x1100407|3",
+    "x1100429|2",
+    "x1100429|3",
+    "x1100466|3",
+    "x1100467|3",
+    "x1100534|2",
+    "x1100534|3",
+    "x1100599|3",
+    "x1100615|2",
+    "x1100644|2",
+    "x1100644|3",
+    "x1100645|3",
+    "x1100679|2",
+    "x1100687|2",
+    "x1100687|3",
+    "x1100748|2",
+    "x1100748|3",
+    "x1100800|3"
+   ]
+  },
+  "corte=medir|ppmi=0": {
+   "estado_D_identico": true,
+   "cambios_estado_D": 0,
+   "cambios_importancia_D": 0,
+   "top5_cambiados": 3,
+   "top5_cambiados_por_escritura": {
+    "lat_a": 1,
+    "lat_b": 2,
+    "han": 0,
+    "jpn": 0
+   },
+   "top5_cambiados_restringido_a_D": 3,
+   "inserciones_I0_top5": 0,
+   "consultas_sin_resultado": {
+    "D": 205,
+    "DI0": 205
+   },
+   "copia_restaurada": true,
+   "_top5_cambiados": [
+    "x1100211|2",
+    "x1100234|2",
+    "x1100785|3"
+   ]
+  },
+  "corte=trasD|ppmi=0.15": {
+   "estado_D_identico": true,
+   "cambios_estado_D": 0,
+   "cambios_importancia_D": 0,
+   "top5_cambiados": 28,
+   "top5_cambiados_por_escritura": {
+    "lat_a": 17,
+    "lat_b": 11,
+    "han": 0,
+    "jpn": 0
+   },
+   "top5_cambiados_restringido_a_D": 28,
+   "inserciones_I0_top5": 0,
+   "consultas_sin_resultado": {
+    "D": 205,
+    "DI0": 205
+   },
+   "copia_restaurada": true,
+   "_top5_cambiados": [
+    "x1100083|3",
+    "x1100097|3",
+    "x1100121|3",
+    "x1100123|2",
+    "x1100131|2",
+    "x1100131|3",
+    "x1100192|3",
+    "x1100211|2",
+    "x1100213|2",
+    "x1100235|2",
+    "x1100326|3",
+    "x1100372|3",
+    "x1100379|2",
+    "x1100407|3",
+    "x1100429|2",
+    "x1100429|3",
+    "x1100466|3",
+    "x1100467|3",
+    "x1100534|2",
+    "x1100534|3",
+    "x1100599|3",
+    "x1100644|2",
+    "x1100644|3",
+    "x1100645|3",
+    "x1100687|2",
+    "x1100687|3",
+    "x1100748|3",
+    "x1100800|3"
+   ]
+  },
+  "corte=trasD|ppmi=0": {
+   "estado_D_identico": true,
+   "cambios_estado_D": 0,
+   "cambios_importancia_D": 0,
+   "top5_cambiados": 1,
+   "top5_cambiados_por_escritura": {
+    "lat_a": 0,
+    "lat_b": 1,
+    "han": 0,
+    "jpn": 0
+   },
+   "top5_cambiados_restringido_a_D": 1,
+   "inserciones_I0_top5": 0,
+   "consultas_sin_resultado": {
+    "D": 205,
+    "DI0": 205
+   },
+   "copia_restaurada": true,
+   "_top5_cambiados": [
+    "x1100785|3"
+   ]
+  }
+ },
+ "R-E0|medir": {
+  "D": {
+   "search_baseline_rowid": null,
+   "search_baseline_sinapsis_rowid": null,
+   "max_rowid_largo_plazo": 800,
+   "filas_largo_plazo": 800,
+   "fts_ref_filas": {
+    "biorag_largo_plazo_fts_ref": null,
+    "biorag_largo_plazo_fts_unicode_ref": null
+   },
+   "sinapsis_latentes_filas": 0,
+   "sinapsis_filas": 1421,
+   "nodos_D": {
+    "n": 773,
+    "sha": "15211ae36cfe3123",
+    "total": 773
+   },
+   "tokens_ppmi_filas": 53
+  },
+  "DI0": {
+   "search_baseline_rowid": null,
+   "search_baseline_sinapsis_rowid": null,
+   "max_rowid_largo_plazo": 1000,
+   "filas_largo_plazo": 1000,
+   "fts_ref_filas": {
+    "biorag_largo_plazo_fts_ref": null,
+    "biorag_largo_plazo_fts_unicode_ref": null
+   },
+   "sinapsis_latentes_filas": 0,
+   "sinapsis_filas": 1684,
+   "nodos_D": {
+    "n": 773,
+    "sha": "15211ae36cfe3123",
+    "total": 973
+   },
+   "tokens_ppmi_filas": 53
+  },
+  "corte_al_reabrir": {
+   "D": null,
+   "DI0": null
+  },
+  "nodos_D_identicos": true,
+  "sha_largo_plazo_D_vs_DI0": [
+   "b94c6009b1324838",
+   "3872fcc064e048a6"
+  ]
+ },
+ "R-E0|trasD": {
+  "D": {
+   "search_baseline_rowid": "800",
+   "search_baseline_sinapsis_rowid": "1421",
+   "max_rowid_largo_plazo": 800,
+   "filas_largo_plazo": 800,
+   "fts_ref_filas": {
+    "biorag_largo_plazo_fts_ref": 800,
+    "biorag_largo_plazo_fts_unicode_ref": 800
+   },
+   "sinapsis_latentes_filas": 0,
+   "sinapsis_filas": 1421,
+   "nodos_D": {
+    "n": 773,
+    "sha": "15211ae36cfe3123",
+    "total": 773
+   },
+   "tokens_ppmi_filas": 53
+  },
+  "DI0": {
+   "search_baseline_rowid": "800",
+   "search_baseline_sinapsis_rowid": "1421",
+   "max_rowid_largo_plazo": 1000,
+   "filas_largo_plazo": 1000,
+   "fts_ref_filas": {
+    "biorag_largo_plazo_fts_ref": 800,
+    "biorag_largo_plazo_fts_unicode_ref": 800
+   },
+   "sinapsis_latentes_filas": 0,
+   "sinapsis_filas": 1684,
+   "nodos_D": {
+    "n": 773,
+    "sha": "15211ae36cfe3123",
+    "total": 973
+   },
+   "tokens_ppmi_filas": 53
+  },
+  "corte_al_reabrir": {
+   "D": {
+    "baseline_rowid": 800,
+    "baseline_sinapsis_rowid": 1421,
+    "fts_ref_listo": true
+   },
+   "DI0": {
+    "baseline_rowid": 800,
+    "baseline_sinapsis_rowid": 1421,
+    "fts_ref_listo": true
+   }
+  },
+  "nodos_D_identicos": true,
+  "sha_largo_plazo_D_vs_DI0": [
+   "b94c6009b1324838",
+   "3872fcc064e048a6"
+  ]
+ },
+ "_meta": {
+  "semilla": 11,
+  "n_D": 800,
+  "brazo": "-H2-4b",
+  "reloj": "comprimido",
+  "segundos": 214
+ }
+}
