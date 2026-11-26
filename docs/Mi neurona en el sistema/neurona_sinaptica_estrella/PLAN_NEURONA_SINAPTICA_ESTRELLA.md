@@ -90,7 +90,7 @@ y **costo fijo**.
 | **K** — competencia dentro del nodo (puesto del vecino entre los vecinos de A según S/X) | Local al nodo | Sí | Sí, si se calcula sobre rasgos invariantes | Sí | Por medir |
 | **Δt** — distancia de creación | `creado_en` | Sí | Sí | Sí, pero repite la causa B6 | Solo con una línea de tiempo realista; como mucho, entrada vigilada |
 | Categoría compartida | La declara el agente | Sí | Sí | Sí | Débil: solo hay 11 categorías |
-| Tipo y peso a mano de la sinapsis | Regla de nacimiento | Sí | No (depende del corpus en B1/B6) | Es el propio grafo | **Es el piso**, no una entrada |
+| Tipo y peso a mano de la sinapsis | Regla de nacimiento | Sí | No (depende del corpus en B1/B6) | Es el propio grafo | **Es el piso** y, por decisión del 26-11, **también entrada** (one-hot + prioridad ordinal), con invariancia medida por tipo y obligación de superar al piso (`h2_propuesta/PROPUESTA_PROTOCOLO_CICLO2.md` §5) |
 | Grado del nodo | Grafo | Sí | **No**: cambia cuando nacen sinapsis con I | No | Fuera |
 | `grupos_semanticos` | Lexnames de WordNet | **No** (léxico inglés) | — | — | Fuera |
 | Predicados SRL | Verbos en español | **No** | — | — | Fuera |
@@ -191,6 +191,16 @@ fijo). Lo verificado aquí se marca [V]; el resto queda como propuesta [D] hasta
    distinguir enlaces mutuos de hubs unilaterales.
 4. **`lexico_aprendido` queda fuera** [V]: normaliza con `[^a-z0-9\s]` (`lexical_learning.py` L52, solo ASCII, no ve
    CJK) y guarda enseñanza explícita, de la clase de `manual`.
+
+### 9.0b′ Inventario ampliado (segunda revisión del 26-11)
+Detalle verificado en `h2_propuesta/PROPUESTA_PROTOCOLO_CICLO2.md` §5.4. En resumen:
+- **latentes:** solo una versión local (camino de 2 saltos por aristas del agente, sin PMI ni tope); la tabla
+  `sinapsis_latentes` tal cual queda fuera (PMI global, tope por nodo, dimensiones autogeneradas);
+- **bridges:** ya eran la aguja B;
+- **cuarentena:** fuera (la decide la hormiguita; purga por reloj de pared);
+- **tipo y prioridad ordinal:** entran;
+- **`peso_sinaptico` y `estado` del vecino, dopamina, valencia, ADN/SDM, SRL y `ultimo_uso`:** fuera;
+- **`sustantivos_clave`:** pendiente de decisión (excluir el campo eliminaría S y X).
 
 ### 9.0c Exigencia de escala y variedad para los pasos 3 y 4 (usuario y asesor, 2026-11-25)
 
