@@ -154,6 +154,9 @@ Así, un error de la neurona no puede dejar el sistema peor que hoy. Eso es lo q
 | 1 | **«Ojos Unicode» en la búsqueda:** encontrar palabras CJK de 1–2 caracteres | **Sí** (canal 1) | QA completa sin bajar (R@5, R@1, MRR, FP 0/40) y suite en verde. **Hecho 2026-11-25** (ver `../ojos_unicode_busqueda/RESULTADOS.md`): 0/11 → 11/11 en top-1, todas las puertas idénticas. Pendiente de PR para Dennys |
 | 2 | **Examen de rescate en el laboratorio:** pistas de dificultad graduada, sin listas de idioma (muestras dispersas de unidades Unicode, sin el nombre), con control de hubs | No | Suficientes casos por idioma; invariancia ≥ 98 %; rescates de hubs por debajo de un tope fijado antes. **Medido 2026-11-25** (`paso2_examen_rescate/RESULTADOS.md`): examen limpio y reproducible (P6), pero el mundo de 24 recuerdos no lo aloja (0–4 casos; los pocos casos eran basura y P5 los detectó). **Pasa 1 de 7** |
 | 2b | **Examen de rescate v2 en un mundo grande real:** UD PUD (1000 frases paralelas, 397 documentos, es/en/zh/ja, CC BY-SA), filtro de pistas sin contenido sin listas, invariancia solo con I que no contienen la pista | No | Las mismas puertas P1–P6, fijadas antes. **Medido 2026-11-25** (`paso2b_examen_rescate_pud/RESULTADOS.md`): pasa 1/7. El filtro funciona; tres hallazgos del motor: H1 sin sinapsis en zh/ja (4 y 0), H2 la inhibición lateral duerme el 74 % y rompe la invariancia, H3 el rescate es raro por naturaleza. Propuesta: examen de orden para entrenar y rescate para validar |
+| H1 | **«Ojos Unicode» en el nacimiento de sinapsis:** las reglas automáticas (`auto_vincular` y la co-ocurrencia del sueño) leen chino y japonés por bigramas Unicode, sin listas | **Sí** (nacimiento; no toca el ranking) | Criterios N1–N5 fijados antes, mundo PUD sellado por documento, puertas del motor. **Hecho 2026-11-26** (`h1_nacimiento_cjk/RESULTADOS.md`): zh 4 → 406 y ja 0 → 736 sinapsis, precisión 40,9 % y 27,9 % (es/en 20,5 % y 17,9 %), es/en idénticos, todas las puertas idénticas. **Pasa 5/5.** Pendiente de PR para Dennys |
+| 2c | **Examen de orden (entrenamiento) + rescate (validación)** en el laboratorio, cada uno con umbrales fijados antes | No | Pendiente, tras H1 |
+| H2 | **Inhibición lateral del sueño** (`consolidation.py` L524–568) en su propio ciclo | **Sí** | Pendiente |
 | 3 | **Batería de agujas** (S, S_idf, X, B, K, R, Δt), cada una con AUC, invariancia y bucle por idioma | No | Se fija antes qué entra. Necesita un mundo más grande, **escrito a ciegas** (quien escribe los textos no conoce los pares) |
 | 4 | **Protocolo v4 + E2:** la neurona con el molde completo, entrenada con el examen de rescate, en copias. Compara dos formas de entrenar con el mismo piso, la misma guardia del 20 % y los 4 idiomas (nota 9.1) | No | Gana al piso en la guardia sin bajar ninguna categoría ni idioma |
 | 5 | E3: consolidación en el sueño, en modo sombra | No (sombra) | Solo tras pasar E1 y E2 |
@@ -215,4 +218,40 @@ agente local. Se traduce a una prueba limpia, no se copia tal cual:
 - **Solo en RAM y en copias:** nada contra SQLite, sin fase de choques en vivo, sin telemetría de uso (norma 4).
 - **Idea a futuro, fuera de este plan:** mutaciones pequeñas alrededor del campeón de `neurona.py` cuando llegue a
   su techo. **No se toca la neurona 1** sin un ciclo y un OK propios.
+
+### 9.2 Mejores prácticas de entrenamiento para los pasos 3 y 4 (usuario y asesor, 2026-11-26)
+
+El usuario pidió «las mejores prácticas sabidas y por haber», sin escatimar, con libre albedrío para hacerlo lo mejor
+posible. Límites que no se mueven: CPU local, `numpy` puro, sin APIs externas ni embeddings pesados, las normas de
+`GUIA_CREAR_UNA_NEURONA.md` §1 y la NORMA MÁXIMA. Todo se mide contra la guardia sellada.
+
+1. **Datos.**
+   - Varios cuerpos públicos y reales en es, en, zh y ja, de tres formas: frases cortas, párrafos largos y textos
+     técnicos o enciclopédicos (candidatos en §9.0c). La elección se fija antes de medir.
+   - **Partición estricta en 3 vías por documento o tema** (nunca por frase, para que no se filtre el tema):
+     Estudio / Validación-Calibración / **Guardia sellada del 20 %**. Ningún par relacionado a ambos lados.
+   - **Un grupo externo nunca visto** (otro cuerpo o dominio) para medir la generalización al final.
+2. **Preprocesamiento.**
+   - **Escalado robusto:** `log1p` sobre los conteos (S, G_ciego) y normalización (mediana e IQR) ajustada **solo con
+     Estudio**, para mezclar conteos con proporciones (Jaccard, X) sin que una entrada domine.
+   - **Comparación listwise o pairwise dentro del mismo nodo A:** la neurona ordena el canal 2 de A, así que se
+     entrena a ordenar a los candidatos de A entre sí (no a puntuar pares sueltos de todo el grafo).
+3. **Entrenamiento híbrido.**
+   - **Gradiente:** AdamW + decaimiento coseno, L2, y ruido o dropout suave en las entradas.
+   - **Currículo:** de los casos claros del examen de orden a los duros del examen de rescate.
+   - **Neuroevolución en RAM:** (μ,λ)-ES o Sep-CMA-ES escrito en `numpy`, optimizando **la métrica discreta real**
+     (R@1/R@5 de B en el canal 2 de A, bajo el techo, con el margen y un presupuesto de evaluaciones fijo).
+   - **Ensemble de 3–5 semillas + calibración de temperatura** en Validación, solo si reduce los falsos positivos.
+4. **Puerta final innegociable.** Superar al piso mecánico en la **guardia sellada**, en los **4 idiomas a la vez** y
+   en **todos los tipos de cuerpo**, con el molde completo de `neurona.py`: 6 capas, techo, margen, `huella_motor` e
+   interruptor. Si no gana, no entra: el piso sigue siendo el orden a mano.
+
+### 9.3 Notas técnicas abiertas (2026-11-26)
+
+- **Katakana de media anchura (ﾃｽﾄ):** sus caracteres se llaman `HALFWIDTH KATAKANA …` en Unicode. El nacimiento (H1,
+  `core/cjk_unidades.py`) ya lo trata como katakana (NFKC lo convierte en テスト). La búsqueda del Paso 1
+  (`core/memory/cjk_corto.py`, filtro por `instr`) todavía no: queda para un ciclo pequeño aparte.
+- **PMI en CJK:** `core/pmi_semantico.py` solo tokeniza letras latinas, así que la regla `pmi_hebbiano` sigue sin ver
+  zh/ja. No se tocó en H1 porque ese tokenizador también lo usa el ranking. Ciclo aparte.
+- **Coreano y frases CJK enteras** en la búsqueda: ciclo aparte (ver Paso 1 §5).
 
