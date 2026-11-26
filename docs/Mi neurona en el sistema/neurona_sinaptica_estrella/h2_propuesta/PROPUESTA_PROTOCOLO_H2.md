@@ -1,4 +1,4 @@
-# H2 y 4b: propuesta de protocolo con criterios previos (2026-11-26). PARA REVISIÓN, nada implementado
+# H2 y 4b: propuesta de protocolo con criterios previos — v2 corregida (2026-11-26). PARA REVISIÓN, nada implementado
 
 [V] = verificado leyendo el código o en los JSON ya medidos. [D] = deducción o propuesta, sin medir.
 
@@ -11,8 +11,8 @@
 - Toda comprobación de comportamiento futura será **solo con fixtures sintéticas aisladas** (§6), sin modificar los
   tests existentes.
 - **Datos externos y preguntas humanas** requieren autorización y procedencia/licencia claras. UD PUD (CC BY-SA 3.0)
-  se usó en los Pasos 2b y 2c como diagnóstico; seguir usándolo requiere el OK explícito. Por ahora, el plan se
-  evalúa sintéticamente.
+  se usó en los Pasos 2b y 2c como diagnóstico. **Decisión de la revisión: en esta etapa, solo mundo sintético**; UD
+  PUD no se usa sin una autorización posterior.
 
 ## 1. Para quien llega sin contexto
 Durante el «sueño» (`ciclo_sueno_consolidacion`) el motor ejecuta, entre otros, dos mecanismos **globales**: miran a
@@ -56,28 +56,42 @@ Consecuencia [V por lectura]: en el motor real, **un recuerdo dormido por H2 des
 agente** (canal 1 sin `deep`) y del canal 2. Despierta si se accede a él (búsqueda profunda o BFS).
 
 ## 3. Cómo depende cada mecanismo del crecimiento del corpus (separados)
-**H2 (inhibición lateral):**
-- [V] La condición equivale a «importancia media de los activos > 0,8» (cuando hay más de 12 activos). Un recuerdo
-  nuevo entra con 1,0, así que **cada tanda de recuerdos nuevos sube la media y dispara H2**.
-- [V] El recuerdo que se duerme se elige por su **puesto frente a los demás** (menor importancia y acceso más
-  antiguo), no por su propio estado. Si llegan recuerdos ajenos, cambia quién queda último: **qué recuerdo de D se
-  duerme depende de I**. Medido en 2c: 177 cambios de estado [V].
-- [D] Sin uso y con sueños seguidos (fracción de noche pequeña, LTD casi nulo), las importancias se quedan cerca de
-  1,0. Cada ciclo duerme del orden del 20 % de la masa activa, lo que es coherente con 622/839 dormidos tras 17
-  ciclos. No lo he verificado numéricamente: se medirá en el mundo sintético (§6).
-- [D] En una base real el uso sube la importancia de lo consultado. El efecto será menor, pero el mecanismo (puesto
-  relativo) es el mismo.
+**H2 (inhibición lateral)** (código: L535–544):
+- [V] La condición es `energia_total > max(10, 0,8 × n_activos)`, donde `n_activos` y la energía cuentan a **todos**
+  los activos, también a los inmunes.
+  - Con `n_activos ≤ 10` no se puede disparar, porque la energía máxima es n × 1,0 ≤ 10.
+  - Con 11 o 12 activos hace falta una energía mayor que 10.
+  - **Solo con 13 activos o más** equivale a «importancia media de los activos > 0,8».
+- [V] El chequeo ocurre **después** del LTD y de dormir por peso propio del mismo ciclo. Por eso **una tanda nueva
+  dispara H2 solo si, con ella, la media supera 0,8**. Un recuerdo nuevo entra con 1,0 y sube la media, pero si
+  muchos recuerdos ya bajaron de importancia, una tanda pequeña puede no dispararlo. (En la versión anterior de este
+  documento dije que «cada tanda dispara H2»: no está demostrado y queda retirado. Se medirá ciclo a ciclo, §7.)
+- [V] Cuando se dispara, el recuerdo que se duerme se elige por su **puesto frente a los demás** (menor importancia y
+  acceso más antiguo, entre los no inmunes), no por su propio estado. Si llegan recuerdos ajenos, cambia quién queda
+  último, así que **qué recuerdo de D se duerme puede depender de I**. Medido en 2c: 177 cambios de estado [V].
+- [V] Los inmunes suman energía pero nunca se duermen: si pesan mucho, H2 cae entera sobre los no inmunes.
+- [D] Sin uso y con sueños seguidos, la fracción de noche es pequeña y el LTD casi nulo; las importancias quedan
+  cerca de 1,0 y es plausible que H2 se dispare en casi todos los ciclos. Coherente con 622/839 dormidos, pero **sin
+  verificar**: el registro por ciclo del §7 lo dirá.
+- [D] En una base real el uso sube la importancia de lo consultado. El efecto será distinto, pero el mecanismo
+  (puesto relativo) es el mismo.
 
-**4b (escalado global de importancia):**
-- [V] Depende de la media global de los activos. Añadir I (que entran con 1,0) sube la media y puede disparar el
-  ×0,98 **sobre los recuerdos de D**: su importancia cambia por la llegada de recuerdos ajenos.
-- [V] El ×0,98 conserva el orden entre los recuerdos escalados salvo empates por el redondeo a 2 decimales. Pero
-  **cambia el orden frente a los inmunes** (que no se escalan) y **cambia valores absolutos** que se usan con
-  umbrales (≤ 0,05), sumados a otras señales en el ranking (`peso_norm`) y en los pesos de nacimiento.
+**4b (escalado global de importancia)** (código: L577–588):
+- [V] Se dispara si `AVG(importancia de los activos) > 0,70` y multiplica por 0,98 (redondeo a 2 decimales) la
+  importancia de los activos no inmunes.
+- [V] **El problema de invariancia no es el ×0,98 en sí, sino el disparo.**
+  - Si en un ciclo la media supera 0,70 tanto en D como en D∪I, el ×0,98 cae igual sobre los recuerdos de D en los
+    dos mundos: no hay diferencia para ellos.
+  - La diferencia aparece **en los ciclos en que I hace cruzar el umbral** (D por debajo y D∪I por encima, o al
+    revés), y en el **efecto acumulado** de esos ciclos sobre las importancias de D. Además, H2 cambia quién está
+    activo y, por tanto, la media sobre la que decide 4b.
+- [V] El ×0,98 conserva el orden entre los recuerdos escalados salvo empates por el redondeo. Pero **cambia el orden
+  frente a los inmunes** (que no se escalan) y **cambia valores absolutos** que se usan con umbrales (≤ 0,05), sumados
+  a otras señales en el ranking (`peso_norm`) y en los pesos de nacimiento.
 - [V] H2 y 4b están acoplados: H2 duerme a los de menor importancia → la media de los activos sube → 4b se dispara
   más; 4b baja importancias → cambia el orden de H2 en el ciclo siguiente.
 - **2c no separó 4b:** el control C solo apagó H2; 4b estaba activo en T y en C. Nada de 2c se puede atribuir a 4b,
-  ni descartarlo. Por eso el protocolo propone cuatro brazos (§7).
+  ni descartarlo. Por eso el protocolo propone cuatro brazos y un registro por ciclo (§7).
 
 ## 4. Impacto del aumento de aristas observado en el control [V, de `paso2c_examen_orden_rescate/resultados/examen_2c.json`]
 | | es T | es C | en T | en C | zh T = C | ja T = C |
@@ -100,52 +114,86 @@ Lectura:
 - Las listas del canal 2 se duplican en largo: B compite con más vecinos (el MRR del piso baja de 0,81 y 0,71 a 0,57 y 0,58).
 - zh/ja no cambian porque `pmi_semantico` no tokeniza CJK (§9.3 del plan). Si un día lo hace, el mismo efecto
   aparecería allí.
-- **Criterio que se deriva:** apagar H2 sin más **no** es una solución aceptable. Una corrección de H2 no puede
-  comprar la invariancia con una inundación de aristas (criterio K4).
+- **Criterio que se deriva:** apagar H2 sin más **no** se acepta a ciegas. Una corrección de H2 no puede comprar la
+  invariancia con más aristas **accidentales**. Pero la métrica del mismo documento no separa puentes válidos de
+  accidentes, así que K4 se mide en el mundo sintético con las tres clases etiquetadas (§5.2, §8).
 
-## 5. Qué es invariancia y qué no (definiciones fijadas antes de medir)
-En 2c llamé al «orden relativo de D» la forma correcta de la NORMA MÁXIMA. **Eso fue impreciso:** el orden relativo
-tolera que entren recuerdos de I, y no comprobé si los que entraban tenían que ver con la consulta. Definición
-previa, sin idioma y sin usar el motor, para cada recuerdo i de I frente a una consulta q:
-- **R0 «contiene»:** comparte al menos una unidad exacta con q (unidades Unicode: palabras entre espacios; bigramas
-  CJK). Puede entrar; la norma no lo protege.
-- **R1 «cercano» (zona difusa):** no comparte unidades, pero:
+## 5. Coincidencia de texto, relevancia y qué es invariancia (definiciones fijadas antes de medir)
+En la versión anterior, R0/R1/R2 mezclaban coincidencia de texto con relevancia. Ahora van **separadas**, y la
+relevancia viene de una **verdad sintética independiente del texto por construcción** (§6).
+
+**5.1 Coincidencia de texto** (se calcula sobre el texto, sin idioma y sin el motor). Para un recuerdo i frente a una
+consulta q:
+- **C0 «comparte unidad»:** al menos una unidad exacta en común (palabras entre espacios; bigramas CJK).
+- **C1 «cercano»:** ninguna unidad en común, pero:
   - en escritura con espacios, alguna unidad u de q de 4 o más caracteres comparte con una unidad de i un prefijo de
-    al menos `max(4, ⌈0,7·|u|⌉)` caracteres (p. ej. «elecciones/elección» sí; «elección/electricidad» no);
-  - en CJK, comparte un carácter que no es hiragana con una unidad de q.
-- **R2 «irrelevante»:** ni R0 ni R1.
+    al menos `max(4, ⌈0,7·|u|⌉)` caracteres;
+  - en CJK, comparte un carácter que no es hiragana.
+- **C2 «sin coincidencia»:** ni C0 ni C1.
+Esto **no dice si i es relevante**: una palabra genérica o un homógrafo dan C0 sin relación alguna.
 
-Medidas (se informan siempre por separado, nunca mezcladas):
-| id | qué mide | sobre qué pistas |
-|---|---|---|
-| M1 | **Invariancia estricta** (NORMA MÁXIMA): top-k idéntico en D y D∪I | pistas para las que **todo** I es R2 |
-| M2 | **Orden relativo de D** (no es invariancia completa: admite inserciones) | pistas sin ningún I en R0 |
-| M3 | Inserciones de I en el top-k, clasificadas en R1 y R2. En el mundo sintético hay verdad de tema: un R1 del mismo tema es una **coincidencia difusa legítima**; uno de otro tema es un **falso positivo difuso**; un R2 que entra es una **violación** | todas |
+**5.2 Verdad de relación** (la pone el generador al construir el mundo, no se deduce del texto). Para dos recuerdos,
+o para un recuerdo y el recuerdo del que sale la consulta:
+- **V-tema:** mismo tema.
+- **V-puente:** temas distintos unidos **a propósito** por un rasgo compartido declarado (p. ej. la misma entidad en
+  dos historias). Es un puente válido (criterio del usuario del 25-11).
+- **V-accidental:** comparten texto sin relación: homógrafos (la misma cadena con dos «sentidos» en temas sin
+  relación), palabras función, prefijos casuales.
+- **V-ajeno:** ninguna de las anteriores.
+El generador pone los puentes y los homógrafos de forma que el texto **no** permita distinguirlos: un puente y un
+accidente pueden ser C0 los dos. Así la verdad no se filtra por el texto.
 
-Las inserciones R1 y R2 son propiedades del **buscador** (canal 1), no del sueño. En este ciclo solo se exige que no
-empeoren; corregirlas, si hace falta, sería otro ciclo.
+**5.3 Invariancia: una exigencia estricta y métricas aparte**
+- **I verdaderamente irrelevante** para una consulta q, que sale de un recuerdo de D: todo recuerdo de I es V-ajeno
+  frente a todo D (temas de I disjuntos, sin puentes con D, sin homógrafos compartidos con D) **y** es C2 frente a q.
+  El motor no tiene ninguna razón legítima para cambiar nada.
+- **S1, invariancia estricta del sueño:** con I verdaderamente irrelevante y sin uso, **0** cambios en el estado y en
+  la importancia de los recuerdos de D, y **0** cambios en el top-k de esas consultas atribuibles a H2 o 4b. Es una
+  exigencia de cero, no un porcentaje.
+- **Atribución:** un cambio del top-k «atribuible a H2/4b» es uno que no aparece en el brazo −H2 −4b (§7). Los
+  cambios que sí aparecen con los dos mecanismos apagados son del **buscador** (p. ej. estadísticas del corpus): se
+  informan aparte, se miden igual y no se cargan a este ciclo.
+- **Métricas agregadas, que no son invariancia y se informan siempre por separado:**
+  | id | qué mide | sobre qué consultas |
+  |---|---|---|
+  | M1 | Fracción de top-k idénticos en D y D∪I | consultas con I verdaderamente irrelevante |
+  | M2 | Fracción con el orden relativo de D conservado (admite inserciones) | consultas sin ningún I C0 |
+  | M3 | Inserciones de I en el top-k, cruzando texto (C0/C1/C2) con verdad (tema, puente, accidental, ajeno) | todas |
+  Lectura de M3: un I V-tema o V-puente que entra es una inserción legítima. Uno V-accidental es un **falso positivo
+  difuso**. Uno V-ajeno y C2 que entra es una **violación** (y cuenta en S1 si es atribuible a H2/4b).
+
+Las inserciones del buscador (C1 y C2) son propiedades del canal 1, no del sueño. En este ciclo solo se exige que no
+empeoren; corregirlas sería otro ciclo.
 
 ## 6. Mundo de evaluación: solo sintético, aislado (propuesta) [D]
+Decisión de la revisión: **solo mundo sintético** en esta etapa. UD PUD no se usa sin una autorización posterior.
 Generador procedimental en el laboratorio, sin datos reales:
 - **Semillas 7, 11 y 23** (las de la GUIA). Solo vale lo que se repite en las tres.
 - **Cuatro escrituras:** latina con diacríticos (dos «lenguas» con inventarios de sílabas distintos), ideogramas y
   japonés mixto (kanji + kana). Hangul opcional como quinta, informada aparte.
 - **Vocabulario:**
   - palabras aleatorias por escritura con frecuencias de Zipf;
-  - palabras «función» de alta frecuencia compartidas por todos los temas (imitan a las palabras vacías, sin
-    ninguna lista real);
+  - palabras «función» de alta frecuencia compartidas por todos los temas (imitan a las palabras vacías, sin ninguna
+    lista real);
   - vocabulario propio de cada tema;
-  - **variantes morfológicas** (mismo prefijo, distinto sufijo), sembradas a propósito dentro de un tema y entre
-    temas, para que R1 tenga casos de los dos tipos con verdad conocida.
-- **Temas:** tamaños de 1 a 5 recuerdos como PUD, más algunos largos. Verdad = mismo tema.
-- **Partición:** D/I por tema (80/20; I con temas disjuntos de D). Tamaños de 1000 y 3000 recuerdos, para medir
-  la dependencia del crecimiento.
+  - variantes morfológicas (mismo prefijo, distinto sufijo) dentro de un tema y entre temas.
+- **Verdad por construcción** (§5.2):
+  - **temas** de 1 a 5 recuerdos, como PUD, más algunos largos;
+  - **puentes:** pares de temas declarados que comparten una entidad rara en algunos recuerdos de cada uno;
+  - **homógrafos:** cadenas idénticas asignadas a dos temas sin relación, con contextos distintos;
+  - **prefijos casuales** entre temas.
+  Cada par de recuerdos queda etiquetado tema / puente / accidental / ajeno en un archivo aparte que **el motor no
+  ve**.
+- **Partición D/I:**
+  - un I **verdaderamente irrelevante** (temas disjuntos, sin puentes ni homógrafos con D) para S1 y M1;
+  - un I′ **con** puentes y homógrafos hacia D, para M2, M3 y para ver cómo crece el grafo con relaciones reales.
+  Tamaños de 1000 y 3000 recuerdos, para medir la dependencia del crecimiento.
 - **Reloj controlado,** dos regímenes: (a) comprimido (sueños seguidos, como el laboratorio); (b) un sueño por día
-  simulado. LTD depende de la fracción de noche, y H2 y 4b de las importancias resultantes.
-- **Sin uso** (decisión U0 de Dennys: ninguna señal de uso nueva).
+  simulado.
+- **Sin uso** (decisión U0 de Dennys).
 - Bases en `/tmp`, con fixtures creadas desde cero. Nunca la DB viva ni snapshots.
 
-## 7. Brazos de diagnóstico (laboratorio, sin tocar el repositorio)
+## 7. Brazos de diagnóstico y registro por ciclo (laboratorio, sin tocar el repositorio)
 Como el control de 2c: una copia del código del sueño en el proceso hijo, con la condición del bloque cambiada a
 `if False:` y una comprobación de que el marcador aparece exactamente una vez.
 | brazo | H2 | 4b |
@@ -156,38 +204,59 @@ Como el control de 2c: una copia del código del sueño en el proceso hijo, con 
 | −H2 −4b | no | no |
 Los brazos **no son propuestas**: sirven para atribuir cada efecto a su mecanismo.
 
-**Diseños candidatos [D]**, para conversar con Dennys antes de medir ninguno (norma 12). Cada uno sería un cambio
-aislado, en su propio ciclo:
+**Registro por ciclo, en cada brazo y en cada mundo (D, D∪I, D∪I′):**
+- n_activos (total e inmunes), energía y límite;
+- si H2 se disparó, cuántos recuerdos durmió y cuáles;
+- `AVG` de importancia antes de 4b y si 4b se disparó.
+Se obtiene con una **instrumentación de solo lectura** en la misma copia del código fuente: una línea de registro
+justo después de `energia_total = …` y de `peso_medio_activo = …`, que no cambia ninguna decisión. Se comprueba que
+la base final es idéntica con y sin registro (sha256 por tabla).
+
+Con ese registro se informa, sin suponer nada:
+- **en qué ciclos concretos se dispara H2** en cada brazo y mundo;
+- **en qué ciclos 4b cruza el umbral 0,70** en D∪I y no en D (o al revés);
+- **el efecto acumulado** de esos ciclos sobre la importancia de los recuerdos de D: suma de |Δ importancia| y
+  número de recuerdos de D con importancia distinta al final.
+
+**Diseños candidatos [D]**, para conversar con Dennys antes de medir ninguno (norma 12). H2 y 4b son
+**controles/hipótesis a evaluar**: ni intocables ni retirables sin evidencia (decisión de la revisión). Cada diseño
+sería un cambio aislado, en su propio ciclo:
 - H2-a: retirar H2 y dejar dormir solo por el peso propio (la regla 5 ya existe).
 - H2-b: homeostasis **por recuerdo**: el presupuesto de cada recuerdo depende de su propia historia, no de su puesto
   frente a los demás.
 - 4b-a: escalado por recuerdo (cada importancia tiende a su propio objetivo, sin mirar la media global).
-- Cualquiera de ellos, combinado con un control de la inundación de aristas (K4), que podría venir del nacimiento
+- Cualquiera de ellos, combinado con un control de las aristas accidentales (K4), que podría venir del nacimiento
   (`pmi_hebbiano`) y no del sueño. Sería otro ciclo, para no mezclar cambios.
 
 ## 8. Criterios fijados antes (para cualquier cambio futuro en H2 o 4b)
 Todos en el mundo sintético, en las 4 escrituras, con las 3 semillas, en los dos tamaños y en los dos regímenes de
-reloj:
+reloj. **Exigencias** (hay que cumplirlas):
 | id | criterio | umbral |
 |---|---|---|
-| K1 | Estado invariante: recuerdos de D que cambian de estado al añadir I irrelevante, sin uso | 0 |
-| K2 | M1 ≥ 98 %; M2 ≥ 98 %; inserciones R2 y falsos positivos difusos (R1 de otro tema) | M1, M2 ≥ 98 %; inserciones ≤ las de T |
-| K3 | Examen de orden: ninguna pregunta común cambia de puesto relativo; preguntas que faltan en D∪I | 0 cambios; faltan ≤ 2 % |
-| K4 | Grafo sin inundación ni pérdida: aristas del mismo tema ≥ las de T **y** precisión del grafo ≥ la de T **y** grado medio ≤ 1,25 × el de T | las tres |
-| K5 | Canal 2 visible (top-5 por recuerdo): fracción del mismo tema | ≥ la de T |
+| K1 = S1 | Invariancia estricta del sueño con I verdaderamente irrelevante y sin uso: cambios de estado y de importancia en D; cambios del top-k atribuibles a H2/4b | **0** (no es un porcentaje) |
+| K2 | Métricas agregadas M1, M2 e inserciones M3 | no peores que en T. Informadas por separado, con su número exacto, sin «≥ 98 %» que oculte casos |
+| K3 | Examen de orden con I verdaderamente irrelevante: preguntas comunes que cambian de puesto relativo; preguntas que faltan | **0** y **0** |
+| K4 | Aristas, separadas por verdad: **temáticas** ≥ T; **puentes válidos** ≥ T; **accidentales** ≤ T; precisión (temáticas + puentes) / total ≥ T; grado medio ≤ 1,25 × T | todas |
+| K5 | Canal 2 visible (top-5 por recuerdo): fracción temática + puente | ≥ la de T |
 | K6 | Dormir solo por el propio recuerdo: todo recuerdo dormido cumple la regla por peso propio | 100 % |
-| K7 | Crecimiento: K1–K5 se cumplen en 1000 y en 3000; costo por sueño | ≤ 1,2 × el de T por recuerdo nuevo |
+| K7 | Crecimiento: K1–K5 en 1000 y en 3000; costo por sueño | ≤ 1,2 × el de T por recuerdo nuevo |
 | K8 | Ciclo desde DB vacía (5 recuerdos por sesión, 80 sesiones, GUIA §8.8): sin excepciones ni oscilaciones de estado; K1 al final | sí |
-| K9 | Regresión: `pytest` completo en verde **sin modificar tests existentes**, más tests nuevos sintéticos para K1, K2 y K6 | sí |
+| K9 | Regresión: `pytest` completo en verde **sin modificar tests existentes**, más tests nuevos sintéticos para K1, K6 y el disparo de 4b | sí |
+
+**Se informan, sin umbral** (para entender el mecanismo):
+- el registro por ciclo del §7 (disparos de H2 y 4b, ciclos de cruce de 0,70, efecto acumulado);
+- los cambios del buscador que aparecen con −H2 −4b (atribuidos al canal 1, no a este ciclo).
+
 La QA oficial sobre la DB real **no la corro yo**: la corre Dennys (GUIA §8.11), si él lo decide.
-Lectura en 2c, para calibrar las expectativas: el control C habría cumplido K1, y M2 en las 4 lenguas, pero **habría
-fallado K4** (precisión 6,4 % frente a 17,8 %).
+Lectura en 2c, para calibrar las expectativas: con la métrica vieja de «mismo documento», el control C cumplía K1
+pero las aristas fuera del documento pasaban de 528 a 1691 en es. Con K4 nuevo eso se juzga separando puentes de
+accidentes, que en el mundo sintético están etiquetados.
 
 ## 9. Adaptación de la GUIA al examen de la neurona sináptica (canal 2)
 Adaptar, no copiar: el canal 2 ordena los vecinos de un recuerdo A, no los resultados de una búsqueda.
 | regla de la GUIA | ¿aplica al canal 2? | adaptación | cómo se prueba (sintético) |
 |---|---|---|---|
-| Agujas (PASO 4): 0–1, regla fija, universal, barata, determinista, auto-regulada, signo fijo, rareza | Sí, entera | Agujas del **par (A, B)**. **Sin bucle**: no leen la arista que juzgan ni el grafo sin copia limpia. Invariantes según la NORMA MÁXIMA. Candidatas en §9.0b del plan | AUC con verdad de tema; D frente a D∪I idéntico; dos corridas idénticas con `PYTHONHASHSEED=1`; ms por par |
+| Agujas (PASO 4): 0–1, regla fija, universal, barata, determinista, auto-regulada, signo fijo, rareza | Sí, entera | Agujas del **par (A, B)**. **Sin bucle**: no leen la arista que juzgan ni el grafo sin copia limpia. Invariantes según la NORMA MÁXIMA. Candidatas en §9.0b del plan | AUC con la verdad sintética (tema / puente / accidental / ajeno); D frente a D∪I idéntico; dos corridas idénticas con `PYTHONHASHSEED=1`; ms por par |
 | Semillas 7/11/23 | Sí | Se siembran el generador del mundo, las particiones y el entrenamiento; solo cuenta lo que se repite en las tres | Informe por semilla; una puerta pasa solo si pasa en las tres |
 | Guardia (20 %, `sha256(nombre)[:8] % 5 == 0`) | Sí, cambiada | La unidad es el **par**: partición por **tema de B** en estudio / validación / guardia sellada (§8.3 y §9.2). Sin pares relacionados a ambos lados (decisión de Dennys): se excluyen los pares con A y B en partes distintas | Comprobación automática de que ningún tema cae en dos partes y de que no hay pares que crucen |
 | Ciclo de DB vacía (norma 5, §8.8) | Sí | Sin examen suficiente no hay campeón: el canal 2 queda **idéntico al piso** (orden por prioridad de tipo) | Crecimiento sintético desde cero: canal 2 idéntico al piso hasta juntar el mínimo; se registra cuándo lo junta |
@@ -234,15 +303,26 @@ Adaptar, no copiar: el canal 2 ordena los vecinos de un recuerdo A, no los resul
 ## 11. Correcciones de redacción a 2c
 - En 2c escribí «H2 es la única causa real de la falta de invariancia». Más preciso: **H2 explica la diferencia
   entre T y C** (cambios de estado y reordenamientos que desaparecen al apagarla). 4b no se aisló, y las inserciones
-  de I no se clasificaron como R1 o R2.
-- «El orden relativo de D es la forma correcta de la NORMA MÁXIMA» → es una **medida parcial (M2)** que admite
-  inserciones; la invariancia estricta es M1 (§5).
+  de I no se clasificaron por texto (C0/C1/C2) ni por verdad (tema, puente, accidental, ajeno).
+- «El orden relativo de D es la forma correcta de la NORMA MÁXIMA» → es una **métrica agregada (M2)** que admite
+  inserciones. La invariancia estricta es S1: 0 cambios frente a I verdaderamente irrelevante (§5.3).
 Ambas notas quedan añadidas al RESULTADOS de 2c y al plan.
 
-## 12. Decisiones que pido en la revisión
-1. ¿Se aprueba este protocolo (mundo sintético, brazos T/−H2/−4b/−H2−4b, criterios K1–K9) como paso siguiente,
-   todavía sin cambiar el motor?
-2. ¿H2 representa una intención de diseño que hay que conservar (un presupuesto de energía), o se puede proponer
-   retirarla (H2-a)? La misma pregunta para 4b.
-3. ¿Se aceptan las definiciones R0/R1/R2 y los umbrales de K2 y K4?
-4. ¿Se autoriza seguir usando UD PUD (público, CC BY-SA 3.0) como segundo banco, o queda solo el sintético?
+## 12. Decisiones de la revisión del 2026-11-26 (registradas)
+1. **Protocolo:** queda como borrador. Medir se aprobará solo después de revisar esta versión corregida.
+2. **H2 y 4b:** son controles/hipótesis a evaluar, ni intocables ni retirables sin evidencia.
+3. **Definiciones y criterios:** ajustados:
+   - texto separado de la verdad (§5.1–5.2);
+   - invariancia estricta = 0, aparte de las métricas agregadas (§5.3, K1, K2);
+   - K4 separa aristas temáticas, puentes válidos y accidentales.
+4. **Corpus:** solo mundo sintético en esta etapa; UD PUD no se usa sin una autorización posterior.
+Sin cambios en H2, 4b, filtro, motor ni tests. E3 sigue abierto; no se avanza a E4.
+
+## 13. Registro de cambios
+- **v1** (`01f719f`): primera propuesta.
+- **v2** (este documento), cuatro correcciones de la revisión:
+  1. relevancia ≠ coincidencia de texto (C0/C1/C2 frente a la verdad sintética tema / puente / accidental / ajeno);
+  2. la invariancia estricta es 0 cambios frente a I verdaderamente irrelevante; M1/M2 son métricas aparte;
+  3. K4 deja de castigar los puentes válidos;
+  4. H2 descrito con su condición exacta (≥ 13 activos, después del LTD) y registro por ciclo de los disparos de H2
+     y de los cruces de 0,70 de 4b.

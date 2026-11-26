@@ -118,7 +118,9 @@ Este paso queda como **diagnóstico**: no autoriza cambios en H2, en 4b ni en el
    y C**. El escalado global de importancia (4b, `consolidation.py` L577–588, que cambia `largo_plazo.peso_sinaptico`
    y no las aristas) estaba activo en las dos variantes y no se aisló.
 2. El «orden relativo de D» **no es la invariancia completa**: admite que entren recuerdos de I, y aquí no se comprobó
-   si los que entraban tenían que ver con la consulta o eran falsos positivos difusos. Las definiciones previas (M1
-   estricta, M2 orden relativo, M3 inserciones R1/R2) están en `../h2_propuesta/PROPUESTA_PROTOCOLO_H2.md` §5.
+   si los que entraban tenían que ver con la consulta o eran falsos positivos difusos. Las definiciones previas
+   (invariancia estricta S1 = 0 cambios frente a I verdaderamente irrelevante; métricas agregadas M1, M2 y M3; texto
+   C0/C1/C2 separado de la verdad tema / puente / accidental / ajeno) están en
+   `../h2_propuesta/PROPUESTA_PROTOCOLO_H2.md` §5 (v2).
 Además, el control casi triplica las aristas en es/en (643 → 1838 y 679 → 2224) **sin ganar aristas del mismo
 documento** (114 → 115 y 143 → 138): apagar H2 sin más no es una solución (criterio K4 de la propuesta).
