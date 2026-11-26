@@ -78,6 +78,7 @@ def _auto_generar_co_ocurrencia(self, recuerdos_sesion):
     """
     import re
     from itertools import combinations
+    from core import cjk_unidades
     
     # Reindex SDM selectivo: extremos de sinapsis NUEVAS creadas aquí
     dirty = set()
@@ -90,7 +91,10 @@ def _auto_generar_co_ocurrencia(self, recuerdos_sesion):
         for item in recuerdos_sesion:
             c1, contenido1 = item[0], item[1]
             if c1 not in concepto_tokens:
-                concepto_tokens[c1] = set(re.findall(r'\w{4,}', (contenido1 or "").lower()))
+                # H1: las corridas CJK se cuentan por bigramas (core/cjk_unidades.py) y no
+                # como una sola «palabra» de \w{4,}. Sin escritura CJK, idéntico a antes.
+                concepto_tokens[c1] = (set(re.findall(r'\w{4,}', cjk_unidades.sin_cjk(contenido1 or "").lower()))
+                                       | cjk_unidades.unidades(contenido1 or ""))
         
         # Para cada par de conceptos consolidados juntos
         for item1, item2 in combinations(recuerdos_sesion, 2):
@@ -146,10 +150,14 @@ def _auto_generar_co_ocurrencia(self, recuerdos_sesion):
                 "SELECT concepto, contenido FROM largo_plazo WHERE estado = 'activo' LIMIT 200"
             )
             nodos_activos = self.cursor.fetchall()
-            nodo_tokens = {c: set(re.findall(r'\w{4,}', (cont or "").lower())) for c, cont in nodos_activos}
+            # H1: misma regla que arriba (bigramas CJK; idéntico sin escritura CJK)
+            def _tok_msg(t):
+                return (set(re.findall(r'\w{4,}', cjk_unidades.sin_cjk(t or "").lower()))
+                        | cjk_unidades.unidades(t or ""))
+            nodo_tokens = {c: _tok_msg(cont) for c, cont in nodos_activos}
             
             for (msg_contenido,) in mensajes:
-                msg_tokens = set(re.findall(r'\w{4,}', (msg_contenido or "").lower()))
+                msg_tokens = _tok_msg(msg_contenido)
                 
                 # Encontrar qué conceptos aparecen en este mensaje
                 conceptos_en_msg = []

@@ -3,6 +3,7 @@ import time
 import sqlite3
 from core.stopwords import STOPWORDS
 from core.memory.constants import SQL_UPSERT_NO_ES_DEL_AGENTE
+from core import cjk_unidades
 
 TOKENS_TECNICOS_CORTOS = {'dsl', 'api', 'mcp', 'rag', 'cpu', 'ram', 'gpu', 'cli', 'db', 'ui', 'ux', 'os', 'ai', 'vm'}
 
@@ -12,8 +13,14 @@ _CORTO_PATTERN = re.compile(r'\b[a-z]{2,3}\b')
 
 def _tokenizar(texto):
     texto = texto.replace('_', ' ')
-    tokens = set(_TOKEN_PATTERN.findall(texto.lower()))
-    tokens |= TOKENS_TECNICOS_CORTOS & set(_CORTO_PATTERN.findall(texto.lower()))
+    # H1 (ojos Unicode en el nacimiento): chino y japonés no tienen espacios ni letras
+    # latinas; sus unidades son bigramas de caracteres (core/cjk_unidades.py), y la parte
+    # latina se lee con lo CJK cambiado por espacios («Python中文» → «python»). Sin
+    # escritura CJK, `sin_cjk` devuelve el mismo texto y `unidades` vacío: nada cambia.
+    latino = cjk_unidades.sin_cjk(texto).lower()
+    tokens = set(_TOKEN_PATTERN.findall(latino))
+    tokens |= TOKENS_TECNICOS_CORTOS & set(_CORTO_PATTERN.findall(latino))
+    tokens |= cjk_unidades.unidades(texto)
     return tokens - STOPWORDS
 
 
@@ -114,6 +121,8 @@ def auto_vincular(cerebro, concepto, contenido, umbral=0.4):
     # Solo tokens de 3+ chars para FTS5 trigram; terminos tecnicos cortos
     # (dsl, api, etc.) caen al fallback scan si es necesario
     terminos_fts = [f'"{t}"' for t in tokens_nuevos if len(t) >= 3]
+    # H1: los bigramas CJK no caben en el trigram; se piden con subcadenas CJK de 3.
+    terminos_fts += [f'"{g}"' for g in cjk_unidades.trigramas_fts(concepto + " " + contenido)]
     existentes = None
     if terminos_fts:
         fts_query = " OR ".join(terminos_fts)
