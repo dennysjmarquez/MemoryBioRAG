@@ -1,0 +1,85 @@
+{
+ "bloques": {
+  "800|comprimido": {
+   "T": {
+    "K1": "no cumplido",
+    "K3": "no cumplido",
+    "K6": "no cumplido",
+    "K2": "referencia (= T)",
+    "K4": "referencia (= T)",
+    "K5": "referencia (= T)",
+    "costo_vs_T": [
+     1.0,
+     1.0,
+     1.0
+    ]
+   },
+   "-H2": {
+    "K1": "no cumplido",
+    "K3": "cumplido",
+    "K6": "cumplido (vacuo)",
+    "K2": "no cumplido",
+    "K4": "no cumplido",
+    "K5": "no cumplido",
+    "costo_vs_T": [
+     2.22,
+     2.39,
+     2.02
+    ]
+   },
+   "-4b": {
+    "K1": "no cumplido",
+    "K3": "no cumplido",
+    "K6": "no cumplido",
+    "K2": "cumplido",
+    "K4": "no cumplido",
+    "K5": "no cumplido",
+    "costo_vs_T": [
+     0.86,
+     0.92,
+     0.94
+    ]
+   },
+   "-H2-4b": {
+    "K1": "cumplido",
+    "K3": "cumplido",
+    "K6": "cumplido (vacuo)",
+    "K2": "no cumplido",
+    "K4": "no cumplido",
+    "K5": "no cumplido",
+    "costo_vs_T": [
+     2.2,
+     2.31,
+     1.98
+    ]
+   }
+  }
+ },
+ "finales": {
+  "T": {
+   "K7_comprimido": "no medible",
+   "K7_diario": "no medible",
+   "K8": "no medible",
+   "K9": "no medible en esta etapa (suite completa: autorización aparte)"
+  },
+  "-H2": {
+   "K7_comprimido": "no medible",
+   "K7_diario": "no medible",
+   "K8": "no medible",
+   "K9": "no medible en esta etapa (suite completa: autorización aparte)"
+  },
+  "-4b": {
+   "K7_comprimido": "no medible",
+   "K7_diario": "no medible",
+   "K8": "no medible",
+   "K9": "no medible en esta etapa (suite completa: autorización aparte)"
+  },
+  "-H2-4b": {
+   "K7_comprimido": "no medible",
+   "K7_diario": "no medible",
+   "K8": "no medible",
+   "K9": "no medible en esta etapa (suite completa: autorización aparte)"
+  }
+ },
+ "controles": null
+}

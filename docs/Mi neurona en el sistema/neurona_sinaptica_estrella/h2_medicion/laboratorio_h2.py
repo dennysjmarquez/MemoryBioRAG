@@ -379,6 +379,20 @@ def analizar_config(semilla, n_D, reloj_nombre, res, m):
                    "inserciones_I0_top5": sum(clases_I0.values()), "inserciones_I0_por_clase": clases_I0,
                    "I0_todo_C2_comprobado": c2_ok}
         a["M1"] = round(1 - len(cam_top) / len(qs), 4)
+        # recall del recuerdo de origen en el camino normal del agente, y consultas sin resultados
+        a["recall_origen_top5"] = {w: round(sum(q["x"] in t[q["id"]][:K] for q in qs) / len(qs), 4)
+                                   for w, t in (("D", tD), ("DI0", tI0), ("DI1", tI1))}
+        a["recall_origen_top5_por_escritura"] = {
+            w: {e: round(sum(q["x"] in t[q["id"]][:K] for q in qs if q["esc"] == e) /
+                         max(1, sum(1 for q in qs if q["esc"] == e)), 4) for e in ms.ESCRITURAS}
+            for w, t in (("D", tD), ("DI0", tI0))}
+        a["top5_cambiados_por_escritura"] = {e: sum(1 for i in cam_top if i in {q["id"] for q in qs if q["esc"] == e})
+                                             for e in ms.ESCRITURAS}
+        a["consultas_sin_resultado"] = {w: sum(not t[q["id"]] for q in qs) for w, t in
+                                        (("D", tD), ("DI0", tI0), ("DI1", tI1))}
+        a["activos_D_final"] = {w: sum(1 for c in en_D if e[c][0] == "activo") for w, e in
+                                (("D", eD), ("DI0", eI0), ("DI1", eI1))}
+        a["S1"]["estado_D_identico"] = not cam_estado and not cam_peso
         # --- K3: examen de orden con I0
         vD, vI0 = R["D"]["med"]["vecinos"], R["DI0"]["med"]["vecinos"]
         preg, cambia, falta = 0, 0, 0
@@ -434,7 +448,7 @@ def analizar_config(semilla, n_D, reloj_nombre, res, m):
             a["K4_" + w] = {"pares": tot, **cnt, "pmi_hebbiano_por_verdad": pmi,
                             "precision_tema_puente": round((cnt["tema"] + cnt["puente"]) / tot, 4) if tot else None,
                             "grado_medio": round(2 * tot / n_nodos, 3) if n_nodos else None}
-            a["K5_" + w] = {"pares_visibles": len(vis),
+            a["K5_" + w] = {"pares_visibles": len(vis), "pares_visibles_tema_puente": vis_ok,
                             "frac_tema_puente": round(vis_ok / len(vis), 4) if vis else None}
         # --- K6, registro por ciclo, costo
         cyc = {w: ciclos(R[w]["reg"]["registro"]) for w in MUNDOS}
@@ -484,6 +498,23 @@ def analizar_config(semilla, n_D, reloj_nombre, res, m):
         s["top5_cambiados_atribuibles_H2_4b"] = len(set(s["_top5_cambiados"]) - base)
         s["top5_cambiados_tambien_sin_H2_4b"] = len(set(s["_top5_cambiados"]) & base)
     return out
+
+
+def reanalizar(semilla, n_D, reloj_nombre):
+    """Rehace el análisis desde los registros y mediciones ya guardados en /tmp (sin reconstruir nada)."""
+    tag = "s%d_n%d_%s" % (semilla, n_D, reloj_nombre)
+    final = os.path.join(RES, "config_%s.json" % tag)
+    viejo = json.load(open(final))
+    m = ms.generar(semilla, n_D)
+    res = {}
+    for b in BRAZOS:
+        d = os.path.join(TMP, tag, b.replace("-", "m"))
+        res[b] = {w: {"reg": json.load(open(os.path.join(d, w + "_reg.json"))),
+                      "med": json.load(open(os.path.join(d, w + "_med.json")))} for w in MUNDOS}
+    an = analizar_config(semilla, n_D, reloj_nombre, res, m)
+    an["_meta"] = viejo["_meta"]
+    json.dump(an, open(final, "w"), ensure_ascii=False)
+    return an
 
 
 def una_config(semilla, n_D, reloj_nombre):
@@ -603,5 +634,11 @@ if __name__ == "__main__":
         hijo_medir(*sys.argv[2:])
     elif cmd == "todo":
         main()
+    elif cmd == "reanalizar":
+        for f in sorted(os.listdir(RES)):
+            if f.startswith("config_"):
+                s_, n_, r_ = f[len("config_"):-5].split("_")
+                reanalizar(int(s_[1:]), int(n_[1:]), r_)
+                print("reanalizado", f, flush=True)
     elif cmd == "config":
         print(json.dumps(una_config(int(sys.argv[2]), int(sys.argv[3]), sys.argv[4]))[:2000])
