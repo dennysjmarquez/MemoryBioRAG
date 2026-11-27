@@ -1,0 +1,640 @@
+{
+ "bloques": {
+  "real|800|comprimido": {
+   "T": {
+    "K1": "no cumplido",
+    "K3": "no cumplido",
+    "K6": "no cumplido",
+    "K2p": "referencia (= T)",
+    "K4": "referencia (= T)",
+    "K5pp": "referencia (= T)",
+    "costo_por_sueno_vs_T": [
+     1.0,
+     1.0,
+     1.0
+    ]
+   },
+   "-H2-4b": {
+    "K1": "cumplido",
+    "K3": "cumplido",
+    "K6": "cumplido (vacuo)",
+    "K2p_orden_no_comparable": 6,
+    "K2p": "no cumplido",
+    "K4": "no cumplido",
+    "K5pp": "no cumplido",
+    "costo_por_sueno_vs_T": [
+     2.06,
+     2.14,
+     2.01
+    ]
+   },
+   "H2loc": {
+    "K1": "no cumplido",
+    "K3": "cumplido",
+    "K6": "no cumplido",
+    "K2p_orden_no_comparable": 6,
+    "K2p": "cumplido (orden no comparable en 6 de 6 mundos: T sin listas)",
+    "K4": "no cumplido",
+    "K5pp": "no cumplido",
+    "costo_por_sueno_vs_T": [
+     0.91,
+     0.91,
+     1.05
+    ]
+   },
+   "4bp": {
+    "K1": "no cumplido",
+    "K3": "no cumplido",
+    "K6": "no cumplido",
+    "K2p_orden_no_comparable": 6,
+    "K2p": "cumplido (orden no comparable en 6 de 6 mundos: T sin listas)",
+    "K4": "cumplido",
+    "K5pp": "cumplido",
+    "costo_por_sueno_vs_T": [
+     1.0,
+     0.99,
+     0.96
+    ]
+   },
+   "H2loc+4bp": {
+    "K1": "no cumplido",
+    "K3": "cumplido",
+    "K6": "no cumplido",
+    "K2p_orden_no_comparable": 6,
+    "K2p": "cumplido (orden no comparable en 6 de 6 mundos: T sin listas)",
+    "K4": "no cumplido",
+    "K5pp": "no cumplido",
+    "costo_por_sueno_vs_T": [
+     0.89,
+     0.89,
+     1.04
+    ]
+   }
+  },
+  "real|800|diario": {
+   "T": {
+    "K1": "cumplido",
+    "K3": "cumplido",
+    "K6": "no cumplido",
+    "K2p": "referencia (= T)",
+    "K4": "referencia (= T)",
+    "K5pp": "referencia (= T)",
+    "costo_por_sueno_vs_T": [
+     1.0,
+     1.0,
+     1.0
+    ]
+   },
+   "-H2-4b": {
+    "K1": "cumplido",
+    "K3": "cumplido",
+    "K6": "cumplido",
+    "K2p_orden_no_comparable": 0,
+    "K2p": "no cumplido",
+    "K4": "no cumplido",
+    "K5pp": "no cumplido",
+    "costo_por_sueno_vs_T": [
+     1.06,
+     1.02,
+     1.08
+    ]
+   },
+   "H2loc": {
+    "K1": "no cumplido",
+    "K3": "cumplido",
+    "K6": "no cumplido",
+    "K2p_orden_no_comparable": 0,
+    "K2p": "no cumplido",
+    "K4": "no cumplido",
+    "K5pp": "no cumplido",
+    "costo_por_sueno_vs_T": [
+     0.53,
+     0.49,
+     0.58
+    ]
+   },
+   "4bp": {
+    "K1": "cumplido",
+    "K3": "cumplido",
+    "K6": "no cumplido",
+    "K2p_orden_no_comparable": 0,
+    "K2p": "no cumplido",
+    "K4": "no cumplido",
+    "K5pp": "no cumplido",
+    "costo_por_sueno_vs_T": [
+     0.94,
+     0.94,
+     0.95
+    ]
+   },
+   "H2loc+4bp": {
+    "K1": "no cumplido",
+    "K3": "cumplido",
+    "K6": "no cumplido",
+    "K2p_orden_no_comparable": 0,
+    "K2p": "no cumplido",
+    "K4": "no cumplido",
+    "K5pp": "no cumplido",
+    "costo_por_sueno_vs_T": [
+     0.52,
+     0.46,
+     0.57
+    ]
+   }
+  },
+  "real|2400|comprimido": {
+   "T": {
+    "K1": "no cumplido",
+    "K3": "no cumplido",
+    "K6": "no cumplido",
+    "K2p": "referencia (= T)",
+    "K4": "referencia (= T)",
+    "K5pp": "referencia (= T)",
+    "costo_por_sueno_vs_T": [
+     1.0,
+     1.0,
+     1.0
+    ]
+   },
+   "-H2-4b": {
+    "K1": "cumplido",
+    "K3": "cumplido",
+    "K6": "cumplido (vacuo)",
+    "K2p_orden_no_comparable": 6,
+    "K2p": "no cumplido",
+    "K4": "no cumplido",
+    "K5pp": "no cumplido",
+    "costo_por_sueno_vs_T": [
+     1.82,
+     1.75,
+     1.96
+    ]
+   },
+   "H2loc": {
+    "K1": "no cumplido",
+    "K3": "no cumplido",
+    "K6": "no cumplido",
+    "K2p_orden_no_comparable": 6,
+    "K2p": "no cumplido",
+    "K4": "no cumplido",
+    "K5pp": "no cumplido",
+    "costo_por_sueno_vs_T": [
+     1.09,
+     1.49,
+     1.38
+    ]
+   },
+   "4bp": {
+    "K1": "no cumplido",
+    "K3": "no cumplido",
+    "K6": "no cumplido",
+    "K2p_orden_no_comparable": 6,
+    "K2p": "cumplido (orden no comparable en 6 de 6 mundos: T sin listas)",
+    "K4": "cumplido",
+    "K5pp": "cumplido",
+    "costo_por_sueno_vs_T": [
+     0.98,
+     1.01,
+     1.01
+    ]
+   },
+   "H2loc+4bp": {
+    "K1": "no cumplido",
+    "K3": "no cumplido",
+    "K6": "no cumplido",
+    "K2p_orden_no_comparable": 6,
+    "K2p": "no cumplido",
+    "K4": "no cumplido",
+    "K5pp": "no cumplido",
+    "costo_por_sueno_vs_T": [
+     1.15,
+     1.46,
+     1.37
+    ]
+   }
+  },
+  "real|2400|diario": {
+   "T": {
+    "K1": "cumplido (vacuo)",
+    "K3": "cumplido (vacuo)",
+    "K6": "no cumplido",
+    "K2p": "referencia (= T)",
+    "K4": "referencia (= T)",
+    "K5pp": "referencia (= T)",
+    "costo_por_sueno_vs_T": [
+     1.0,
+     1.0,
+     1.0
+    ]
+   },
+   "-H2-4b": {
+    "K1": "cumplido (vacuo)",
+    "K3": "cumplido (vacuo)",
+    "K6": "cumplido",
+    "K2p_orden_no_comparable": 6,
+    "K2p": "cumplido (orden no comparable en 6 de 6 mundos: T sin listas)",
+    "K4": "no cumplido",
+    "K5pp": "cumplido",
+    "costo_por_sueno_vs_T": [
+     1.19,
+     1.02,
+     1.02
+    ]
+   },
+   "H2loc": {
+    "K1": "no cumplido",
+    "K3": "cumplido (vacuo)",
+    "K6": "no cumplido",
+    "K2p_orden_no_comparable": 6,
+    "K2p": "cumplido (orden no comparable en 6 de 6 mundos: T sin listas)",
+    "K4": "no cumplido",
+    "K5pp": "no cumplido",
+    "costo_por_sueno_vs_T": [
+     0.54,
+     0.6,
+     0.53
+    ]
+   },
+   "4bp": {
+    "K1": "cumplido (vacuo)",
+    "K3": "cumplido (vacuo)",
+    "K6": "no cumplido",
+    "K2p_orden_no_comparable": 6,
+    "K2p": "cumplido (orden no comparable en 6 de 6 mundos: T sin listas)",
+    "K4": "no cumplido",
+    "K5pp": "no cumplido",
+    "costo_por_sueno_vs_T": [
+     0.96,
+     0.97,
+     0.99
+    ]
+   },
+   "H2loc+4bp": {
+    "K1": "no cumplido",
+    "K3": "cumplido (vacuo)",
+    "K6": "no cumplido",
+    "K2p_orden_no_comparable": 6,
+    "K2p": "cumplido (orden no comparable en 6 de 6 mundos: T sin listas)",
+    "K4": "no cumplido",
+    "K5pp": "no cumplido",
+    "costo_por_sueno_vs_T": [
+     0.55,
+     0.59,
+     0.5
+    ]
+   }
+  },
+  "ctl|800|comprimido": {
+   "T": {
+    "K1": "no cumplido",
+    "K3": "no cumplido",
+    "K6": "no cumplido",
+    "K2p": "referencia (= T)",
+    "K4": "referencia (= T)",
+    "K5pp": "referencia (= T)",
+    "costo_por_sueno_vs_T": [
+     1.0,
+     1.0,
+     1.0
+    ]
+   },
+   "-H2-4b": {
+    "K1": "cumplido",
+    "K3": "cumplido",
+    "K6": "cumplido (vacuo)",
+    "K2p_orden_no_comparable": 6,
+    "K2p": "no cumplido",
+    "K4": "no cumplido",
+    "K5pp": "no cumplido",
+    "costo_por_sueno_vs_T": [
+     1.36,
+     1.39,
+     1.42
+    ]
+   },
+   "H2loc": {
+    "K1": "no cumplido",
+    "K3": "cumplido",
+    "K6": "no cumplido",
+    "K2p_orden_no_comparable": 6,
+    "K2p": "cumplido (orden no comparable en 6 de 6 mundos: T sin listas)",
+    "K4": "no cumplido",
+    "K5pp": "no cumplido",
+    "costo_por_sueno_vs_T": [
+     1.08,
+     1.18,
+     1.09
+    ]
+   },
+   "4bp": {
+    "K1": "no cumplido",
+    "K3": "no cumplido",
+    "K6": "no cumplido",
+    "K2p_orden_no_comparable": 6,
+    "K2p": "cumplido (orden no comparable en 6 de 6 mundos: T sin listas)",
+    "K4": "cumplido",
+    "K5pp": "cumplido",
+    "costo_por_sueno_vs_T": [
+     0.96,
+     1.04,
+     0.98
+    ]
+   },
+   "H2loc+4bp": {
+    "K1": "no cumplido",
+    "K3": "cumplido",
+    "K6": "no cumplido",
+    "K2p_orden_no_comparable": 6,
+    "K2p": "cumplido (orden no comparable en 6 de 6 mundos: T sin listas)",
+    "K4": "no cumplido",
+    "K5pp": "no cumplido",
+    "costo_por_sueno_vs_T": [
+     1.07,
+     1.03,
+     1.0
+    ]
+   }
+  },
+  "ctl|800|diario": {
+   "T": {
+    "K1": "cumplido",
+    "K3": "cumplido",
+    "K6": "no cumplido",
+    "K2p": "referencia (= T)",
+    "K4": "referencia (= T)",
+    "K5pp": "referencia (= T)",
+    "costo_por_sueno_vs_T": [
+     1.0,
+     1.0,
+     1.0
+    ]
+   },
+   "-H2-4b": {
+    "K1": "cumplido",
+    "K3": "cumplido",
+    "K6": "cumplido",
+    "K2p_orden_no_comparable": 0,
+    "K2p": "cumplido",
+    "K4": "no cumplido",
+    "K5pp": "no cumplido",
+    "costo_por_sueno_vs_T": [
+     1.56,
+     1.05,
+     1.11
+    ]
+   },
+   "H2loc": {
+    "K1": "no cumplido",
+    "K3": "cumplido",
+    "K6": "no cumplido",
+    "K2p_orden_no_comparable": 0,
+    "K2p": "no cumplido",
+    "K4": "no cumplido",
+    "K5pp": "no cumplido",
+    "costo_por_sueno_vs_T": [
+     0.69,
+     0.72,
+     0.71
+    ]
+   },
+   "4bp": {
+    "K1": "cumplido",
+    "K3": "cumplido",
+    "K6": "no cumplido",
+    "K2p_orden_no_comparable": 0,
+    "K2p": "no cumplido",
+    "K4": "no cumplido",
+    "K5pp": "no cumplido",
+    "costo_por_sueno_vs_T": [
+     0.95,
+     0.99,
+     0.99
+    ]
+   },
+   "H2loc+4bp": {
+    "K1": "no cumplido",
+    "K3": "cumplido",
+    "K6": "no cumplido",
+    "K2p_orden_no_comparable": 0,
+    "K2p": "no cumplido",
+    "K4": "no cumplido",
+    "K5pp": "no cumplido",
+    "costo_por_sueno_vs_T": [
+     0.67,
+     0.71,
+     0.73
+    ]
+   }
+  },
+  "ctl|2400|comprimido": {
+   "T": {
+    "K1": "no cumplido",
+    "K3": "no cumplido",
+    "K6": "no cumplido",
+    "K2p": "referencia (= T)",
+    "K4": "referencia (= T)",
+    "K5pp": "referencia (= T)",
+    "costo_por_sueno_vs_T": [
+     1.0,
+     1.0,
+     1.0
+    ]
+   },
+   "-H2-4b": {
+    "K1": "cumplido",
+    "K3": "cumplido",
+    "K6": "cumplido (vacuo)",
+    "K2p_orden_no_comparable": 6,
+    "K2p": "no cumplido",
+    "K4": "no cumplido",
+    "K5pp": "no cumplido",
+    "costo_por_sueno_vs_T": [
+     2.29,
+     2.38,
+     2.34
+    ]
+   },
+   "H2loc": {
+    "K1": "no cumplido",
+    "K3": "no cumplido",
+    "K6": "no cumplido",
+    "K2p_orden_no_comparable": 6,
+    "K2p": "no cumplido",
+    "K4": "no cumplido",
+    "K5pp": "no cumplido",
+    "costo_por_sueno_vs_T": [
+     1.59,
+     1.6,
+     1.65
+    ]
+   },
+   "4bp": {
+    "K1": "no cumplido",
+    "K3": "no cumplido",
+    "K6": "no cumplido",
+    "K2p_orden_no_comparable": 6,
+    "K2p": "cumplido (orden no comparable en 6 de 6 mundos: T sin listas)",
+    "K4": "cumplido",
+    "K5pp": "cumplido",
+    "costo_por_sueno_vs_T": [
+     1.02,
+     1.04,
+     1.04
+    ]
+   },
+   "H2loc+4bp": {
+    "K1": "no cumplido",
+    "K3": "no cumplido",
+    "K6": "no cumplido",
+    "K2p_orden_no_comparable": 6,
+    "K2p": "no cumplido",
+    "K4": "no cumplido",
+    "K5pp": "no cumplido",
+    "costo_por_sueno_vs_T": [
+     1.43,
+     1.48,
+     1.54
+    ]
+   }
+  },
+  "ctl|2400|diario": {
+   "T": {
+    "K1": "cumplido (vacuo)",
+    "K3": "cumplido (vacuo)",
+    "K6": "no cumplido",
+    "K2p": "referencia (= T)",
+    "K4": "referencia (= T)",
+    "K5pp": "referencia (= T)",
+    "costo_por_sueno_vs_T": [
+     1.0,
+     1.0,
+     1.0
+    ]
+   },
+   "-H2-4b": {
+    "K1": "cumplido (vacuo)",
+    "K3": "cumplido (vacuo)",
+    "K6": "cumplido",
+    "K2p_orden_no_comparable": 6,
+    "K2p": "cumplido (orden no comparable en 6 de 6 mundos: T sin listas)",
+    "K4": "no cumplido",
+    "K5pp": "cumplido",
+    "costo_por_sueno_vs_T": [
+     1.05,
+     1.09,
+     1.0
+    ]
+   },
+   "H2loc": {
+    "K1": "no cumplido",
+    "K3": "cumplido (vacuo)",
+    "K6": "no cumplido",
+    "K2p_orden_no_comparable": 6,
+    "K2p": "cumplido (orden no comparable en 6 de 6 mundos: T sin listas)",
+    "K4": "no cumplido",
+    "K5pp": "no cumplido",
+    "costo_por_sueno_vs_T": [
+     0.77,
+     0.75,
+     0.68
+    ]
+   },
+   "4bp": {
+    "K1": "cumplido (vacuo)",
+    "K3": "cumplido (vacuo)",
+    "K6": "no cumplido",
+    "K2p_orden_no_comparable": 6,
+    "K2p": "cumplido (orden no comparable en 6 de 6 mundos: T sin listas)",
+    "K4": "no cumplido",
+    "K5pp": "no cumplido",
+    "costo_por_sueno_vs_T": [
+     1.0,
+     1.0,
+     0.87
+    ]
+   },
+   "H2loc+4bp": {
+    "K1": "no cumplido",
+    "K3": "cumplido (vacuo)",
+    "K6": "no cumplido",
+    "K2p_orden_no_comparable": 6,
+    "K2p": "cumplido (orden no comparable en 6 de 6 mundos: T sin listas)",
+    "K4": "no cumplido",
+    "K5pp": "no cumplido",
+    "costo_por_sueno_vs_T": [
+     0.69,
+     0.7,
+     0.6
+    ]
+   }
+  }
+ },
+ "finales": {
+  "real|T": {
+   "K7p_comprimido": "no cumplido",
+   "K7p_diario": "cumplido",
+   "K8": "no cumplido",
+   "K9": "futuro (suite completa: autorización aparte)"
+  },
+  "real|-H2-4b": {
+   "K7p_comprimido": "no cumplido",
+   "K7p_diario": "no cumplido",
+   "K8": "cumplido",
+   "K9": "futuro (suite completa: autorización aparte)"
+  },
+  "real|H2loc": {
+   "K7p_comprimido": "no cumplido",
+   "K7p_diario": "no cumplido",
+   "K8": "no cumplido",
+   "K9": "futuro (suite completa: autorización aparte)"
+  },
+  "real|4bp": {
+   "K7p_comprimido": "no cumplido",
+   "K7p_diario": "no cumplido",
+   "K8": "no cumplido",
+   "K9": "futuro (suite completa: autorización aparte)"
+  },
+  "real|H2loc+4bp": {
+   "K7p_comprimido": "no cumplido",
+   "K7p_diario": "no cumplido",
+   "K8": "cumplido",
+   "K9": "futuro (suite completa: autorización aparte)"
+  },
+  "ctl|T": {
+   "K7p_comprimido": "no cumplido",
+   "K7p_diario": "cumplido",
+   "K8": "no cumplido",
+   "K9": "futuro (suite completa: autorización aparte)"
+  },
+  "ctl|-H2-4b": {
+   "K7p_comprimido": "no cumplido",
+   "K7p_diario": "no cumplido",
+   "K8": "cumplido",
+   "K9": "futuro (suite completa: autorización aparte)"
+  },
+  "ctl|H2loc": {
+   "K7p_comprimido": "no cumplido",
+   "K7p_diario": "no cumplido",
+   "K8": "no cumplido",
+   "K9": "futuro (suite completa: autorización aparte)"
+  },
+  "ctl|4bp": {
+   "K7p_comprimido": "no cumplido",
+   "K7p_diario": "no cumplido",
+   "K8": "no cumplido",
+   "K9": "futuro (suite completa: autorización aparte)"
+  },
+  "ctl|H2loc+4bp": {
+   "K7p_comprimido": "no cumplido",
+   "K7p_diario": "no cumplido",
+   "K8": "cumplido",
+   "K9": "futuro (suite completa: autorización aparte)"
+  }
+ },
+ "controles": {
+  "H2loc+4bp": {
+   "construccion_determinista": true,
+   "orden_consultas_indiferente": true
+  }
+ }
+}
