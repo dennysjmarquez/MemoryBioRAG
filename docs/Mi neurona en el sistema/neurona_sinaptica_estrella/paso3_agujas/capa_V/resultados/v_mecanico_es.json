@@ -1,0 +1,449 @@
+{
+ "idioma": "es",
+ "escritor": "mecanico",
+ "n_recuerdos": 1690,
+ "n_aristas_canal2": 17344,
+ "n_pares_E": 6498,
+ "n_pares_V": 626,
+ "positivos_E": 70,
+ "positivos_V": 28,
+ "info_construccion": {
+  "bridges_rechazados": 247,
+  "dims_inventadas": 0,
+  "dims_error": 0,
+  "t_sueno": 902.9361267089917,
+  "n_suenos": 34,
+  "sqlite_now": 1602939290.0,
+  "reloj_final": 1602939290.0
+ },
+ "tipos_V": {
+  "pmi_hebbiano": 504,
+  "co_ocurrencia": 88,
+  "co_nombre": 34
+ },
+ "tipos_V_positivos": {
+  "co_nombre": 8,
+  "co_ocurrencia": 10,
+  "pmi_hebbiano": 10
+ },
+ "nodos_V_evaluables": 22,
+ "nodos_V_con_lista": 93,
+ "MRR_piso": 0.623485,
+ "negativos_duros_V": 36,
+ "umbral_jaccard_duro": 0.149425,
+ "agujas": {
+  "S_tem": {
+   "constante_V": true,
+   "C3.3": {
+    "medible": false
+   },
+   "C3.3_duros": {
+    "medible": false
+   },
+   "C3.5": {
+    "medible": false
+   },
+   "C3.7_rho": null
+  },
+  "S_tono": {
+   "constante_V": true,
+   "C3.3": {
+    "medible": false
+   },
+   "C3.3_duros": {
+    "medible": false
+   },
+   "C3.5": {
+    "medible": false
+   },
+   "C3.7_rho": null
+  },
+  "S_sk": {
+   "constante_V": false,
+   "C3.3": {
+    "medible": true,
+    "AUC": 0.6799,
+    "IC95": [
+     0.5341,
+     0.84
+    ],
+    "cumple": true
+   },
+   "C3.3_duros": {
+    "medible": true,
+    "AUC": 0.5714,
+    "IC95": [
+     0.394,
+     0.7624
+    ],
+    "cumple": false
+   },
+   "C3.5": {
+    "medible": true,
+    "MRR": 0.682126,
+    "dif": 0.058641,
+    "IC95": [
+     -0.164286,
+     0.286037
+    ],
+    "cumple": false
+   },
+   "C3.7_rho": 0.0499
+  },
+  "X_min": {
+   "constante_V": false,
+   "C3.3": {
+    "medible": true,
+    "AUC": 0.7513,
+    "IC95": [
+     0.6362,
+     0.8802
+    ],
+    "cumple": true
+   },
+   "C3.3_duros": {
+    "medible": true,
+    "AUC": 0.6429,
+    "IC95": [
+     0.5,
+     0.7967
+    ],
+    "cumple": false
+   },
+   "C3.5": {
+    "medible": true,
+    "MRR": 0.757884,
+    "dif": 0.134399,
+    "IC95": [
+     -0.021429,
+     0.309706
+    ],
+    "cumple": false
+   },
+   "C3.7_rho": 0.0535
+  },
+  "X_max": {
+   "constante_V": false,
+   "C3.3": {
+    "medible": true,
+    "AUC": 0.7544,
+    "IC95": [
+     0.6344,
+     0.8965
+    ],
+    "cumple": true
+   },
+   "C3.3_duros": {
+    "medible": true,
+    "AUC": 0.6548,
+    "IC95": [
+     0.5143,
+     0.83
+    ],
+    "cumple": true
+   },
+   "C3.5": {
+    "medible": true,
+    "MRR": 0.783026,
+    "dif": 0.159541,
+    "IC95": [
+     -0.035371,
+     0.37872
+    ],
+    "cumple": false
+   },
+   "C3.7_rho": 0.0895
+  },
+  "X_concepto": {
+   "constante_V": false,
+   "C3.3": {
+    "medible": true,
+    "AUC": 0.6491,
+    "IC95": [
+     0.5357,
+     0.811
+    ],
+    "cumple": true
+   },
+   "C3.3_duros": {
+    "medible": true,
+    "AUC": 0.5754,
+    "IC95": [
+     0.4464,
+     0.7565
+    ],
+    "cumple": false
+   },
+   "C3.5": {
+    "medible": true,
+    "MRR": 0.648035,
+    "dif": 0.02455,
+    "IC95": [
+     -0.172556,
+     0.2
+    ],
+    "cumple": false
+   },
+   "C3.7_rho": 0.0522
+  },
+  "X_sk": {
+   "constante_V": false,
+   "C3.3": {
+    "medible": true,
+    "AUC": 0.6774,
+    "IC95": [
+     0.5313,
+     0.8387
+    ],
+    "cumple": true
+   },
+   "C3.3_duros": {
+    "medible": true,
+    "AUC": 0.5714,
+    "IC95": [
+     0.4006,
+     0.7591
+    ],
+    "cumple": false
+   },
+   "C3.5": {
+    "medible": true,
+    "MRR": 0.678338,
+    "dif": 0.054853,
+    "IC95": [
+     -0.173729,
+     0.286037
+    ],
+    "cumple": false
+   },
+   "C3.7_rho": 0.0671
+  },
+  "X_contenido": {
+   "constante_V": false,
+   "C3.3": {
+    "medible": true,
+    "AUC": 0.7544,
+    "IC95": [
+     0.6344,
+     0.8965
+    ],
+    "cumple": true
+   },
+   "C3.3_duros": {
+    "medible": true,
+    "AUC": 0.6548,
+    "IC95": [
+     0.5143,
+     0.83
+    ],
+    "cumple": true
+   },
+   "C3.5": {
+    "medible": true,
+    "MRR": 0.783026,
+    "dif": 0.159541,
+    "IC95": [
+     -0.035371,
+     0.37872
+    ],
+    "cumple": false
+   },
+   "C3.7_rho": 0.0895
+  },
+  "B_flag": {
+   "constante_V": false,
+   "C3.3": {
+    "medible": true,
+    "AUC": 0.7445,
+    "IC95": [
+     0.5883,
+     0.895
+    ],
+    "cumple": true
+   },
+   "C3.3_duros": {
+    "medible": true,
+    "AUC": 0.5159,
+    "IC95": [
+     0.3333,
+     0.7083
+    ],
+    "cumple": false
+   },
+   "C3.5": {
+    "medible": true,
+    "MRR": 0.692407,
+    "dif": 0.068922,
+    "IC95": [
+     -0.049093,
+     0.205807
+    ],
+    "cumple": false
+   },
+   "C3.7_rho": 0.0537
+  },
+  "B_weight": {
+   "constante_V": false,
+   "C3.3": {
+    "medible": true,
+    "AUC": 0.7445,
+    "IC95": [
+     0.5883,
+     0.895
+    ],
+    "cumple": true
+   },
+   "C3.3_duros": {
+    "medible": true,
+    "AUC": 0.5159,
+    "IC95": [
+     0.3333,
+     0.7083
+    ],
+    "cumple": false
+   },
+   "C3.5": {
+    "medible": true,
+    "MRR": 0.692407,
+    "dif": 0.068922,
+    "IC95": [
+     -0.049093,
+     0.205807
+    ],
+    "cumple": false
+   },
+   "C3.7_rho": 0.0537
+  },
+  "B_angulos": {
+   "constante_V": false,
+   "C3.3": {
+    "medible": true,
+    "AUC": 0.7684,
+    "IC95": [
+     0.602,
+     0.9268
+    ],
+    "cumple": true
+   },
+   "C3.3_duros": {
+    "medible": true,
+    "AUC": 0.6071,
+    "IC95": [
+     0.3804,
+     0.8157
+    ],
+    "cumple": false
+   },
+   "C3.5": {
+    "medible": true,
+    "MRR": 0.737862,
+    "dif": 0.114377,
+    "IC95": [
+     -0.042404,
+     0.294792
+    ],
+    "cumple": false
+   },
+   "C3.7_rho": 0.0525
+  },
+  "Cat": {
+   "constante_V": true,
+   "C3.3": {
+    "medible": false
+   },
+   "C3.3_duros": {
+    "medible": false
+   },
+   "C3.5": {
+    "medible": false
+   },
+   "C3.7_rho": null
+  },
+  "R": {
+   "constante_V": false,
+   "C3.3": {
+    "medible": true,
+    "AUC": 0.5714,
+    "IC95": [
+     0.5,
+     0.6667
+    ],
+    "cumple": false
+   },
+   "C3.3_duros": {
+    "medible": true,
+    "AUC": 0.5714,
+    "IC95": [
+     0.5,
+     0.6667
+    ],
+    "cumple": false
+   },
+   "C3.5": {
+    "medible": true,
+    "MRR": 0.69652,
+    "dif": 0.073035,
+    "IC95": [
+     0.0,
+     0.173069
+    ],
+    "cumple": false
+   },
+   "C3.7_rho": -0.0293
+  }
+ },
+ "combinaciones": {
+  "S+X": {
+   "medible": true,
+   "MRR": 0.760298,
+   "dif": 0.136813,
+   "IC95": [
+    -0.039844,
+    0.330146
+   ],
+   "cumple": false
+  },
+  "12_limpias": {
+   "medible": true,
+   "MRR": 0.736813,
+   "dif": 0.113329,
+   "IC95": [
+    -0.05,
+    0.290444
+   ],
+   "cumple": false
+  },
+  "12_limpias+R": {
+   "medible": true,
+   "MRR": 0.736813,
+   "dif": 0.113329,
+   "IC95": [
+    -0.05,
+    0.290444
+   ],
+   "cumple": false
+  }
+ },
+ "azar": {
+  "n_pos": 759,
+  "n_neg": 759,
+  "AUC": {
+   "S_tem": null,
+   "S_tono": null,
+   "S_sk": 0.6031,
+   "X_min": 0.6223,
+   "X_max": 0.7174,
+   "X_concepto": 0.5745,
+   "X_sk": 0.6213,
+   "X_contenido": 0.7174,
+   "B_flag": 0.7576,
+   "B_weight": 0.7576,
+   "B_angulos": 0.7627,
+   "Cat": null,
+   "R": 0.5132
+  }
+ },
+ "t_construir_s": 985.7,
+ "t_total_s": 4129.6,
+ "original_intacta": true
+}
