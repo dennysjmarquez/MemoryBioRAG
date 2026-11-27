@@ -131,6 +131,8 @@ def main():
         if a in GRAFO:
             limpia = limpia and not cambia_con_grafo
         r["capa_L"] = "limpia" if limpia else "no limpia"
+        if a == "T2":   # el tipo se decide por tipo (§5.2), no con un umbral único
+            r["capa_L"] = "por tipo (§5.2)" if ok4 and ok7 and ok8 else "no limpia"
         aucs = [v for v in r["auc"].values() if v is not None]
         r["auc_media_marcada"] = round(sum(aucs) / len(aucs), 3) if aucs else None
         r["rho_max"] = max(rhos) if rhos else None

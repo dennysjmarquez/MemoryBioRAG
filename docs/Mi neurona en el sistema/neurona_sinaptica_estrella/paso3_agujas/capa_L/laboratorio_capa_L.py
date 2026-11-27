@@ -650,12 +650,17 @@ def una_config(semilla, n_D):
     cj = os.path.join(d, "conceptos_D.json")
     json.dump(en_D, open(cj, "w"))
 
+    # n=2400: cada construcción llega a ~2,4 GB de RSS; dos a la vez → OOM en 3,9 GB (27-11). Un solo worker.
+    hilos = 1 if n_D >= 2400 else 2
+
     def construir(mundo):
         ruta = os.path.join(d, mundo + ".db")
+        if os.path.exists(ruta + ".info.json"):   # info se escribe al final de hijo_construir: base completa
+            return ruta
         _run(["construir", semilla, n_D, mundo, ruta, ruta + ".info.json"])
         return ruta
 
-    with ThreadPoolExecutor(2) as ex:
+    with ThreadPoolExecutor(hilos) as ex:
         rutas = dict(zip(MUNDOS, ex.map(construir, MUNDOS)))
     falsas = {}
     rutas["Dfa"] = os.path.join(d, "Dfa.db")
@@ -668,7 +673,7 @@ def una_config(semilla, n_D):
         _run(["medir", rutas[w], cj, sal, "0" if w == "Dfm" else "1"], ENV_MEDIR)
         return w, json.load(open(sal))
 
-    with ThreadPoolExecutor(2) as ex:
+    with ThreadPoolExecutor(hilos) as ex:
         med = dict(ex.map(medir, list(rutas)))
     info = {w: json.load(open(rutas[w] + ".info.json")) for w in MUNDOS}
     an = analizar(semilla, n_D, m, med, info, falsas)

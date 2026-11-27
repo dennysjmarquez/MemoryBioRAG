@@ -265,3 +265,20 @@ posible. Límites que no se mueven: CPU local, `numpy` puro, sin APIs externas n
   zh/ja. No se tocó en H1 porque ese tokenizador también lo usa el ranking. Ciclo aparte.
 - **Coreano y frases CJK enteras** en la búsqueda: ciclo aparte (ver Paso 1 §5).
 
+### 9.4 Decisiones del 27-11 y tickets del motor
+
+- **Paso 3:** inventario y C3.1–C3.8 aprobados; capa V con corpus públicos de licencia registrada (sin UD PUD) y
+  declaraciones a ciegas escritas por una sesión aislada distinta, más el escritor mecánico. Capa L autorizada y
+  ejecutada (`paso3_agujas/capa_L/RESULTADOS_CAPA_L.md`). La **prueba final sellada con datos reales** (enlaces
+  `manual` ocultos) queda como etapa posterior, con autorización explícita. Detalle en `PROTOCOLO_PASO3.md` §9.
+- **Paso 4:** I-func al 100 %; primero pesos congelados; la adaptación local solo como retador, contra la guardia
+  sellada del 20 %.
+- **Tickets del motor, para después de la neurona** (no se abren ciclos ahora):
+  1. F-A: código muerto en `search.py` L1476–1495 (alias inexistente; el conteo no se lee). Quitar el bloque, o
+     arreglar el alias sin usar el conteo en el ranking.
+  2. F-B: PPMI en bases jóvenes. Arreglarlo **sí puede cambiar el ranking**: requiere QA y OK.
+  3. Revisión de los 35 `except OperationalError: pass` (23 en `memory/search.py`): inventario en
+     `h2_ciclo2/INVENTARIO_EXCEPT_PASS.md`.
+  4. Inmunidad por prioridad 0/1: H2 y LTD la respetan, 4b no, y ningún camino del motor la fija. Decidir si existe.
+  5. `dmn_synthesized` se crea al **abrir** la base (`memory_store.py` L172–178) y no es invariante ante sumar
+     documentos (semillas del top-40 global). No sirve como aguja, y su efecto en el canal 2 no se ha medido.

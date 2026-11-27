@@ -83,7 +83,7 @@ def hijo():
             if k % 10 == 0:
                 vivas.clear()
         with contextlib.redirect_stdout(io.StringIO()):
-            cer.obtener_asociaciones_enriquecidas([r["concepto"].lower() for r in rs[:60]])
+            cer.obtener_asociaciones_enriquecidas([r["decl"]["concepto"].lower().replace(" ", "_") for r in rs[:60]])
         for _ in range(2):
             reloj.t += L.DIA
             c16.dormir(cer)
@@ -123,9 +123,18 @@ def main():
         txt = "; ".join("%s ×%d: %s" % (v["tipo"], v["n"], v["mensaje"].replace("|", "/")) for v in hits.values())
         L_.append("| %d | `%s:%d` | L%d–%d | `%s` | %s | %s |" % (i, s["archivo"], s["handler"], s["ini"], s["fin"],
                                                               s["primera"].replace("|", "/"),
-                                                              "**sí**" if hits else "no", txt or "—"))
-    n_si = sum(1 for _s, h in filas if h)
-    L_ += ["", "**Total:** %d sitios; saltaron %d en esta sonda." % (len(filas), n_si), ""]
+                                                              ("**sí, lo traga**" if any(v["tipo"] == "OperationalError" for v in hits.values())
+                                                               else "pasa otra excepción (no la traga)") if hits else "no",
+                                                              txt or "—"))
+    n_si = sum(1 for _s, h in filas if any(v["tipo"] == "OperationalError" for v in h.values()))
+    n_otra = sum(1 for _s, h in filas if h) - n_si
+    L_ += ["", "**Total:** %d sitios. Tragaron un `OperationalError` en esta sonda: %d. Bloques por los que solo pasó "
+           "otra excepción, que este handler no captura (p. ej. `GeneratorExit` al cerrar un generador): %d." %
+           (len(filas), n_si, n_otra), "",
+           "Fuera de este inventario, porque no son `except …: pass`: `search.py` L316 (caché del diccionario de "
+           "dominios que se reintenta en cada búsqueda), `search.py` L45, `synapses.py` L33 y "
+           "`similitud_conceptual.py` L46 (`int(None)` en el corte por rowid), y `ppmi_vectorizer.py` L153 (F-B). Ver "
+           "`HALLAZGOS_DEL_MOTOR_K8.md`.", ""]
     open(os.path.join(AQUI, "INVENTARIO_EXCEPT_PASS.md"), "w").write("\n".join(L_))
     print("\n".join(L_))
 
