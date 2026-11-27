@@ -25,6 +25,11 @@
  "nodos_V_evaluables": 4,
  "nodos_V_con_lista": 67,
  "MRR_piso": 0.79362,
+ "ampliada": {
+  "n_pares": 588,
+  "nodos_evaluables": 4,
+  "MRR_piso": 0.601432
+ },
  "negativos_duros_V": 16,
  "umbral_jaccard_duro": 0.029221,
  "agujas": {
@@ -39,6 +44,9 @@
    "C3.5": {
     "medible": false
    },
+   "C3.5_ampliada": {
+    "medible": false
+   },
    "C3.7_rho": null
   },
   "S_tono": {
@@ -50,6 +58,9 @@
     "medible": false
    },
    "C3.5": {
+    "medible": false
+   },
+   "C3.5_ampliada": {
     "medible": false
    },
    "C3.7_rho": null
@@ -81,6 +92,16 @@
     "IC95": [
      0.0,
      0.0
+    ],
+    "cumple": false
+   },
+   "C3.5_ampliada": {
+    "medible": true,
+    "MRR": 0.550651,
+    "dif": -0.050781,
+    "IC95": [
+     -0.050781,
+     -0.050781
     ],
     "cumple": false
    },
@@ -116,6 +137,16 @@
     ],
     "cumple": true
    },
+   "C3.5_ampliada": {
+    "medible": true,
+    "MRR": 0.823242,
+    "dif": 0.22181,
+    "IC95": [
+     0.22181,
+     0.22181
+    ],
+    "cumple": true
+   },
    "C3.7_rho": 0.1642
   },
   "X_max": {
@@ -145,6 +176,16 @@
     "IC95": [
      0.0625,
      0.0625
+    ],
+    "cumple": true
+   },
+   "C3.5_ampliada": {
+    "medible": true,
+    "MRR": 0.823242,
+    "dif": 0.22181,
+    "IC95": [
+     0.22181,
+     0.22181
     ],
     "cumple": true
    },
@@ -180,6 +221,16 @@
     ],
     "cumple": false
    },
+   "C3.5_ampliada": {
+    "medible": true,
+    "MRR": 0.550651,
+    "dif": -0.050781,
+    "IC95": [
+     -0.050781,
+     -0.050781
+    ],
+    "cumple": false
+   },
    "C3.7_rho": -0.0823
   },
   "X_sk": {
@@ -209,6 +260,16 @@
     "IC95": [
      0.0,
      0.0
+    ],
+    "cumple": false
+   },
+   "C3.5_ampliada": {
+    "medible": true,
+    "MRR": 0.550651,
+    "dif": -0.050781,
+    "IC95": [
+     -0.050781,
+     -0.050781
     ],
     "cumple": false
    },
@@ -244,6 +305,16 @@
     ],
     "cumple": true
    },
+   "C3.5_ampliada": {
+    "medible": true,
+    "MRR": 0.823242,
+    "dif": 0.22181,
+    "IC95": [
+     0.22181,
+     0.22181
+    ],
+    "cumple": true
+   },
    "C3.7_rho": 0.1212
   },
   "B_flag": {
@@ -273,6 +344,16 @@
     "IC95": [
      0.0625,
      0.0625
+    ],
+    "cumple": true
+   },
+   "C3.5_ampliada": {
+    "medible": true,
+    "MRR": 0.823242,
+    "dif": 0.22181,
+    "IC95": [
+     0.22181,
+     0.22181
     ],
     "cumple": true
    },
@@ -308,6 +389,16 @@
     ],
     "cumple": true
    },
+   "C3.5_ampliada": {
+    "medible": true,
+    "MRR": 0.823242,
+    "dif": 0.22181,
+    "IC95": [
+     0.22181,
+     0.22181
+    ],
+    "cumple": true
+   },
    "C3.7_rho": 0.0527
   },
   "B_angulos": {
@@ -340,6 +431,16 @@
     ],
     "cumple": true
    },
+   "C3.5_ampliada": {
+    "medible": true,
+    "MRR": 0.823242,
+    "dif": 0.22181,
+    "IC95": [
+     0.22181,
+     0.22181
+    ],
+    "cumple": true
+   },
    "C3.7_rho": 0.0527
   },
   "Cat": {
@@ -353,6 +454,9 @@
    "C3.5": {
     "medible": false
    },
+   "C3.5_ampliada": {
+    "medible": false
+   },
    "C3.7_rho": null
   },
   "R": {
@@ -364,6 +468,9 @@
     "medible": false
    },
    "C3.5": {
+    "medible": false
+   },
+   "C3.5_ampliada": {
     "medible": false
    },
    "C3.7_rho": null
@@ -397,6 +504,38 @@
    "IC95": [
     -0.229167,
     -0.229167
+   ],
+   "cumple": false
+  }
+ },
+ "combinaciones_ampliada": {
+  "S+X": {
+   "medible": true,
+   "MRR": 0.415532,
+   "dif": -0.1859,
+   "IC95": [
+    -0.1859,
+    -0.1859
+   ],
+   "cumple": false
+  },
+  "12_limpias": {
+   "medible": true,
+   "MRR": 0.404492,
+   "dif": -0.19694,
+   "IC95": [
+    -0.19694,
+    -0.19694
+   ],
+   "cumple": false
+  },
+  "12_limpias+R": {
+   "medible": true,
+   "MRR": 0.404492,
+   "dif": -0.19694,
+   "IC95": [
+    -0.19694,
+    -0.19694
    ],
    "cumple": false
   }
