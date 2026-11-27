@@ -302,31 +302,71 @@ def sha256_archivo(ruta):
     return h.hexdigest()
 
 
-def verificar_base(ruta, idioma):
-    """Comprobación directa en la base (27-11): cada fila de largo_plazo y corto_plazo se identifica por el sufijo
-    `_<rid>` que ambos escritores añaden al nombre. Exige: ninguna fila de la Guardia, ninguna fila sin rid conocido,
-    y que el conjunto de rids de largo_plazo sea EXACTAMENTE E ∪ V del corpus usado (mismo total de filas)."""
-    c = corpus(idioma)
-    parte = {r["rid"]: r["part"] for r in json.load(open(os.path.join(TMP, "corpus_%s.json" % idioma)))}
-    esperados = {r["rid"] for r in c if r["part"] != "G"}
+def huella_config(escritor):
+    """Todo lo que, si cambia, hace que una base o un resultado guardado ya no correspondan: parámetros del
+    laboratorio, variables de entorno del motor, el código de los laboratorios y el árbol de `core/` (git)."""
+    try:
+        arbol_core = subprocess.run(["git", "-C", AQUI, "rev-parse", "HEAD:core"], capture_output=True,
+                                    text=True, check=True).stdout.strip()
+    except Exception:
+        arbol_core = None
+    cfg = {"escritor": escritor, "seco": SECO, "n_seco": N_SECO if SECO else None, "semilla": SEMILLA,
+           "cada": CADA, "dia": DIA, "peso_min": PESO_MIN, "min_nodos_docs": [MIN_NODOS, MIN_DOCS],
+           "ent_df": list(ENT_DF), "ent_min_rep": ENT_MIN_REP, "limpias": list(LIMPIAS),
+           # entorno efectivo del hijo que construye (el del padre + L.BASE_ENV) y el del hijo que mide
+           "entorno": {k: v for k, v in sorted({**os.environ, **L.BASE_ENV}.items())
+                       if k.startswith(("BIORAG_", "CAPA_L_")) and k != "CAPA_V_HUELLAS"},
+           "base_env": dict(sorted(L.BASE_ENV.items())), "env_medir": dict(sorted(L.ENV_MEDIR.items())),
+           "sha_laboratorio_V": sha256_archivo(os.path.abspath(__file__)),
+           "sha_laboratorio_L": sha256_archivo(os.path.join(CAPA_L, "laboratorio_capa_L.py")),
+           "arbol_core": arbol_core}
+    return hashlib.sha256(json.dumps(cfg, sort_keys=True).encode()).hexdigest(), cfg
+
+
+def huellas_actuales(idioma, escritor):
+    # el hijo que construye no recalcula: guarda exactamente las huellas que le pasa el padre
+    if os.environ.get("CAPA_V_HUELLAS"):
+        return json.loads(os.environ["CAPA_V_HUELLAS"])
+    rc = ruta_ciego(idioma)
+    return {"sha_corpus": sha256_archivo(os.path.join(TMP, "corpus_%s.json" % idioma)),
+            "sha_ciego": sha256_archivo(rc) if escritor == "ciego" and os.path.exists(rc) else None,
+            "sha_config": huella_config(escritor)[0]}
+
+
+def verificar_base(ruta, idioma, escritor, claves=None):
+    """Comprobación directa en la base (27-11). Los nombres esperados se recalculan desde la fuente (corpus +
+    declaraciones del escritor), no desde `info["claves"]`. Exige:
+      - el CONJUNTO EXACTO de `concepto` en largo_plazo == nombres esperados de E ∪ V, sin filas repetidas;
+      - corto_plazo vacío de cualquier cosa ajena a E ∪ V;
+      - ninguna fila (en ninguna de las dos tablas) cuyo nombre sea el de un recuerdo de la Guardia
+        o cuyo sufijo `_<rid>` sea de la Guardia;
+      - si se pasan `claves` (info["claves"]), que coincidan también con lo esperado (control cruzado)."""
+    filas_corpus = json.load(open(os.path.join(TMP, "corpus_%s.json" % idioma)))
+    parte = {r["rid"]: r["part"] for r in filas_corpus}
+    c = corpus(idioma)                       # en seco: el subconjunto usado; en real: los 1690
+    c_ev = [r for r in c if r["part"] != "G"]
+    dec = escritor_mecanico(c_ev) if escritor == "mecanico" else leer_ciego(idioma)
+    nombre = lambda rid: dec[rid]["concepto"].lower().replace(" ", "_")
+    esperados = {nombre(r["rid"]) for r in c_ev}
+    rids_G = {r["rid"] for r in filas_corpus if r["part"] == "G"}
+    nombres_G = {nombre(rid) for rid in rids_G if rid in dec}   # el ciego declara también la Guardia
     con = sqlite3.connect("file:%s?mode=ro" % ruta, uri=True)
+    tablas = {t: [x[0] for x in con.execute("SELECT concepto FROM %s" % t)] for t in ("largo_plazo", "corto_plazo")}
+    con.close()
     v = {}
-    for tabla in ("largo_plazo", "corto_plazo"):
-        filas = [x[0] for x in con.execute("SELECT concepto FROM %s" % tabla)]
-        rids = [f.rsplit("_", 1)[-1] for f in filas]
-        v[tabla] = {"filas": len(filas),
-                    "de_guardia": sum(1 for r in rids if parte.get(r) == "G"),
-                    "sin_rid_del_corpus": sum(1 for r in rids if r not in parte),
-                    "rids_distintos": len(set(rids))}
-    con.close()
-    lp = v["largo_plazo"]
-    con = sqlite3.connect("file:%s?mode=ro" % ruta, uri=True)
-    rids_lp = {x[0].rsplit("_", 1)[-1] for x in con.execute("SELECT concepto FROM largo_plazo")}
-    con.close()
+    for t, filas in tablas.items():
+        v[t] = {"filas": len(filas), "distintas": len(set(filas)),
+                "de_guardia": sum(1 for f in filas if f in nombres_G or f.rsplit("_", 1)[-1] in rids_G),
+                "ajenas_a_E_V": sum(1 for f in set(filas) if f not in esperados)}
+    lp = set(tablas["largo_plazo"])
     v["esperados_E_V"] = len(esperados)
-    v["ok"] = (lp["de_guardia"] == 0 and v["corto_plazo"]["de_guardia"] == 0 and lp["sin_rid_del_corpus"] == 0
-               and v["corto_plazo"]["sin_rid_del_corpus"] == 0 and lp["filas"] == len(esperados)
-               and rids_lp == esperados)
+    v["faltan"] = len(esperados - lp)
+    v["conjunto_exacto"] = lp == esperados and v["largo_plazo"]["filas"] == len(esperados)
+    v["claves_info_coinciden"] = None if claves is None else (
+        {claves.get(r["rid"]) for r in c_ev} == esperados and not (set(claves) & rids_G))
+    v["ok"] = (v["conjunto_exacto"] and v["largo_plazo"]["de_guardia"] == 0
+               and v["corto_plazo"]["de_guardia"] == 0 and v["corto_plazo"]["ajenas_a_E_V"] == 0
+               and v["claves_info_coinciden"] is not False)
     return v
 
 
@@ -349,8 +389,7 @@ def hijo_construir(idioma, escritor, ruta, salida):
             os.remove(ruta + ext)
     st = {"cer": c16.abrir(ruta)}
     info = {"guardia_en_base": False,
-            "sha_corpus": sha256_archivo(os.path.join(TMP, "corpus_%s.json" % idioma)),
-            "sha_ciego": sha256_archivo(ruta_ciego(idioma)) if escritor == "ciego" else None,
+            **huellas_actuales(idioma, escritor),
             "bridges_rechazados": 0, "dims_inventadas": 0, "dims_error": 0, "t_sueno": 0.0, "n_suenos": 0,
             "claves": {}}
 
@@ -404,7 +443,7 @@ def hijo_construir(idioma, escritor, ruta, salida):
     con.close()
     info["reloj_final"] = reloj.t
     assert abs(info["sqlite_now"] - reloj.t) < 2, "reloj de SQLite no simulado"
-    info["verificacion_base"] = verificar_base(ruta, idioma)
+    info["verificacion_base"] = verificar_base(ruta, idioma, escritor, info["claves"])
     if not info["verificacion_base"]["ok"]:   # sin .info.json la base no cuenta como construida
         raise SystemExit("verificación de la base falló: %s" % json.dumps(info["verificacion_base"]))
     json.dump(info, open(salida, "w"), ensure_ascii=False)
@@ -751,34 +790,35 @@ def un_idioma(idioma, escritor):
     d = os.path.join(TMP, "%s_%s" % (escritor, idioma) + ("_seco" if SECO else ""))
     os.makedirs(d, exist_ok=True)
     ruta = os.path.join(d, "V.db")
-    huellas = {"sha_corpus": sha256_archivo(os.path.join(TMP, "corpus_%s.json" % idioma)),
-               "sha_ciego": sha256_archivo(ruta_ciego(idioma)) if escritor == "ciego" and
-               os.path.exists(ruta_ciego(idioma)) else None}
-    # caché: la base y el resultado solo se reutilizan si las huellas del corpus y del archivo ciego coinciden
-    for previo in (ruta + ".info.json", final):
-        if os.path.exists(previo):
-            x = json.load(open(previo))
-            x = x.get("info_construccion", x) if previo == final else x
-            # ciego: huella ausente o distinta → invalida. Mecánico: solo si la huella existe (las bases y resultados
-            # del mecánico del 27-11 no la tienen y no se tocan de forma retroactiva)
-            distinto = [k for k in huellas if (escritor == "ciego" or (k != "sha_ciego" and k in x))
-                        and x.get(k) != huellas[k]]
-            if distinto:
-                _invalidar(d, ruta, final, "cambió %s" % ", ".join(distinto))
-                break
-    if escritor == "ciego":   # siempre, también antes de reutilizar una base
+    # 1) validar SIEMPRE primero, antes de cualquier retorno por caché (base o resultado) y antes de borrar nada
+    if escritor == "ciego":
         ok, informe = validar(idioma)
         json.dump(informe, open(os.path.join(d, "validacion.json"), "w"), ensure_ascii=False, indent=1)
         if not ok:
             raise SystemExit("ciego_%s.jsonl no pasa validar: no se mide" % idioma)
+    # 2) huellas: corpus + archivo ciego + configuración. Si cualquiera difiere (o falta, en el ciego), se invalida
+    #    la caché. Mecánico: solo se compara la huella que exista (sus artefactos del 27-11 no tienen huella y no se
+    #    invalidan de forma retroactiva)
+    huellas = huellas_actuales(idioma, escritor)
+    for previo in (ruta + ".info.json", final):
+        if os.path.exists(previo):
+            x = json.load(open(previo))
+            x = x.get("huellas", x.get("info_construccion", x)) if previo == final else x
+            comparar = list(huellas) if escritor == "ciego" else [k for k in huellas if k in x]
+            distinto = [k for k in comparar if x.get(k) != huellas[k]]
+            if distinto:
+                _invalidar(d, ruta, final, "cambió %s" % ", ".join(distinto))
+                break
     if os.path.exists(final):
         return json.load(open(final))
     t0 = time.time()
     if not os.path.exists(ruta + ".info.json"):
-        _run(["construir", idioma, escritor, ruta, ruta + ".info.json"])
+        _run(["construir", idioma, escritor, ruta, ruta + ".info.json"], {"CAPA_V_HUELLAS": json.dumps(huellas)})
     t_c = time.time() - t0
     info = json.load(open(ruta + ".info.json"))
-    vb = verificar_base(ruta, idioma)   # de nuevo, directamente en la tabla, antes de medir y analizar
+    if escritor == "ciego" or "sha_config" in info:
+        assert all(info.get(k) == huellas[k] for k in huellas), "huellas de la base ≠ huellas actuales"
+    vb = verificar_base(ruta, idioma, escritor, info["claves"])   # de nuevo, directamente en la tabla, antes de medir y analizar
     if not vb["ok"]:
         raise SystemExit("verificación de la base falló: %s" % json.dumps(vb))
     c = corpus(idioma)
@@ -795,6 +835,7 @@ def un_idioma(idioma, escritor):
     an["original_intacta"] = med.get("original_intacta")
     an["verificacion_base"] = vb
     an["huellas"] = huellas
+    an["config"] = huella_config(escritor)[1]
     os.makedirs(RES, exist_ok=True)
     json.dump(an, open(final, "w"), ensure_ascii=False, indent=1)
     subir([final], "Paso 3 capa V: %s, escritor %s (corpus públicos)" % (idioma, escritor))

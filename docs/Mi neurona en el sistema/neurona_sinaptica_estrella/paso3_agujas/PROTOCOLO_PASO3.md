@@ -335,15 +335,21 @@ escritor mecánico**: sus tablas (`capa_V/resultados/tablas_mecanico.md`) quedan
    - **informativo**: valores fuera del catálogo (el contrato los auto-crea como último recurso), recuerdos sin
      dimensiones, syn con menos de 8 (la herramienta solo avisa);
    - si falla, termina con código de salida 1.
-3. **Verificación directa en la base** (auditoría de `f87567d`):
-   - al cerrar la construcción y otra vez antes de medir, se lee `largo_plazo` (y `corto_plazo`) en modo de solo
-     lectura. Cada fila se identifica por el sufijo `_<rid>` que los dos escritores añaden al nombre;
-   - se exige: cero filas de la Guardia, cero filas con un rid ajeno al corpus, y que el conjunto de rids de
-     `largo_plazo` sea **exactamente** E ∪ V, con el mismo total de filas;
+3. **Verificación exacta en la base** (auditoría de `f87567d`; `6bee12a`, precisada después):
+   - al cerrar la construcción y otra vez antes de medir, se lee `largo_plazo` y `corto_plazo` en modo de solo lectura;
+   - los nombres esperados se **recalculan desde la fuente** (corpus + declaraciones del escritor), no desde
+     `info["claves"]`;
+   - se exige que el **conjunto exacto** de `concepto` en `largo_plazo` sea el de E ∪ V, sin filas repetidas;
+     que ninguna fila de las dos tablas sea un recuerdo de la Guardia (por nombre o por id); y que `corto_plazo`
+     no tenga nada ajeno a E ∪ V. `info["claves"]` se compara además como control cruzado;
    - si falla, la base no cuenta como construida y no se mide. El resultado guarda la verificación;
-   - prueba negativa: en la base del mecánico (con Guardia) detecta 289 filas de G y 1690 frente a 1401 esperadas.
-4. **Huella de caché:**
-   - `.info.json` y el resultado guardan el sha256 del corpus y de `ciego_{idioma}.jsonl`;
-   - si cambia cualquiera de los dos, se borran la base y el resultado y se reconstruye;
-   - `validar` corre **siempre** antes de reutilizar o construir una base del escritor ciego;
+   - prueba negativa: en las bases del mecánico (con Guardia), E ∪ V aparece entero y sobran exactamente las filas
+     de G (es 289, zh 346): se rechazan.
+4. **Huellas y caché:**
+   - `validar` corre **primero**, antes de cualquier retorno por caché (base o resultado) y antes de borrar nada;
+   - huellas: sha256 del corpus, de `ciego_{idioma}.jsonl` y de la configuración (parámetros del laboratorio,
+     entorno efectivo `BIORAG_*`/`CAPA_L_*` del hijo, `BASE_ENV`, `ENV_MEDIR`, el código de los laboratorios V y L
+     y el árbol git de `core/`);
+   - el padre calcula las huellas y se las pasa al hijo que construye; `.info.json` y el resultado las guardan;
+   - si cualquier huella difiere, o falta en el escritor ciego, se borran la base y el resultado y se reconstruye;
    - los resultados del mecánico, que no tienen huella, no se invalidan de forma retroactiva.
