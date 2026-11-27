@@ -294,6 +294,42 @@ def validar(idioma):
     return ok, informe
 
 
+def sha256_archivo(ruta):
+    h = hashlib.sha256()
+    with open(ruta, "rb") as f:
+        for bloque in iter(lambda: f.read(1 << 20), b""):
+            h.update(bloque)
+    return h.hexdigest()
+
+
+def verificar_base(ruta, idioma):
+    """Comprobación directa en la base (27-11): cada fila de largo_plazo y corto_plazo se identifica por el sufijo
+    `_<rid>` que ambos escritores añaden al nombre. Exige: ninguna fila de la Guardia, ninguna fila sin rid conocido,
+    y que el conjunto de rids de largo_plazo sea EXACTAMENTE E ∪ V del corpus usado (mismo total de filas)."""
+    c = corpus(idioma)
+    parte = {r["rid"]: r["part"] for r in json.load(open(os.path.join(TMP, "corpus_%s.json" % idioma)))}
+    esperados = {r["rid"] for r in c if r["part"] != "G"}
+    con = sqlite3.connect("file:%s?mode=ro" % ruta, uri=True)
+    v = {}
+    for tabla in ("largo_plazo", "corto_plazo"):
+        filas = [x[0] for x in con.execute("SELECT concepto FROM %s" % tabla)]
+        rids = [f.rsplit("_", 1)[-1] for f in filas]
+        v[tabla] = {"filas": len(filas),
+                    "de_guardia": sum(1 for r in rids if parte.get(r) == "G"),
+                    "sin_rid_del_corpus": sum(1 for r in rids if r not in parte),
+                    "rids_distintos": len(set(rids))}
+    con.close()
+    lp = v["largo_plazo"]
+    con = sqlite3.connect("file:%s?mode=ro" % ruta, uri=True)
+    rids_lp = {x[0].rsplit("_", 1)[-1] for x in con.execute("SELECT concepto FROM largo_plazo")}
+    con.close()
+    v["esperados_E_V"] = len(esperados)
+    v["ok"] = (lp["de_guardia"] == 0 and v["corto_plazo"]["de_guardia"] == 0 and lp["sin_rid_del_corpus"] == 0
+               and v["corto_plazo"]["sin_rid_del_corpus"] == 0 and lp["filas"] == len(esperados)
+               and rids_lp == esperados)
+    return v
+
+
 # ================================================================== hijo: construir (motor real)
 def hijo_construir(idioma, escritor, ruta, salida):
     reloj = lab.preparar_hijo("T", False, T0)
@@ -312,7 +348,10 @@ def hijo_construir(idioma, escritor, ruta, salida):
         if os.path.exists(ruta + ext):
             os.remove(ruta + ext)
     st = {"cer": c16.abrir(ruta)}
-    info = {"guardia_en_base": False, "bridges_rechazados": 0, "dims_inventadas": 0, "dims_error": 0, "t_sueno": 0.0, "n_suenos": 0,
+    info = {"guardia_en_base": False,
+            "sha_corpus": sha256_archivo(os.path.join(TMP, "corpus_%s.json" % idioma)),
+            "sha_ciego": sha256_archivo(ruta_ciego(idioma)) if escritor == "ciego" else None,
+            "bridges_rechazados": 0, "dims_inventadas": 0, "dims_error": 0, "t_sueno": 0.0, "n_suenos": 0,
             "claves": {}}
 
     def guardar(r):
@@ -365,6 +404,9 @@ def hijo_construir(idioma, escritor, ruta, salida):
     con.close()
     info["reloj_final"] = reloj.t
     assert abs(info["sqlite_now"] - reloj.t) < 2, "reloj de SQLite no simulado"
+    info["verificacion_base"] = verificar_base(ruta, idioma)
+    if not info["verificacion_base"]["ok"]:   # sin .info.json la base no cuenta como construida
+        raise SystemExit("verificación de la base falló: %s" % json.dumps(info["verificacion_base"]))
     json.dump(info, open(salida, "w"), ensure_ascii=False)
 
 
@@ -694,23 +736,51 @@ def subir(rutas, mensaje):
         print("no se pudo subir (%s): %r" % (mensaje, e), flush=True)
 
 
+def _invalidar(d, ruta, final, motivo):
+    print("caché invalidada (%s): se reconstruye" % motivo, flush=True)
+    for x in os.listdir(d):
+        if x.startswith("V.db") or x.startswith("limpia_V.db"):
+            p_ = os.path.join(d, x)
+            shutil.rmtree(p_) if os.path.isdir(p_) else os.remove(p_)
+    if os.path.exists(final):
+        os.remove(final)
+
+
 def un_idioma(idioma, escritor):
     final = os.path.join(RES, "v_%s_%s.json" % (escritor, idioma))
-    if os.path.exists(final):
-        return json.load(open(final))
     d = os.path.join(TMP, "%s_%s" % (escritor, idioma) + ("_seco" if SECO else ""))
     os.makedirs(d, exist_ok=True)
     ruta = os.path.join(d, "V.db")
-    t0 = time.time()
-    if escritor == "ciego" and not os.path.exists(ruta + ".info.json"):
+    huellas = {"sha_corpus": sha256_archivo(os.path.join(TMP, "corpus_%s.json" % idioma)),
+               "sha_ciego": sha256_archivo(ruta_ciego(idioma)) if escritor == "ciego" and
+               os.path.exists(ruta_ciego(idioma)) else None}
+    # caché: la base y el resultado solo se reutilizan si las huellas del corpus y del archivo ciego coinciden
+    for previo in (ruta + ".info.json", final):
+        if os.path.exists(previo):
+            x = json.load(open(previo))
+            x = x.get("info_construccion", x) if previo == final else x
+            # ciego: huella ausente o distinta → invalida. Mecánico: solo si la huella existe (las bases y resultados
+            # del mecánico del 27-11 no la tienen y no se tocan de forma retroactiva)
+            distinto = [k for k in huellas if (escritor == "ciego" or (k != "sha_ciego" and k in x))
+                        and x.get(k) != huellas[k]]
+            if distinto:
+                _invalidar(d, ruta, final, "cambió %s" % ", ".join(distinto))
+                break
+    if escritor == "ciego":   # siempre, también antes de reutilizar una base
         ok, informe = validar(idioma)
         json.dump(informe, open(os.path.join(d, "validacion.json"), "w"), ensure_ascii=False, indent=1)
         if not ok:
             raise SystemExit("ciego_%s.jsonl no pasa validar: no se mide" % idioma)
+    if os.path.exists(final):
+        return json.load(open(final))
+    t0 = time.time()
     if not os.path.exists(ruta + ".info.json"):
         _run(["construir", idioma, escritor, ruta, ruta + ".info.json"])
     t_c = time.time() - t0
     info = json.load(open(ruta + ".info.json"))
+    vb = verificar_base(ruta, idioma)   # de nuevo, directamente en la tabla, antes de medir y analizar
+    if not vb["ok"]:
+        raise SystemExit("verificación de la base falló: %s" % json.dumps(vb))
     c = corpus(idioma)
     conceptos = [info["claves"][r["rid"]] for r in c if r["part"] != "G" and r["rid"] in info["claves"]]
     cj = os.path.join(d, "conceptos.json")
@@ -723,6 +793,8 @@ def un_idioma(idioma, escritor):
     an["t_construir_s"] = round(t_c, 1)
     an["t_total_s"] = round(time.time() - t0, 1)
     an["original_intacta"] = med.get("original_intacta")
+    an["verificacion_base"] = vb
+    an["huellas"] = huellas
     os.makedirs(RES, exist_ok=True)
     json.dump(an, open(final, "w"), ensure_ascii=False, indent=1)
     subir([final], "Paso 3 capa V: %s, escritor %s (corpus públicos)" % (idioma, escritor))
