@@ -208,16 +208,17 @@ def hijo_construir2(semilla, n_D, mundo, brazo, reloj_nombre, ruta, salida, k8="
     delta = lab.RELOJES[reloj_nombre]
 
     excepciones = {}
+    vivas = {}
 
     def trazar(frame, evento, arg):
         """K8 medido: toda excepción lanzada dentro del sueño en código del motor, aunque el motor la capture."""
         if evento == "exception":
             f = frame.f_code.co_filename
             if "/core/" in f or "#lab_ciclo2" in f:
-                if not hasattr(trazar, "vistas"):
-                    trazar.vistas = set()
-                if id(arg[1]) not in trazar.vistas:
-                    trazar.vistas.add(id(arg[1]))
+                # Se guarda el objeto (no solo su id) mientras dura el sueño: un id de un objeto ya liberado
+                # puede reutilizarse y ocultaría una excepción nueva (observación del auditor, 27-11).
+                if id(arg[1]) not in vivas or vivas[id(arg[1])] is not arg[1]:
+                    vivas[id(arg[1])] = arg[1]
                     clave = "%s @ %s:%d" % (arg[0].__name__, f.split("/core/")[-1], frame.f_lineno)
                     excepciones[clave] = excepciones.get(clave, 0) + 1
         return trazar
@@ -235,6 +236,7 @@ def hijo_construir2(semilla, n_D, mundo, brazo, reloj_nombre, ruta, salida, k8="
                 c16.dormir(st["cer"])
             finally:
                 sys.settrace(None)
+                vivas.clear()
         else:
             c16.dormir(st["cer"])
         t_sueno += time.perf_counter() - t
