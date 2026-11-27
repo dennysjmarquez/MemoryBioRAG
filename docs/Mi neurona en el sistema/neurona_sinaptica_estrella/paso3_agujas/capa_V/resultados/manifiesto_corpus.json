@@ -1,0 +1,92 @@
+{
+ "N": 1690,
+ "por_doc": 8,
+ "semilla": 2711,
+ "min": {
+  "es": 250,
+  "en": 250,
+  "zh": 100,
+  "ja": 100
+ },
+ "max": {
+  "es": 900,
+  "en": 900,
+  "zh": 350,
+  "ja": 350
+ },
+ "particion": "sha256('capaV|'+doc) % 100: <20 G, <40 V, resto E",
+ "idiomas": {
+  "es": {
+   "fuente": "https://github.com/UniversalDependencies/UD_Spanish-AnCora.git",
+   "commit": "3ea1f747220979d91787a6d04b85734a42bf22a4",
+   "subconjunto": null,
+   "licencia": "CC BY 4.0",
+   "documentos_disponibles": 1635,
+   "documentos_usados": 374,
+   "recuerdos": 1690,
+   "docs_con_2_o_mas": 312,
+   "por_particion": {
+    "E": 1096,
+    "V": 305,
+    "G": 289
+   },
+   "largo_mediana": 333,
+   "huella": "78c8a0c8663cf81349c39f79079dd35aa57f836bd633e5c68361839f9de1d9e9"
+  },
+  "en": {
+   "fuente": "https://github.com/UniversalDependencies/UD_English-EWT.git",
+   "commit": "491be069d36e378f67c29f183699eea88308ea42",
+   "subconjunto": null,
+   "licencia": "CC BY-SA 4.0",
+   "documentos_disponibles": 1174,
+   "documentos_usados": 768,
+   "recuerdos": 1690,
+   "docs_con_2_o_mas": 283,
+   "por_particion": {
+    "E": 942,
+    "V": 369,
+    "G": 379
+   },
+   "largo_mediana": 537,
+   "huella": "5d1fafbe4c01a8eb056f7a496284d9d24de09fddd35a22567ab62ae7be905717"
+  },
+  "zh": {
+   "fuente": "https://github.com/Ac-heron/luxun.git",
+   "commit": "b859e5043211b9ead7417ba3f5776e81eaf9213c",
+   "subconjunto": null,
+   "licencia": "dominio público (Lu Xun, †1936); el repositorio no declara licencia",
+   "documentos_disponibles": 308,
+   "documentos_usados": 266,
+   "recuerdos": 1690,
+   "docs_con_2_o_mas": 260,
+   "por_particion": {
+    "E": 1009,
+    "V": 335,
+    "G": 346
+   },
+   "largo_mediana": 169,
+   "huella": "4739ebb45990f421f9effa14c613c394ce8b4ffc6086f30b951eb93cfd3ecb5a"
+  },
+  "ja": {
+   "fuente": "https://github.com/aozorahack/aozorabunko_text.git",
+   "commit": "0984f7dc18a2270bdfd2ff99bf14fd1b3ebb4f65",
+   "subconjunto": [
+    "cards/000879",
+    "cards/000081",
+    "cards/000042"
+   ],
+   "licencia": "dominio público (Aozora Bunko: obras con derechos vencidos); el espejo no declara licencia",
+   "documentos_disponibles": 981,
+   "documentos_usados": 232,
+   "recuerdos": 1690,
+   "docs_con_2_o_mas": 228,
+   "por_particion": {
+    "E": 1006,
+    "V": 356,
+    "G": 328
+   },
+   "largo_mediana": 192,
+   "huella": "a76cd54e23b51f6d73b3a2754928754ac070fd3dc25485066e6b7b5c921bb505"
+  }
+ }
+}

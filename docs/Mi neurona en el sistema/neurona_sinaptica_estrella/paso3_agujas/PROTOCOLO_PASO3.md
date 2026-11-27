@@ -123,6 +123,18 @@ mueven.
   donde el tipo no decide solo.
 - Sin idioma: distribución de tipos por escritura. Un tipo que no puede nacer en CJK (`co_nombre`, `pmi_hebbiano`) se
   marca, porque sesgaría a la neurona por idioma (PLAN §9.3).
+- **Control de reloj `Dt` (enmienda del 27-11, decisión de Dennys):**
+  - `Dt` = D más el mismo tiempo y los mismos sueños que D∪I0, **sin** los documentos de I0.
+  - La invariancia por tipo se informa con tres comparaciones: **D→Dt** (efecto del tiempo y de los sueños),
+    **D→D∪I0** (efecto conjunto) y **Dt→D∪I0** (lo atribuible al **contenido** de I0).
+  - Un tipo solo se descarta «por I» si Dt→D∪I0 < 98 %. Si D→Dt ya cae, la causa es el tiempo, no I.
+  - Desde el 27-11 el laboratorio usa el reloj simulado también en SQLite (`CAPA_L_RELOJ_SQLITE=1`, solo
+    laboratorio). Antes, `strftime('%s','now')` daba el reloj real y toda arista decaía cada noche sin la gracia de
+    7 días (`RESULTADOS_CAPA_L.md` §4).
+  - El «tipo al nacer» no entra:
+    - el borrado por decaimiento (`consolidation.py` L492–511) no guarda el tipo de la arista;
+    - solo la hormiguita lo copia a `sinapsis_cuarentena` (`dmn_reflexion.py` L909), y la cuarentena está excluida
+      como aguja (§3).
 
 **Admisión:**
 - **entra** la aguja que cumple C3.1–C3.5, C3.7 y C3.8 (y C3.6 si pasa por el buscador);
@@ -202,3 +214,57 @@ Mientras no haya respuesta, solo se puede ejecutar la **capa L**, y únicamente 
    - **F-A resultó ser código muerto** (`content_match_counts` no se lee): `h2_ciclo2/HALLAZGOS_DEL_MOTOR_K8.md`,
      corrección 1.
 6. **Se autoriza ejecutar la capa L.** Resultados: `capa_L/RESULTADOS_CAPA_L.md`.
+
+## 10. Capa V: reglas fijadas antes de medir (27-11, octavo reenvío)
+
+Autorización: «Puedes ejecutar la corrección del reloj de T2 y luego la Capa V» (agente local de Dennys, 27-11).
+Código: `capa_V/corpus_v.py` y `capa_V/laboratorio_capa_V.py`.
+
+**Corpus** (licencias y huellas en `capa_V/resultados/manifiesto_corpus.json`; el texto no se sube al repositorio):
+
+| idioma | fuente (commit fijado) | licencia | documento = |
+|---|---|---|---|
+| es | UD_Spanish-AnCora | CC BY 4.0 | `newdoc` (noticias) |
+| en | UD_English-EWT | CC BY-SA 4.0 | `newdoc` (blogs, correos, reseñas, foros) |
+| zh | Ac-heron/luxun (全集 de Lu Xun) | dominio público (†1936); el repositorio no declara licencia | ensayo o relato |
+| ja | aozorahack/aozorabunko_text (Akutagawa, Miyazawa, Terada) | dominio público (Aozora Bunko) | obra |
+
+- **Desvío del §4:** UD zh-GSD no trae `newdoc` y ja-GSD pone uno por oración. Sin documentos no hay verdad, así que
+  zh y ja salen de textos de dominio público.
+- **Confusión anotada:** es y en son prosa de noticias y de la web; zh y ja, prosa literaria y ensayo. Una
+  diferencia entre idiomas puede ser de género textual.
+- Recuerdo = párrafos consecutivos del documento: es/en 250–900 caracteres, zh/ja 100–350. Como mucho 8 por
+  documento. **N = 1690 por idioma** (lo que da EWT). Id opaco (hash).
+
+**Partición:** por documento, con sha256 → Guardia 20 % (sellada: se ingiere, pero ningún análisis la lee),
+Validación 20 % y Estudio 60 %. Las listas del canal 2 solo contienen vecinos de la misma partición.
+
+**Construcción:**
+- camino de `aprender` del motor real;
+- orden barajado con semilla fija, para que la co-ocurrencia de sesión no delate el documento;
+- sueño cada 50 recuerdos y reloj diario simulado, también en SQLite;
+- medición con `BIORAG_NEURONA=0`, PPMI 0 y síntesis DMN 0; R sobre la copia limpia (§6).
+
+**Escritores:**
+- **mecánico (control)**: candidatas = unidades con largo ≥ la mediana del propio texto; orden por frecuencia, luego
+  largo, luego primera aparición. `sustantivos_clave` = 6 primeras; nombre = 2 primeras + id; bridges = pares
+  disjuntos de las siguientes. Sin dimensiones, sin categoría (General) y sin syn: S_tem, S_tono y Cat quedan
+  «no medibles» (C3.8).
+- **ciego**: sesión aislada distinta (`capa_V/INSTRUCCIONES_ESCRITOR_CIEGO.md`). Es el escritor que **decide** la
+  admisión. El mecánico solo separa la superficie del conocimiento.
+
+**Medidas:**
+- **piso** = orden a mano del motor: prioridad de tipo ASC, peso DESC (`synapses.py` L509–585), con peso ≥ 0,5 y
+  vecino activo;
+- **piso + aguja** = regresión logística [piso, aguja] ajustada solo en Estudio;
+- **C3.5**: MRR del primer vecino verdadero en los nodos de Validación con al menos un positivo y un negativo;
+  empates al azar; IC95 de la diferencia pareada por bootstrap de documentos (2000);
+- **C3.3**: AUC con arista (positivo = mismo documento) e IC95 por documento. Se informan aparte los negativos duros
+  (Jaccard de unidades ≥ mediana de los positivos) y los pares al azar.
+- **C3.7** y **C3.8**: como en §5.
+- Combinaciones informativas: S+X, las 12 juntas y las 12 + R.
+
+**Regla de parada:** si ninguna de las 12 limpias (en especial S + X) cumple C3.5 en cada idioma con el escritor
+ciego, se detiene y se reporta antes de inventar agujas o cambios. El resultado del escritor mecánico se informa
+siempre, pero por sí solo no admite ni descarta.
+
