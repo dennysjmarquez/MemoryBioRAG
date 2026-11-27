@@ -214,3 +214,41 @@ ninguno cumple K1–K5 en los dos tamaños.
    debe aprender del corpus nada que entre en el ranking.
 
 Nada de esto se implementó en el motor. El siguiente paso, si se aprueba, es el diseño de la Neurona 2.
+
+## 6. Adenda del 27-11: K8 medido, aclaración sobre 4bp y cierre del ciclo
+
+### 6.1 K8: de inferido a medido
+- **Antes:** el K8 de §2 se **infería**. La marca «sin excepciones» del JSON estaba fijada a mano, no medida. La
+  revisión pidió dejarlo marcado como inferido.
+- **Por qué se volvió a correr:** Dennys pidió no dejar nada a medias. Se midió con una traza de excepciones
+  (`sys.settrace`) dentro de cada sueño del K8. Solo se repitieron el K8 y los controles (1084 s, commits `f146239` y
+  `3726cdb`); el resto del ciclo no se tocó.
+- **Resultados** (`resultados/k8_{ctl|real}.json`; tablas en `resultados/tablas.md`, commit `c213df9`):
+  - **excepciones no capturadas: 0** en todos los brazos;
+  - **excepciones capturadas:** aparecen en **todos** los brazos, incluido T, y son las mismas. Hay benignas (tablas
+    que aún no existen en una DB nueva, `int(None)` en el corte por rowid, `GeneratorExit`) y **dos fallos reales del
+    motor, previos a este ciclo**: F-A y F-B (`HALLAZGOS_DEL_MOTOR_K8.md`);
+  - **K8 estricto** (ninguna excepción, ni capturada): ✗ en todos los brazos. Lo causa el motor, no el brazo;
+  - **K8-brazo** (Δestado e importancia de D = 0 y ninguna excepción que no tenga también T): ✓ en −H2 −4b y en
+    H2loc+4bp; ✗ en T, H2loc y 4bp;
+  - la fila K8 de §2 se lee como **K8-brazo**. Sus valores no cambian.
+- **Efecto de F-B en lo ya medido [D]:** en el reloj comprimido, 605 de los 777 vectores PPMI de los nodos son ceros.
+  El canal PPMI estuvo casi apagado en **todos** los brazos por igual, así que las comparaciones entre brazos siguen
+  siendo válidas. Las cifras absolutas de top-k en comprimido llevan esta nota.
+
+### 6.2 4bp: lo que no se probó
+- 4b-propio excluye los mismos recuerdos inmunes que 4b de hoy.
+- El mundo sintético **no tiene recuerdos inmunes**: todos tienen prioridad 3, valencia 0 y categoría General.
+- Ninguna diferencia de inmunidad entre brazos pudo influir en ningún número, y ningún camino de inmunidad quedó
+  probado. Es una deuda del laboratorio.
+
+### 6.3 Cierre (decisión de Dennys, 26-11)
+- **H2/4b se cierra como diagnóstico, sin ciclo 3:**
+  - T sigue en el motor sin cambios;
+  - 4b-propio, tal como se definió, queda descartado;
+  - K7′ se mantiene por sueño; el costo por recuerdo activo es un dato secundario.
+- **Ticket abierto «invariancia del sueño»**, aparte, para que no frene la neurona sináptica.
+- **Por qué falló cada brazo, el principio general** (toda competencia cuyo conjunto de competidores pueda incluir a I
+  rompe la invariancia) **y cuatro vías alternativas** con su prueba y condición de reapertura:
+  `CIERRE_Y_LECTURA_CIENTIFICA.md`.
+- **Siguiente:** protocolo del Paso 3, `../paso3_agujas/PROTOCOLO_PASO3.md`. Solo documento; no se ha medido nada.
