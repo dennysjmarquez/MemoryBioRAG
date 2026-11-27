@@ -168,33 +168,35 @@ K2′: cobertura perdida y recall del origen no peores que T; orden cambiado com
 
 ### real · K8: desde DB vacía (sesiones de 5 mezcladas, reloj diario, 320 D + 80 I0)
 
-| semilla · brazo | ciclos | dormidos H2/H2-local · peso propio | dormidos > 1 vez | Δestado / Δimportancia D | activos al final |
-|---|---|---|---|---|---|
-| s11|T | 80 | 5 · 345 | 0 | 0 / 16 | 50 |
-| s23|T | 80 | 5 · 345 | 0 | 0 / 16 | 50 |
-| s7|T | 80 | 5 · 345 | 0 | 0 / 16 | 50 |
-| s11|-H2-4b | 80 | 0 · 350 | 0 | 0 / 0 | 50 |
-| s23|-H2-4b | 80 | 0 · 350 | 0 | 0 / 0 | 50 |
-| s7|-H2-4b | 80 | 0 · 350 | 0 | 0 / 0 | 50 |
-| s11|H2loc | 80 | 184 · 192 | 0 | 0 / 11 | 24 |
-| s23|H2loc | 80 | 193 · 181 | 0 | 0 / 11 | 26 |
-| s7|H2loc | 80 | 184 · 190 | 0 | 0 / 0 | 26 |
-| s11|4bp | 80 | 5 · 350 | 0 | 0 / 1 | 45 |
-| s23|4bp | 80 | 5 · 350 | 0 | 0 / 1 | 45 |
-| s7|4bp | 80 | 5 · 350 | 0 | 0 / 1 | 45 |
-| s11|H2loc+4bp | 80 | 185 · 193 | 0 | 0 / 0 | 22 |
-| s23|H2loc+4bp | 80 | 193 · 184 | 0 | 0 / 0 | 23 |
-| s7|H2loc+4bp | 80 | 184 · 193 | 0 | 0 / 0 | 23 |
+| semilla · brazo | ciclos | dormidos H2/H2-local · peso propio | dormidos > 1 vez | Δestado / Δimportancia D | activos al final | excepciones en el sueño (D; sin GeneratorExit) |
+|---|---|---|---|---|---|---|
+| s11|T | 80 | 5 · 345 | 0 | 0 / 16 | 50 | OperationalError @ memory/search.py:1488 ×103; OperationalError @ ppmi_vectorizer.py:196 ×1; TypeError @ memory/search.py:45 ×122; TypeError @ memory/synapses.py:33 ×161; TypeError @ similitud_conceptual.py:46 ×156 |
+| s23|T | 80 | 5 · 345 | 0 | 0 / 16 | 50 | OperationalError @ memory/neurona.py:383 ×1; OperationalError @ memory/search.py:1488 ×99; OperationalError @ memory/search.py:316 ×1; OperationalError @ ppmi_vectorizer.py:196 ×1; TypeError @ memory/search.py:45 ×97; TypeError @ memory/synapses.py:33 ×159; TypeError @ similitud_conceptual.py:46 ×134; ValueError @ ppmi_vectorizer.py:153 ×2 |
+| s7|T | 80 | 5 · 345 | 0 | 0 / 16 | 50 | OperationalError @ memory/search.py:1488 ×90; OperationalError @ ppmi_vectorizer.py:196 ×1; TypeError @ memory/search.py:45 ×92; TypeError @ memory/synapses.py:33 ×190; TypeError @ similitud_conceptual.py:46 ×134 |
+| s11|-H2-4b | 80 | 0 · 350 | 0 | 0 / 0 | 50 | OperationalError @ memory/search.py:1488 ×100; OperationalError @ ppmi_vectorizer.py:196 ×1; TypeError @ memory/search.py:45 ×109; TypeError @ memory/synapses.py:33 ×189; TypeError @ similitud_conceptual.py:46 ×144 |
+| s23|-H2-4b | 80 | 0 · 350 | 0 | 0 / 0 | 50 | OperationalError @ memory/neurona.py:383 ×1; OperationalError @ memory/search.py:1488 ×101; OperationalError @ memory/search.py:316 ×1; OperationalError @ ppmi_vectorizer.py:196 ×1; TypeError @ memory/search.py:45 ×112; TypeError @ memory/synapses.py:33 ×158; TypeError @ similitud_conceptual.py:46 ×138; ValueError @ ppmi_vectorizer.py:153 ×2 |
+| s7|-H2-4b | 80 | 0 · 350 | 0 | 0 / 0 | 50 | OperationalError @ memory/search.py:1488 ×101; OperationalError @ ppmi_vectorizer.py:196 ×1; TypeError @ memory/search.py:45 ×99; TypeError @ memory/synapses.py:33 ×185; TypeError @ similitud_conceptual.py:46 ×159; ValueError @ ppmi_vectorizer.py:153 ×1 |
+| s11|H2loc | 80 | 184 · 192 | 0 | 0 / 11 | 24 | OperationalError @ memory/neurona.py:383 ×1; OperationalError @ memory/search.py:1488 ×51; OperationalError @ ppmi_vectorizer.py:196 ×1; TypeError @ memory/search.py:45 ×61; TypeError @ memory/synapses.py:33 ×121; TypeError @ similitud_conceptual.py:46 ×144 |
+| s23|H2loc | 80 | 193 · 181 | 0 | 0 / 11 | 26 | OperationalError @ memory/neurona.py:383 ×1; OperationalError @ memory/search.py:1488 ×51; OperationalError @ memory/search.py:316 ×1; OperationalError @ ppmi_vectorizer.py:196 ×1; TypeError @ memory/search.py:45 ×53; TypeError @ memory/synapses.py:33 ×98; TypeError @ similitud_conceptual.py:46 ×143; ValueError @ ppmi_vectorizer.py:153 ×3 |
+| s7|H2loc | 80 | 184 · 190 | 0 | 0 / 0 | 26 | OperationalError @ memory/search.py:1488 ×62; OperationalError @ memory/search.py:316 ×1; OperationalError @ ppmi_vectorizer.py:196 ×1; TypeError @ memory/search.py:45 ×49; TypeError @ memory/synapses.py:33 ×119; TypeError @ similitud_conceptual.py:46 ×160 |
+| s11|4bp | 80 | 5 · 350 | 0 | 0 / 1 | 45 | OperationalError @ memory/neurona.py:383 ×1; OperationalError @ memory/search.py:1488 ×101; OperationalError @ ppmi_vectorizer.py:196 ×1; TypeError @ memory/search.py:45 ×117; TypeError @ memory/synapses.py:33 ×127; TypeError @ similitud_conceptual.py:46 ×134; ValueError @ ppmi_vectorizer.py:153 ×2 |
+| s23|4bp | 80 | 5 · 350 | 0 | 0 / 1 | 45 | OperationalError @ memory/neurona.py:383 ×1; OperationalError @ memory/search.py:1488 ×80; OperationalError @ memory/search.py:316 ×1; OperationalError @ ppmi_vectorizer.py:196 ×1; TypeError @ memory/search.py:45 ×104; TypeError @ memory/synapses.py:33 ×160; TypeError @ similitud_conceptual.py:46 ×102; ValueError @ ppmi_vectorizer.py:153 ×2 |
+| s7|4bp | 80 | 5 · 350 | 0 | 0 / 1 | 45 | OperationalError @ memory/search.py:1488 ×82; OperationalError @ ppmi_vectorizer.py:196 ×1; TypeError @ memory/search.py:45 ×83; TypeError @ memory/synapses.py:33 ×162; TypeError @ similitud_conceptual.py:46 ×129 |
+| s11|H2loc+4bp | 80 | 185 · 193 | 0 | 0 / 0 | 22 | OperationalError @ memory/neurona.py:383 ×1; OperationalError @ memory/search.py:1488 ×48; OperationalError @ ppmi_vectorizer.py:196 ×1; TypeError @ memory/search.py:45 ×56; TypeError @ memory/synapses.py:33 ×104; TypeError @ similitud_conceptual.py:46 ×134 |
+| s23|H2loc+4bp | 80 | 193 · 184 | 0 | 0 / 0 | 23 | OperationalError @ memory/neurona.py:383 ×1; OperationalError @ memory/search.py:1488 ×54; OperationalError @ memory/search.py:316 ×1; OperationalError @ ppmi_vectorizer.py:196 ×1; TypeError @ memory/search.py:45 ×49; TypeError @ memory/synapses.py:33 ×98; TypeError @ similitud_conceptual.py:46 ×144; ValueError @ ppmi_vectorizer.py:153 ×3 |
+| s7|H2loc+4bp | 80 | 184 · 193 | 0 | 0 / 0 | 23 | OperationalError @ memory/search.py:1488 ×53; OperationalError @ memory/search.py:316 ×1; OperationalError @ ppmi_vectorizer.py:196 ×1; TypeError @ memory/search.py:45 ×45; TypeError @ memory/synapses.py:33 ×135; TypeError @ similitud_conceptual.py:46 ×165 |
 
 ### real · K7′, K8, K9
 
-| brazo | K7′ comprimido | K7′ diario | K8 | K9 |
-|---|---|---|---|---|
-| T | no cumplido | cumplido | no cumplido | futuro (suite completa: autorización aparte) |
-| -H2-4b | no cumplido | no cumplido | cumplido | futuro (suite completa: autorización aparte) |
-| H2loc | no cumplido | no cumplido | no cumplido | futuro (suite completa: autorización aparte) |
-| 4bp | no cumplido | no cumplido | no cumplido | futuro (suite completa: autorización aparte) |
-| H2loc+4bp | no cumplido | no cumplido | cumplido | futuro (suite completa: autorización aparte) |
+K8 estricto incluye «sin excepciones», medido con una traza del sueño (también las que el motor captura). K8-brazo descuenta las excepciones que ya aparecen en T (son del motor, no de la variante).
+
+| brazo | K7′ comprimido | K7′ diario | K8 estricto | K8-brazo | excepciones propias del brazo | K9 |
+|---|---|---|---|---|---|---|
+| T | no cumplido | cumplido | no cumplido | no cumplido | ninguna | futuro (suite completa: autorización aparte) |
+| -H2-4b | no cumplido | no cumplido | no cumplido | cumplido | ninguna | futuro (suite completa: autorización aparte) |
+| H2loc | no cumplido | no cumplido | no cumplido | no cumplido | ninguna | futuro (suite completa: autorización aparte) |
+| 4bp | no cumplido | no cumplido | no cumplido | no cumplido | ninguna | futuro (suite completa: autorización aparte) |
+| H2loc+4bp | no cumplido | no cumplido | no cumplido | cumplido | ninguna | futuro (suite completa: autorización aparte) |
 
 ## Configuración «ctl» (BIORAG_NEURONA=0 en toda la corrida; PPMI 0,15; corte tras D)
 
@@ -361,30 +363,32 @@ K2′: cobertura perdida y recall del origen no peores que T; orden cambiado com
 
 ### ctl · K8: desde DB vacía (sesiones de 5 mezcladas, reloj diario, 320 D + 80 I0)
 
-| semilla · brazo | ciclos | dormidos H2/H2-local · peso propio | dormidos > 1 vez | Δestado / Δimportancia D | activos al final |
-|---|---|---|---|---|---|
-| s11|T | 80 | 5 · 345 | 0 | 0 / 16 | 50 |
-| s23|T | 80 | 5 · 345 | 0 | 0 / 16 | 50 |
-| s7|T | 80 | 5 · 345 | 0 | 0 / 16 | 50 |
-| s11|-H2-4b | 80 | 0 · 350 | 0 | 0 / 0 | 50 |
-| s23|-H2-4b | 80 | 0 · 350 | 0 | 0 / 0 | 50 |
-| s7|-H2-4b | 80 | 0 · 350 | 0 | 0 / 0 | 50 |
-| s11|H2loc | 80 | 184 · 192 | 0 | 0 / 11 | 24 |
-| s23|H2loc | 80 | 193 · 181 | 0 | 0 / 11 | 26 |
-| s7|H2loc | 80 | 184 · 190 | 0 | 0 / 0 | 26 |
-| s11|4bp | 80 | 5 · 350 | 0 | 0 / 1 | 45 |
-| s23|4bp | 80 | 5 · 350 | 0 | 0 / 1 | 45 |
-| s7|4bp | 80 | 5 · 350 | 0 | 0 / 1 | 45 |
-| s11|H2loc+4bp | 80 | 185 · 193 | 0 | 0 / 0 | 22 |
-| s23|H2loc+4bp | 80 | 193 · 184 | 0 | 0 / 0 | 23 |
-| s7|H2loc+4bp | 80 | 184 · 193 | 0 | 0 / 0 | 23 |
+| semilla · brazo | ciclos | dormidos H2/H2-local · peso propio | dormidos > 1 vez | Δestado / Δimportancia D | activos al final | excepciones en el sueño (D; sin GeneratorExit) |
+|---|---|---|---|---|---|---|
+| s11|T | 80 | 5 · 345 | 0 | 0 / 16 | 50 | OperationalError @ ppmi_vectorizer.py:196 ×1; ValueError @ ppmi_vectorizer.py:153 ×2 |
+| s23|T | 80 | 5 · 345 | 0 | 0 / 16 | 50 | OperationalError @ ppmi_vectorizer.py:196 ×1; ValueError @ ppmi_vectorizer.py:153 ×2 |
+| s7|T | 80 | 5 · 345 | 0 | 0 / 16 | 50 | OperationalError @ ppmi_vectorizer.py:196 ×1; ValueError @ ppmi_vectorizer.py:153 ×1 |
+| s11|-H2-4b | 80 | 0 · 350 | 0 | 0 / 0 | 50 | OperationalError @ ppmi_vectorizer.py:196 ×1; ValueError @ ppmi_vectorizer.py:153 ×2 |
+| s23|-H2-4b | 80 | 0 · 350 | 0 | 0 / 0 | 50 | OperationalError @ ppmi_vectorizer.py:196 ×1; ValueError @ ppmi_vectorizer.py:153 ×2 |
+| s7|-H2-4b | 80 | 0 · 350 | 0 | 0 / 0 | 50 | OperationalError @ ppmi_vectorizer.py:196 ×1; ValueError @ ppmi_vectorizer.py:153 ×1 |
+| s11|H2loc | 80 | 184 · 192 | 0 | 0 / 11 | 24 | OperationalError @ ppmi_vectorizer.py:196 ×1 |
+| s23|H2loc | 80 | 193 · 181 | 0 | 0 / 11 | 26 | OperationalError @ ppmi_vectorizer.py:196 ×1; ValueError @ ppmi_vectorizer.py:153 ×3 |
+| s7|H2loc | 80 | 184 · 190 | 0 | 0 / 0 | 26 | OperationalError @ ppmi_vectorizer.py:196 ×1 |
+| s11|4bp | 80 | 5 · 350 | 0 | 0 / 1 | 45 | OperationalError @ ppmi_vectorizer.py:196 ×1; ValueError @ ppmi_vectorizer.py:153 ×2 |
+| s23|4bp | 80 | 5 · 350 | 0 | 0 / 1 | 45 | OperationalError @ ppmi_vectorizer.py:196 ×1; ValueError @ ppmi_vectorizer.py:153 ×2 |
+| s7|4bp | 80 | 5 · 350 | 0 | 0 / 1 | 45 | OperationalError @ ppmi_vectorizer.py:196 ×1; ValueError @ ppmi_vectorizer.py:153 ×1 |
+| s11|H2loc+4bp | 80 | 185 · 193 | 0 | 0 / 0 | 22 | OperationalError @ ppmi_vectorizer.py:196 ×1 |
+| s23|H2loc+4bp | 80 | 193 · 184 | 0 | 0 / 0 | 23 | OperationalError @ ppmi_vectorizer.py:196 ×1; ValueError @ ppmi_vectorizer.py:153 ×3 |
+| s7|H2loc+4bp | 80 | 184 · 193 | 0 | 0 / 0 | 23 | OperationalError @ ppmi_vectorizer.py:196 ×1 |
 
 ### ctl · K7′, K8, K9
 
-| brazo | K7′ comprimido | K7′ diario | K8 | K9 |
-|---|---|---|---|---|
-| T | no cumplido | cumplido | no cumplido | futuro (suite completa: autorización aparte) |
-| -H2-4b | no cumplido | no cumplido | cumplido | futuro (suite completa: autorización aparte) |
-| H2loc | no cumplido | no cumplido | no cumplido | futuro (suite completa: autorización aparte) |
-| 4bp | no cumplido | no cumplido | no cumplido | futuro (suite completa: autorización aparte) |
-| H2loc+4bp | no cumplido | no cumplido | cumplido | futuro (suite completa: autorización aparte) |
+K8 estricto incluye «sin excepciones», medido con una traza del sueño (también las que el motor captura). K8-brazo descuenta las excepciones que ya aparecen en T (son del motor, no de la variante).
+
+| brazo | K7′ comprimido | K7′ diario | K8 estricto | K8-brazo | excepciones propias del brazo | K9 |
+|---|---|---|---|---|---|---|
+| T | no cumplido | cumplido | no cumplido | no cumplido | ninguna | futuro (suite completa: autorización aparte) |
+| -H2-4b | no cumplido | no cumplido | no cumplido | cumplido | ninguna | futuro (suite completa: autorización aparte) |
+| H2loc | no cumplido | no cumplido | no cumplido | no cumplido | ninguna | futuro (suite completa: autorización aparte) |
+| 4bp | no cumplido | no cumplido | no cumplido | no cumplido | ninguna | futuro (suite completa: autorización aparte) |
+| H2loc+4bp | no cumplido | no cumplido | no cumplido | cumplido | ninguna | futuro (suite completa: autorización aparte) |

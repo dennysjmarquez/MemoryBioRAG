@@ -129,11 +129,29 @@ def evaluar(cfg, k8):
                 f["K7p_" + r] = "cumplido" if ok else "no cumplido"
             if neu in k8:
                 filas = [v for k, v in k8[neu].items() if k.split("|")[1] == b]
-                f["K8"] = veredicto([v["sin_excepciones"] and v["recuerdos_dormidos_mas_de_una_vez"] == 0 and
-                                     v["K1_cambios_estado_D"] == 0 and v["K1_cambios_importancia_D"] == 0
-                                     for v in filas])
+                if any("excepciones_capturadas_en_sueno" not in v for v in filas):
+                    f["K8"] = "no medible (sin_excepciones no medido)"
+                    f["K8_brazo"] = "no medible"
+                else:
+                    # K8 estricto (GUIA §8.8): sin excepciones + nadie dormido dos veces + D intacto.
+                    f["K8"] = veredicto([v["sin_excepciones"] and v["recuerdos_dormidos_mas_de_una_vez"] == 0 and
+                                         v["K1_cambios_estado_D"] == 0 and v["K1_cambios_importancia_D"] == 0
+                                         for v in filas])
+                    # Parte atribuible al brazo: las excepciones que aparecen en T también se descuentan
+                    # (son del motor, no de la variante); se informan aparte.
+                    comunes = None
+                    for k, v in k8[neu].items():
+                        if k.split("|")[1] == "T":
+                            ks = {e for w in v["excepciones_capturadas_en_sueno"].values() for e in (w or {})}
+                            comunes = ks if comunes is None else comunes | ks
+                    propias = [{e for w in v["excepciones_capturadas_en_sueno"].values() for e in (w or {})} - (comunes or set())
+                               for v in filas]
+                    f["K8_excepciones_propias_del_brazo"] = sorted(set().union(*propias))
+                    f["K8_brazo"] = veredicto([not pr and v["recuerdos_dormidos_mas_de_una_vez"] == 0 and
+                                               v["K1_cambios_estado_D"] == 0 and v["K1_cambios_importancia_D"] == 0
+                                               for v, pr in zip(filas, propias)])
             else:
-                f["K8"] = "no medible"
+                f["K8"] = f["K8_brazo"] = "no medible"
             f["K9"] = "futuro (suite completa: autorización aparte)"
             fin["%s|%s" % (neu, b)] = f
     return out, fin
@@ -222,20 +240,28 @@ def tablas(cfg, k8, ctl, ev, fin):
                 w("| %s | %s | %s | %s | %s | %s | %s |" % (b, e["K1"], e["K2p"], e["K3"], e["K4"], e["K5pp"], e["K6"]))
         if neu in k8:
             w("\n### %s · K8: desde DB vacía (sesiones de 5 mezcladas, reloj diario, 320 D + 80 I0)\n" % neu)
-            w("| semilla · brazo | ciclos | dormidos H2/H2-local · peso propio | dormidos > 1 vez | Δestado / Δimportancia D | activos al final |")
-            w("|---|---|---|---|---|---|")
+            w("| semilla · brazo | ciclos | dormidos H2/H2-local · peso propio | dormidos > 1 vez | Δestado / Δimportancia D | activos al final | excepciones en el sueño (D; sin GeneratorExit) |")
+            w("|---|---|---|---|---|---|---|")
             for k, v in sorted(k8[neu].items(), key=lambda kv: (BRAZOS.index(kv[0].split("|")[1]), kv[0])):
-                w("| %s | %d | %d · %d | %d | %d / %d | %d |" % (k, v["ciclos"], v["dormidos_por_H2_o_H2loc"],
-                                                              v["dormidos_por_peso_propio"],
-                                                              v["recuerdos_dormidos_mas_de_una_vez"],
-                                                              v["K1_cambios_estado_D"], v["K1_cambios_importancia_D"],
-                                                              v["activos_final_DI0"]))
+                exc = (v.get("excepciones_capturadas_en_sueno") or {}).get("D") or {}
+                exc_txt = "; ".join("%s ×%d" % (e, n) for e, n in sorted(exc.items())
+                                    if not e.startswith(("GeneratorExit", "StopIteration"))) or "—"
+                w("| %s | %d | %d · %d | %d | %d / %d | %d | %s |" % (k, v["ciclos"], v["dormidos_por_H2_o_H2loc"],
+                                                                   v["dormidos_por_peso_propio"],
+                                                                   v["recuerdos_dormidos_mas_de_una_vez"],
+                                                                   v["K1_cambios_estado_D"], v["K1_cambios_importancia_D"],
+                                                                   v["activos_final_DI0"], exc_txt))
         w("\n### %s · K7′, K8, K9\n" % neu)
-        w("| brazo | K7′ comprimido | K7′ diario | K8 | K9 |")
-        w("|---|---|---|---|---|")
+        w("K8 estricto incluye «sin excepciones», medido con una traza del sueño (también las que el motor captura)."
+          " K8-brazo descuenta las excepciones que ya aparecen en T (son del motor, no de la variante).\n")
+        w("| brazo | K7′ comprimido | K7′ diario | K8 estricto | K8-brazo | excepciones propias del brazo | K9 |")
+        w("|---|---|---|---|---|---|---|")
         for b in BRAZOS:
             f = fin["%s|%s" % (neu, b)]
-            w("| %s | %s | %s | %s | %s |" % (b, f["K7p_comprimido"], f["K7p_diario"], f["K8"], f["K9"]))
+            w("| %s | %s | %s | %s | %s | %s | %s |" % (b, f["K7p_comprimido"], f["K7p_diario"], f["K8"],
+                                                   f.get("K8_brazo"), ", ".join(f.get("K8_excepciones_propias_del_brazo") or []) or "ninguna",
+                                                   f["K9"]))
+            
     return "\n".join(L) + "\n"
 
 

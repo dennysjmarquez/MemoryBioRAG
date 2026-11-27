@@ -184,6 +184,13 @@ def estado_neurona(ruta):
             "ciclos": st.get("ciclos"), "preguntas": st.get("preguntas"), "tranquila": st.get("tranquila")}
 
 
+def _contar_inmunes(ruta):
+    con = sqlite3.connect("file:%s?mode=ro" % ruta, uri=True)
+    n = con.execute("SELECT COUNT(*) FROM largo_plazo WHERE " + INMUNE_SQL).fetchone()[0]
+    con.close()
+    return n
+
+
 def hijo_construir2(semilla, n_D, mundo, brazo, reloj_nombre, ruta, salida, k8="0"):
     n_D, k8 = int(n_D), k8 == "1"
     assert ruta.startswith("/tmp/")
@@ -200,6 +207,21 @@ def hijo_construir2(semilla, n_D, mundo, brazo, reloj_nombre, ruta, salida, k8="
     ciclos, t_sueno = [], 0.0
     delta = lab.RELOJES[reloj_nombre]
 
+    excepciones = {}
+
+    def trazar(frame, evento, arg):
+        """K8 medido: toda excepción lanzada dentro del sueño en código del motor, aunque el motor la capture."""
+        if evento == "exception":
+            f = frame.f_code.co_filename
+            if "/core/" in f or "#lab_ciclo2" in f:
+                if not hasattr(trazar, "vistas"):
+                    trazar.vistas = set()
+                if id(arg[1]) not in trazar.vistas:
+                    trazar.vistas.add(id(arg[1]))
+                    clave = "%s @ %s:%d" % (arg[0].__name__, f.split("/core/")[-1], frame.f_lineno)
+                    excepciones[clave] = excepciones.get(clave, 0) + 1
+        return trazar
+
     def dormir(fase, nuevos):
         nonlocal t_sueno
         reloj.t += delta
@@ -207,7 +229,14 @@ def hijo_construir2(semilla, n_D, mundo, brazo, reloj_nombre, ruta, salida, k8="
         lab.REG.append(["aristas_antes", len(ciclos), dict(st["cer"].cursor.execute(
             "SELECT tipo, COUNT(*) FROM sinapsis GROUP BY tipo").fetchall())])
         t = time.perf_counter()
-        c16.dormir(st["cer"])
+        if k8:
+            sys.settrace(trazar)
+            try:
+                c16.dormir(st["cer"])
+            finally:
+                sys.settrace(None)
+        else:
+            c16.dormir(st["cer"])
         t_sueno += time.perf_counter() - t
         ciclos.append(fase)
 
@@ -258,7 +287,9 @@ def hijo_construir2(semilla, n_D, mundo, brazo, reloj_nombre, ruta, salida, k8="
     con.execute("PRAGMA wal_checkpoint(TRUNCATE)")
     con.close()
     json.dump({"registro": lab.REG, "t_sueno": t_sueno, "reloj_final": reloj.t, "n_ciclos": len(ciclos),
-               "sha_tablas": lab.sha_tablas(ruta), "corte": corte, "neurona": estado_neurona(ruta)},
+               "sha_tablas": lab.sha_tablas(ruta), "corte": corte, "neurona": estado_neurona(ruta),
+               "excepciones_en_sueno": excepciones if k8 else None,
+               "inmunes_en_la_base": _contar_inmunes(ruta)},
               open(salida, "w"), ensure_ascii=False)
 
 
@@ -479,7 +510,12 @@ def k8(neu):
                 dorm[c] = dorm.get(c, 0) + 1
         enD = list(r["D"]["estado"])
         return "s%d|%s" % (s, brazo), {
-            "ciclos": len(cyc), "sin_excepciones": True,
+            "ciclos": len(cyc),
+            # K8 medido (corrección de la auditoría de 64e055f): antes este campo valía True sin medirse.
+            # No capturadas: el hijo terminó con código 0 (si no, _run habría fallado). Capturadas: trazadas en el sueño.
+            "excepciones_no_capturadas": 0,
+            "excepciones_capturadas_en_sueno": {w: r[w]["reg"]["excepciones_en_sueno"] for w in ("D", "DI0")},
+            "sin_excepciones": all(not r[w]["reg"]["excepciones_en_sueno"] for w in ("D", "DI0")),
             "recuerdos_dormidos_mas_de_una_vez": sum(1 for v in dorm.values() if v > 1),
             "dormidos_por_H2_o_H2loc": sum(len(x.get("h2_dormidos", [])) for x in cyc),
             "dormidos_por_peso_propio": sum(len(x.get("ltd_dormidos", [])) for x in cyc),

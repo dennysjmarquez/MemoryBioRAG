@@ -574,60 +574,80 @@
    "K7p_comprimido": "no cumplido",
    "K7p_diario": "cumplido",
    "K8": "no cumplido",
+   "K8_excepciones_propias_del_brazo": [],
+   "K8_brazo": "no cumplido",
    "K9": "futuro (suite completa: autorización aparte)"
   },
   "real|-H2-4b": {
    "K7p_comprimido": "no cumplido",
    "K7p_diario": "no cumplido",
-   "K8": "cumplido",
+   "K8": "no cumplido",
+   "K8_excepciones_propias_del_brazo": [],
+   "K8_brazo": "cumplido",
    "K9": "futuro (suite completa: autorización aparte)"
   },
   "real|H2loc": {
    "K7p_comprimido": "no cumplido",
    "K7p_diario": "no cumplido",
    "K8": "no cumplido",
+   "K8_excepciones_propias_del_brazo": [],
+   "K8_brazo": "no cumplido",
    "K9": "futuro (suite completa: autorización aparte)"
   },
   "real|4bp": {
    "K7p_comprimido": "no cumplido",
    "K7p_diario": "no cumplido",
    "K8": "no cumplido",
+   "K8_excepciones_propias_del_brazo": [],
+   "K8_brazo": "no cumplido",
    "K9": "futuro (suite completa: autorización aparte)"
   },
   "real|H2loc+4bp": {
    "K7p_comprimido": "no cumplido",
    "K7p_diario": "no cumplido",
-   "K8": "cumplido",
+   "K8": "no cumplido",
+   "K8_excepciones_propias_del_brazo": [],
+   "K8_brazo": "cumplido",
    "K9": "futuro (suite completa: autorización aparte)"
   },
   "ctl|T": {
    "K7p_comprimido": "no cumplido",
    "K7p_diario": "cumplido",
    "K8": "no cumplido",
+   "K8_excepciones_propias_del_brazo": [],
+   "K8_brazo": "no cumplido",
    "K9": "futuro (suite completa: autorización aparte)"
   },
   "ctl|-H2-4b": {
    "K7p_comprimido": "no cumplido",
    "K7p_diario": "no cumplido",
-   "K8": "cumplido",
+   "K8": "no cumplido",
+   "K8_excepciones_propias_del_brazo": [],
+   "K8_brazo": "cumplido",
    "K9": "futuro (suite completa: autorización aparte)"
   },
   "ctl|H2loc": {
    "K7p_comprimido": "no cumplido",
    "K7p_diario": "no cumplido",
    "K8": "no cumplido",
+   "K8_excepciones_propias_del_brazo": [],
+   "K8_brazo": "no cumplido",
    "K9": "futuro (suite completa: autorización aparte)"
   },
   "ctl|4bp": {
    "K7p_comprimido": "no cumplido",
    "K7p_diario": "no cumplido",
    "K8": "no cumplido",
+   "K8_excepciones_propias_del_brazo": [],
+   "K8_brazo": "no cumplido",
    "K9": "futuro (suite completa: autorización aparte)"
   },
   "ctl|H2loc+4bp": {
    "K7p_comprimido": "no cumplido",
    "K7p_diario": "no cumplido",
-   "K8": "cumplido",
+   "K8": "no cumplido",
+   "K8_excepciones_propias_del_brazo": [],
+   "K8_brazo": "cumplido",
    "K9": "futuro (suite completa: autorización aparte)"
   }
  },
