@@ -101,14 +101,17 @@ I entrar en él?».** Las vías de §3 nacen de esa pregunta.
 
 1. **La Neurona 1 multiplica el residual del top-k** (32 frente a 6, y 44 frente a 8) sin tocar el estado [V]. Es
    la lección para la Neurona 2, recogida en el protocolo del Paso 3 (§7).
-2. **Dos fallos reales del motor**, callados por sus propios `try/except` (`HALLAZGOS_DEL_MOTOR_K8.md`):
-   - F-A: alias inexistente en `search.py` L1488, que deja muerto el premio por coincidencia de contenido;
-   - F-B: PPMI en bases jóvenes, con 605 de 777 vectores en cero en el reloj comprimido. Es la causa probable del
-     «vector nulo» de R-E2.
+2. **Dos fallos del motor**, callados por sus propios `try/except` (`HALLAZGOS_DEL_MOTOR_K8.md`, corregido el 27-11):
+   - F-A: alias inexistente en `search.py` L1488. Está en **código muerto**: el conteo no se lee, así que no afecta
+     al ranking. Solo cuesta una consulta fallida por búsqueda;
+   - F-B: PPMI en bases jóvenes, con 605 de 777 vectores en cero en **una** configuración medida (s7/800/D/T/ctl,
+     reloj comprimido). Extenderlo al resto es inferencia por el mecanismo. Es la causa probable del «vector nulo»
+     de R-E2.
 3. **El laboratorio no tiene recuerdos inmunes** (prioridad 3, valencia 0 y categoría General en todos) [V].
    - Ningún camino de inmunidad se probó en ninguna medición de H2.
-   - La diferencia que señaló la auditoría (4b de hoy no excluye la prioridad 0/1; H2 y LTD sí) **no cambió ningún
-     número**, pero queda sin probar.
+   - **Comprobado el 27-11** (`prueba_inmunes_4b.py`, sentencias exactas): 4b y 4bp excluyen valencia ≥ 0,8 y
+     Principle/Protocol, y **ninguno** excluye la prioridad 0/1 (H2 y LTD sí). Además, ningún camino del motor fija
+     una prioridad 0/1, así que esa inmunidad solo existe si se edita la base a mano.
    - Un ciclo futuro debe incluir recuerdos inmunes en el mundo.
 
 ## 5. Ticket abierto: invariancia del sueño

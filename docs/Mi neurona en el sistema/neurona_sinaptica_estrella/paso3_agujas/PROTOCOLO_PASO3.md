@@ -178,3 +178,27 @@ mueven.
 5. ¿Se abren aparte los ciclos de arreglo de F-A y F-B? Tocan el ranking, así que van uno a uno, con QA.
 
 Mientras no haya respuesta, solo se puede ejecutar la **capa L**, y únicamente con autorización.
+
+## 9. Decisiones del 27-11 (Dennys, por medio de su agente local; con opiniones de Claude web y del auditor de Arena)
+
+1. **Inventario, exclusiones y umbrales C3.1–C3.8: aprobados.**
+   - Queda para una etapa posterior, con autorización explícita, una **prueba final sellada sobre datos reales** con
+     enlaces `manual` ocultos. Claude web la pidió como examen final, no como entrenamiento.
+   - Reserva de Claude web, que comparto: AUC ≥ 0,60 es un piso bajo. Lo que decide es C3.5.
+2. **Capa V: aprobada, con condiciones:**
+   - corpus públicos alcanzables desde el entorno, con la **licencia registrada por corpus**; UD PUD sigue fuera;
+   - declaraciones a ciegas escritas por una **sesión aislada distinta** de la que diseñó el protocolo (un recuerdo
+     cada vez, sin id de documento ni verdad), más el escritor mecánico de control.
+3. **T1:** entra solo la categoría o prioridad de `pmi_hebbiano`, nunca su valor NPMI. Sujeta a C3.1 y C3.5.
+4. **Paso 4:**
+   - invariancia funcional (I-func) exigida al **100 %**;
+   - **primero pesos congelados**, entrenados con corpus públicos;
+   - una adaptación local acotada se evalúa después, solo como retador, contra la guardia sellada del 20 % y con la
+     tolerancia de I-apr fijada antes.
+   - Riesgo anotado por Claude web: los pesos de corpus públicos pueden no transferirse a la memoria real. Eso lo mide
+     la prueba final sellada (punto 1).
+5. **F-A y F-B:** no se abren ciclos en el motor ahora; quedan como tickets para después de cerrar la neurona, junto
+   con la revisión de los `except OperationalError: pass`.
+   - **F-A resultó ser código muerto** (`content_match_counts` no se lee): `h2_ciclo2/HALLAZGOS_DEL_MOTOR_K8.md`,
+     corrección 1.
+6. **Se autoriza ejecutar la capa L.** Resultados: `capa_L/RESULTADOS_CAPA_L.md`.

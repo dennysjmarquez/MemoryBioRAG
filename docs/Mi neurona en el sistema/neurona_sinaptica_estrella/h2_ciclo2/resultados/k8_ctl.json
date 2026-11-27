@@ -4,15 +4,15 @@
   "excepciones_no_capturadas": 0,
   "excepciones_capturadas_en_sueno": {
    "D": {
-    "GeneratorExit @ stemmer_es.py:56": 200,
+    "GeneratorExit @ stemmer_es.py:56": 8521,
     "OperationalError @ ppmi_vectorizer.py:196": 1,
-    "GeneratorExit @ cjk_unidades.py:49": 51,
+    "GeneratorExit @ cjk_unidades.py:49": 4874,
     "ValueError @ ppmi_vectorizer.py:153": 1
    },
    "DI0": {
-    "GeneratorExit @ stemmer_es.py:56": 273,
+    "GeneratorExit @ stemmer_es.py:56": 8664,
     "OperationalError @ ppmi_vectorizer.py:196": 1,
-    "GeneratorExit @ cjk_unidades.py:49": 54,
+    "GeneratorExit @ cjk_unidades.py:49": 6628,
     "ValueError @ ppmi_vectorizer.py:153": 1
    }
   },
@@ -38,15 +38,15 @@
   "excepciones_no_capturadas": 0,
   "excepciones_capturadas_en_sueno": {
    "D": {
-    "GeneratorExit @ stemmer_es.py:56": 169,
+    "GeneratorExit @ stemmer_es.py:56": 8762,
     "OperationalError @ ppmi_vectorizer.py:196": 1,
-    "GeneratorExit @ cjk_unidades.py:49": 65,
+    "GeneratorExit @ cjk_unidades.py:49": 4874,
     "ValueError @ ppmi_vectorizer.py:153": 1
    },
    "DI0": {
-    "GeneratorExit @ stemmer_es.py:56": 264,
+    "GeneratorExit @ stemmer_es.py:56": 8930,
     "OperationalError @ ppmi_vectorizer.py:196": 1,
-    "GeneratorExit @ cjk_unidades.py:49": 62,
+    "GeneratorExit @ cjk_unidades.py:49": 6628,
     "ValueError @ ppmi_vectorizer.py:153": 1
    }
   },
@@ -72,14 +72,14 @@
   "excepciones_no_capturadas": 0,
   "excepciones_capturadas_en_sueno": {
    "D": {
-    "GeneratorExit @ stemmer_es.py:56": 211,
+    "GeneratorExit @ stemmer_es.py:56": 5750,
     "OperationalError @ ppmi_vectorizer.py:196": 1,
-    "GeneratorExit @ cjk_unidades.py:49": 79
+    "GeneratorExit @ cjk_unidades.py:49": 3762
    },
    "DI0": {
-    "GeneratorExit @ stemmer_es.py:56": 280,
+    "GeneratorExit @ stemmer_es.py:56": 5918,
     "OperationalError @ ppmi_vectorizer.py:196": 1,
-    "GeneratorExit @ cjk_unidades.py:49": 98
+    "GeneratorExit @ cjk_unidades.py:49": 5058
    }
   },
   "sin_excepciones": false,
@@ -104,15 +104,15 @@
   "excepciones_no_capturadas": 0,
   "excepciones_capturadas_en_sueno": {
    "D": {
-    "GeneratorExit @ stemmer_es.py:56": 185,
+    "GeneratorExit @ stemmer_es.py:56": 8064,
     "OperationalError @ ppmi_vectorizer.py:196": 1,
-    "GeneratorExit @ cjk_unidades.py:49": 71,
+    "GeneratorExit @ cjk_unidades.py:49": 4518,
     "ValueError @ ppmi_vectorizer.py:153": 1
    },
    "DI0": {
-    "GeneratorExit @ stemmer_es.py:56": 275,
+    "GeneratorExit @ stemmer_es.py:56": 8207,
     "OperationalError @ ppmi_vectorizer.py:196": 1,
-    "GeneratorExit @ cjk_unidades.py:49": 54,
+    "GeneratorExit @ cjk_unidades.py:49": 6258,
     "ValueError @ ppmi_vectorizer.py:153": 1
    }
   },
@@ -138,14 +138,14 @@
   "excepciones_no_capturadas": 0,
   "excepciones_capturadas_en_sueno": {
    "D": {
-    "GeneratorExit @ stemmer_es.py:56": 203,
+    "GeneratorExit @ stemmer_es.py:56": 5573,
     "OperationalError @ ppmi_vectorizer.py:196": 1,
-    "GeneratorExit @ cjk_unidades.py:49": 65
+    "GeneratorExit @ cjk_unidades.py:49": 3482
    },
    "DI0": {
-    "GeneratorExit @ stemmer_es.py:56": 264,
+    "GeneratorExit @ stemmer_es.py:56": 5741,
     "OperationalError @ ppmi_vectorizer.py:196": 1,
-    "GeneratorExit @ cjk_unidades.py:49": 85
+    "GeneratorExit @ cjk_unidades.py:49": 4756
    }
   },
   "sin_excepciones": false,
@@ -170,15 +170,15 @@
   "excepciones_no_capturadas": 0,
   "excepciones_capturadas_en_sueno": {
    "D": {
-    "GeneratorExit @ stemmer_es.py:56": 243,
+    "GeneratorExit @ stemmer_es.py:56": 8973,
     "OperationalError @ ppmi_vectorizer.py:196": 1,
-    "GeneratorExit @ cjk_unidades.py:49": 70,
+    "GeneratorExit @ cjk_unidades.py:49": 4016,
     "ValueError @ ppmi_vectorizer.py:153": 2
    },
    "DI0": {
-    "GeneratorExit @ stemmer_es.py:56": 297,
+    "GeneratorExit @ stemmer_es.py:56": 9061,
     "OperationalError @ ppmi_vectorizer.py:196": 1,
-    "GeneratorExit @ cjk_unidades.py:49": 88
+    "GeneratorExit @ cjk_unidades.py:49": 6159
    }
   },
   "sin_excepciones": false,
@@ -203,15 +203,15 @@
   "excepciones_no_capturadas": 0,
   "excepciones_capturadas_en_sueno": {
    "D": {
-    "GeneratorExit @ stemmer_es.py:56": 240,
+    "GeneratorExit @ stemmer_es.py:56": 9145,
     "OperationalError @ ppmi_vectorizer.py:196": 1,
-    "GeneratorExit @ cjk_unidades.py:49": 71,
+    "GeneratorExit @ cjk_unidades.py:49": 3978,
     "ValueError @ ppmi_vectorizer.py:153": 2
    },
    "DI0": {
-    "GeneratorExit @ stemmer_es.py:56": 290,
+    "GeneratorExit @ stemmer_es.py:56": 9233,
     "OperationalError @ ppmi_vectorizer.py:196": 1,
-    "GeneratorExit @ cjk_unidades.py:49": 77
+    "GeneratorExit @ cjk_unidades.py:49": 6151
    }
   },
   "sin_excepciones": false,
@@ -236,14 +236,14 @@
   "excepciones_no_capturadas": 0,
   "excepciones_capturadas_en_sueno": {
    "D": {
-    "GeneratorExit @ stemmer_es.py:56": 227,
+    "GeneratorExit @ stemmer_es.py:56": 6151,
     "OperationalError @ ppmi_vectorizer.py:196": 1,
-    "GeneratorExit @ cjk_unidades.py:49": 78
+    "GeneratorExit @ cjk_unidades.py:49": 3086
    },
    "DI0": {
-    "GeneratorExit @ stemmer_es.py:56": 282,
+    "GeneratorExit @ stemmer_es.py:56": 6227,
     "OperationalError @ ppmi_vectorizer.py:196": 1,
-    "GeneratorExit @ cjk_unidades.py:49": 108
+    "GeneratorExit @ cjk_unidades.py:49": 4493
    }
   },
   "sin_excepciones": false,
@@ -268,15 +268,15 @@
   "excepciones_no_capturadas": 0,
   "excepciones_capturadas_en_sueno": {
    "D": {
-    "GeneratorExit @ stemmer_es.py:56": 225,
+    "GeneratorExit @ stemmer_es.py:56": 8454,
     "OperationalError @ ppmi_vectorizer.py:196": 1,
-    "GeneratorExit @ cjk_unidades.py:49": 68,
+    "GeneratorExit @ cjk_unidades.py:49": 3800,
     "ValueError @ ppmi_vectorizer.py:153": 2
    },
    "DI0": {
-    "GeneratorExit @ stemmer_es.py:56": 292,
+    "GeneratorExit @ stemmer_es.py:56": 8542,
     "OperationalError @ ppmi_vectorizer.py:196": 1,
-    "GeneratorExit @ cjk_unidades.py:49": 90
+    "GeneratorExit @ cjk_unidades.py:49": 5851
    }
   },
   "sin_excepciones": false,
@@ -301,14 +301,14 @@
   "excepciones_no_capturadas": 0,
   "excepciones_capturadas_en_sueno": {
    "D": {
-    "GeneratorExit @ stemmer_es.py:56": 218,
+    "GeneratorExit @ stemmer_es.py:56": 5843,
     "OperationalError @ ppmi_vectorizer.py:196": 1,
-    "GeneratorExit @ cjk_unidades.py:49": 71
+    "GeneratorExit @ cjk_unidades.py:49": 2940
    },
    "DI0": {
-    "GeneratorExit @ stemmer_es.py:56": 282,
+    "GeneratorExit @ stemmer_es.py:56": 5931,
     "OperationalError @ ppmi_vectorizer.py:196": 1,
-    "GeneratorExit @ cjk_unidades.py:49": 110
+    "GeneratorExit @ cjk_unidades.py:49": 4283
    }
   },
   "sin_excepciones": false,
@@ -333,15 +333,15 @@
   "excepciones_no_capturadas": 0,
   "excepciones_capturadas_en_sueno": {
    "D": {
-    "GeneratorExit @ stemmer_es.py:56": 184,
+    "GeneratorExit @ stemmer_es.py:56": 7749,
     "OperationalError @ ppmi_vectorizer.py:196": 1,
-    "GeneratorExit @ cjk_unidades.py:49": 80,
+    "GeneratorExit @ cjk_unidades.py:49": 3731,
     "ValueError @ ppmi_vectorizer.py:153": 2
    },
    "DI0": {
-    "GeneratorExit @ stemmer_es.py:56": 266,
+    "GeneratorExit @ stemmer_es.py:56": 7820,
     "OperationalError @ ppmi_vectorizer.py:196": 1,
-    "GeneratorExit @ cjk_unidades.py:49": 78,
+    "GeneratorExit @ cjk_unidades.py:49": 4778,
     "ValueError @ ppmi_vectorizer.py:153": 2
    }
   },
@@ -367,15 +367,15 @@
   "excepciones_no_capturadas": 0,
   "excepciones_capturadas_en_sueno": {
    "D": {
-    "GeneratorExit @ stemmer_es.py:56": 186,
+    "GeneratorExit @ stemmer_es.py:56": 7798,
     "OperationalError @ ppmi_vectorizer.py:196": 1,
-    "GeneratorExit @ cjk_unidades.py:49": 83,
+    "GeneratorExit @ cjk_unidades.py:49": 3743,
     "ValueError @ ppmi_vectorizer.py:153": 2
    },
    "DI0": {
-    "GeneratorExit @ stemmer_es.py:56": 269,
+    "GeneratorExit @ stemmer_es.py:56": 7874,
     "OperationalError @ ppmi_vectorizer.py:196": 1,
-    "GeneratorExit @ cjk_unidades.py:49": 78,
+    "GeneratorExit @ cjk_unidades.py:49": 4790,
     "ValueError @ ppmi_vectorizer.py:153": 2
    }
   },
@@ -401,15 +401,15 @@
   "excepciones_no_capturadas": 0,
   "excepciones_capturadas_en_sueno": {
    "D": {
-    "GeneratorExit @ stemmer_es.py:56": 180,
+    "GeneratorExit @ stemmer_es.py:56": 5088,
     "OperationalError @ ppmi_vectorizer.py:196": 1,
-    "GeneratorExit @ cjk_unidades.py:49": 84,
+    "GeneratorExit @ cjk_unidades.py:49": 2921,
     "ValueError @ ppmi_vectorizer.py:153": 3
    },
    "DI0": {
-    "GeneratorExit @ stemmer_es.py:56": 257,
+    "GeneratorExit @ stemmer_es.py:56": 5163,
     "OperationalError @ ppmi_vectorizer.py:196": 1,
-    "GeneratorExit @ cjk_unidades.py:49": 82,
+    "GeneratorExit @ cjk_unidades.py:49": 3632,
     "ValueError @ ppmi_vectorizer.py:153": 3
    }
   },
@@ -435,15 +435,15 @@
   "excepciones_no_capturadas": 0,
   "excepciones_capturadas_en_sueno": {
    "D": {
-    "GeneratorExit @ stemmer_es.py:56": 190,
+    "GeneratorExit @ stemmer_es.py:56": 7259,
     "OperationalError @ ppmi_vectorizer.py:196": 1,
-    "GeneratorExit @ cjk_unidades.py:49": 67,
+    "GeneratorExit @ cjk_unidades.py:49": 3517,
     "ValueError @ ppmi_vectorizer.py:153": 2
    },
    "DI0": {
-    "GeneratorExit @ stemmer_es.py:56": 278,
+    "GeneratorExit @ stemmer_es.py:56": 7330,
     "OperationalError @ ppmi_vectorizer.py:196": 1,
-    "GeneratorExit @ cjk_unidades.py:49": 72,
+    "GeneratorExit @ cjk_unidades.py:49": 4534,
     "ValueError @ ppmi_vectorizer.py:153": 2
    }
   },
@@ -469,15 +469,15 @@
   "excepciones_no_capturadas": 0,
   "excepciones_capturadas_en_sueno": {
    "D": {
-    "GeneratorExit @ stemmer_es.py:56": 193,
+    "GeneratorExit @ stemmer_es.py:56": 4864,
     "OperationalError @ ppmi_vectorizer.py:196": 1,
-    "GeneratorExit @ cjk_unidades.py:49": 77,
+    "GeneratorExit @ cjk_unidades.py:49": 2795,
     "ValueError @ ppmi_vectorizer.py:153": 3
    },
    "DI0": {
-    "GeneratorExit @ stemmer_es.py:56": 256,
+    "GeneratorExit @ stemmer_es.py:56": 4940,
     "OperationalError @ ppmi_vectorizer.py:196": 1,
-    "GeneratorExit @ cjk_unidades.py:49": 95,
+    "GeneratorExit @ cjk_unidades.py:49": 3494,
     "ValueError @ ppmi_vectorizer.py:153": 3
    }
   },

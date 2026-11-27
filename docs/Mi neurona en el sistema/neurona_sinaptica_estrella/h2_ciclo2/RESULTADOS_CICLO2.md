@@ -223,6 +223,10 @@ Nada de esto se implementó en el motor. El siguiente paso, si se aprueba, es el
 - **Por qué se volvió a correr:** Dennys pidió no dejar nada a medias. Se midió con una traza de excepciones
   (`sys.settrace`) dentro de cada sueño del K8. Solo se repitieron el K8 y los controles (1084 s, commits `f146239` y
   `3726cdb`); el resto del ciclo no se tocó.
+- **Corrección de la traza (27-11, observación del auditor de Arena):** deduplicaba por `id(excepción)`, que Python
+  reutiliza. Se corrigió (se guarda el objeto mientras dura el sueño) y se repitió solo K8 (`031b062`). En `real`
+  **faltaban tipos enteros de excepción en 30 celdas**; en `ctl` solo cambiaban las cuentas de `GeneratorExit`. Los
+  campos de estado e importancia salen idénticos y **los veredictos no cambian**.
 - **Resultados** (`resultados/k8_{ctl|real}.json`; tablas en `resultados/tablas.md`, commit `c213df9`):
   - **excepciones no capturadas: 0** en todos los brazos;
   - **excepciones capturadas:** aparecen en **todos** los brazos, incluido T, y son las mismas. Hay benignas (tablas
@@ -232,15 +236,19 @@ Nada de esto se implementó en el motor. El siguiente paso, si se aprueba, es el
   - **K8-brazo** (Δestado e importancia de D = 0 y ninguna excepción que no tenga también T): ✓ en −H2 −4b y en
     H2loc+4bp; ✗ en T, H2loc y 4bp;
   - la fila K8 de §2 se lee como **K8-brazo**. Sus valores no cambian.
-- **Efecto de F-B en lo ya medido [D]:** en el reloj comprimido, 605 de los 777 vectores PPMI de los nodos son ceros.
+- **Efecto de F-B en lo ya medido [D]:** en la única configuración medida (s7/800/D/T/ctl, comprimido), 605 de los
+  777 vectores PPMI de los nodos son ceros; extenderlo al resto es inferencia por el mecanismo.
   El canal PPMI estuvo casi apagado en **todos** los brazos por igual, así que las comparaciones entre brazos siguen
   siendo válidas. Las cifras absolutas de top-k en comprimido llevan esta nota.
 
 ### 6.2 4bp: lo que no se probó
-- 4b-propio excluye los mismos recuerdos inmunes que 4b de hoy.
+- 4b-propio excluye los mismos recuerdos inmunes que 4b de hoy: **comprobado** ejecutando las dos sentencias
+  exactas sobre recuerdos protegidos (`prueba_inmunes_4b.py`). Los dos protegen valencia ≥ 0,8 y Principle/Protocol, y
+  ninguno protege la prioridad 0/1 (H2 y LTD sí).
 - El mundo sintético **no tiene recuerdos inmunes**: todos tienen prioridad 3, valencia 0 y categoría General.
-- Ninguna diferencia de inmunidad entre brazos pudo influir en ningún número, y ningún camino de inmunidad quedó
-  probado. Es una deuda del laboratorio.
+- Ninguna diferencia de inmunidad entre brazos pudo influir en ningún número. La sentencia está probada aparte, pero
+  el camino completo dentro del sueño, no. Es una deuda del laboratorio (la capa L del Paso 3 ya incluye inmunes).
+- **F-A (corrección 1 de `HALLAZGOS_DEL_MOTOR_K8.md`):** es código muerto y no afecta al ranking.
 
 ### 6.3 Cierre (decisión de Dennys, 26-11)
 - **H2/4b se cierra como diagnóstico, sin ciclo 3:**
