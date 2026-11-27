@@ -1,0 +1,1103 @@
+[
+ {
+  "semilla": 7,
+  "n_D": 2400,
+  "reloj_sqlite": true,
+  "info": {
+   "D": {
+    "bridges_rechazados": 3,
+    "vinculos": 282,
+    "dims_inventadas": 9,
+    "t_sueno": 408.51183802099695,
+    "n_suenos": 49,
+    "corte": {
+     "baseline_rowid": 2400
+    },
+    "reloj_final": 1604236000.0,
+    "reloj_sqlite": true,
+    "sqlite_now": 1604236000.0
+   },
+   "Dt": {
+    "bridges_rechazados": 3,
+    "vinculos": 282,
+    "dims_inventadas": 9,
+    "t_sueno": 658.6723797089871,
+    "n_suenos": 62,
+    "corte": {
+     "baseline_rowid": 2400
+    },
+    "reloj_final": 1605359800.0,
+    "reloj_sqlite": true,
+    "sqlite_now": 1605359800.0
+   },
+   "DI0": {
+    "bridges_rechazados": 3,
+    "vinculos": 348,
+    "dims_inventadas": 9,
+    "t_sueno": 768.2428699989941,
+    "n_suenos": 62,
+    "corte": {
+     "baseline_rowid": 2400
+    },
+    "reloj_final": 1605359800.0,
+    "reloj_sqlite": true,
+    "sqlite_now": 1605359800.0
+   },
+   "DI1": {
+    "bridges_rechazados": 5,
+    "vinculos": 354,
+    "dims_inventadas": 9,
+    "t_sueno": 761.9516792230097,
+    "n_suenos": 62,
+    "corte": {
+     "baseline_rowid": 2400
+    },
+    "reloj_final": 1605359800.0,
+    "reloj_sqlite": true,
+    "sqlite_now": 1605359800.0
+   }
+  },
+  "D_vs_Dt": {
+   "dmn_synthesized": {
+    "en_D": 400,
+    "en_W": 504,
+    "en_ambos": 400,
+    "identicas_frac": 0.793651
+   },
+   "manual": {
+    "en_D": 282,
+    "en_W": 282,
+    "en_ambos": 282,
+    "identicas_frac": 1.0
+   },
+   "co_nombre": {
+    "en_D": 904,
+    "en_W": 891,
+    "en_ambos": 891,
+    "identicas_frac": 0.985619
+   },
+   "pmi_hebbiano": {
+    "en_D": 922,
+    "en_W": 784,
+    "en_ambos": 784,
+    "identicas_frac": 0.850325
+   },
+   "co_ocurrencia": {
+    "en_D": 3119,
+    "en_W": 3106,
+    "en_ambos": 3106,
+    "identicas_frac": 0.995832
+   },
+   "co_semantica": {
+    "en_D": 189,
+    "en_W": 189,
+    "en_ambos": 189,
+    "identicas_frac": 1.0
+   },
+   "sinonimo_explicito": {
+    "en_D": 41,
+    "en_W": 41,
+    "en_ambos": 41,
+    "identicas_frac": 1.0
+   }
+  },
+  "D_vs_DI0": {
+   "dmn_synthesized": {
+    "en_D": 400,
+    "en_W": 504,
+    "en_ambos": 400,
+    "identicas_frac": 0.793651
+   },
+   "manual": {
+    "en_D": 282,
+    "en_W": 282,
+    "en_ambos": 282,
+    "identicas_frac": 1.0
+   },
+   "co_nombre": {
+    "en_D": 904,
+    "en_W": 891,
+    "en_ambos": 891,
+    "identicas_frac": 0.985619
+   },
+   "pmi_hebbiano": {
+    "en_D": 922,
+    "en_W": 784,
+    "en_ambos": 784,
+    "identicas_frac": 0.850325
+   },
+   "co_ocurrencia": {
+    "en_D": 3119,
+    "en_W": 3106,
+    "en_ambos": 3106,
+    "identicas_frac": 0.995832
+   },
+   "co_semantica": {
+    "en_D": 189,
+    "en_W": 189,
+    "en_ambos": 189,
+    "identicas_frac": 1.0
+   },
+   "sinonimo_explicito": {
+    "en_D": 41,
+    "en_W": 41,
+    "en_ambos": 41,
+    "identicas_frac": 1.0
+   }
+  },
+  "D_vs_DI1": {
+   "dmn_synthesized": {
+    "en_D": 400,
+    "en_W": 504,
+    "en_ambos": 400,
+    "identicas_frac": 0.793651
+   },
+   "manual": {
+    "en_D": 282,
+    "en_W": 282,
+    "en_ambos": 282,
+    "identicas_frac": 1.0
+   },
+   "co_nombre": {
+    "en_D": 904,
+    "en_W": 891,
+    "en_ambos": 891,
+    "identicas_frac": 0.985619
+   },
+   "pmi_hebbiano": {
+    "en_D": 922,
+    "en_W": 784,
+    "en_ambos": 784,
+    "identicas_frac": 0.850325
+   },
+   "co_ocurrencia": {
+    "en_D": 3119,
+    "en_W": 3106,
+    "en_ambos": 3106,
+    "identicas_frac": 0.995832
+   },
+   "co_semantica": {
+    "en_D": 189,
+    "en_W": 189,
+    "en_ambos": 189,
+    "identicas_frac": 1.0
+   },
+   "sinonimo_explicito": {
+    "en_D": 41,
+    "en_W": 41,
+    "en_ambos": 41,
+    "identicas_frac": 1.0
+   }
+  },
+  "Dt_vs_DI0": {
+   "dmn_synthesized": {
+    "en_D": 504,
+    "en_W": 504,
+    "en_ambos": 504,
+    "identicas_frac": 1.0
+   },
+   "manual": {
+    "en_D": 282,
+    "en_W": 282,
+    "en_ambos": 282,
+    "identicas_frac": 1.0
+   },
+   "co_nombre": {
+    "en_D": 891,
+    "en_W": 891,
+    "en_ambos": 891,
+    "identicas_frac": 1.0
+   },
+   "co_ocurrencia": {
+    "en_D": 3106,
+    "en_W": 3106,
+    "en_ambos": 3106,
+    "identicas_frac": 1.0
+   },
+   "pmi_hebbiano": {
+    "en_D": 784,
+    "en_W": 784,
+    "en_ambos": 784,
+    "identicas_frac": 1.0
+   },
+   "co_semantica": {
+    "en_D": 189,
+    "en_W": 189,
+    "en_ambos": 189,
+    "identicas_frac": 1.0
+   },
+   "sinonimo_explicito": {
+    "en_D": 41,
+    "en_W": 41,
+    "en_ambos": 41,
+    "identicas_frac": 1.0
+   }
+  },
+  "DI0_vs_DI1": {
+   "dmn_synthesized": {
+    "en_D": 504,
+    "en_W": 504,
+    "en_ambos": 504,
+    "identicas_frac": 1.0
+   },
+   "manual": {
+    "en_D": 282,
+    "en_W": 282,
+    "en_ambos": 282,
+    "identicas_frac": 1.0
+   },
+   "co_nombre": {
+    "en_D": 891,
+    "en_W": 891,
+    "en_ambos": 891,
+    "identicas_frac": 1.0
+   },
+   "co_ocurrencia": {
+    "en_D": 3106,
+    "en_W": 3106,
+    "en_ambos": 3106,
+    "identicas_frac": 1.0
+   },
+   "pmi_hebbiano": {
+    "en_D": 784,
+    "en_W": 784,
+    "en_ambos": 784,
+    "identicas_frac": 1.0
+   },
+   "co_semantica": {
+    "en_D": 189,
+    "en_W": 189,
+    "en_ambos": 189,
+    "identicas_frac": 1.0
+   },
+   "sinonimo_explicito": {
+    "en_D": 41,
+    "en_W": 41,
+    "en_ambos": 41,
+    "identicas_frac": 1.0
+   }
+  },
+  "D_vs_DI0_previo": {
+   "co_ocurrencia": {
+    "en_D": 3119,
+    "en_W": 3092,
+    "en_ambos": 3092,
+    "identicas_frac": 0.991343
+   },
+   "co_semantica": {
+    "en_D": 189,
+    "en_W": 189,
+    "en_ambos": 189,
+    "identicas_frac": 1.0
+   },
+   "co_nombre": {
+    "en_D": 904,
+    "en_W": 860,
+    "en_ambos": 860,
+    "identicas_frac": 0.951327
+   },
+   "pmi_hebbiano": {
+    "en_D": 922,
+    "en_W": 763,
+    "en_ambos": 763,
+    "identicas_frac": 0.827549
+   },
+   "manual": {
+    "en_D": 282,
+    "en_W": 282,
+    "en_ambos": 282,
+    "identicas_frac": 1.0
+   },
+   "dmn_synthesized": {
+    "en_D": 400,
+    "en_W": 504,
+    "en_ambos": 400,
+    "identicas_frac": 0.793651
+   },
+   "sinonimo_explicito": {
+    "en_D": 41,
+    "en_W": 40,
+    "en_ambos": 40,
+    "identicas_frac": 0.97561
+   }
+  },
+  "D_vs_DI1_previo": {
+   "co_ocurrencia": {
+    "en_D": 3119,
+    "en_W": 3092,
+    "en_ambos": 3092,
+    "identicas_frac": 0.991343
+   },
+   "co_semantica": {
+    "en_D": 189,
+    "en_W": 189,
+    "en_ambos": 189,
+    "identicas_frac": 1.0
+   },
+   "co_nombre": {
+    "en_D": 904,
+    "en_W": 860,
+    "en_ambos": 860,
+    "identicas_frac": 0.951327
+   },
+   "pmi_hebbiano": {
+    "en_D": 922,
+    "en_W": 763,
+    "en_ambos": 763,
+    "identicas_frac": 0.827549
+   },
+   "manual": {
+    "en_D": 282,
+    "en_W": 282,
+    "en_ambos": 282,
+    "identicas_frac": 1.0
+   },
+   "dmn_synthesized": {
+    "en_D": 400,
+    "en_W": 504,
+    "en_ambos": 400,
+    "identicas_frac": 0.793651
+   },
+   "sinonimo_explicito": {
+    "en_D": 41,
+    "en_W": 40,
+    "en_ambos": 40,
+    "identicas_frac": 0.97561
+   }
+  }
+ },
+ {
+  "semilla": 11,
+  "n_D": 2400,
+  "reloj_sqlite": true,
+  "info": {
+   "D": {
+    "bridges_rechazados": 7,
+    "vinculos": 287,
+    "dims_inventadas": 10,
+    "t_sueno": 404.3615166239979,
+    "n_suenos": 49,
+    "corte": {
+     "baseline_rowid": 2400
+    },
+    "reloj_final": 1604236000.0,
+    "reloj_sqlite": true,
+    "sqlite_now": 1604236000.0
+   },
+   "Dt": {
+    "bridges_rechazados": 7,
+    "vinculos": 287,
+    "dims_inventadas": 10,
+    "t_sueno": 631.6155449499965,
+    "n_suenos": 62,
+    "corte": {
+     "baseline_rowid": 2400
+    },
+    "reloj_final": 1605359800.0,
+    "reloj_sqlite": true,
+    "sqlite_now": 1605359800.0
+   },
+   "DI0": {
+    "bridges_rechazados": 8,
+    "vinculos": 361,
+    "dims_inventadas": 10,
+    "t_sueno": 749.16844481101,
+    "n_suenos": 62,
+    "corte": {
+     "baseline_rowid": 2400
+    },
+    "reloj_final": 1605359800.0,
+    "reloj_sqlite": true,
+    "sqlite_now": 1605359800.0
+   },
+   "DI1": {
+    "bridges_rechazados": 9,
+    "vinculos": 369,
+    "dims_inventadas": 10,
+    "t_sueno": 749.1231813400154,
+    "n_suenos": 62,
+    "corte": {
+     "baseline_rowid": 2400
+    },
+    "reloj_final": 1605359800.0,
+    "reloj_sqlite": true,
+    "sqlite_now": 1605359800.0
+   }
+  },
+  "D_vs_Dt": {
+   "co_ocurrencia": {
+    "en_D": 3403,
+    "en_W": 3362,
+    "en_ambos": 3362,
+    "identicas_frac": 0.987952
+   },
+   "dmn_synthesized": {
+    "en_D": 400,
+    "en_W": 504,
+    "en_ambos": 400,
+    "identicas_frac": 0.793651
+   },
+   "co_nombre": {
+    "en_D": 772,
+    "en_W": 764,
+    "en_ambos": 764,
+    "identicas_frac": 0.989637
+   },
+   "co_semantica": {
+    "en_D": 156,
+    "en_W": 156,
+    "en_ambos": 156,
+    "identicas_frac": 1.0
+   },
+   "pmi_hebbiano": {
+    "en_D": 929,
+    "en_W": 854,
+    "en_ambos": 854,
+    "identicas_frac": 0.919268
+   },
+   "manual": {
+    "en_D": 287,
+    "en_W": 287,
+    "en_ambos": 287,
+    "identicas_frac": 1.0
+   },
+   "sinonimo_explicito": {
+    "en_D": 44,
+    "en_W": 44,
+    "en_ambos": 44,
+    "identicas_frac": 1.0
+   }
+  },
+  "D_vs_DI0": {
+   "co_ocurrencia": {
+    "en_D": 3403,
+    "en_W": 3362,
+    "en_ambos": 3362,
+    "identicas_frac": 0.987952
+   },
+   "dmn_synthesized": {
+    "en_D": 400,
+    "en_W": 504,
+    "en_ambos": 400,
+    "identicas_frac": 0.793651
+   },
+   "co_nombre": {
+    "en_D": 772,
+    "en_W": 764,
+    "en_ambos": 764,
+    "identicas_frac": 0.989637
+   },
+   "co_semantica": {
+    "en_D": 156,
+    "en_W": 156,
+    "en_ambos": 156,
+    "identicas_frac": 1.0
+   },
+   "pmi_hebbiano": {
+    "en_D": 929,
+    "en_W": 854,
+    "en_ambos": 854,
+    "identicas_frac": 0.919268
+   },
+   "manual": {
+    "en_D": 287,
+    "en_W": 287,
+    "en_ambos": 287,
+    "identicas_frac": 1.0
+   },
+   "sinonimo_explicito": {
+    "en_D": 44,
+    "en_W": 44,
+    "en_ambos": 44,
+    "identicas_frac": 1.0
+   }
+  },
+  "D_vs_DI1": {
+   "co_ocurrencia": {
+    "en_D": 3403,
+    "en_W": 3362,
+    "en_ambos": 3362,
+    "identicas_frac": 0.987952
+   },
+   "dmn_synthesized": {
+    "en_D": 400,
+    "en_W": 504,
+    "en_ambos": 400,
+    "identicas_frac": 0.793651
+   },
+   "co_nombre": {
+    "en_D": 772,
+    "en_W": 764,
+    "en_ambos": 764,
+    "identicas_frac": 0.989637
+   },
+   "co_semantica": {
+    "en_D": 156,
+    "en_W": 156,
+    "en_ambos": 156,
+    "identicas_frac": 1.0
+   },
+   "pmi_hebbiano": {
+    "en_D": 929,
+    "en_W": 854,
+    "en_ambos": 854,
+    "identicas_frac": 0.919268
+   },
+   "manual": {
+    "en_D": 287,
+    "en_W": 287,
+    "en_ambos": 287,
+    "identicas_frac": 1.0
+   },
+   "sinonimo_explicito": {
+    "en_D": 44,
+    "en_W": 44,
+    "en_ambos": 44,
+    "identicas_frac": 1.0
+   }
+  },
+  "Dt_vs_DI0": {
+   "co_ocurrencia": {
+    "en_D": 3362,
+    "en_W": 3362,
+    "en_ambos": 3362,
+    "identicas_frac": 1.0
+   },
+   "dmn_synthesized": {
+    "en_D": 504,
+    "en_W": 504,
+    "en_ambos": 472,
+    "identicas_frac": 0.880597
+   },
+   "co_nombre": {
+    "en_D": 764,
+    "en_W": 764,
+    "en_ambos": 764,
+    "identicas_frac": 1.0
+   },
+   "co_semantica": {
+    "en_D": 156,
+    "en_W": 156,
+    "en_ambos": 156,
+    "identicas_frac": 1.0
+   },
+   "pmi_hebbiano": {
+    "en_D": 854,
+    "en_W": 854,
+    "en_ambos": 854,
+    "identicas_frac": 1.0
+   },
+   "manual": {
+    "en_D": 287,
+    "en_W": 287,
+    "en_ambos": 287,
+    "identicas_frac": 1.0
+   },
+   "sinonimo_explicito": {
+    "en_D": 44,
+    "en_W": 44,
+    "en_ambos": 44,
+    "identicas_frac": 1.0
+   }
+  },
+  "DI0_vs_DI1": {
+   "co_ocurrencia": {
+    "en_D": 3362,
+    "en_W": 3362,
+    "en_ambos": 3362,
+    "identicas_frac": 1.0
+   },
+   "dmn_synthesized": {
+    "en_D": 504,
+    "en_W": 504,
+    "en_ambos": 496,
+    "identicas_frac": 0.96875
+   },
+   "co_nombre": {
+    "en_D": 764,
+    "en_W": 764,
+    "en_ambos": 764,
+    "identicas_frac": 1.0
+   },
+   "co_semantica": {
+    "en_D": 156,
+    "en_W": 156,
+    "en_ambos": 156,
+    "identicas_frac": 1.0
+   },
+   "pmi_hebbiano": {
+    "en_D": 854,
+    "en_W": 854,
+    "en_ambos": 854,
+    "identicas_frac": 1.0
+   },
+   "manual": {
+    "en_D": 287,
+    "en_W": 287,
+    "en_ambos": 287,
+    "identicas_frac": 1.0
+   },
+   "sinonimo_explicito": {
+    "en_D": 44,
+    "en_W": 44,
+    "en_ambos": 44,
+    "identicas_frac": 1.0
+   }
+  },
+  "D_vs_DI0_previo": {
+   "co_ocurrencia": {
+    "en_D": 3393,
+    "en_W": 3325,
+    "en_ambos": 3325,
+    "identicas_frac": 0.979959
+   },
+   "co_nombre": {
+    "en_D": 772,
+    "en_W": 730,
+    "en_ambos": 730,
+    "identicas_frac": 0.945596
+   },
+   "co_semantica": {
+    "en_D": 156,
+    "en_W": 156,
+    "en_ambos": 156,
+    "identicas_frac": 1.0
+   },
+   "dmn_synthesized": {
+    "en_D": 400,
+    "en_W": 504,
+    "en_ambos": 400,
+    "identicas_frac": 0.793651
+   },
+   "pmi_hebbiano": {
+    "en_D": 929,
+    "en_W": 736,
+    "en_ambos": 736,
+    "identicas_frac": 0.79225
+   },
+   "manual": {
+    "en_D": 287,
+    "en_W": 287,
+    "en_ambos": 287,
+    "identicas_frac": 1.0
+   },
+   "sinonimo_explicito": {
+    "en_D": 44,
+    "en_W": 43,
+    "en_ambos": 43,
+    "identicas_frac": 0.977273
+   }
+  },
+  "D_vs_DI1_previo": {
+   "co_ocurrencia": {
+    "en_D": 3393,
+    "en_W": 3325,
+    "en_ambos": 3325,
+    "identicas_frac": 0.979959
+   },
+   "co_nombre": {
+    "en_D": 772,
+    "en_W": 730,
+    "en_ambos": 730,
+    "identicas_frac": 0.945596
+   },
+   "co_semantica": {
+    "en_D": 156,
+    "en_W": 156,
+    "en_ambos": 156,
+    "identicas_frac": 1.0
+   },
+   "dmn_synthesized": {
+    "en_D": 400,
+    "en_W": 504,
+    "en_ambos": 400,
+    "identicas_frac": 0.793651
+   },
+   "pmi_hebbiano": {
+    "en_D": 929,
+    "en_W": 736,
+    "en_ambos": 736,
+    "identicas_frac": 0.79225
+   },
+   "manual": {
+    "en_D": 287,
+    "en_W": 287,
+    "en_ambos": 287,
+    "identicas_frac": 1.0
+   },
+   "sinonimo_explicito": {
+    "en_D": 44,
+    "en_W": 43,
+    "en_ambos": 43,
+    "identicas_frac": 0.977273
+   }
+  }
+ },
+ {
+  "semilla": 23,
+  "n_D": 2400,
+  "reloj_sqlite": true,
+  "info": {
+   "D": {
+    "bridges_rechazados": 10,
+    "vinculos": 309,
+    "dims_inventadas": 10,
+    "t_sueno": 402.06106450499647,
+    "n_suenos": 49,
+    "corte": {
+     "baseline_rowid": 2400
+    },
+    "reloj_final": 1604236000.0,
+    "reloj_sqlite": true,
+    "sqlite_now": 1604236000.0
+   },
+   "Dt": {
+    "bridges_rechazados": 10,
+    "vinculos": 309,
+    "dims_inventadas": 10,
+    "t_sueno": 628.0299110579981,
+    "n_suenos": 62,
+    "corte": {
+     "baseline_rowid": 2400
+    },
+    "reloj_final": 1605359800.0,
+    "reloj_sqlite": true,
+    "sqlite_now": 1605359800.0
+   },
+   "DI0": {
+    "bridges_rechazados": 11,
+    "vinculos": 381,
+    "dims_inventadas": 10,
+    "t_sueno": 759.4180841029811,
+    "n_suenos": 62,
+    "corte": {
+     "baseline_rowid": 2400
+    },
+    "reloj_final": 1605359800.0,
+    "reloj_sqlite": true,
+    "sqlite_now": 1605359800.0
+   },
+   "DI1": {
+    "bridges_rechazados": 11,
+    "vinculos": 392,
+    "dims_inventadas": 10,
+    "t_sueno": 741.9245288329985,
+    "n_suenos": 62,
+    "corte": {
+     "baseline_rowid": 2400
+    },
+    "reloj_final": 1605359800.0,
+    "reloj_sqlite": true,
+    "sqlite_now": 1605359800.0
+   }
+  },
+  "D_vs_Dt": {
+   "co_ocurrencia": {
+    "en_D": 2956,
+    "en_W": 2927,
+    "en_ambos": 2927,
+    "identicas_frac": 0.990189
+   },
+   "pmi_hebbiano": {
+    "en_D": 477,
+    "en_W": 477,
+    "en_ambos": 477,
+    "identicas_frac": 1.0
+   },
+   "manual": {
+    "en_D": 309,
+    "en_W": 309,
+    "en_ambos": 309,
+    "identicas_frac": 1.0
+   },
+   "co_nombre": {
+    "en_D": 722,
+    "en_W": 716,
+    "en_ambos": 716,
+    "identicas_frac": 0.99169
+   },
+   "dmn_synthesized": {
+    "en_D": 400,
+    "en_W": 504,
+    "en_ambos": 400,
+    "identicas_frac": 0.793651
+   },
+   "co_semantica": {
+    "en_D": 156,
+    "en_W": 156,
+    "en_ambos": 156,
+    "identicas_frac": 1.0
+   },
+   "sinonimo_explicito": {
+    "en_D": 45,
+    "en_W": 45,
+    "en_ambos": 45,
+    "identicas_frac": 1.0
+   }
+  },
+  "D_vs_DI0": {
+   "co_ocurrencia": {
+    "en_D": 2956,
+    "en_W": 2927,
+    "en_ambos": 2927,
+    "identicas_frac": 0.990189
+   },
+   "pmi_hebbiano": {
+    "en_D": 477,
+    "en_W": 477,
+    "en_ambos": 477,
+    "identicas_frac": 1.0
+   },
+   "manual": {
+    "en_D": 309,
+    "en_W": 309,
+    "en_ambos": 309,
+    "identicas_frac": 1.0
+   },
+   "co_nombre": {
+    "en_D": 722,
+    "en_W": 716,
+    "en_ambos": 716,
+    "identicas_frac": 0.99169
+   },
+   "dmn_synthesized": {
+    "en_D": 400,
+    "en_W": 504,
+    "en_ambos": 400,
+    "identicas_frac": 0.793651
+   },
+   "co_semantica": {
+    "en_D": 156,
+    "en_W": 156,
+    "en_ambos": 156,
+    "identicas_frac": 1.0
+   },
+   "sinonimo_explicito": {
+    "en_D": 45,
+    "en_W": 45,
+    "en_ambos": 45,
+    "identicas_frac": 1.0
+   }
+  },
+  "D_vs_DI1": {
+   "co_ocurrencia": {
+    "en_D": 2956,
+    "en_W": 2927,
+    "en_ambos": 2927,
+    "identicas_frac": 0.990189
+   },
+   "pmi_hebbiano": {
+    "en_D": 477,
+    "en_W": 477,
+    "en_ambos": 477,
+    "identicas_frac": 1.0
+   },
+   "manual": {
+    "en_D": 309,
+    "en_W": 309,
+    "en_ambos": 309,
+    "identicas_frac": 1.0
+   },
+   "co_nombre": {
+    "en_D": 722,
+    "en_W": 716,
+    "en_ambos": 716,
+    "identicas_frac": 0.99169
+   },
+   "dmn_synthesized": {
+    "en_D": 400,
+    "en_W": 504,
+    "en_ambos": 400,
+    "identicas_frac": 0.793651
+   },
+   "co_semantica": {
+    "en_D": 156,
+    "en_W": 156,
+    "en_ambos": 156,
+    "identicas_frac": 1.0
+   },
+   "sinonimo_explicito": {
+    "en_D": 45,
+    "en_W": 45,
+    "en_ambos": 45,
+    "identicas_frac": 1.0
+   }
+  },
+  "Dt_vs_DI0": {
+   "co_ocurrencia": {
+    "en_D": 2927,
+    "en_W": 2927,
+    "en_ambos": 2927,
+    "identicas_frac": 1.0
+   },
+   "pmi_hebbiano": {
+    "en_D": 477,
+    "en_W": 477,
+    "en_ambos": 477,
+    "identicas_frac": 1.0
+   },
+   "manual": {
+    "en_D": 309,
+    "en_W": 309,
+    "en_ambos": 309,
+    "identicas_frac": 1.0
+   },
+   "co_nombre": {
+    "en_D": 716,
+    "en_W": 716,
+    "en_ambos": 716,
+    "identicas_frac": 1.0
+   },
+   "dmn_synthesized": {
+    "en_D": 504,
+    "en_W": 504,
+    "en_ambos": 504,
+    "identicas_frac": 1.0
+   },
+   "co_semantica": {
+    "en_D": 156,
+    "en_W": 156,
+    "en_ambos": 156,
+    "identicas_frac": 1.0
+   },
+   "sinonimo_explicito": {
+    "en_D": 45,
+    "en_W": 45,
+    "en_ambos": 45,
+    "identicas_frac": 1.0
+   }
+  },
+  "DI0_vs_DI1": {
+   "co_ocurrencia": {
+    "en_D": 2927,
+    "en_W": 2927,
+    "en_ambos": 2927,
+    "identicas_frac": 1.0
+   },
+   "pmi_hebbiano": {
+    "en_D": 477,
+    "en_W": 477,
+    "en_ambos": 477,
+    "identicas_frac": 1.0
+   },
+   "manual": {
+    "en_D": 309,
+    "en_W": 309,
+    "en_ambos": 309,
+    "identicas_frac": 1.0
+   },
+   "co_nombre": {
+    "en_D": 716,
+    "en_W": 716,
+    "en_ambos": 716,
+    "identicas_frac": 1.0
+   },
+   "dmn_synthesized": {
+    "en_D": 504,
+    "en_W": 504,
+    "en_ambos": 504,
+    "identicas_frac": 1.0
+   },
+   "co_semantica": {
+    "en_D": 156,
+    "en_W": 156,
+    "en_ambos": 156,
+    "identicas_frac": 1.0
+   },
+   "sinonimo_explicito": {
+    "en_D": 45,
+    "en_W": 45,
+    "en_ambos": 45,
+    "identicas_frac": 1.0
+   }
+  },
+  "D_vs_DI0_previo": {
+   "co_ocurrencia": {
+    "en_D": 2947,
+    "en_W": 2903,
+    "en_ambos": 2903,
+    "identicas_frac": 0.98507
+   },
+   "pmi_hebbiano": {
+    "en_D": 477,
+    "en_W": 404,
+    "en_ambos": 404,
+    "identicas_frac": 0.84696
+   },
+   "co_semantica": {
+    "en_D": 156,
+    "en_W": 156,
+    "en_ambos": 156,
+    "identicas_frac": 1.0
+   },
+   "sinonimo_explicito": {
+    "en_D": 45,
+    "en_W": 45,
+    "en_ambos": 45,
+    "identicas_frac": 1.0
+   },
+   "co_nombre": {
+    "en_D": 722,
+    "en_W": 672,
+    "en_ambos": 672,
+    "identicas_frac": 0.930748
+   },
+   "manual": {
+    "en_D": 309,
+    "en_W": 309,
+    "en_ambos": 309,
+    "identicas_frac": 1.0
+   },
+   "dmn_synthesized": {
+    "en_D": 400,
+    "en_W": 504,
+    "en_ambos": 400,
+    "identicas_frac": 0.793651
+   }
+  },
+  "D_vs_DI1_previo": {
+   "co_ocurrencia": {
+    "en_D": 2947,
+    "en_W": 2903,
+    "en_ambos": 2903,
+    "identicas_frac": 0.98507
+   },
+   "pmi_hebbiano": {
+    "en_D": 477,
+    "en_W": 404,
+    "en_ambos": 404,
+    "identicas_frac": 0.84696
+   },
+   "co_semantica": {
+    "en_D": 156,
+    "en_W": 156,
+    "en_ambos": 156,
+    "identicas_frac": 1.0
+   },
+   "sinonimo_explicito": {
+    "en_D": 45,
+    "en_W": 45,
+    "en_ambos": 45,
+    "identicas_frac": 1.0
+   },
+   "co_nombre": {
+    "en_D": 722,
+    "en_W": 672,
+    "en_ambos": 672,
+    "identicas_frac": 0.930748
+   },
+   "manual": {
+    "en_D": 309,
+    "en_W": 309,
+    "en_ambos": 309,
+    "identicas_frac": 1.0
+   },
+   "dmn_synthesized": {
+    "en_D": 400,
+    "en_W": 504,
+    "en_ambos": 400,
+    "identicas_frac": 0.793651
+   }
+  }
+ }
+]
