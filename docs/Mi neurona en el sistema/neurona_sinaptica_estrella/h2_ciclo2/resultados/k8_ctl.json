@@ -1,7 +1,22 @@
 {
  "s7|T": {
   "ciclos": 80,
-  "sin_excepciones": true,
+  "excepciones_no_capturadas": 0,
+  "excepciones_capturadas_en_sueno": {
+   "D": {
+    "GeneratorExit @ stemmer_es.py:56": 200,
+    "OperationalError @ ppmi_vectorizer.py:196": 1,
+    "GeneratorExit @ cjk_unidades.py:49": 51,
+    "ValueError @ ppmi_vectorizer.py:153": 1
+   },
+   "DI0": {
+    "GeneratorExit @ stemmer_es.py:56": 273,
+    "OperationalError @ ppmi_vectorizer.py:196": 1,
+    "GeneratorExit @ cjk_unidades.py:49": 54,
+    "ValueError @ ppmi_vectorizer.py:153": 1
+   }
+  },
+  "sin_excepciones": false,
   "recuerdos_dormidos_mas_de_una_vez": 0,
   "dormidos_por_H2_o_H2loc": 5,
   "dormidos_por_peso_propio": 345,
@@ -20,7 +35,22 @@
  },
  "s7|-H2-4b": {
   "ciclos": 80,
-  "sin_excepciones": true,
+  "excepciones_no_capturadas": 0,
+  "excepciones_capturadas_en_sueno": {
+   "D": {
+    "GeneratorExit @ stemmer_es.py:56": 169,
+    "OperationalError @ ppmi_vectorizer.py:196": 1,
+    "GeneratorExit @ cjk_unidades.py:49": 65,
+    "ValueError @ ppmi_vectorizer.py:153": 1
+   },
+   "DI0": {
+    "GeneratorExit @ stemmer_es.py:56": 264,
+    "OperationalError @ ppmi_vectorizer.py:196": 1,
+    "GeneratorExit @ cjk_unidades.py:49": 62,
+    "ValueError @ ppmi_vectorizer.py:153": 1
+   }
+  },
+  "sin_excepciones": false,
   "recuerdos_dormidos_mas_de_una_vez": 0,
   "dormidos_por_H2_o_H2loc": 0,
   "dormidos_por_peso_propio": 350,
@@ -39,7 +69,20 @@
  },
  "s7|H2loc": {
   "ciclos": 80,
-  "sin_excepciones": true,
+  "excepciones_no_capturadas": 0,
+  "excepciones_capturadas_en_sueno": {
+   "D": {
+    "GeneratorExit @ stemmer_es.py:56": 211,
+    "OperationalError @ ppmi_vectorizer.py:196": 1,
+    "GeneratorExit @ cjk_unidades.py:49": 79
+   },
+   "DI0": {
+    "GeneratorExit @ stemmer_es.py:56": 280,
+    "OperationalError @ ppmi_vectorizer.py:196": 1,
+    "GeneratorExit @ cjk_unidades.py:49": 98
+   }
+  },
+  "sin_excepciones": false,
   "recuerdos_dormidos_mas_de_una_vez": 0,
   "dormidos_por_H2_o_H2loc": 184,
   "dormidos_por_peso_propio": 190,
@@ -58,7 +101,22 @@
  },
  "s7|4bp": {
   "ciclos": 80,
-  "sin_excepciones": true,
+  "excepciones_no_capturadas": 0,
+  "excepciones_capturadas_en_sueno": {
+   "D": {
+    "GeneratorExit @ stemmer_es.py:56": 185,
+    "OperationalError @ ppmi_vectorizer.py:196": 1,
+    "GeneratorExit @ cjk_unidades.py:49": 71,
+    "ValueError @ ppmi_vectorizer.py:153": 1
+   },
+   "DI0": {
+    "GeneratorExit @ stemmer_es.py:56": 275,
+    "OperationalError @ ppmi_vectorizer.py:196": 1,
+    "GeneratorExit @ cjk_unidades.py:49": 54,
+    "ValueError @ ppmi_vectorizer.py:153": 1
+   }
+  },
+  "sin_excepciones": false,
   "recuerdos_dormidos_mas_de_una_vez": 0,
   "dormidos_por_H2_o_H2loc": 5,
   "dormidos_por_peso_propio": 350,
@@ -77,7 +135,20 @@
  },
  "s7|H2loc+4bp": {
   "ciclos": 80,
-  "sin_excepciones": true,
+  "excepciones_no_capturadas": 0,
+  "excepciones_capturadas_en_sueno": {
+   "D": {
+    "GeneratorExit @ stemmer_es.py:56": 203,
+    "OperationalError @ ppmi_vectorizer.py:196": 1,
+    "GeneratorExit @ cjk_unidades.py:49": 65
+   },
+   "DI0": {
+    "GeneratorExit @ stemmer_es.py:56": 264,
+    "OperationalError @ ppmi_vectorizer.py:196": 1,
+    "GeneratorExit @ cjk_unidades.py:49": 85
+   }
+  },
+  "sin_excepciones": false,
   "recuerdos_dormidos_mas_de_una_vez": 0,
   "dormidos_por_H2_o_H2loc": 184,
   "dormidos_por_peso_propio": 193,
@@ -96,7 +167,21 @@
  },
  "s11|T": {
   "ciclos": 80,
-  "sin_excepciones": true,
+  "excepciones_no_capturadas": 0,
+  "excepciones_capturadas_en_sueno": {
+   "D": {
+    "GeneratorExit @ stemmer_es.py:56": 243,
+    "OperationalError @ ppmi_vectorizer.py:196": 1,
+    "GeneratorExit @ cjk_unidades.py:49": 70,
+    "ValueError @ ppmi_vectorizer.py:153": 2
+   },
+   "DI0": {
+    "GeneratorExit @ stemmer_es.py:56": 297,
+    "OperationalError @ ppmi_vectorizer.py:196": 1,
+    "GeneratorExit @ cjk_unidades.py:49": 88
+   }
+  },
+  "sin_excepciones": false,
   "recuerdos_dormidos_mas_de_una_vez": 0,
   "dormidos_por_H2_o_H2loc": 5,
   "dormidos_por_peso_propio": 345,
@@ -115,7 +200,21 @@
  },
  "s11|-H2-4b": {
   "ciclos": 80,
-  "sin_excepciones": true,
+  "excepciones_no_capturadas": 0,
+  "excepciones_capturadas_en_sueno": {
+   "D": {
+    "GeneratorExit @ stemmer_es.py:56": 240,
+    "OperationalError @ ppmi_vectorizer.py:196": 1,
+    "GeneratorExit @ cjk_unidades.py:49": 71,
+    "ValueError @ ppmi_vectorizer.py:153": 2
+   },
+   "DI0": {
+    "GeneratorExit @ stemmer_es.py:56": 290,
+    "OperationalError @ ppmi_vectorizer.py:196": 1,
+    "GeneratorExit @ cjk_unidades.py:49": 77
+   }
+  },
+  "sin_excepciones": false,
   "recuerdos_dormidos_mas_de_una_vez": 0,
   "dormidos_por_H2_o_H2loc": 0,
   "dormidos_por_peso_propio": 350,
@@ -134,7 +233,20 @@
  },
  "s11|H2loc": {
   "ciclos": 80,
-  "sin_excepciones": true,
+  "excepciones_no_capturadas": 0,
+  "excepciones_capturadas_en_sueno": {
+   "D": {
+    "GeneratorExit @ stemmer_es.py:56": 227,
+    "OperationalError @ ppmi_vectorizer.py:196": 1,
+    "GeneratorExit @ cjk_unidades.py:49": 78
+   },
+   "DI0": {
+    "GeneratorExit @ stemmer_es.py:56": 282,
+    "OperationalError @ ppmi_vectorizer.py:196": 1,
+    "GeneratorExit @ cjk_unidades.py:49": 108
+   }
+  },
+  "sin_excepciones": false,
   "recuerdos_dormidos_mas_de_una_vez": 0,
   "dormidos_por_H2_o_H2loc": 184,
   "dormidos_por_peso_propio": 192,
@@ -153,7 +265,21 @@
  },
  "s11|4bp": {
   "ciclos": 80,
-  "sin_excepciones": true,
+  "excepciones_no_capturadas": 0,
+  "excepciones_capturadas_en_sueno": {
+   "D": {
+    "GeneratorExit @ stemmer_es.py:56": 225,
+    "OperationalError @ ppmi_vectorizer.py:196": 1,
+    "GeneratorExit @ cjk_unidades.py:49": 68,
+    "ValueError @ ppmi_vectorizer.py:153": 2
+   },
+   "DI0": {
+    "GeneratorExit @ stemmer_es.py:56": 292,
+    "OperationalError @ ppmi_vectorizer.py:196": 1,
+    "GeneratorExit @ cjk_unidades.py:49": 90
+   }
+  },
+  "sin_excepciones": false,
   "recuerdos_dormidos_mas_de_una_vez": 0,
   "dormidos_por_H2_o_H2loc": 5,
   "dormidos_por_peso_propio": 350,
@@ -172,7 +298,20 @@
  },
  "s11|H2loc+4bp": {
   "ciclos": 80,
-  "sin_excepciones": true,
+  "excepciones_no_capturadas": 0,
+  "excepciones_capturadas_en_sueno": {
+   "D": {
+    "GeneratorExit @ stemmer_es.py:56": 218,
+    "OperationalError @ ppmi_vectorizer.py:196": 1,
+    "GeneratorExit @ cjk_unidades.py:49": 71
+   },
+   "DI0": {
+    "GeneratorExit @ stemmer_es.py:56": 282,
+    "OperationalError @ ppmi_vectorizer.py:196": 1,
+    "GeneratorExit @ cjk_unidades.py:49": 110
+   }
+  },
+  "sin_excepciones": false,
   "recuerdos_dormidos_mas_de_una_vez": 0,
   "dormidos_por_H2_o_H2loc": 185,
   "dormidos_por_peso_propio": 193,
@@ -191,7 +330,22 @@
  },
  "s23|T": {
   "ciclos": 80,
-  "sin_excepciones": true,
+  "excepciones_no_capturadas": 0,
+  "excepciones_capturadas_en_sueno": {
+   "D": {
+    "GeneratorExit @ stemmer_es.py:56": 184,
+    "OperationalError @ ppmi_vectorizer.py:196": 1,
+    "GeneratorExit @ cjk_unidades.py:49": 80,
+    "ValueError @ ppmi_vectorizer.py:153": 2
+   },
+   "DI0": {
+    "GeneratorExit @ stemmer_es.py:56": 266,
+    "OperationalError @ ppmi_vectorizer.py:196": 1,
+    "GeneratorExit @ cjk_unidades.py:49": 78,
+    "ValueError @ ppmi_vectorizer.py:153": 2
+   }
+  },
+  "sin_excepciones": false,
   "recuerdos_dormidos_mas_de_una_vez": 0,
   "dormidos_por_H2_o_H2loc": 5,
   "dormidos_por_peso_propio": 345,
@@ -210,7 +364,22 @@
  },
  "s23|-H2-4b": {
   "ciclos": 80,
-  "sin_excepciones": true,
+  "excepciones_no_capturadas": 0,
+  "excepciones_capturadas_en_sueno": {
+   "D": {
+    "GeneratorExit @ stemmer_es.py:56": 186,
+    "OperationalError @ ppmi_vectorizer.py:196": 1,
+    "GeneratorExit @ cjk_unidades.py:49": 83,
+    "ValueError @ ppmi_vectorizer.py:153": 2
+   },
+   "DI0": {
+    "GeneratorExit @ stemmer_es.py:56": 269,
+    "OperationalError @ ppmi_vectorizer.py:196": 1,
+    "GeneratorExit @ cjk_unidades.py:49": 78,
+    "ValueError @ ppmi_vectorizer.py:153": 2
+   }
+  },
+  "sin_excepciones": false,
   "recuerdos_dormidos_mas_de_una_vez": 0,
   "dormidos_por_H2_o_H2loc": 0,
   "dormidos_por_peso_propio": 350,
@@ -229,7 +398,22 @@
  },
  "s23|H2loc": {
   "ciclos": 80,
-  "sin_excepciones": true,
+  "excepciones_no_capturadas": 0,
+  "excepciones_capturadas_en_sueno": {
+   "D": {
+    "GeneratorExit @ stemmer_es.py:56": 180,
+    "OperationalError @ ppmi_vectorizer.py:196": 1,
+    "GeneratorExit @ cjk_unidades.py:49": 84,
+    "ValueError @ ppmi_vectorizer.py:153": 3
+   },
+   "DI0": {
+    "GeneratorExit @ stemmer_es.py:56": 257,
+    "OperationalError @ ppmi_vectorizer.py:196": 1,
+    "GeneratorExit @ cjk_unidades.py:49": 82,
+    "ValueError @ ppmi_vectorizer.py:153": 3
+   }
+  },
+  "sin_excepciones": false,
   "recuerdos_dormidos_mas_de_una_vez": 0,
   "dormidos_por_H2_o_H2loc": 193,
   "dormidos_por_peso_propio": 181,
@@ -248,7 +432,22 @@
  },
  "s23|4bp": {
   "ciclos": 80,
-  "sin_excepciones": true,
+  "excepciones_no_capturadas": 0,
+  "excepciones_capturadas_en_sueno": {
+   "D": {
+    "GeneratorExit @ stemmer_es.py:56": 190,
+    "OperationalError @ ppmi_vectorizer.py:196": 1,
+    "GeneratorExit @ cjk_unidades.py:49": 67,
+    "ValueError @ ppmi_vectorizer.py:153": 2
+   },
+   "DI0": {
+    "GeneratorExit @ stemmer_es.py:56": 278,
+    "OperationalError @ ppmi_vectorizer.py:196": 1,
+    "GeneratorExit @ cjk_unidades.py:49": 72,
+    "ValueError @ ppmi_vectorizer.py:153": 2
+   }
+  },
+  "sin_excepciones": false,
   "recuerdos_dormidos_mas_de_una_vez": 0,
   "dormidos_por_H2_o_H2loc": 5,
   "dormidos_por_peso_propio": 350,
@@ -267,7 +466,22 @@
  },
  "s23|H2loc+4bp": {
   "ciclos": 80,
-  "sin_excepciones": true,
+  "excepciones_no_capturadas": 0,
+  "excepciones_capturadas_en_sueno": {
+   "D": {
+    "GeneratorExit @ stemmer_es.py:56": 193,
+    "OperationalError @ ppmi_vectorizer.py:196": 1,
+    "GeneratorExit @ cjk_unidades.py:49": 77,
+    "ValueError @ ppmi_vectorizer.py:153": 3
+   },
+   "DI0": {
+    "GeneratorExit @ stemmer_es.py:56": 256,
+    "OperationalError @ ppmi_vectorizer.py:196": 1,
+    "GeneratorExit @ cjk_unidades.py:49": 95,
+    "ValueError @ ppmi_vectorizer.py:153": 3
+   }
+  },
+  "sin_excepciones": false,
   "recuerdos_dormidos_mas_de_una_vez": 0,
   "dormidos_por_H2_o_H2loc": 193,
   "dormidos_por_peso_propio": 184,
