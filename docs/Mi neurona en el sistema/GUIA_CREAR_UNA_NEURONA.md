@@ -646,10 +646,15 @@ Regla de oro: **Menos parámetros = más sample-efficient = converge más rápid
 
 1. **UNA SOLA CAPA OCULTA basta para XOR-like problems** (BioRAG: hub ayuda si no
    hay literal, estorba si hay literal). Dos capas solo si hay evidencia empírica.
-2. **Tamaño oculto = 2x a 4x el input** (empírico: 6 para 29 inputs, 6 para 15).
-   Más grande = overfitting en guardia; más chico = no captura interacciones.
-3. **Activación: tanh** (centrada en 0, gradientes estables, bounded [-1,1]).
-   ReLU muere en ES (gradientes 0); sigmoid satura. **tanh es el default BioRAG.**
+2. **Tamaño oculto estrecho (heurística inicial, no regla rígida):** con 12–29 agujas,
+   en BioRAG se empieza por **6–8 neuronas ocultas** (cuello de botella más estrecho
+   que el input, como `29→6→1` y `15→6→1`) para frenar el overfitting en la guardia.
+   Más grande solo si la validación muestra subajuste; siempre medir antes de fijar.
+3. **Activación: tanh** (centrada en 0 y acotada en `[-1, 1]`).
+   Esto estabiliza la corrección acotada en espacio logit y evita salidas explosivas
+   (ReLU no está acotada; sigmoid no está centrada en 0). Nota: en ES puro no hay
+   gradientes, así que la ventaja de `tanh` ahí es el rango acotado y centrado, no
+   «evitar gradientes cero». **tanh es el default BioRAG.**
 4. **Salida: corrección en espacio LOGIT** (logit(p) = logit(piso) + v·tanh(W·x+b)).
    Esto garantiza que con pesos=0 → salida = piso exacto (cold-start perfecto).
 5. **Inicialización: Xavier/Glorot para tanh** (var = 2/(fan_in + fan_out)).
@@ -747,8 +752,10 @@ Si las agujas no separan lo bueno de lo malo, ES no lo arregla — aprende ruido
 │                                        │ 4. homeostatic_target (suma pesos)     │
 └────────────────────────────────────────┴────────────────────────────────────────┘
 
-**REGLA DE ORO AGUJAS:** Cada aguja debe tener **AUC > 0.65 en banco de calibración**
-(sección 5 PASO 5). Si no separa → NO ENTRAR. Mide ANTES de dar a la neurona.
+**REGLA DE ORO AGUJAS:** Cada aguja debe superar el umbral **fijado antes de medir**
+en su protocolo (por ejemplo, AUC ≥ 0.60–0.65 con IC95 > 0.50 en el banco de
+calibración, sección 5 PASO 5). Si no separa ni aporta sobre el piso → NO ENTRA.
+Mide ANTES de dar a la neurona y nunca muevas el umbral después de ver los datos.
 
 ═══════════════════════════════════════════════════════════════════════════════
 CUÁNDO NEUROEVOLUCIÓN FALLA (Anti-patrones) Y QUÉ HACER
@@ -790,17 +797,24 @@ CUÁNDO NEUROEVOLUCIÓN FALLA (Anti-patrones) Y QUÉ HACER
 └──────────────────────────────────┴───────────────────────────────┴───────────────┘
 
 ═══════════════════════════════════════════════════════════════════════════════
-IMPLEMENTACIÓN EN NUMPY PURO (Referencia mínima)
+ESQUELETO ILUSTRATIVO EN NUMPY (NO ES IMPLEMENTACIÓN COMPLETA DE PRODUCCIÓN)
 ═══════════════════════════════════════════════════════════════════════════════
 
+> **Nota:** Este bloque muestra únicamente la estructura `ask/tell` y el fitness
+> shaping por rango; **omite** las ecuaciones de actualización de `pc`, `ps`, `C`
+> y `sigma`. No lo copies tal cual esperando que funcione completo: usa una
+> implementación completa y probada (por ejemplo `cma` / `pycma`, o escribe y
+> testea todas las actualizaciones con RNG explícito por semilla).
+
 ```python
-# Sep-CMA-ES mínimo para BioRAG (basado en cma.py / pycma, adaptado a numpy)
+# Esqueleto ilustrativo Sep-CMA-ES (con RNG explícito por semilla)
 import numpy as np
 
 class SepCMAES:
-    def __init__(self, dim, sigma0=0.5, popsize=None):
+    def __init__(self, dim, sigma0=0.5, popsize=None, seed=7):
         self.dim = dim
         self.sigma = sigma0
+        self.rng = np.random.default_rng(seed)
         self.popsize = popsize or (4 + int(3 * np.log(dim)))  # λ
         self.mu = self.popsize // 2
         self.weights = np.log(self.mu + 0.5) - np.log(np.arange(1, self.mu + 1))
@@ -814,19 +828,19 @@ class SepCMAES:
         
     def ask(self, mean):
         """Genera λ candidatos: mean + σ * N(0, C)"""
-        z = np.random.randn(self.popsize, self.dim)
+        z = self.rng.standard_normal((self.popsize, self.dim))
         return mean + self.sigma * z * np.sqrt(self.C)
     
     def tell(self, solutions, fitness):
-        """Actualiza media, sigma, C con ranking"""
+        """Actualiza media, sigma, C con ranking (esqueleto incompleto)"""
         idx = np.argsort(fitness)  # menor fitness = mejor (minimizar)
-        # ... actualización estándar CMA-ES (ver pycma para versión completa)
         # Fitness shaping rank-based:
         ranks = np.argsort(idx) + 1
         utilities = np.maximum(0, np.log(self.mu + 0.5) - np.log(ranks))
         utilities /= utilities.sum()
         utilities -= 1/self.popsize
-        # ... update mean, pc, ps, C, sigma
+        # Faltan: actualización completa de mean, pc, ps, C y sigma (ver pycma)
+        raise NotImplementedError("Completar actualizaciones CMA-ES antes de usar")
 ```
 
 **Para producción:** usa `cma` (pip install cma) — es la implementación de referencia
@@ -1325,11 +1339,18 @@ Estas son INVARIANTES. Violar cualquiera = neurona rechazada en revisión.
 
 6. PARTICIÓN POR ENTIDAD, NO POR MUESTRA
    - NUNCA mismo recuerdo/nodo/documento en train y test.
-   - Split por hash de ID (determinista) o por documento/tema (factory).
+   - Regla de prioridad para evitar fuga de datos (data leakage): si existen
+     documentos o temas con múltiples recuerdos relacionados, **manda la partición
+     por documento/tema** (ningún par relacionado a ambos lados). El split por hash
+     de ID (`sha256(id)[:8] % 5 == 0`) aplica cuando las unidades son independientes
+     o sobre el identificador del documento/tema.
 
 7. DETERMINISMO ABSOLUTO
-   - PYTHONHASHSEED=1 en TODO: entrenamiento, evaluación, inferencia.
-   - Mismo input → SIEMPRE mismo output. Sin list(set)[:N], sin hash orden.
+   - Exportar `PYTHONHASHSEED=1` **antes de iniciar el proceso Python** (fijarlo en
+     `os.environ` con el intérprete ya arrancado no surte efecto) en entrenamiento,
+     evaluación e inferencia.
+   - Mismo input → SIEMPRE mismo output. Sin `list(set(...))[:N]` ni orden dependiente
+     de hash interno; usar `np.random.default_rng(seed)` con semilla explícita.
 
 8. AUTO-REGULACIÓN DE FEATURES INFIABLES
    - Si feature puede ser ruidosa en ALGUNAS DBs (ej. episodio, etiquetas):
@@ -1426,8 +1447,9 @@ Copia esta lista, márcala, y adjúntala al PR. Dennys la revisa.
 20. EJEMPLOS CONCRETOS DE NEURONAS (TEMPLATE + CASOS REALES)
 ───────────────────────────────────────────────────────────────────────────────
 
-Esta sección contiene ejemplos listos para copiar y adaptar. Cada ejemplo sigue
-la ficha de sección 11 y el árbol de decisión de sección 15.
+Esta sección contiene **plantillas ilustrativas de partida** para copiar y adaptar.
+No representan código integrado ni agujas ya validadas; cada diseño real debe
+pasar antes por su protocolo (agujas medidas, piso, guardia y ficha de sección 11).
 
 ═══════════════════════════════════════════════════════════════════════════════
 EJEMPLO A: NEURONA DE GATING BINARIA — ¿NACE ESTA SINAPSIS? (CASO 3)
