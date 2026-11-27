@@ -263,6 +263,11 @@ Validación 20 % y Estudio 60 %. Las listas del canal 2 solo contienen vecinos d
   (Jaccard de unidades ≥ mediana de los positivos) y los pares al azar.
 - **C3.7** y **C3.8**: como en §5.
 - Combinaciones informativas: S+X, las 12 juntas y las 12 + R.
+- **Secundario («lista ampliada»)**, añadido al ver solo el número de nodos de es (22 evaluables) y antes de ver
+  ningún resultado:
+  - A en Validación con vecinos b en Estudio ∪ Validación (nunca Guardia);
+  - el modelo sigue ajustado solo con pares Estudio–Estudio;
+  - se informa aparte y no reemplaza a C3.5.
 
 **Regla de parada:** si ninguna de las 12 limpias (en especial S + X) cumple C3.5 en cada idioma con el escritor
 ciego, se detiene y se reporta antes de inventar agujas o cambios. El resultado del escritor mecánico se informa

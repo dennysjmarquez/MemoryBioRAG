@@ -12,8 +12,8 @@ Escritores de las declaraciones (dimensiones, sustantivos clave, 5 bridges, cate
   largo ≥ la mediana del texto (empate: más larga, luego primera aparición). No inventa dimensiones ni categoría (no tiene con qué): S_tem, S_tono y Cat quedan
   constantes → «no medible» (C3.8). Es el CONTROL: separa la coincidencia de superficie del conocimiento del agente.
 - `ciego`: declaraciones escritas por una sesión aislada distinta (decisión 27-11), un recuerdo cada vez, barajado,
-  sin documento ni verdad. Se exporta el paquete con `exportar` y se importa su salida en
-  /tmp/capa_V/ciego_{idioma}.jsonl. Sin ese archivo, este escritor no corre.
+  sin documento ni verdad. Se exporta el paquete con `exportar` y se importa su salida desde
+  declaraciones_ciegas/ciego_{idioma}.jsonl (o /tmp/capa_V/). Sin ese archivo, este escritor no corre.
 
 Construcción: camino de `aprender` del motor real (como la capa L), orden barajado con semilla fija (para que la
 co-ocurrencia de sesión no delate el documento), sueño T cada 50 recuerdos, reloj diario, reloj simulado también en
@@ -33,6 +33,8 @@ Reglas fijadas antes de medir (§10 del protocolo):
 - C3.3: AUC (positivo frente a negativo) en los pares con arista de V; IC95 bootstrap por documento;
   ≥ 0,60 con IC inferior > 0,50 en cada idioma; máx − mín entre idiomas ≤ 0,10. Secundario: pares al azar de V.
 - C3.7: Spearman(aguja, grado de A) ≤ 0,3 en los pares de V. C3.8: constante en un idioma → «no medible».
+- Secundario declarado antes de ver resultados (27-11, al ver solo el número de nodos de es): «lista ampliada», A en V
+  con vecinos b en E ∪ V (nunca G); el modelo sigue ajustado solo con pares E–E.
 - Regla de parada (decisión 27-11): si ninguna de las 12 limpias (en especial S + X) cumple C3.5 en cada idioma, se
   detiene y se reporta antes de inventar agujas o cambios.
 
@@ -163,7 +165,9 @@ def escritor_mecanico(c):
 def leer_ciego(idioma, c):
     """Salida de la sesión aislada: una línea JSON por recuerdo con id, concepto, dimensiones, syn, categoria,
     sustantivos_clave y bridges (contrato de `aprender`). El id del recuerdo se añade al nombre para que sea único."""
-    ruta = os.path.join(TMP, "ciego_%s.jsonl" % idioma)
+    ruta = os.path.join(AQUI, "declaraciones_ciegas", "ciego_%s.jsonl" % idioma)
+    if not os.path.exists(ruta):
+        ruta = os.path.join(TMP, "ciego_%s.jsonl" % idioma)
     if not os.path.exists(ruta):
         raise SystemExit("falta %s (declaraciones de la sesión aislada)" % ruta)
     out = {}
@@ -368,7 +372,7 @@ def analizar(idioma, escritor, c, med, info):
             continue
         for b, pr, p, t in vec[a]:
             rb = por_clave[b]
-            if rb["part"] != ra["part"]:
+            if rb["part"] == "G" or (rb["part"] != ra["part"] and ra["part"] != "V"):
                 continue
             kk = (min(a, b), max(a, b))
             if kk not in cache:
@@ -376,7 +380,7 @@ def analizar(idioma, escritor, c, med, info):
                 v.update(ag.valores(kk[0], kk[1], "buscador"))
                 cache[kk] = v
             v = cache[kk]
-            filas.append({"part": ra["part"], "A": a, "b": b, "doc": ra["doc"], "y": int(ra["doc"] == rb["doc"]),
+            filas.append({"part": ra["part"] if rb["part"] == ra["part"] else "Vamp", "A": a, "b": b, "doc": ra["doc"], "y": int(ra["doc"] == rb["doc"]),
                           "p": -100.0 * pr + p, "tipo": t, **{n: (v[n] if v[n] is not None else 0.0) for n in nombres}})
     E = [f for f in filas if f["part"] == "E"]
     V = [f for f in filas if f["part"] == "V"]
@@ -386,16 +390,22 @@ def analizar(idioma, escritor, c, med, info):
            "tipos_V": dict(Counter(f["tipo"] for f in V)),
            "tipos_V_positivos": dict(Counter(f["tipo"] for f in V if f["y"]))}
     # nodos evaluables de V (listas con ≥1 positivo y ≥1 negativo)
-    listas = {}
-    for f in V:
-        listas.setdefault(f["A"], []).append(f)
-    nodos = sorted(a for a, fs in listas.items() if any(x["y"] for x in fs) and not all(x["y"] for x in fs))
+    def preparar_listas(fs_):
+        li = {}
+        for f in fs_:
+            li.setdefault(f["A"], []).append(f)
+        no = sorted(a for a, fs in li.items() if any(x["y"] for x in fs) and not all(x["y"] for x in fs))
+        rng_ = random.Random(SEMILLA)
+        rp = {a: rr_esperado([x["p"] for x in li[a]], [x["y"] for x in li[a]], rng_) for a in no}
+        return li, no, rp, {a: li[a][0]["doc"] for a in no}
+    listas, nodos, rr_piso, doc_de = preparar_listas(V)
     out["nodos_V_evaluables"] = len(nodos)
     out["nodos_V_con_lista"] = len(listas)
-    rng = random.Random(SEMILLA)
-    rr_piso = {a: rr_esperado([x["p"] for x in listas[a]], [x["y"] for x in listas[a]], rng) for a in nodos}
     out["MRR_piso"] = round(sum(rr_piso.values()) / len(nodos), 6) if nodos else None
-    doc_de = {a: listas[a][0]["doc"] for a in nodos}
+    Vamp = V + [f for f in filas if f["part"] == "Vamp"]
+    amp = preparar_listas(Vamp)
+    out["ampliada"] = {"n_pares": len(Vamp), "nodos_evaluables": len(amp[1]),
+                       "MRR_piso": round(sum(amp[2].values()) / len(amp[1]), 6) if amp[1] else None}
 
     def modelo(cols):
         if not E or len({f["y"] for f in E}) < 2:
@@ -406,7 +416,11 @@ def analizar(idioma, escritor, c, med, info):
         w = logistica((XE - mu) / sd, np.array([f["y"] for f in E], float))
         return lambda f: float(((np.array([f["p"]] + [float(f[c_]) for c_ in cols]) - mu) / sd) @ w[:-1])
 
-    def c35(cols):
+    def c35(cols, lst=None):
+        listas_, nodos_, rr_piso_, doc_de_ = lst or (listas, nodos, rr_piso, doc_de)
+        return _c35(cols, listas_, nodos_, rr_piso_, doc_de_)
+
+    def _c35(cols, listas, nodos, rr_piso, doc_de):
         m = modelo(cols)
         if m is None or not nodos:
             return {"medible": False}
@@ -460,6 +474,7 @@ def analizar(idioma, escritor, c, med, info):
                             "C3.3": c33(n, V) if not constante else {"medible": False},
                             "C3.3_duros": c33(n, duros) if not constante else {"medible": False},
                             "C3.5": c35([n]) if not constante else {"medible": False},
+                            "C3.5_ampliada": c35([n], amp) if not constante else {"medible": False},
                             "C3.7_rho": None if rho is None else round(rho, 6)}
     # combinaciones (informativas; la regla de parada mira cada aguja y el grupo S + X)
     var = [n for n in LIMPIAS if not out["agujas"][n]["constante_V"]]
@@ -467,6 +482,9 @@ def analizar(idioma, escritor, c, med, info):
     out["combinaciones"] = {"S+X": c35(var_sx) if var_sx else {"medible": False},
                             "12_limpias": c35(var) if var else {"medible": False},
                             "12_limpias+R": c35(var + ["R"]) if var else {"medible": False}}
+    out["combinaciones_ampliada"] = {"S+X": c35(var_sx, amp) if var_sx else {"medible": False},
+                                     "12_limpias": c35(var, amp) if var else {"medible": False},
+                                     "12_limpias+R": c35(var + ["R"], amp) if var else {"medible": False}}
     # secundario: pares al azar de V (todos los positivos de V con o sin arista + igual número de negativos)
     rv = [r for r in c if r["part"] == "V" and r["rid"] in clave]
     pos_az, neg_az = [], []
@@ -552,6 +570,23 @@ def un_idioma(idioma, escritor):
     return an
 
 
+def reanalizar(escritor):
+    for idioma in IDIOMAS:
+        d = os.path.join(TMP, "%s_%s" % (escritor, idioma) + ("_seco" if SECO else ""))
+        ruta = os.path.join(d, "V.db")
+        final = os.path.join(RES, "v_%s_%s.json" % (escritor, idioma))
+        if not (os.path.exists(ruta + ".med.json") and os.path.exists(final)):
+            print(idioma, "sin medición")
+            continue
+        viejo = json.load(open(final))
+        an = analizar(idioma, escritor, corpus(idioma), json.load(open(ruta + ".med.json")),
+                      json.load(open(ruta + ".info.json")))
+        for k in ("t_construir_s", "t_total_s", "original_intacta"):
+            an[k] = viejo.get(k)
+        json.dump(an, open(final, "w"), ensure_ascii=False, indent=1)
+        print(idioma, "reanalizado")
+
+
 def main(escritor):
     os.makedirs(RES, exist_ok=True)
     t0 = time.time()
@@ -572,3 +607,5 @@ if __name__ == "__main__":
         main(sys.argv[2] if len(sys.argv) > 2 else "mecanico")
     elif cmd == "exportar":
         exportar()
+    elif cmd == "analizar":
+        reanalizar(sys.argv[2] if len(sys.argv) > 2 else "mecanico")
