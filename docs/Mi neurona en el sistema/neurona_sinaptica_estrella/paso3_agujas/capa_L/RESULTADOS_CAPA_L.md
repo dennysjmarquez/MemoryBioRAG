@@ -76,6 +76,52 @@ están excluidas.
    brazos de las mediciones anteriores (H2/4b), así que las comparaciones entre brazos siguen valiendo. Las cuentas
    absolutas de aristas después de muchos sueños, no.
 
+### 3b. Control de T2 con el reloj simulado también en SQLite (27-11, octavo reenvío) [V]
+
+**Qué se hizo:**
+- El laboratorio sustituye `strftime` y `datetime` en cada conexión de SQLite del proceso hijo. Con `'now'` (o sin
+  argumento) devuelven el reloj simulado; lo demás se delega en SQLite sin cambios (`laboratorio_capa_L.reloj_sqlite`,
+  `CAPA_L_RELOJ_SQLITE=1`).
+- Solo laboratorio: el motor no cambia. Autocomprobación en cada base: `strftime('%s','now')` = reloj simulado.
+- Se construyeron D, Dt, D∪I0 y D∪I1 a |D| = 2400 con las semillas 7, 11 y 23 (D: 49 sueños; los otros: 62 y
+  13 días más).
+- Archivo: `resultados/control_reloj_sqlite_n2400.json` (`control_reloj.py 2400` con `CAPA_L_RELOJ_SQLITE=1`,
+  2 h 13 min).
+
+**Existencia de cada tipo entre dos recuerdos de D: fracción idéntica (mínimo de las 3 semillas):**
+
+| tipo | D→D∪I0, reloj real (antes) | D→Dt (tiempo + sueños) | D→D∪I0 | **Dt→D∪I0 (contenido de I0)** |
+|---|---|---|---|---|
+| `manual` | 1,0 | 1,0 | 1,0 | **1,0** |
+| `co_semantica` | 1,0 | 1,0 | 1,0 | **1,0** |
+| `sinonimo_explicito` | 0,976 | 1,0 | 1,0 | **1,0** |
+| `co_ocurrencia` | 0,980 | 0,988 | 0,988 | **1,0** |
+| `co_nombre` | 0,931 | 0,986 | 0,986 | **1,0** |
+| `pmi_hebbiano` | 0,792 | 0,850 (0,85 / 0,92 / 1,0) | 0,850 | **1,0** |
+| `dmn_synthesized` | 0,794 | 0,794 | 0,794 | **0,88 en s11**; 1,0 en s7 y s23 |
+
+**Lectura:**
+1. **Lo atribuible al contenido de I0 es cero en los 6 tipos que no son DMN, en las 3 semillas** (Dt→D∪I0 =
+   100 %). También D∪I0→D∪I1 = 100 % en esos 6 tipos. Confirma con el reloj corregido lo que el control anterior
+   mostró con el reloj real.
+2. **El tiempo sigue cambiando tipos, ahora con la gracia de 7 días**: 13 días más superan la gracia, y
+   `pmi_hebbiano` pierde hasta el 15 % de sus aristas D–D (semilla 7). Con el reloj corregido el efecto es menor que
+   antes (0,79 → 0,85; `co_nombre` 0,93 → 0,986; `sinonimo_explicito` 0,976 → 1,0), pero no desaparece.
+3. `dmn_synthesized` depende del contenido en una semilla de tres (s11: 0,88 entre Dt y D∪I0, 0,97 entre D∪I0 y
+   D∪I1). Ya estaba excluido como aguja (§3 del protocolo). No comprobé si además es no determinista.
+
+**Veredicto de T2 con la enmienda de §5.2 (control Dt):**
+- **T2 restringido a los 6 tipos no DMN cumple la invariancia frente a I (100 %).**
+- La invariancia frente al tiempo es otra propiedad:
+  - `manual`, `co_semantica` y `sinonimo_explicito` la cumplen al 100 %;
+  - `co_ocurrencia` y `co_nombre` quedan por encima del 98 %;
+  - `pmi_hebbiano` no la cumple.
+- Por la regla de la enmienda, «un tipo solo se descarta por I si Dt→D∪I0 < 98 %», así que ninguno de los 6 se
+  descarta por I.
+- T2 es el piso, así que solo cuenta si la combinación supera al piso (C3.5, capa V).
+- **Anotado para el Paso 4:** una neurona que lea `pmi_hebbiano` verá cambiar su entrada con el paso del tiempo
+  (decaimiento), sin que entre ningún documento.
+
 ## 4. Veredicto por aguja (6 configuraciones) [V]
 
 Umbrales: C3.1 = 1,0 en las locales y en K/L1_local, ≥ 0,98 en el buscador · C3.4 ≤ 1,2 · C3.7: ρ con el grado
@@ -130,7 +176,8 @@ aguja antes del Paso 4, sin cambiar el criterio.
    - (a) Enmienda de §5.2 (requiere OK): comparar contra un **control de reloj** (Dt), además de D∪I. Así se separa
      «sumar documentos» (la NORMA MÁXIMA) de «pasar el tiempo».
    - (b) Como aguja alternativa: el **tipo al nacer** (la regla que creó la arista, guardada en su nacimiento). No
-     decae con el tiempo y no depende de I por construcción.
+     decae con el tiempo y no depende de I por construcción. *Descartado el 27-11: el motor no lo guarda al borrar
+     por decaimiento (solo la hormiguita lo copia a `sinapsis_cuarentena`, excluida como aguja).*
    - (c) Probar T2 solo con los tipos que no decaen: `manual` (y `co_semantica`, que en 2400 no perdió ninguna).
 2. **Reloj del laboratorio:** registrar en las conexiones del laboratorio una función `strftime` propia que use el
    reloj simulado (SQLite permite sustituir funciones integradas por conexión). Medir de nuevo **solo** el control de
