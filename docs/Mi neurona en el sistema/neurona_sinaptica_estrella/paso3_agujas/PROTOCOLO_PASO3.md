@@ -304,7 +304,7 @@ escritor mecánico**: sus tablas (`capa_V/resultados/tablas_mecanico.md`) quedan
      de E ∪ V y se repite al menos **2 veces dentro de cada uno**. Sin listas ni NER;
    - un par de documentos distintos es **puente** si los dos recuerdos contienen una entidad rara común a ambos
      documentos.
-   - **Salvedad del auditor de Arena (pendiente de confirmar por Dennys):** esta verdad se define por coincidencia de
+   - **Salvedad del auditor de Arena (confirmada por Dennys el 27-11):** esta verdad se define por coincidencia de
      superficie, así que es **circular** para X_*, S_sk y B_*, que miden esa misma coincidencia. Por eso se informa
      **aparte** (`C3.5_con_puente`) y **no** sirve para admitir. C3.5 decide con «mismo documento».
 5. **Alcance del escritor ciego:**
@@ -316,3 +316,22 @@ escritor mecánico**: sus tablas (`capa_V/resultados/tablas_mecanico.md`) quedan
    ordena vecinos existentes, sin borrar ni inventar candidatos.
 
 **Sigue vigente:** sin `core/`, `tests/`, DB viva, snapshots ni QA oficial. E3 abierta; no se avanza a E4.
+
+### 11.1 Correcciones antes de medir (27-11, auditoría de `e2f648d`)
+
+1. **Guardia fuera de la base:**
+   - en el Paso 3, los recuerdos de la Guardia **no se ingieren**. Así ni el grado (C3.7), ni el buscador de R, ni el
+     grafo los ven;
+   - `info["guardia_en_base"] = False` y cada resultado lo registra; el análisis falla si encuentra un recuerdo de G
+     en la base;
+   - las bases del escritor mecánico sí la ingirieron: quedan como se midieron, con `guardia_en_base` ausente,
+     que el análisis lee como verdadero;
+   - el paquete `paquete_ciego/` no cambia: el escritor declara recuerdo a recuerdo, sin partición.
+2. **Validador endurecido** (`laboratorio_capa_V.py validar`; la medición ciega lo ejecuta antes de construir y se
+   detiene si falla):
+   - **obligatorio**: JSON y campos válidos; ids completos, sin duplicados y sin ids ajenos al corpus (se compara con
+     el corpus completo del idioma); en **cada** recuerdo, 5 bridges aceptados por el motor con **cero rechazados**;
+     ejes de dimensiones conocidos (el contrato los declara cerrados); 2–10 sustantivos clave;
+   - **informativo**: valores fuera del catálogo (el contrato los auto-crea como último recurso), recuerdos sin
+     dimensiones, syn con menos de 8 (la herramienta solo avisa);
+   - si falla, termina con código de salida 1.

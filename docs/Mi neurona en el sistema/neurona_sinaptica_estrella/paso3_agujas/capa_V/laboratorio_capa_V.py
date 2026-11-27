@@ -15,6 +15,10 @@ Escritores de las declaraciones (dimensiones, sustantivos clave, 5 bridges, cate
   sin documento ni verdad. Se exporta el paquete con `exportar` y se importa su salida desde
   declaraciones_ciegas/ciego_{idioma}.jsonl (o /tmp/capa_V/). Sin ese archivo, este escritor no corre.
 
+Guardia (decisión 27-11, noveno reenvío): sus recuerdos NO se ingieren en la base del Paso 3, para que ni el grado
+(C3.7), ni el buscador (R), ni el grafo la vean. Las bases del escritor mecánico (27-11) sí la ingirieron; quedan
+como se midieron (`guardia_en_base` en cada resultado).
+
 Construcción: camino de `aprender` del motor real (como la capa L), orden barajado con semilla fija (para que la
 co-ocurrencia de sesión no delate el documento), sueño T cada 50 recuerdos, reloj diario, reloj simulado también en
 SQLite. Medición con BIORAG_NEURONA=0, PPMI 0 y síntesis DMN 0 (§6); R sobre la copia limpia.
@@ -39,9 +43,9 @@ Reglas fijadas antes de medir (§10 del protocolo):
   detiene y se reporta antes de inventar agujas o cambios.
 
 Uso:
-  python laboratorio_capa_V.py todo [mecanico|ciego]      (CAPA_V_SECO=1: prueba en seco con 150 recuerdos)
+  python laboratorio_capa_V.py todo [mecanico|ciego] [idiomas…]   (CAPA_V_SECO=1: prueba en seco con 150 recuerdos)
   python laboratorio_capa_V.py exportar                   → /tmp/capa_V/paquete_ciego/ (para la sesión aislada)
-  python laboratorio_capa_V.py validar es zh              → revisa ciego_{idioma}.jsonl antes de medir
+  python laboratorio_capa_V.py validar es zh              → revisa ciego_{idioma}.jsonl; código de salida 1 si falla
 """
 import contextlib
 import hashlib
@@ -166,31 +170,69 @@ def escritor_mecanico(c):
     return out
 
 
-def leer_ciego(idioma, c):
+class CiegoInvalido(Exception):
+    pass
+
+
+def ruta_ciego(idioma):
+    r = os.path.join(AQUI, "declaraciones_ciegas", "ciego_%s.jsonl" % idioma)
+    return r if os.path.exists(r) else os.path.join(TMP, "ciego_%s.jsonl" % idioma)
+
+
+def leer_ciego(idioma, c=None):
     """Salida de la sesión aislada: una línea JSON por recuerdo con id, concepto, dimensiones, syn, categoria,
-    sustantivos_clave y bridges (contrato de `aprender`). El id del recuerdo se añade al nombre para que sea único."""
-    ruta = os.path.join(AQUI, "declaraciones_ciegas", "ciego_%s.jsonl" % idioma)
+    sustantivos_clave y bridges (contrato de `aprender`). El id del recuerdo se añade al nombre para que sea único.
+    Endurecido (27-11): los ids se comparan con el corpus COMPLETO del idioma (aunque se construya en seco) y se
+    rechazan JSON inválido, campos obligatorios ausentes, ids duplicados, ids extra y faltantes."""
+    ruta = ruta_ciego(idioma)
     if not os.path.exists(ruta):
-        ruta = os.path.join(TMP, "ciego_%s.jsonl" % idioma)
-    if not os.path.exists(ruta):
-        raise SystemExit("falta %s (declaraciones de la sesión aislada)" % ruta)
-    out = {}
-    for linea in open(ruta, encoding="utf-8"):
+        raise CiegoInvalido("falta %s (declaraciones de la sesión aislada)" % ruta)
+    ids_corpus = {r["rid"] for r in json.load(open(os.path.join(TMP, "corpus_%s.json" % idioma)))}
+    out, errores, duplicados, extra = {}, [], [], []
+    for n_linea, linea in enumerate(open(ruta, encoding="utf-8"), 1):
         if not linea.strip():
             continue
-        x = json.loads(linea)
-        dims = x.get("dimensiones") or {}
-        if isinstance(dims, str):
-            dims = json.loads(dims)
+        try:
+            x = json.loads(linea)
+            dims = x.get("dimensiones") or {}
+            if isinstance(dims, str):
+                dims = json.loads(dims)
+            if not isinstance(dims, dict):
+                raise ValueError("dimensiones no es un objeto")
+            rid = x["id"]
+            if not str(x.get("concepto") or "").strip():
+                raise ValueError("falta concepto")
+            if not isinstance(x.get("bridges"), list):
+                raise ValueError("bridges no es una lista")
+        except (ValueError, KeyError, TypeError) as e:
+            errores.append("línea %d: %s" % (n_linea, e))
+            continue
+        if rid in out:
+            duplicados.append(rid)
+            continue
+        if rid not in ids_corpus:
+            extra.append(rid)
+            continue
         sk = x.get("sustantivos_clave") or ""
         if isinstance(sk, list):
-            sk = ",".join(sk)
-        out[x["id"]] = {"concepto": "%s_%s" % (str(x.get("concepto") or "nodo").strip(), x["id"]),
-                        "dims": dims, "sk": sk, "bridges": x.get("bridges") or [],
-                        "cat": x.get("categoria") or "General", "val": 0.0, "syn": x.get("syn") or ""}
-    faltan = [r["rid"] for r in c if r["rid"] not in out]
+            sk = ",".join(str(v) for v in sk)
+        syn = x.get("syn") or ""
+        if isinstance(syn, list):
+            syn = ",".join(str(v) for v in syn)
+        out[rid] = {"concepto": "%s_%s" % (str(x["concepto"]).strip(), rid), "dims": dims, "sk": str(sk),
+                    "bridges": x["bridges"], "cat": x.get("categoria") or "General", "val": 0.0, "syn": str(syn)}
+    faltan = sorted(ids_corpus - set(out) - set(duplicados))
+    problemas = []
+    if errores:
+        problemas.append("%d líneas inválidas (p. ej. %s)" % (len(errores), errores[:3]))
+    if duplicados:
+        problemas.append("%d ids duplicados (p. ej. %s)" % (len(duplicados), duplicados[:3]))
+    if extra:
+        problemas.append("%d ids que no son del corpus (p. ej. %s)" % (len(extra), extra[:3]))
     if faltan:
-        raise SystemExit("faltan %d declaraciones en %s (p. ej. %s)" % (len(faltan), ruta, faltan[:3]))
+        problemas.append("faltan %d declaraciones (p. ej. %s)" % (len(faltan), faltan[:3]))
+    if problemas:
+        raise CiegoInvalido("%s: %s" % (ruta, "; ".join(problemas)))
     return out
 
 
@@ -212,37 +254,44 @@ def exportar():
 
 
 def validar(idioma):
-    """Revisa ciego_{idioma}.jsonl ANTES de medir (no construye nada): ids, campos, bridges que acepta el motor,
-    ejes y valores de dimensiones frente al catálogo. Escribe un informe corto; no mira la verdad."""
+    """Revisa ciego_{idioma}.jsonl ANTES de medir (no construye nada; no mira la verdad).
+    Obligatorio (si falla, error): ids completos, únicos y del corpus; JSON y campos válidos; en CADA recuerdo, 5
+    bridges aceptados por el motor con CERO rechazados (`validar_bridges`); ejes de dimensiones conocidos (los ejes son
+    cerrados en el contrato); 2–10 sustantivos clave.
+    Informativo (el contrato lo permite o solo avisa): valores fuera del catálogo (se auto-crean), recuerdos sin
+    dimensiones, syn con menos de 8 entradas. Devuelve (ok, informe)."""
     sys.path.insert(0, L.RAIZ)
     import construir as c16
     from core.concept_hub import validar_bridges
-    c = json.load(open(os.path.join(TMP, "corpus_%s.json" % idioma)))
+    inf, fallos = Counter(), {}
     try:
-        dec = leer_ciego(idioma, c)
-    except SystemExit as e:
-        print(idioma, "NO VÁLIDO:", e)
-        return
+        dec = leer_ciego(idioma)
+    except CiegoInvalido as e:
+        print(idioma, "NO VÁLIDO:", e, flush=True)
+        return False, {"error": str(e)}
     cat = c16.catalogo_real()
-    inf = Counter()
-    for rid, d in dec.items():
-        val, _r = validar_bridges(d["bridges"], d["concepto"].lower().replace(" ", "_"))
-        inf["bridges_ok"] += len(val) == 5
+    for rid, d in sorted(dec.items()):
+        val, rech = validar_bridges(d["bridges"], d["concepto"].lower().replace(" ", "_"))
+        if len(val) != 5 or rech:
+            fallos.setdefault("bridges", []).append("%s: %s" % (rid, "; ".join(rech) or "%d válidos" % len(val)))
         dims = d["dims"] or {}
-        inf["con_dimensiones"] += bool(dims)
+        inf["sin_dimensiones"] += not dims
         for eje, vals in dims.items():
             if eje not in cat:
-                inf["eje_desconocido"] += 1
+                fallos.setdefault("eje_desconocido", []).append("%s: %s" % (rid, eje))
                 continue
             for v in (vals if isinstance(vals, list) else [vals]):
                 inf["valores"] += 1
                 inf["valores_fuera_de_catalogo"] += v not in cat[eje]
-        inf["syn_>=8"] += len([x for x in d["syn"].split(",") if x.strip()]) >= 8
+        inf["syn_menos_de_8"] += len([x for x in d["syn"].split(",") if x.strip()]) < 8
         sk = [x for x in d["sk"].split(",") if x.strip()]
-        inf["sk_2a10"] += 2 <= len(sk) <= 10
+        if not 2 <= len(sk) <= 10:
+            fallos.setdefault("sustantivos_clave", []).append("%s: %d" % (rid, len(sk)))
     inf["recuerdos"] = len(dec)
-    print(idioma, json.dumps(dict(inf), ensure_ascii=False))
-    return dict(inf)
+    informe = {"informativo": dict(inf), "fallos": {k: {"n": len(v), "ejemplos": v[:5]} for k, v in fallos.items()}}
+    ok = not fallos
+    print(idioma, "VÁLIDO" if ok else "NO VÁLIDO", json.dumps(informe, ensure_ascii=False), flush=True)
+    return ok, informe
 
 
 # ================================================================== hijo: construir (motor real)
@@ -254,15 +303,16 @@ def hijo_construir(idioma, escritor, ruta, salida):
     from core.memory_store import normalizar_sustantivos_clave, normalizar_sustantivos_clave_exacto
     from core.sinapsis import auto_vincular, vincular_por_sinonimos
     from core.concept_hub import validar_bridges, crear_hub, agregar_bridges
-    c = corpus(idioma)
-    dec = escritor_mecanico(c) if escritor == "mecanico" else leer_ciego(idioma, c)
+    # Guardia FUERA de la base (decisión 27-11): ni grado, ni buscador (R), ni grafo la ven
+    c = [r for r in corpus(idioma) if r["part"] != "G"]
+    dec = escritor_mecanico(c) if escritor == "mecanico" else leer_ciego(idioma)
     orden = sorted(c, key=lambda r: r["rid"])
     random.Random("%d|orden|%s" % (SEMILLA, idioma)).shuffle(orden)
     for ext in ("", "-wal", "-shm"):
         if os.path.exists(ruta + ext):
             os.remove(ruta + ext)
     st = {"cer": c16.abrir(ruta)}
-    info = {"bridges_rechazados": 0, "dims_inventadas": 0, "dims_error": 0, "t_sueno": 0.0, "n_suenos": 0,
+    info = {"guardia_en_base": False, "bridges_rechazados": 0, "dims_inventadas": 0, "dims_error": 0, "t_sueno": 0.0, "n_suenos": 0,
             "claves": {}}
 
     def guardar(r):
@@ -379,7 +429,10 @@ def bootstrap_docs(por_doc, estad, B=2000, semilla=SEMILLA):
 def analizar(idioma, escritor, c, med, info):
     np = _np()
     clave = info["claves"]
-    por_clave = {clave[r["rid"]]: r for r in c if r["rid"] in clave}
+    guardia_en_base = info.get("guardia_en_base", True)   # bases del mecánico (27-11): la Guardia sí se ingirió
+    if not guardia_en_base:
+        assert not any(r["part"] == "G" and r["rid"] in clave for r in c), "recuerdo de la Guardia en la base"
+    por_clave = {clave[r["rid"]]: r for r in c if r["rid"] in clave and r["part"] != "G"}
     rasgos = med["rasgos"]
     ag = L.Agujas(med, {}, {})
     # canal 2: mejor arista por par, vecino activo, peso ≥ 0,5
@@ -449,7 +502,7 @@ def analizar(idioma, escritor, c, med, info):
                           "p": -100.0 * pr + p, "tipo": t, **{n: (v[n] if v[n] is not None else 0.0) for n in nombres}})
     E = [f for f in filas if f["part"] == "E"]
     V = [f for f in filas if f["part"] == "V"]
-    out = {"idioma": idioma, "escritor": escritor, "n_recuerdos": len(c), "n_aristas_canal2": len(mejor),
+    out = {"idioma": idioma, "escritor": escritor, "guardia_en_base": guardia_en_base, "n_recuerdos": len(por_clave), "n_aristas_canal2": len(mejor),
            "n_pares_E": len(E), "n_pares_V": len(V), "positivos_E": sum(f["y"] for f in E),
            "positivos_V": sum(f["y"] for f in V), "info_construccion": {k: v for k, v in info.items() if k != "claves"},
            "tipos_V": dict(Counter(f["tipo"] for f in V)),
@@ -649,6 +702,11 @@ def un_idioma(idioma, escritor):
     os.makedirs(d, exist_ok=True)
     ruta = os.path.join(d, "V.db")
     t0 = time.time()
+    if escritor == "ciego" and not os.path.exists(ruta + ".info.json"):
+        ok, informe = validar(idioma)
+        json.dump(informe, open(os.path.join(d, "validacion.json"), "w"), ensure_ascii=False, indent=1)
+        if not ok:
+            raise SystemExit("ciego_%s.jsonl no pasa validar: no se mide" % idioma)
     if not os.path.exists(ruta + ".info.json"):
         _run(["construir", idioma, escritor, ruta, ruta + ".info.json"])
     t_c = time.time() - t0
@@ -688,10 +746,10 @@ def reanalizar(escritor):
         print(idioma, "reanalizado")
 
 
-def main(escritor):
+def main(escritor, idiomas=IDIOMAS):
     os.makedirs(RES, exist_ok=True)
     t0 = time.time()
-    for idioma in IDIOMAS:
+    for idioma in idiomas:
         an = un_idioma(idioma, escritor)
         print(idioma, escritor, round(time.time() - t0), "pares V", an["n_pares_V"], "nodos", an["nodos_V_evaluables"],
               "MRR piso", an["MRR_piso"], flush=True)
@@ -705,11 +763,11 @@ if __name__ == "__main__":
     elif cmd == "medir":
         L.hijo_medir(*sys.argv[2:])
     elif cmd == "todo":
-        main(sys.argv[2] if len(sys.argv) > 2 else "mecanico")
+        main(sys.argv[2] if len(sys.argv) > 2 else "mecanico", tuple(sys.argv[3:]) or IDIOMAS)
     elif cmd == "exportar":
         exportar()
     elif cmd == "validar":
-        for i in (sys.argv[2:] or IDIOMAS):
-            validar(i)
+        resultados = [validar(i)[0] for i in (sys.argv[2:] or IDIOMAS)]
+        sys.exit(0 if all(resultados) else 1)
     elif cmd == "analizar":
         reanalizar(sys.argv[2] if len(sys.argv) > 2 else "mecanico")
