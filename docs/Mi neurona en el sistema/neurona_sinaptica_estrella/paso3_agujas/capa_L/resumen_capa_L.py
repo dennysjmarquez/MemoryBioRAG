@@ -205,6 +205,23 @@ def main():
         L.append("| %s | %s |" % (g, " | ".join("%.2e" % costo[g][n] for n in tam)))
     L.append("| búsqueda ciega (s/consulta) | %s |" % " | ".join("%.4f" % busq[n] for n in tam))
     L.append("")
+    # control de reloj (control_reloj.py): ¿lo que cambia en §5.2 lo cambia el contenido de I o el tiempo?
+    for fr in sorted(f for f in os.listdir(RES) if f.startswith("control_reloj_n")):
+        cr = json.load(open(os.path.join(RES, fr)))
+        L += ["## Control de reloj (%s): D frente a Dt (mismos días y sueños que D∪I, sin documentos)" % fr, "",
+              "Cada celda: en D / en el otro mundo / en ambos. «=» quiere decir que Dt coincide exactamente con D∪I0 y "
+              "con D∪I1.", "", "| semilla | tipo | D→Dt | D→D∪I0 | D→D∪I1 | ¿Dt = D∪I? |", "|---|---|---|---|---|---|"]
+        iguales = True
+        for r in cr:
+            for t in sorted(r["D_vs_Dt"]):
+                f3 = lambda x: "%s/%s/%s" % (x.get("en_D"), x.get("en_W"), x.get("en_ambos")) if x else "—"  # noqa: E731
+                a_, b_, c_ = r["D_vs_Dt"][t], (r["D_vs_DI0_previo"] or {}).get(t), (r["D_vs_DI1_previo"] or {}).get(t)
+                eq = f3(a_) == f3(b_) == f3(c_)
+                iguales &= eq
+                L.append("| %s | %s | %s | %s | %s | %s |" % (r["semilla"], t, f3(a_), f3(b_), f3(c_), "=" if eq else "≠"))
+        L += ["", "**Dt = D∪I en todas las celdas: %s.** Si es sí, la parte del cambio atribuible al contenido de I es "
+              "cero y lo explica el paso del tiempo (sueños)." % ("sí" if iguales else "no"), ""]
+        res["control_reloj_" + fr] = iguales
     open(os.path.join(RES, "tablas.md"), "w").write("\n".join(L))
     json.dump(res, open(os.path.join(RES, "resumen.json"), "w"), ensure_ascii=False, indent=1)
     print("\n".join(L))

@@ -100,3 +100,33 @@ AUC = media sobre escrituras y configuraciones, **con filtración léxica por co
 | buscador | 3.03e-06 | 3.08e-06 |
 | grafo | 4.10e-05 | 5.43e-05 |
 | búsqueda ciega (s/consulta) | 0.0808 | 0.0908 |
+
+## Control de reloj (control_reloj_n2400.json): D frente a Dt (mismos días y sueños que D∪I, sin documentos)
+
+Cada celda: en D / en el otro mundo / en ambos. «=» quiere decir que Dt coincide exactamente con D∪I0 y con D∪I1.
+
+| semilla | tipo | D→Dt | D→D∪I0 | D→D∪I1 | ¿Dt = D∪I? |
+|---|---|---|---|---|---|
+| 7 | co_nombre | 904/860/860 | 904/860/860 | 904/860/860 | = |
+| 7 | co_ocurrencia | 3119/3092/3092 | 3119/3092/3092 | 3119/3092/3092 | = |
+| 7 | co_semantica | 189/189/189 | 189/189/189 | 189/189/189 | = |
+| 7 | dmn_synthesized | 400/504/400 | 400/504/400 | 400/504/400 | = |
+| 7 | manual | 282/282/282 | 282/282/282 | 282/282/282 | = |
+| 7 | pmi_hebbiano | 922/763/763 | 922/763/763 | 922/763/763 | = |
+| 7 | sinonimo_explicito | 41/40/40 | 41/40/40 | 41/40/40 | = |
+| 11 | co_nombre | 772/730/730 | 772/730/730 | 772/730/730 | = |
+| 11 | co_ocurrencia | 3393/3325/3325 | 3393/3325/3325 | 3393/3325/3325 | = |
+| 11 | co_semantica | 156/156/156 | 156/156/156 | 156/156/156 | = |
+| 11 | dmn_synthesized | 400/504/400 | 400/504/400 | 400/504/400 | = |
+| 11 | manual | 287/287/287 | 287/287/287 | 287/287/287 | = |
+| 11 | pmi_hebbiano | 929/736/736 | 929/736/736 | 929/736/736 | = |
+| 11 | sinonimo_explicito | 44/43/43 | 44/43/43 | 44/43/43 | = |
+| 23 | co_nombre | 722/672/672 | 722/672/672 | 722/672/672 | = |
+| 23 | co_ocurrencia | 2947/2903/2903 | 2947/2903/2903 | 2947/2903/2903 | = |
+| 23 | co_semantica | 156/156/156 | 156/156/156 | 156/156/156 | = |
+| 23 | dmn_synthesized | 400/504/400 | 400/504/400 | 400/504/400 | = |
+| 23 | manual | 309/309/309 | 309/309/309 | 309/309/309 | = |
+| 23 | pmi_hebbiano | 477/404/404 | 477/404/404 | 477/404/404 | = |
+| 23 | sinonimo_explicito | 45/45/45 | 45/45/45 | 45/45/45 | = |
+
+**Dt = D∪I en todas las celdas: sí.** Si es sí, la parte del cambio atribuible al contenido de I es cero y lo explica el paso del tiempo (sueños).

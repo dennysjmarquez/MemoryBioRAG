@@ -282,3 +282,7 @@ posible. Límites que no se mueven: CPU local, `numpy` puro, sin APIs externas n
   4. Inmunidad por prioridad 0/1: H2 y LTD la respetan, 4b no, y ningún camino del motor la fija. Decidir si existe.
   5. `dmn_synthesized` se crea al **abrir** la base (`memory_store.py` L172–178) y no es invariante ante sumar
      documentos (semillas del top-40 global). No sirve como aguja, y su efecto en el canal 2 no se ha medido.
+- **Capa L hecha (27-11):** 13 agujas limpias, más T2 pendiente.
+  - Hallazgo: en el laboratorio, las aristas caducan por el tiempo (decaimiento del sueño contra el `now` real de
+    SQLite) y no por los documentos. Control de reloj: Dt = D∪I en 21 de 21 celdas.
+  - Ver `paso3_agujas/capa_L/RESULTADOS_CAPA_L.md` §3 y §6.
