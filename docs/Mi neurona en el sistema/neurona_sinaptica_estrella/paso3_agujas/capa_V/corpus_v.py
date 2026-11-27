@@ -2,8 +2,9 @@
 
 Protocolo: ../PROTOCOLO_PASO3.md §4 (capa V) y §9 (decisiones del 27-11). Nada de esto toca el motor.
 
-Fuentes (fijadas por commit; se clonan superficialmente en /tmp/capa_V/fuentes; el texto NO se sube al repositorio,
-solo el manifiesto con licencias y huellas):
+Fuentes (fijadas por commit; se clonan superficialmente en /tmp/capa_V/fuentes). El corpus completo no se sube al
+repositorio, solo el manifiesto con licencias y huellas. Excepción (27-11): paquete_ciego/ con es (CC BY 4.0, con
+atribución) y zh (dominio público) para la sesión aislada:
   es  UD_Spanish-AnCora   CC BY 4.0           noticias; `# newdoc id`; sin párrafos → bloques de oraciones
   en  UD_English-EWT      CC BY-SA 4.0        web (blogs, correos, reseñas, foros); `# newdoc` y `# newpar`
   zh  Ac-heron/luxun      dominio público     ensayos y relatos de Lu Xun (†1936), 全集; el repositorio no declara

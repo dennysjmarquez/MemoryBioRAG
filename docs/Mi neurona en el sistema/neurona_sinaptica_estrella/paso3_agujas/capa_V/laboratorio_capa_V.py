@@ -41,6 +41,7 @@ Reglas fijadas antes de medir (§10 del protocolo):
 Uso:
   python laboratorio_capa_V.py todo [mecanico|ciego]      (CAPA_V_SECO=1: prueba en seco con 150 recuerdos)
   python laboratorio_capa_V.py exportar                   → /tmp/capa_V/paquete_ciego/ (para la sesión aislada)
+  python laboratorio_capa_V.py validar es zh              → revisa ciego_{idioma}.jsonl antes de medir
 """
 import contextlib
 import hashlib
@@ -82,6 +83,9 @@ GRUPO_SX = ("S_tem", "S_tono", "S_sk", "X_min", "X_max", "X_concepto", "X_sk", "
 REFERENCIA = ("R",)
 ANGULOS = ("sinonimo", "problema", "solucion", "situacion", "ingenuo")
 RAMA = L.RAMA
+MIN_NODOS, MIN_DOCS = 30, 10          # regla de potencia (decisión 27-11, hacia adelante: no se aplica al mecánico)
+ENT_DF = (2, 3)                       # entidad rara: unidad presente en 2 o 3 documentos de E ∪ V …
+ENT_MIN_REP = 2                       # … y repetida ≥ 2 veces dentro de cada uno de esos documentos
 
 
 # ================================================================== corpus y unidades con frecuencia
@@ -205,6 +209,40 @@ def exportar():
     shutil.copyfile(os.path.join(AQUI, "INSTRUCCIONES_ESCRITOR_CIEGO.md"),
                     os.path.join(d, "INSTRUCCIONES_ESCRITOR_CIEGO.md"))
     print("paquete en", d)
+
+
+def validar(idioma):
+    """Revisa ciego_{idioma}.jsonl ANTES de medir (no construye nada): ids, campos, bridges que acepta el motor,
+    ejes y valores de dimensiones frente al catálogo. Escribe un informe corto; no mira la verdad."""
+    sys.path.insert(0, L.RAIZ)
+    import construir as c16
+    from core.concept_hub import validar_bridges
+    c = json.load(open(os.path.join(TMP, "corpus_%s.json" % idioma)))
+    try:
+        dec = leer_ciego(idioma, c)
+    except SystemExit as e:
+        print(idioma, "NO VÁLIDO:", e)
+        return
+    cat = c16.catalogo_real()
+    inf = Counter()
+    for rid, d in dec.items():
+        val, _r = validar_bridges(d["bridges"], d["concepto"].lower().replace(" ", "_"))
+        inf["bridges_ok"] += len(val) == 5
+        dims = d["dims"] or {}
+        inf["con_dimensiones"] += bool(dims)
+        for eje, vals in dims.items():
+            if eje not in cat:
+                inf["eje_desconocido"] += 1
+                continue
+            for v in (vals if isinstance(vals, list) else [vals]):
+                inf["valores"] += 1
+                inf["valores_fuera_de_catalogo"] += v not in cat[eje]
+        inf["syn_>=8"] += len([x for x in d["syn"].split(",") if x.strip()]) >= 8
+        sk = [x for x in d["sk"].split(",") if x.strip()]
+        inf["sk_2a10"] += 2 <= len(sk) <= 10
+    inf["recuerdos"] = len(dec)
+    print(idioma, json.dumps(dict(inf), ensure_ascii=False))
+    return dict(inf)
 
 
 # ================================================================== hijo: construir (motor real)
@@ -363,6 +401,31 @@ def analizar(idioma, escritor, c, med, info):
             grado[b] += 1
             vec.setdefault(a, []).append((b, pr, -mp, t))
             vec.setdefault(b, []).append((a, pr, -mp, t))
+    # ---- verdad secundaria: documentos enlazados por una entidad rara (§4; decisión 27-11). Solo E ∪ V (la Guardia
+    # no se lee). Sin listas: entidad = unidad con df de documento en ENT_DF y repetida ≥ ENT_MIN_REP veces en cada
+    # documento. CIRCULAR para las agujas de superficie (X, S_sk, B): se informa aparte y no admite.
+    cnt_doc = {}
+    for r in c:
+        if r["part"] == "G":
+            continue
+        cnt_doc.setdefault(r["doc"], Counter()).update(unidades_lista(r["contenido"]))
+    df = Counter()
+    for cn in cnt_doc.values():
+        df.update(cn.keys())
+    ent_doc = {d: {u for u, k in cn.items() if ENT_DF[0] <= df[u] <= ENT_DF[1] and k >= ENT_MIN_REP}
+               for d, cn in cnt_doc.items()}
+    _ent_r = {}
+
+    def puente(ra, rb):
+        if ra["doc"] == rb["doc"] or "G" in (ra["part"], rb["part"]):
+            return False
+        comunes = ent_doc.get(ra["doc"], set()) & ent_doc.get(rb["doc"], set())
+        if not comunes:
+            return False
+        for r in (ra, rb):
+            if r["rid"] not in _ent_r:
+                _ent_r[r["rid"]] = L.U(r["contenido"])
+        return bool(comunes & _ent_r[ra["rid"]] & _ent_r[rb["rid"]])
     filas = []   # (part, A, b, verdad, p, agujas..., doc de A)
     nombres = LIMPIAS + REFERENCIA
     cache = {}
@@ -372,7 +435,7 @@ def analizar(idioma, escritor, c, med, info):
             continue
         for b, pr, p, t in vec[a]:
             rb = por_clave[b]
-            if rb["part"] == "G" or (rb["part"] != ra["part"] and ra["part"] != "V"):
+            if rb["part"] == "G":
                 continue
             kk = (min(a, b), max(a, b))
             if kk not in cache:
@@ -380,7 +443,9 @@ def analizar(idioma, escritor, c, med, info):
                 v.update(ag.valores(kk[0], kk[1], "buscador"))
                 cache[kk] = v
             v = cache[kk]
-            filas.append({"part": ra["part"] if rb["part"] == ra["part"] else "Vamp", "A": a, "b": b, "doc": ra["doc"], "y": int(ra["doc"] == rb["doc"]),
+            filas.append({"part": ra["part"] if rb["part"] == ra["part"] else ra["part"] + "amp", "A": a, "b": b,
+                          "doc": ra["doc"], "y": int(ra["doc"] == rb["doc"]),
+                          "yp": int(ra["doc"] == rb["doc"] or puente(ra, rb)),
                           "p": -100.0 * pr + p, "tipo": t, **{n: (v[n] if v[n] is not None else 0.0) for n in nombres}})
     E = [f for f in filas if f["part"] == "E"]
     V = [f for f in filas if f["part"] == "V"]
@@ -389,51 +454,87 @@ def analizar(idioma, escritor, c, med, info):
            "positivos_V": sum(f["y"] for f in V), "info_construccion": {k: v for k, v in info.items() if k != "claves"},
            "tipos_V": dict(Counter(f["tipo"] for f in V)),
            "tipos_V_positivos": dict(Counter(f["tipo"] for f in V if f["y"]))}
-    # nodos evaluables de V (listas con ≥1 positivo y ≥1 negativo)
-    def preparar_listas(fs_):
+    def preparar_listas(fs_, yk="y"):
+        """Listas por nodo con ≥ 1 positivo y ≥ 1 negativo, y el RR del piso (orden a mano)."""
         li = {}
         for f in fs_:
             li.setdefault(f["A"], []).append(f)
-        no = sorted(a for a, fs in li.items() if any(x["y"] for x in fs) and not all(x["y"] for x in fs))
+        no = sorted(a for a, fs in li.items() if any(x[yk] for x in fs) and not all(x[yk] for x in fs))
         rng_ = random.Random(SEMILLA)
-        rp = {a: rr_esperado([x["p"] for x in li[a]], [x["y"] for x in li[a]], rng_) for a in no}
-        return li, no, rp, {a: li[a][0]["doc"] for a in no}
-    listas, nodos, rr_piso, doc_de = preparar_listas(V)
+        rp = {a: rr_esperado([x["p"] for x in li[a]], [x[yk] for x in li[a]], rng_) for a in no}
+        return {"listas": li, "nodos": no, "rr_piso": rp, "doc": {a: li[a][0]["doc"] for a in no}, "y": yk}
+    # C3.5 (aclaración 27-11): UN modelo logístico compartido [piso, aguja(s)], ajustado con los pares de una partición
+    # (E–E), y MRR evaluado POR NODO en la otra. Ajuste cruzado (decisión 27-11): E → V y V → E; se juntan los nodos
+    # de las dos direcciones; IC95 por bootstrap de documentos. La Guardia no entra nunca.
+    P = {"E": [f for f in filas if f["part"] == "E"], "V": V}
+    AMP = {k: P[k] + [f for f in filas if f["part"] == k + "amp"] for k in ("E", "V")}
+    LST = {(k, amp_, yk): preparar_listas(AMP[k] if amp_ else P[k], yk)
+           for k in ("E", "V") for amp_ in (False, True) for yk in ("y", "yp")}
+    listas, nodos, rr_piso = LST[("V", False, "y")]["listas"], LST[("V", False, "y")]["nodos"], \
+        LST[("V", False, "y")]["rr_piso"]
     out["nodos_V_evaluables"] = len(nodos)
     out["nodos_V_con_lista"] = len(listas)
     out["MRR_piso"] = round(sum(rr_piso.values()) / len(nodos), 6) if nodos else None
-    Vamp = V + [f for f in filas if f["part"] == "Vamp"]
-    amp = preparar_listas(Vamp)
-    out["ampliada"] = {"n_pares": len(Vamp), "nodos_evaluables": len(amp[1]),
-                       "MRR_piso": round(sum(amp[2].values()) / len(amp[1]), 6) if amp[1] else None}
+    out["potencia"] = {}
+    for amp_ in (False, True):
+        for yk in ("y", "yp"):
+            ns = {k: LST[(k, amp_, yk)]["nodos"] for k in ("E", "V")}
+            docs = {LST[(k, amp_, yk)]["doc"][a] for k in ns for a in ns[k]}
+            out["potencia"]["%s|%s" % ("ampliada" if amp_ else "primaria", "mismo_doc" if yk == "y" else
+                                       "con_puente")] = {"nodos_E": len(ns["E"]), "nodos_V": len(ns["V"]),
+                                                         "nodos": len(ns["E"]) + len(ns["V"]), "documentos": len(docs)}
+    out["verdad_puente"] = {"documentos_con_entidad": sum(1 for v in ent_doc.values() if v),
+                            "pares_puente_E": sum(f["yp"] - f["y"] for f in P["E"]),
+                            "pares_puente_V": sum(f["yp"] - f["y"] for f in V)}
 
-    def modelo(cols):
-        if not E or len({f["y"] for f in E}) < 2:
+    def modelo(cols, filas_ent, yk):
+        if not filas_ent or len({f[yk] for f in filas_ent}) < 2:
             return None
-        XE = np.array([[f["p"]] + [float(f[c_]) for c_ in cols] for f in E])
+        XE = np.array([[f["p"]] + [float(f[c_]) for c_ in cols] for f in filas_ent])
         mu, sd = XE.mean(0), XE.std(0)
         sd[sd == 0] = 1.0
-        w = logistica((XE - mu) / sd, np.array([f["y"] for f in E], float))
+        w = logistica((XE - mu) / sd, np.array([f[yk] for f in filas_ent], float))
         return lambda f: float(((np.array([f["p"]] + [float(f[c_]) for c_ in cols]) - mu) / sd) @ w[:-1])
 
-    def c35(cols, lst=None):
-        listas_, nodos_, rr_piso_, doc_de_ = lst or (listas, nodos, rr_piso, doc_de)
-        return _c35(cols, listas_, nodos_, rr_piso_, doc_de_)
-
-    def _c35(cols, listas, nodos, rr_piso, doc_de):
-        m = modelo(cols)
-        if m is None or not nodos:
-            return {"medible": False}
-        rngm = random.Random(SEMILLA)
-        rr = {a: rr_esperado([m(x) for x in listas[a]], [x["y"] for x in listas[a]], rngm) for a in nodos}
-        dif = {a: rr[a] - rr_piso[a] for a in nodos}
+    def c35(cols, amp_=False, yk="y"):
+        """Devuelve E→V (como antes), V→E y el cruzado (decide). Potencia: ≥ MIN_NODOS nodos y ≥ MIN_DOCS docs."""
+        res, dif, docs_de = {}, {}, {}
+        for ent, ev in (("E", "V"), ("V", "E")):
+            lst = LST[(ev, amp_, yk)]
+            m = modelo(cols, P[ent], yk)
+            if m is None or not lst["nodos"]:
+                res[ent + "→" + ev] = {"medible": False}
+                continue
+            rngm = random.Random(SEMILLA)
+            rr = {a: rr_esperado([m(x) for x in lst["listas"][a]], [x[yk] for x in lst["listas"][a]], rngm)
+                  for a in lst["nodos"]}
+            d_ = {a: rr[a] - lst["rr_piso"][a] for a in lst["nodos"]}
+            por_doc = {}
+            for a in lst["nodos"]:
+                por_doc.setdefault(lst["doc"][a], []).append(d_[a])
+                dif[(ev, a)] = d_[a]
+                docs_de[(ev, a)] = lst["doc"][a]
+            lo, hi = bootstrap_docs(por_doc, lambda xs: sum(xs) / len(xs) if xs else None)
+            res[ent + "→" + ev] = {"medible": True, "nodos": len(d_), "MRR": round(sum(rr.values()) / len(rr), 6),
+                                  "dif": round(sum(d_.values()) / len(d_), 6), "IC95": [round(lo, 6), round(hi, 6)],
+                                  "cumple": bool(lo is not None and lo > 0)}
+        if not dif:
+            res["cruzado"] = {"medible": False, "motivo": "sin nodos"}
+            return res
         por_doc = {}
-        for a in nodos:
-            por_doc.setdefault(doc_de[a], []).append(dif[a])
+        for k_, v_ in dif.items():
+            por_doc.setdefault(docs_de[k_], []).append(v_)
+        n_docs = len(por_doc)
         lo, hi = bootstrap_docs(por_doc, lambda xs: sum(xs) / len(xs) if xs else None)
-        md = sum(dif.values()) / len(nodos)
-        return {"medible": True, "MRR": round(sum(rr.values()) / len(nodos), 6), "dif": round(md, 6),
-                "IC95": [round(lo, 6), round(hi, 6)], "cumple": bool(lo is not None and lo > 0)}
+        cr = {"medible": True, "nodos": len(dif), "documentos": n_docs, "dif": round(sum(dif.values()) / len(dif), 6),
+              "IC95": [round(lo, 6), round(hi, 6)]}
+        if len(dif) < MIN_NODOS or n_docs < MIN_DOCS:
+            cr.update({"medible": False, "motivo": "no medible por potencia (%d nodos, %d documentos)" % (len(dif), n_docs),
+                       "cumple": False})
+        else:
+            cr["cumple"] = bool(lo is not None and lo > 0)
+        res["cruzado"] = cr
+        return res
 
     def c33(n, filas_):
         pos = [f[n] for f in filas_ if f["y"]]
@@ -474,17 +575,17 @@ def analizar(idioma, escritor, c, med, info):
                             "C3.3": c33(n, V) if not constante else {"medible": False},
                             "C3.3_duros": c33(n, duros) if not constante else {"medible": False},
                             "C3.5": c35([n]) if not constante else {"medible": False},
-                            "C3.5_ampliada": c35([n], amp) if not constante else {"medible": False},
+                            "C3.5_ampliada": c35([n], True) if not constante else {"medible": False},
+                            "C3.5_con_puente": c35([n], False, "yp") if not constante else {"medible": False},
                             "C3.7_rho": None if rho is None else round(rho, 6)}
     # combinaciones (informativas; la regla de parada mira cada aguja y el grupo S + X)
     var = [n for n in LIMPIAS if not out["agujas"][n]["constante_V"]]
     var_sx = [n for n in GRUPO_SX if n in var]
-    out["combinaciones"] = {"S+X": c35(var_sx) if var_sx else {"medible": False},
-                            "12_limpias": c35(var) if var else {"medible": False},
-                            "12_limpias+R": c35(var + ["R"]) if var else {"medible": False}}
-    out["combinaciones_ampliada"] = {"S+X": c35(var_sx, amp) if var_sx else {"medible": False},
-                                     "12_limpias": c35(var, amp) if var else {"medible": False},
-                                     "12_limpias+R": c35(var + ["R"], amp) if var else {"medible": False}}
+    for clave_, a_, y_ in (("combinaciones", False, "y"), ("combinaciones_ampliada", True, "y"),
+                           ("combinaciones_con_puente", False, "yp")):
+        out[clave_] = {"S+X": c35(var_sx, a_, y_) if var_sx else {"medible": False},
+                       "12_limpias": c35(var, a_, y_) if var else {"medible": False},
+                       "12_limpias+R": c35(var + ["R"], a_, y_) if var else {"medible": False}}
     # secundario: pares al azar de V (todos los positivos de V con o sin arista + igual número de negativos)
     rv = [r for r in c if r["part"] == "V" and r["rid"] in clave]
     pos_az, neg_az = [], []
@@ -607,5 +708,8 @@ if __name__ == "__main__":
         main(sys.argv[2] if len(sys.argv) > 2 else "mecanico")
     elif cmd == "exportar":
         exportar()
+    elif cmd == "validar":
+        for i in (sys.argv[2:] or IDIOMAS):
+            validar(i)
     elif cmd == "analizar":
         reanalizar(sys.argv[2] if len(sys.argv) > 2 else "mecanico")

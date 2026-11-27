@@ -64,5 +64,9 @@ python corpus_v.py                    # descarga los corpus públicos fijados po
 python laboratorio_capa_V.py exportar # → /tmp/capa_V/paquete_ciego/recuerdos_{es,en,zh,ja}.jsonl + estas instrucciones
 ```
 
-Volumen: 1690 recuerdos por idioma (6760 en total). Si es demasiado, se puede empezar por un idioma. El análisis de
-cada idioma necesita todas sus declaraciones, porque el mundo se construye con todos los recuerdos.
+El paquete de **es** y **zh** (los dos primeros idiomas, decisión del 27-11) ya está en el repositorio, en
+`paso3_agujas/capa_V/paquete_ciego/`. A la sesión aislada se le entrega **solo esa carpeta**.
+
+Volumen: 1690 recuerdos por idioma (3380 entre es y zh). El análisis de cada idioma necesita **todas** sus
+declaraciones, porque el mundo se construye con todos los recuerdos. Antes de medir, el auditor revisa los archivos
+con `python laboratorio_capa_V.py validar es zh`.

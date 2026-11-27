@@ -257,7 +257,8 @@ Validación 20 % y Estudio 60 %. Las listas del canal 2 solo contienen vecinos d
 - **piso** = orden a mano del motor: prioridad de tipo ASC, peso DESC (`synapses.py` L509–585), con peso ≥ 0,5 y
   vecino activo;
 - **piso + aguja** = regresión logística [piso, aguja] ajustada solo en Estudio;
-- **C3.5**: MRR del primer vecino verdadero en los nodos de Validación con al menos un positivo y un negativo;
+- **C3.5** (*para el escritor ciego, lo sustituye el ajuste cruzado E↔V de §11*): MRR del primer vecino verdadero
+  en los nodos de Validación con al menos un positivo y un negativo;
   empates al azar; IC95 de la diferencia pareada por bootstrap de documentos (2000);
 - **C3.3**: AUC con arista (positivo = mismo documento) e IC95 por documento. Se informan aparte los negativos duros
   (Jaccard de unidades ≥ mediana de los positivos) y los pares al azar.
@@ -273,3 +274,45 @@ Validación 20 % y Estudio 60 %. Las listas del canal 2 solo contienen vecinos d
 ciego, se detiene y se reporta antes de inventar agujas o cambios. El resultado del escritor mecánico se informa
 siempre, pero por sí solo no admite ni descarta.
 
+
+## 11. Decisiones antes del escritor ciego (27-11, noveno reenvío; agente local de Dennys)
+
+Auditado `b416888` (`core/` y `tests/` intactos).
+- **Aceptado:** el cierre del control de T2 y los resultados del escritor mecánico como **línea base de control**.
+- **Salvedad:** D→Dt agrupa tiempo y ciclos de sueño; lo que se demuestra es que I0 no añade efecto (Dt→D∪I0 = 1,0).
+
+Estas reglas se fijan **antes** de que exista ninguna declaración ciega. **No se aplican de forma retroactiva al
+escritor mecánico**: sus tablas (`capa_V/resultados/tablas_mecanico.md`) quedan como se midieron, con E→V solo.
+
+1. **C3.5, aclaración:**
+   - se ajusta **un único modelo logístico compartido**, [piso, aguja o agujas], con los pares de una partición, y se
+     evalúa el **MRR por nodo** en la otra;
+   - el modelo no se ajusta por nodo. «Por nodo» se refiere solo a la evaluación: lista del canal 2 de cada A, RR del
+     primer vecino verdadero, diferencia pareada contra el piso.
+2. **Regla de potencia (hacia adelante):** C3.5 es **«no medible por potencia»** si el ajuste cruzado junta menos de
+   **30 nodos evaluables** o menos de **10 documentos**. Un «no medible» nunca cuenta como «cumple» (C3.8).
+3. **Ajuste cruzado E↔V** (decide C3.5):
+   - modelo ajustado con E–E y evaluado en los nodos de V; modelo ajustado con V–V y evaluado en los nodos de E;
+   - los nodos de las dos direcciones se juntan; IC95 por bootstrap de documentos (2000, semilla 2711); cumple si
+     el IC inferior es > 0;
+   - E→V y V→E también se informan por separado;
+   - **la Guardia del 20 % sigue sellada**: se ingiere, pero no entra en ningún ajuste, lista, verdad ni estadística
+     (tampoco en el df de la entidad rara).
+   - Fuentes no comerciales (GUM, CC BY-NC-SA) quedan fuera, salvo autorización aparte.
+4. **Verdad ampliada por entidad rara** (§4), implementada así:
+   - **entidad rara** = unidad (palabra latina o bigrama CJK, como `lab.unidades`) que aparece en **2 o 3 documentos**
+     de E ∪ V y se repite al menos **2 veces dentro de cada uno**. Sin listas ni NER;
+   - un par de documentos distintos es **puente** si los dos recuerdos contienen una entidad rara común a ambos
+     documentos.
+   - **Salvedad del auditor de Arena (pendiente de confirmar por Dennys):** esta verdad se define por coincidencia de
+     superficie, así que es **circular** para X_*, S_sk y B_*, que miden esa misma coincidencia. Por eso se informa
+     **aparte** (`C3.5_con_puente`) y **no** sirve para admitir. C3.5 decide con «mismo documento».
+5. **Alcance del escritor ciego:**
+   - primero **es y zh** (un idioma latino y uno CJK), para comprobar la potencia antes de escalar a los 4;
+   - paquete en `capa_V/paquete_ciego/` (`recuerdos_es.jsonl`, `recuerdos_zh.jsonl`, instrucciones y licencias);
+   - Arena **espera** a recibir `ciego_es.jsonl` y `ciego_zh.jsonl` de una sesión aislada;
+   - antes de medir se revisan con `laboratorio_capa_V.py validar es zh`.
+6. **Proponer candidatos:** queda anotado como observación para el futuro. Rige la norma actual: el canal 2 solo
+   ordena vecinos existentes, sin borrar ni inventar candidatos.
+
+**Sigue vigente:** sin `core/`, `tests/`, DB viva, snapshots ni QA oficial. E3 abierta; no se avanza a E4.
