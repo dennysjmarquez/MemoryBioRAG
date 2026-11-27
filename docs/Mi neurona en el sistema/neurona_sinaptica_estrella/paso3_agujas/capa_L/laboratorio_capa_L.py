@@ -290,8 +290,9 @@ def hijo_construir(semilla, n_D, mundo, ruta, salida):
             break
         for k, r in enumerate(lote, 1):
             reloj.t += 1
-            with contextlib.redirect_stdout(io.StringIO()):
-                guardar(r)
+            if not (fase == "I" and mundo == "Dt"):   # Dt: control de reloj, mismo tiempo y sueños sin documentos
+                with contextlib.redirect_stdout(io.StringIO()):
+                    guardar(r)
             if k % CADA == 0:
                 dormir()
         dormir()
