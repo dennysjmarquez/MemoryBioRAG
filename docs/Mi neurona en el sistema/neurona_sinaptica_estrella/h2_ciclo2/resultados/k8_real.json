@@ -1,0 +1,527 @@
+{
+ "s7|T": {
+  "ciclos": 80,
+  "sin_excepciones": true,
+  "recuerdos_dormidos_mas_de_una_vez": 0,
+  "dormidos_por_H2_o_H2loc": 5,
+  "dormidos_por_peso_propio": 345,
+  "K1_cambios_estado_D": 0,
+  "K1_cambios_importancia_D": 16,
+  "suma_abs_delta_importancia_D": 0.62,
+  "activos_final_DI0": 50,
+  "neurona": {
+   "D": {
+    "tabla": true,
+    "campeon": false,
+    "huella": "5721b3821c3521e6",
+    "ascensos": 0,
+    "reinicios": 0,
+    "retiros": 0,
+    "ciclos": 80,
+    "preguntas": 1238,
+    "tranquila": false
+   },
+   "DI0": {
+    "tabla": true,
+    "campeon": false,
+    "huella": "5721b3821c3521e6",
+    "ascensos": 0,
+    "reinicios": 0,
+    "retiros": 0,
+    "ciclos": 80,
+    "preguntas": 1250,
+    "tranquila": false
+   }
+  }
+ },
+ "s7|-H2-4b": {
+  "ciclos": 80,
+  "sin_excepciones": true,
+  "recuerdos_dormidos_mas_de_una_vez": 0,
+  "dormidos_por_H2_o_H2loc": 0,
+  "dormidos_por_peso_propio": 350,
+  "K1_cambios_estado_D": 0,
+  "K1_cambios_importancia_D": 0,
+  "suma_abs_delta_importancia_D": 0.0,
+  "activos_final_DI0": 50,
+  "neurona": {
+   "D": {
+    "tabla": true,
+    "campeon": false,
+    "huella": "5721b3821c3521e6",
+    "ascensos": 0,
+    "reinicios": 0,
+    "retiros": 0,
+    "ciclos": 80,
+    "preguntas": 1233,
+    "tranquila": false
+   },
+   "DI0": {
+    "tabla": true,
+    "campeon": false,
+    "huella": "5721b3821c3521e6",
+    "ascensos": 0,
+    "reinicios": 0,
+    "retiros": 0,
+    "ciclos": 80,
+    "preguntas": 1264,
+    "tranquila": false
+   }
+  }
+ },
+ "s7|H2loc": {
+  "ciclos": 80,
+  "sin_excepciones": true,
+  "recuerdos_dormidos_mas_de_una_vez": 0,
+  "dormidos_por_H2_o_H2loc": 184,
+  "dormidos_por_peso_propio": 190,
+  "K1_cambios_estado_D": 0,
+  "K1_cambios_importancia_D": 0,
+  "suma_abs_delta_importancia_D": 0.0,
+  "activos_final_DI0": 26,
+  "neurona": {
+   "D": {
+    "tabla": true,
+    "campeon": false,
+    "huella": "5721b3821c3521e6",
+    "ascensos": 0,
+    "reinicios": 0,
+    "retiros": 0,
+    "ciclos": 80,
+    "preguntas": 794,
+    "tranquila": false
+   },
+   "DI0": {
+    "tabla": true,
+    "campeon": false,
+    "huella": "5721b3821c3521e6",
+    "ascensos": 0,
+    "reinicios": 0,
+    "retiros": 0,
+    "ciclos": 80,
+    "preguntas": 904,
+    "tranquila": false
+   }
+  }
+ },
+ "s7|4bp": {
+  "ciclos": 80,
+  "sin_excepciones": true,
+  "recuerdos_dormidos_mas_de_una_vez": 0,
+  "dormidos_por_H2_o_H2loc": 5,
+  "dormidos_por_peso_propio": 350,
+  "K1_cambios_estado_D": 0,
+  "K1_cambios_importancia_D": 1,
+  "suma_abs_delta_importancia_D": 0.45,
+  "activos_final_DI0": 45,
+  "neurona": {
+   "D": {
+    "tabla": true,
+    "campeon": false,
+    "huella": "5721b3821c3521e6",
+    "ascensos": 0,
+    "reinicios": 0,
+    "retiros": 0,
+    "ciclos": 80,
+    "preguntas": 1255,
+    "tranquila": false
+   },
+   "DI0": {
+    "tabla": true,
+    "campeon": false,
+    "huella": "5721b3821c3521e6",
+    "ascensos": 0,
+    "reinicios": 0,
+    "retiros": 0,
+    "ciclos": 80,
+    "preguntas": 1250,
+    "tranquila": false
+   }
+  }
+ },
+ "s7|H2loc+4bp": {
+  "ciclos": 80,
+  "sin_excepciones": true,
+  "recuerdos_dormidos_mas_de_una_vez": 0,
+  "dormidos_por_H2_o_H2loc": 184,
+  "dormidos_por_peso_propio": 193,
+  "K1_cambios_estado_D": 0,
+  "K1_cambios_importancia_D": 0,
+  "suma_abs_delta_importancia_D": 0.0,
+  "activos_final_DI0": 23,
+  "neurona": {
+   "D": {
+    "tabla": true,
+    "campeon": false,
+    "huella": "5721b3821c3521e6",
+    "ascensos": 0,
+    "reinicios": 0,
+    "retiros": 0,
+    "ciclos": 80,
+    "preguntas": 799,
+    "tranquila": false
+   },
+   "DI0": {
+    "tabla": true,
+    "campeon": false,
+    "huella": "5721b3821c3521e6",
+    "ascensos": 0,
+    "reinicios": 0,
+    "retiros": 0,
+    "ciclos": 80,
+    "preguntas": 891,
+    "tranquila": false
+   }
+  }
+ },
+ "s11|T": {
+  "ciclos": 80,
+  "sin_excepciones": true,
+  "recuerdos_dormidos_mas_de_una_vez": 0,
+  "dormidos_por_H2_o_H2loc": 5,
+  "dormidos_por_peso_propio": 345,
+  "K1_cambios_estado_D": 0,
+  "K1_cambios_importancia_D": 16,
+  "suma_abs_delta_importancia_D": 0.62,
+  "activos_final_DI0": 50,
+  "neurona": {
+   "D": {
+    "tabla": true,
+    "campeon": false,
+    "huella": "5721b3821c3521e6",
+    "ascensos": 0,
+    "reinicios": 0,
+    "retiros": 0,
+    "ciclos": 80,
+    "preguntas": 1364,
+    "tranquila": false
+   },
+   "DI0": {
+    "tabla": true,
+    "campeon": false,
+    "huella": "5721b3821c3521e6",
+    "ascensos": 0,
+    "reinicios": 0,
+    "retiros": 0,
+    "ciclos": 80,
+    "preguntas": 1302,
+    "tranquila": false
+   }
+  }
+ },
+ "s11|-H2-4b": {
+  "ciclos": 80,
+  "sin_excepciones": true,
+  "recuerdos_dormidos_mas_de_una_vez": 0,
+  "dormidos_por_H2_o_H2loc": 0,
+  "dormidos_por_peso_propio": 350,
+  "K1_cambios_estado_D": 0,
+  "K1_cambios_importancia_D": 0,
+  "suma_abs_delta_importancia_D": 0.0,
+  "activos_final_DI0": 50,
+  "neurona": {
+   "D": {
+    "tabla": true,
+    "campeon": false,
+    "huella": "5721b3821c3521e6",
+    "ascensos": 0,
+    "reinicios": 0,
+    "retiros": 0,
+    "ciclos": 80,
+    "preguntas": 1355,
+    "tranquila": false
+   },
+   "DI0": {
+    "tabla": true,
+    "campeon": false,
+    "huella": "5721b3821c3521e6",
+    "ascensos": 0,
+    "reinicios": 0,
+    "retiros": 0,
+    "ciclos": 80,
+    "preguntas": 1311,
+    "tranquila": false
+   }
+  }
+ },
+ "s11|H2loc": {
+  "ciclos": 80,
+  "sin_excepciones": true,
+  "recuerdos_dormidos_mas_de_una_vez": 0,
+  "dormidos_por_H2_o_H2loc": 184,
+  "dormidos_por_peso_propio": 192,
+  "K1_cambios_estado_D": 0,
+  "K1_cambios_importancia_D": 11,
+  "suma_abs_delta_importancia_D": 0.29,
+  "activos_final_DI0": 24,
+  "neurona": {
+   "D": {
+    "tabla": true,
+    "campeon": false,
+    "huella": "5721b3821c3521e6",
+    "ascensos": 0,
+    "reinicios": 0,
+    "retiros": 0,
+    "ciclos": 80,
+    "preguntas": 994,
+    "tranquila": false
+   },
+   "DI0": {
+    "tabla": true,
+    "campeon": false,
+    "huella": "5721b3821c3521e6",
+    "ascensos": 0,
+    "reinicios": 0,
+    "retiros": 0,
+    "ciclos": 80,
+    "preguntas": 930,
+    "tranquila": false
+   }
+  }
+ },
+ "s11|4bp": {
+  "ciclos": 80,
+  "sin_excepciones": true,
+  "recuerdos_dormidos_mas_de_una_vez": 0,
+  "dormidos_por_H2_o_H2loc": 5,
+  "dormidos_por_peso_propio": 350,
+  "K1_cambios_estado_D": 0,
+  "K1_cambios_importancia_D": 1,
+  "suma_abs_delta_importancia_D": 0.45,
+  "activos_final_DI0": 45,
+  "neurona": {
+   "D": {
+    "tabla": true,
+    "campeon": false,
+    "huella": "5721b3821c3521e6",
+    "ascensos": 0,
+    "reinicios": 0,
+    "retiros": 0,
+    "ciclos": 80,
+    "preguntas": 1347,
+    "tranquila": false
+   },
+   "DI0": {
+    "tabla": true,
+    "campeon": false,
+    "huella": "5721b3821c3521e6",
+    "ascensos": 0,
+    "reinicios": 0,
+    "retiros": 0,
+    "ciclos": 80,
+    "preguntas": 1304,
+    "tranquila": false
+   }
+  }
+ },
+ "s11|H2loc+4bp": {
+  "ciclos": 80,
+  "sin_excepciones": true,
+  "recuerdos_dormidos_mas_de_una_vez": 0,
+  "dormidos_por_H2_o_H2loc": 185,
+  "dormidos_por_peso_propio": 193,
+  "K1_cambios_estado_D": 0,
+  "K1_cambios_importancia_D": 0,
+  "suma_abs_delta_importancia_D": 0.0,
+  "activos_final_DI0": 22,
+  "neurona": {
+   "D": {
+    "tabla": true,
+    "campeon": false,
+    "huella": "5721b3821c3521e6",
+    "ascensos": 0,
+    "reinicios": 0,
+    "retiros": 0,
+    "ciclos": 80,
+    "preguntas": 976,
+    "tranquila": false
+   },
+   "DI0": {
+    "tabla": true,
+    "campeon": false,
+    "huella": "5721b3821c3521e6",
+    "ascensos": 0,
+    "reinicios": 0,
+    "retiros": 0,
+    "ciclos": 80,
+    "preguntas": 936,
+    "tranquila": false
+   }
+  }
+ },
+ "s23|T": {
+  "ciclos": 80,
+  "sin_excepciones": true,
+  "recuerdos_dormidos_mas_de_una_vez": 0,
+  "dormidos_por_H2_o_H2loc": 5,
+  "dormidos_por_peso_propio": 345,
+  "K1_cambios_estado_D": 0,
+  "K1_cambios_importancia_D": 16,
+  "suma_abs_delta_importancia_D": 0.62,
+  "activos_final_DI0": 50,
+  "neurona": {
+   "D": {
+    "tabla": true,
+    "campeon": false,
+    "huella": "5721b3821c3521e6",
+    "ascensos": 0,
+    "reinicios": 0,
+    "retiros": 0,
+    "ciclos": 80,
+    "preguntas": 1214,
+    "tranquila": false
+   },
+   "DI0": {
+    "tabla": true,
+    "campeon": false,
+    "huella": "5721b3821c3521e6",
+    "ascensos": 0,
+    "reinicios": 0,
+    "retiros": 0,
+    "ciclos": 80,
+    "preguntas": 1356,
+    "tranquila": false
+   }
+  }
+ },
+ "s23|-H2-4b": {
+  "ciclos": 80,
+  "sin_excepciones": true,
+  "recuerdos_dormidos_mas_de_una_vez": 0,
+  "dormidos_por_H2_o_H2loc": 0,
+  "dormidos_por_peso_propio": 350,
+  "K1_cambios_estado_D": 0,
+  "K1_cambios_importancia_D": 0,
+  "suma_abs_delta_importancia_D": 0.0,
+  "activos_final_DI0": 50,
+  "neurona": {
+   "D": {
+    "tabla": true,
+    "campeon": false,
+    "huella": "5721b3821c3521e6",
+    "ascensos": 0,
+    "reinicios": 0,
+    "retiros": 0,
+    "ciclos": 80,
+    "preguntas": 1228,
+    "tranquila": false
+   },
+   "DI0": {
+    "tabla": true,
+    "campeon": false,
+    "huella": "5721b3821c3521e6",
+    "ascensos": 0,
+    "reinicios": 0,
+    "retiros": 0,
+    "ciclos": 80,
+    "preguntas": 1361,
+    "tranquila": false
+   }
+  }
+ },
+ "s23|H2loc": {
+  "ciclos": 80,
+  "sin_excepciones": true,
+  "recuerdos_dormidos_mas_de_una_vez": 0,
+  "dormidos_por_H2_o_H2loc": 193,
+  "dormidos_por_peso_propio": 181,
+  "K1_cambios_estado_D": 0,
+  "K1_cambios_importancia_D": 11,
+  "suma_abs_delta_importancia_D": 0.17,
+  "activos_final_DI0": 26,
+  "neurona": {
+   "D": {
+    "tabla": true,
+    "campeon": false,
+    "huella": "5721b3821c3521e6",
+    "ascensos": 0,
+    "reinicios": 0,
+    "retiros": 0,
+    "ciclos": 80,
+    "preguntas": 903,
+    "tranquila": false
+   },
+   "DI0": {
+    "tabla": true,
+    "campeon": false,
+    "huella": "5721b3821c3521e6",
+    "ascensos": 0,
+    "reinicios": 0,
+    "retiros": 0,
+    "ciclos": 80,
+    "preguntas": 943,
+    "tranquila": false
+   }
+  }
+ },
+ "s23|4bp": {
+  "ciclos": 80,
+  "sin_excepciones": true,
+  "recuerdos_dormidos_mas_de_una_vez": 0,
+  "dormidos_por_H2_o_H2loc": 5,
+  "dormidos_por_peso_propio": 350,
+  "K1_cambios_estado_D": 0,
+  "K1_cambios_importancia_D": 1,
+  "suma_abs_delta_importancia_D": 0.45,
+  "activos_final_DI0": 45,
+  "neurona": {
+   "D": {
+    "tabla": true,
+    "campeon": false,
+    "huella": "5721b3821c3521e6",
+    "ascensos": 0,
+    "reinicios": 0,
+    "retiros": 0,
+    "ciclos": 80,
+    "preguntas": 1210,
+    "tranquila": false
+   },
+   "DI0": {
+    "tabla": true,
+    "campeon": false,
+    "huella": "5721b3821c3521e6",
+    "ascensos": 0,
+    "reinicios": 0,
+    "retiros": 0,
+    "ciclos": 80,
+    "preguntas": 1349,
+    "tranquila": false
+   }
+  }
+ },
+ "s23|H2loc+4bp": {
+  "ciclos": 80,
+  "sin_excepciones": true,
+  "recuerdos_dormidos_mas_de_una_vez": 0,
+  "dormidos_por_H2_o_H2loc": 193,
+  "dormidos_por_peso_propio": 184,
+  "K1_cambios_estado_D": 0,
+  "K1_cambios_importancia_D": 0,
+  "suma_abs_delta_importancia_D": 0.0,
+  "activos_final_DI0": 23,
+  "neurona": {
+   "D": {
+    "tabla": true,
+    "campeon": false,
+    "huella": "5721b3821c3521e6",
+    "ascensos": 0,
+    "reinicios": 0,
+    "retiros": 0,
+    "ciclos": 80,
+    "preguntas": 896,
+    "tranquila": false
+   },
+   "DI0": {
+    "tabla": true,
+    "campeon": false,
+    "huella": "5721b3821c3521e6",
+    "ascensos": 0,
+    "reinicios": 0,
+    "retiros": 0,
+    "ciclos": 80,
+    "preguntas": 951,
+    "tranquila": false
+   }
+  }
+ }
+}
