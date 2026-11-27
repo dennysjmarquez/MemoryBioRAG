@@ -228,10 +228,47 @@ def mundo_completo(semilla, n_D):
     return m
 
 
+# ================================================================== reloj simulado también en SQLite
+RELOJ_SQLITE = os.environ.get("CAPA_L_RELOJ_SQLITE") == "1"
+
+
+def reloj_sqlite(reloj):
+    """El motor compara con strftime('%s','now') / datetime('now') de SQLite (reloj real; consolidation.py L497,
+    schema.py L523/L714/L722/L1236, lexical_learning.py L109/L110/L378). En el laboratorio el reloj es simulado, así
+    que se sustituyen esas dos funciones en cada conexión del hijo: 'now' (o sin argumento) pasa a ser reloj.t; lo
+    demás se delega a una conexión :memory: sin tocar. Solo laboratorio; el motor no cambia (27-11)."""
+    import threading
+    orig = sqlite3.connect
+    if getattr(orig, "_reloj_lab", False):
+        return
+
+    def envolver(*a, **k):
+        con = orig(*a, **k)
+        h = orig(":memory:", check_same_thread=False)
+        lk = threading.Lock()
+
+        def hacer(nombre, con_fmt):
+            def f(*args):
+                args = list(args)
+                i = 1 if con_fmt else 0
+                if len(args) <= i or args[i] == "now":
+                    args = args[:i] + [reloj.t, "unixepoch"] + args[i + 1:]
+                with lk:
+                    return h.execute("SELECT %s(%s)" % (nombre, ",".join("?" * len(args))), args).fetchone()[0]
+            return f
+        con.create_function("strftime", -1, hacer("strftime", True))
+        con.create_function("datetime", -1, hacer("datetime", False))
+        return con
+    envolver._reloj_lab = True
+    sqlite3.connect = envolver
+
+
 # ================================================================== hijo: construir
 def hijo_construir(semilla, n_D, mundo, ruta, salida):
     semilla, n_D = int(semilla), int(n_D)
     reloj = lab.preparar_hijo("T", False, T0)
+    if RELOJ_SQLITE:
+        reloj_sqlite(reloj)
     import construir as c16
     from core.mcp_server._shared import _resolver_dimensiones
     from core.memory_store import normalizar_sustantivos_clave, normalizar_sustantivos_clave_exacto
@@ -308,7 +345,12 @@ def hijo_construir(semilla, n_D, mundo, ruta, salida):
     con = sqlite3.connect(ruta)
     con.execute("PRAGMA wal_checkpoint(TRUNCATE)")
     con.close()
-    info.update({"corte": corte, "reloj_final": reloj.t})
+    info.update({"corte": corte, "reloj_final": reloj.t, "reloj_sqlite": RELOJ_SQLITE})
+    if RELOJ_SQLITE:   # autocomprobación: el 'now' de SQLite es el reloj simulado
+        c2 = sqlite3.connect(ruta)
+        info["sqlite_now"] = float(c2.execute("SELECT strftime('%s','now')").fetchone()[0])
+        c2.close()
+        assert abs(info["sqlite_now"] - reloj.t) < 2, info
     json.dump(info, open(salida, "w"), ensure_ascii=False)
 
 
@@ -350,7 +392,9 @@ def hijo_medir(ruta, conceptos_json, salida, buscar="1"):
     top, t_busq = {}, 0.0
     limpia = {}
     if buscar == "1":
-        lab.preparar_hijo("T", False, T0 + 10 ** 8)
+        _r = lab.preparar_hijo("T", False, T0 + 10 ** 8)
+        if RELOJ_SQLITE:
+            reloj_sqlite(_r)
         d = os.path.join(os.path.dirname(ruta), "limpia_" + os.path.basename(ruta))
         src = sqlite3.connect("file:%s?mode=ro" % ruta, uri=True)
         dst = sqlite3.connect(d)
